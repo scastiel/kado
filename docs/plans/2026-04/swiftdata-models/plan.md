@@ -79,7 +79,7 @@ persisted stores.
 
 ---
 
-### Task 2: KadoSchemaV1 + HabitRecord + CompletionRecord
+### Task 2: KadoSchemaV1 + HabitRecord + CompletionRecord ✅
 
 **Goal**: The `@Model` layer with bidirectional relationship and
 `snapshot` projection back to value types.
@@ -194,6 +194,20 @@ None at plan time — all four resolved during research.
   `nonisolated` (`nonisolated enum Frequency`). Likely to need the
   same on `Habit`/`Completion`/`Weekday`/`DailyScore` if/when they
   become cross-actor — flag for compound.
+- **Task 2**: Research's recommended path (native Codable enum
+  storage on `@Model`) crashed `ModelContainer.init` at runtime on
+  Xcode 26 / iOS 18.4 — both with property-level defaults
+  (`var frequency: Frequency = .daily`) and with optional storage
+  (`var frequency: Frequency? = nil`). Bisected by stripping fields
+  to bare minimum and adding back; the moment a `Frequency`/`HabitType`
+  property is declared on the `@Model`, container creation crashes.
+  Build itself stays clean — purely a runtime schema-init issue.
+  Fell back to research's Alternative C (JSON-encoded `Data` blob +
+  computed `var frequency: Frequency` accessor). Boilerplate cost
+  acceptable; the custom `Codable` from Task 1 carries its weight
+  twice now (on-disk format AND backing for the computed accessor).
+  Worth a note in compound — research's source claimed native
+  Codable storage works; reality on this toolchain says otherwise.
 
 ## Out of scope
 
