@@ -8,7 +8,7 @@
 
 Deliver the v0.1 "Full dark mode" roadmap item as a **validation-and-fix
 pass**: add dark-scheme SwiftUI previews across all views, audit the
-app on iPhone 16 Pro and iPad Air simulators under Dark Appearance,
+app on iPhone 17 Pro and iPad Air 11" simulators under Dark Appearance,
 spot-check Dynamic Type XXXL + Dark together on the densest screen,
 and apply surgical fixes for anything surfaced. No user toggle, no
 custom accent, no redesign.
@@ -21,7 +21,9 @@ custom accent, no redesign.
 - Add one dark-scheme preview per view file (not one per existing
   named preview variant) to keep the canvas skimmable.
 - Dark-mode screenshots attach to the PR, not committed to the repo.
-- Audit covers iPhone 16 Pro (primary) + iPad Air (M2) (spot-check).
+- Audit covers iPhone 17 Pro (primary) + iPad Air 11" (M4) (spot-check)
+  — both substituted for the originally planned 16 Pro / M2 that
+  weren't installed on the audit machine.
 - The two `Color.white` sites (`WeekdayPicker` selected capsule,
   `MonthlyCalendarView` completed cell) are not bugs — they're
   verified during audit, not rewritten.
@@ -63,7 +65,7 @@ the simulator.
 reach in v0.1 and produce a findings list.
 
 **Steps**:
-1. `boot_sim` iPhone 16 Pro, set appearance to dark.
+1. `boot_sim` iPhone 17 Pro, set appearance to dark.
 2. `build_run_sim` the Kado scheme.
 3. If the sim has no habits, create 2-3 via the New Habit form
    (one daily, one specific-days, one counter with target).
@@ -97,7 +99,7 @@ than Task 2 — one screenshot of Today and one of Habit Detail is
 enough.
 
 **Steps**:
-1. `boot_sim` iPad Air (M2), set appearance to dark.
+1. `boot_sim` iPad Air 11" (M4), set appearance to dark.
 2. `build_run_sim`.
 3. `screenshot` Today + Habit Detail.
 4. Add findings (if any) to the same **Audit findings** section.
@@ -115,7 +117,7 @@ enough.
 XXXL and Dark stack.
 
 **Steps**:
-1. In the iPhone 16 Pro sim (still in Dark), set Dynamic Type to
+1. In the iPhone 17 Pro sim (still in Dark), set Dynamic Type to
    accessibility XXXL via `simctl` or Developer menu.
 2. `screenshot` Habit Detail for a daily habit with a populated month.
 3. Add to findings.
@@ -135,7 +137,7 @@ screenshot Today + Detail. Not a blocking v0.1 requirement, but
 catches regressions for free.
 
 **Steps**:
-1. In the iPhone 16 Pro sim, enable Increase Contrast
+1. In the iPhone 17 Pro sim, enable Increase Contrast
    (`simctl` accessibility flag or Settings toggle).
 2. `screenshot` Today and Habit Detail (both light and dark if quick).
 3. Add to findings.

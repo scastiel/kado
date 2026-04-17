@@ -83,7 +83,7 @@ struct CounterQuickLogView: View {
 }
 
 #Preview("Dark") {
-    CounterQuickLogView(target: 8, todayValue: 3, onIncrement: {}, onDecrement: {})
+    CounterQuickLogView(target: 8, todayValue: 8, onIncrement: {}, onDecrement: {})
         .padding()
         .preferredColorScheme(.dark)
 }
