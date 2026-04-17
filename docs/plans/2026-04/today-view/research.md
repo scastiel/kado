@@ -2,7 +2,7 @@
 # Research — Today View
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: ready for plan
 **Related**: [ROADMAP v0.1 — Views](../../../ROADMAP.md), [swiftdata-models compound](../swiftdata-models/compound.md), [habit-score-calculator compound](../habit-score-calculator/compound.md)
 
 ## Problem
@@ -203,22 +203,18 @@ plus an empty-state preview with an empty in-memory container.
 
 ## Open questions
 
-- [ ] **Counter/timer rows**: render as read-only ("coming in habit
-  detail") or entirely hidden from Today until detail view lands?
-  *Recommendation*: render as read-only — the user should see their
-  full set of habits even if not all are interactive yet.
-- [ ] **Toggle semantics for binary habits already done today**: tap
-  again to un-do, or require swipe-to-delete? *Recommendation*: tap
-  again to un-do (matches Loop, Streaks).
-- [ ] **Empty-state button**: disabled with a "Coming soon" hint, or
-  fully hidden (just the icon + text)? *Recommendation*: visible but
-  disabled, so the next PR wiring it is a 2-line change.
-- [ ] **Row visual density**: full row with icon + name + state, or
-  compact "checklist" style? *Recommendation*: full row for v0.1;
-  revisit once we have icons and colors (post-v0.1).
-- [ ] **Score on the row**: show current score as a small badge, or
-  reserve it for the detail view? *Recommendation*: detail view
-  only. Keep Today's row purely about today's state.
+All resolved 2026-04-17:
+
+- [x] **Counter/timer rows**: read-only. Tap is a no-op; real
+  interaction lands with the habit detail view.
+- [x] **Toggle semantics for binary/negative**: tap toggles (done →
+  not done → done). Same gesture for undo.
+- [x] **Empty-state button**: hidden for this PR. Empty state is
+  text-only until the Create-habit PR adds the button + sheet.
+- [x] **Row visual density**: full row (leading indicator, name,
+  trailing state).
+- [x] **Score on the row**: no. Today's row is about today's state
+  only; score lives on the detail view.
 
 ## References
 
