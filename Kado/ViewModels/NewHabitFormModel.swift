@@ -61,7 +61,10 @@ final class NewHabitFormModel {
             self.counterTarget = target
         case .timer(let seconds):
             self.typeKind = .timer
-            self.timerTargetMinutes = max(1, Int(seconds / 60))
+            // Round so sub-minute targets surface at least 1 minute on edit
+            // rather than silently truncating to 0. Users editing a
+            // 90-second habit see "2 min" rather than "1 min."
+            self.timerTargetMinutes = max(1, Int((seconds / 60).rounded()))
         case .negative:
             self.typeKind = .negative
         }
@@ -103,6 +106,12 @@ final class NewHabitFormModel {
         case .binary, .negative: break
         case .counter: guard counterTarget > 0 else { return false }
         case .timer: guard timerTargetMinutes > 0 else { return false }
+        }
+        // .negative + .daysPerWeek has ambiguous semantics (streak counts
+        // completions that represent failures) — reject the combination
+        // until there's a clear product call.
+        if typeKind == .negative && frequencyKind == .daysPerWeek {
+            return false
         }
         return true
     }

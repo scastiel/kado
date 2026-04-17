@@ -226,6 +226,52 @@ struct NewHabitFormModelTests {
         #expect(all.count == 1)
     }
 
+    @Test("init(editing:) rounds sub-minute timer targets rather than truncating")
+    func editingTimerSubMinuteRounds() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        // 90 seconds rounds to 2 minutes (not 1 — truncation would).
+        let record = HabitRecord(type: .timer(targetSeconds: 90))
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.timerTargetMinutes == 2)
+    }
+
+    @Test("init(editing:) floors a 30-second timer target to the 1-minute minimum")
+    func editingTimerFloorsToOneMinute() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        // 30 seconds rounds to 0.5 → 1 (minimum). Silent truncation would
+        // give 0, which would fail validation.
+        let record = HabitRecord(type: .timer(targetSeconds: 30))
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.timerTargetMinutes >= 1)
+    }
+
+    @Test(".negative + .daysPerWeek is rejected by validation")
+    func negativeDaysPerWeekInvalid() {
+        let model = NewHabitFormModel()
+        model.name = "Skip dessert"
+        model.typeKind = .negative
+        model.frequencyKind = .daysPerWeek
+        model.daysPerWeek = 3
+        #expect(!model.isValid)
+
+        // Changing either half of the combo makes it valid.
+        model.frequencyKind = .daily
+        #expect(model.isValid)
+        model.frequencyKind = .daysPerWeek
+        model.typeKind = .binary
+        #expect(model.isValid)
+    }
+
     @Test("save(in:) on a new model inserts a new record")
     func newSaveInserts() throws {
         let container = try ModelContainer(

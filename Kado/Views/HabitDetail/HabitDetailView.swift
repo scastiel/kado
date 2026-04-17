@@ -2,8 +2,9 @@ import SwiftData
 import SwiftUI
 
 /// Detail screen for a single habit. Shows score, streak, frequency,
-/// type, and a current-month completion grid. Edit / Archive toolbar
-/// actions land in Task 8.
+/// type, and a current-month completion grid. Toolbar actions open
+/// the edit sheet and present an archive confirmation dialog; both
+/// are disabled once the habit is archived.
 struct HabitDetailView: View {
     @Bindable var habit: HabitRecord
 
