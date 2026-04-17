@@ -39,7 +39,7 @@ struct MonthlyCalendarView: View {
     private var weekdayHeader: some View {
         HStack(spacing: 8) {
             ForEach(weekdayDisplayOrder, id: \.self) { weekday in
-                Text(shortLabel(for: weekday))
+                Text(weekday.localizedShort)
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
@@ -75,18 +75,6 @@ struct MonthlyCalendarView: View {
 
     private var weekdayDisplayOrder: [Weekday] {
         [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-    }
-
-    private func shortLabel(for weekday: Weekday) -> String {
-        switch weekday {
-        case .monday: String(localized: "M", comment: "Short Monday label")
-        case .tuesday: String(localized: "T", comment: "Short Tuesday label")
-        case .wednesday: String(localized: "W", comment: "Short Wednesday label")
-        case .thursday: String(localized: "T", comment: "Short Thursday label")
-        case .friday: String(localized: "F", comment: "Short Friday label")
-        case .saturday: String(localized: "S", comment: "Short Saturday label")
-        case .sunday: String(localized: "S", comment: "Short Sunday label")
-        }
     }
 
     @ViewBuilder

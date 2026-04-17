@@ -26,7 +26,7 @@ struct WeekdayPicker: View {
                 selection.insert(day)
             }
         } label: {
-            Text(shortLabel(for: day))
+            Text(day.localizedShort)
                 .font(.callout.weight(.medium))
                 .frame(maxWidth: .infinity)
                 .frame(height: 36)
@@ -37,32 +37,8 @@ struct WeekdayPicker: View {
                 )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(accessibilityLabel(for: day))
+        .accessibilityLabel(day.localizedFull)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private func shortLabel(for day: Weekday) -> String {
-        switch day {
-        case .monday: String(localized: "M", comment: "Short Monday label")
-        case .tuesday: String(localized: "T", comment: "Short Tuesday label")
-        case .wednesday: String(localized: "W", comment: "Short Wednesday label")
-        case .thursday: String(localized: "T", comment: "Short Thursday label")
-        case .friday: String(localized: "F", comment: "Short Friday label")
-        case .saturday: String(localized: "S", comment: "Short Saturday label")
-        case .sunday: String(localized: "S", comment: "Short Sunday label")
-        }
-    }
-
-    private func accessibilityLabel(for day: Weekday) -> String {
-        switch day {
-        case .monday: String(localized: "Monday")
-        case .tuesday: String(localized: "Tuesday")
-        case .wednesday: String(localized: "Wednesday")
-        case .thursday: String(localized: "Thursday")
-        case .friday: String(localized: "Friday")
-        case .saturday: String(localized: "Saturday")
-        case .sunday: String(localized: "Sunday")
-        }
     }
 }
 

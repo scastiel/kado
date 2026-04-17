@@ -20,7 +20,9 @@ struct NewHabitFormView: View {
                 frequencySection
                 typeSection
             }
-            .navigationTitle(Text(model.isEditing ? "Edit Habit" : "New Habit"))
+            .navigationTitle(model.isEditing
+                ? String(localized: "Edit Habit")
+                : String(localized: "New Habit"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

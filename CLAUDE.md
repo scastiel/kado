@@ -329,7 +329,43 @@ Non-negotiable from MVP:
 - EN and FR by v1.0. FR must be native French (no machine translation),
   with attention to gender-neutral phrasing when possible.
 - Use String Catalogs (`.xcstrings`), not legacy `Localizable.strings`.
-- Every user-facing string goes through `String(localized:)`.
+- Every user-facing string goes through localization — but **prefer
+  SwiftUI's `LocalizedStringKey`-typed initializers over explicit
+  `String(localized:)` wrapping**. `Text("foo")`, `Button("foo")`,
+  `Label("foo", systemImage: …)`, `.navigationTitle("foo")`,
+  `Tab("foo", systemImage: …)`, `ContentUnavailableView("foo", …)`,
+  `Section("foo")`, `Picker("foo", selection:)`, etc. all accept
+  `LocalizedStringKey` — the literal is already on the localized
+  path. Reach for `String(localized:)` only when the API is
+  `String`-typed (e.g. `.accessibilityLabel(_:)` with a dynamic
+  value, `TextField` placeholders, `confirmationDialog(_:)` titles),
+  or when a ternary `Text(cond ? "A" : "B")` would otherwise
+  collapse to the non-localizing `StringProtocol` overload (in which
+  case split the `Text` or wrap each arm).
+- **Interpolated strings must be wrapped as a whole**:
+  `String(localized: "\(name), \(state)")` works;
+  `"\(name), \(state)"` is a raw concat that never reaches the
+  catalog.
+- **For weekday labels, use `Weekday.localizedShort`,
+  `.localizedMedium`, or `.localizedFull`** — backed by
+  `Calendar.*StandaloneWeekdaySymbols`, so they auto-localize in
+  every language Apple ships. Never hand-roll catalog entries for
+  weekday abbreviations: Xcode collapses identical keys (e.g.
+  `"T"` with a Tuesday comment and `"T"` with a Thursday comment
+  merge into one entry), and the FR translator is then forced to
+  pick a single letter for both. The same principle applies to
+  month names (use `Calendar.monthSymbols` / `.shortMonthSymbols`
+  when the need arises).
+- **`Localizable.xcstrings` is source code, not a build artifact**.
+  Under `xcodebuild` / XcodeBuildMCP, the `.xcstrings` is NOT
+  auto-populated from source — only the Xcode IDE runs that sync.
+  Hand-author entries when a new key is introduced, commit the
+  catalog alongside the source change. Xcode will merge future
+  extractions with existing entries rather than overwrite.
+- Every catalog entry needs a `comment` describing its on-screen
+  context (imperative, context-first, under ~80 chars). For
+  count-driven interpolations, declare plural variants via
+  `variations.plural.{one,other}`.
 
 ---
 
