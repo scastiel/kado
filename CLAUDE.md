@@ -101,6 +101,21 @@ Swift Concurrency (`async`/`await`, actors). No callback closures
 unless forced by a system API. Respect `MainActor` for anything
 UI-related.
 
+### Dates and calendars
+Day arithmetic always goes through `Calendar` — never raw seconds.
+`addingTimeInterval(86400)` silently breaks across DST boundaries
+(a "day" is 23 or 25 hours twice a year). Use:
+
+- `calendar.startOfDay(for: date)` to anchor a `Date` to a day.
+- `calendar.date(byAdding: .day, value: n, to: date)` to advance days.
+- `calendar.dateComponents([.day], from: a, to: b).day` for day deltas.
+
+Any service that does date math accepts an injected `Calendar` (with
+default `.current`). Tests pin to `Calendar(identifier: .gregorian)`
+in UTC for determinism, and to `Europe/Paris` (or another DST-crossing
+zone) when DST behavior is under test. The `TestCalendar` helper in
+`KadoTests/Helpers/` is the canonical pattern.
+
 ---
 
 ## Code conventions
@@ -181,6 +196,14 @@ func perfectStreakScore() {
     #expect(score > 0.95)
 }
 ```
+
+### Style
+When a result can be expressed as "equal to a simpler analytical
+computation," prefer that comparison over a hard-coded numeric
+expectation. Example: instead of asserting a specific-days perfect
+score equals `0.7854`, assert it equals the score of N daily-perfect
+days. Reads better, survives small algorithm tweaks, and the failure
+message points at the intent rather than at a magic number.
 
 ### Mocks
 Since services are protocol-based, create mocks inline in tests or in
