@@ -69,6 +69,20 @@ struct DevModeControllerTests {
         #expect(!habits.isEmpty, "Reseed should repopulate the sandbox")
     }
 
+    @Test("Off then on returns a new dev container instance")
+    func offOnReturnsNewContainer() throws {
+        let (controller, tempDir) = try makeController()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        controller.activateDevMode()
+        let before = controller.container(forDevMode: true)
+        controller.deactivateDevMode()
+        controller.activateDevMode()
+        let after = controller.container(forDevMode: true)
+
+        #expect(before !== after, "Container identity must change so .modelContainer(_:) sees a swap")
+    }
+
     @Test("Production container is returned when dev mode is off")
     func productionWhenOff() throws {
         let (controller, tempDir) = try makeController()

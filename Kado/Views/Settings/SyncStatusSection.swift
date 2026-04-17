@@ -9,7 +9,7 @@ import UIKit
 struct SyncStatusSection: View {
     @Environment(\.cloudAccountStatus) private var observer
     @Environment(\.openURL) private var openURL
-    @AppStorage("kado.devMode") private var isDevMode = false
+    @AppStorage(DevModeDefaults.key) private var isDevMode = false
 
     var body: some View {
         Section("iCloud") {

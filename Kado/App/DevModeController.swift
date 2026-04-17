@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 import SwiftData
 
 /// Owns the two `ModelContainer`s the app can run against: the
@@ -14,7 +13,6 @@ import SwiftData
 /// can exercise the lifecycle without touching CloudKit or the real
 /// Application Support directory.
 @MainActor
-@Observable
 final class DevModeController {
     private let devStoreURL: URL
     private let productionContainerFactory: () -> ModelContainer
@@ -93,11 +91,12 @@ final class DevModeController {
 
     private func deleteDevStoreFiles() {
         let fm = FileManager.default
-        let base = devStoreURL.deletingPathExtension().lastPathComponent
         let directory = devStoreURL.deletingLastPathComponent()
-        // SwiftData writes `<name>.sqlite`, `<name>.sqlite-shm`, `<name>.sqlite-wal`.
-        for suffix in ["sqlite", "sqlite-shm", "sqlite-wal"] {
-            let url = directory.appendingPathComponent("\(base).\(suffix)")
+        let base = devStoreURL.deletingPathExtension().lastPathComponent
+        let ext = devStoreURL.pathExtension
+        // SwiftData writes `<name>.<ext>`, `<name>.<ext>-shm`, `<name>.<ext>-wal`.
+        for suffix in ["", "-shm", "-wal"] {
+            let url = directory.appendingPathComponent("\(base).\(ext)\(suffix)")
             try? fm.removeItem(at: url)
         }
     }

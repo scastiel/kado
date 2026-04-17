@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct KadoApp: App {
-    @AppStorage("kado.devMode") private var isDevMode = false
+    @AppStorage(DevModeDefaults.key) private var isDevMode = false
 
     @State private var devModeController = DevModeController()
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
