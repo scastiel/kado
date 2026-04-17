@@ -1,7 +1,768 @@
 {
   "sourceLanguage" : "en",
+  "version" : "1.0",
   "strings" : {
-
-  },
-  "version" : "1.0"
+    "%@, %@" : {
+      "comment" : "VoiceOver label for a binary or negative habit row. First arg: habit name. Second arg: localized completion state ('done' or 'not done').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
+    "%@, counter, target %lld" : {
+      "comment" : "VoiceOver label for a counter habit row. First arg: habit name. Second arg: target count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, counter, target %2$lld"
+          }
+        }
+      }
+    },
+    "%@, timer, target %@" : {
+      "comment" : "VoiceOver label for a timer habit row. First arg: habit name. Second arg: formatted target duration (e.g. '30:00').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, timer, target %2$@"
+          }
+        }
+      }
+    },
+    "%lld / best %lld" : {
+      "comment" : "Streak metric card value. First arg: current streak length in days. Second arg: best-ever streak length in days.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / best %2$lld"
+          }
+        }
+      }
+    },
+    "%lld days ago" : {
+      "comment" : "Relative date label in the completion history list, for dates between 2 and 6 days in the past.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day ago"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days ago"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld days per week" : {
+      "comment" : "Stepper label in the new-habit form and frequency summary in habit detail, for the 'N days per week' frequency.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day per week"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days per week"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld min" : {
+      "comment" : "Stepper label in the timer-log sheet showing the session length in minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "A few times a week" : {
+      "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A few times a week"
+          }
+        }
+      }
+    },
+    "Archive" : {
+      "comment" : "Verb. Used as the toolbar button on the habit detail screen and as the destructive action in the archive confirmation dialog.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive"
+          }
+        }
+      }
+    },
+    "Archive this habit?" : {
+      "comment" : "Confirmation dialog title shown when the user taps the Archive toolbar button on a habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive this habit?"
+          }
+        }
+      }
+    },
+    "Archived" : {
+      "comment" : "Badge shown on the habit detail header when the habit has been archived.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived"
+          }
+        }
+      }
+    },
+    "Archived habits stop appearing on Today but keep their history." : {
+      "comment" : "Message body in the archive confirmation dialog, explaining what archiving does.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived habits stop appearing on Today but keep their history."
+          }
+        }
+      }
+    },
+    "Avoid" : {
+      "comment" : "Habit type label for negative habits (things the user is trying NOT to do). Used in the new-habit picker and as the type subtitle on habit detail.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avoid"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "comment" : "Dismissive button in confirmation dialogs and form toolbars.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Come back tomorrow, or check your habit detail to log a past day." : {
+      "comment" : "Empty-state description shown on the Today view when the user has habits but none are due today.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come back tomorrow, or check your habit detail to log a past day."
+          }
+        }
+      }
+    },
+    "Counter" : {
+      "comment" : "Habit type picker option — habits measured by an incrementing count (e.g. glasses of water).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counter"
+          }
+        }
+      }
+    },
+    "Counter · target %lld" : {
+      "comment" : "Type subtitle on habit detail for counter habits, with the daily target value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counter · target %lld"
+          }
+        }
+      }
+    },
+    "Decrement" : {
+      "comment" : "VoiceOver label for the minus button in the counter quick-log control.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrement"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "comment" : "Swipe action in the completion history list that removes a completion.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "comment" : "History list value label for binary habits on a completed day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "comment" : "Primary toolbar button on habit detail that opens the edit form.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "Edit Habit" : {
+      "comment" : "Navigation title for the habit form when editing an existing habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Habit"
+          }
+        }
+      }
+    },
+    "Every %lld days" : {
+      "comment" : "Stepper label in the new-habit form and frequency summary in habit detail, for the 'every N days' frequency.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Every %lld day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Every %lld days"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Every N days" : {
+      "comment" : "Frequency picker option in the new-habit form, selects the 'every N days' mode. The literal 'N' is a placeholder — feel free to localize idiomatically (e.g. 'Tous les N jours').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every N days"
+          }
+        }
+      }
+    },
+    "Every day" : {
+      "comment" : "Daily frequency label. Used as the picker option in the new-habit form and as the frequency subtitle on habit detail.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every day"
+          }
+        }
+      }
+    },
+    "Frequency" : {
+      "comment" : "Section header in the new-habit form grouping frequency-related controls.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequency"
+          }
+        }
+      }
+    },
+    "Habit name" : {
+      "comment" : "Text field placeholder in the new-habit form.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit name"
+          }
+        }
+      }
+    },
+    "Habits you create will appear here." : {
+      "comment" : "Empty-state description shown on the Today view when the user has not yet created any habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits you create will appear here."
+          }
+        }
+      }
+    },
+    "History" : {
+      "comment" : "Section header above the list of past completions on the habit detail screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
+    },
+    "How is it measured?" : {
+      "comment" : "Picker label in the new-habit form introducing the habit type (binary, counter, timer, avoid).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How is it measured?"
+          }
+        }
+      }
+    },
+    "Increment" : {
+      "comment" : "VoiceOver label for the plus button in the counter quick-log control.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Increment"
+          }
+        }
+      }
+    },
+    "Log a session" : {
+      "comment" : "Quick-log button on habit detail for timer habits — opens the timer-log sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log a session"
+          }
+        }
+      }
+    },
+    "Log session" : {
+      "comment" : "Navigation title of the timer-log sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log session"
+          }
+        }
+      }
+    },
+    "Mark as done" : {
+      "comment" : "VoiceOver label for the completion toggle on a habit row when the habit is not yet completed today.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as done"
+          }
+        }
+      }
+    },
+    "Mark as not done" : {
+      "comment" : "VoiceOver label for the completion toggle on a habit row when the habit is already completed today.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as not done"
+          }
+        }
+      }
+    },
+    "New Habit" : {
+      "comment" : "Navigation title for the habit form when creating a new habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Habit"
+          }
+        }
+      }
+    },
+    "New habit" : {
+      "comment" : "Toolbar button on the Today view that opens the new-habit sheet. Note: lower-case 'habit' distinguishes it from the 'New Habit' form title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New habit"
+          }
+        }
+      }
+    },
+    "No habits yet" : {
+      "comment" : "Empty-state title shown on the Today view when the user has not yet created any habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No habits yet"
+          }
+        }
+      }
+    },
+    "No history yet." : {
+      "comment" : "Empty-state message shown in the completion history list when a habit has no completions.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No history yet."
+          }
+        }
+      }
+    },
+    "Nothing due today" : {
+      "comment" : "Empty-state title shown on the Today view when the user has habits but none are due today.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing due today"
+          }
+        }
+      }
+    },
+    "Preferences will land here as the app grows." : {
+      "comment" : "Placeholder description in the Settings tab while the feature is unimplemented.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferences will land here as the app grows."
+          }
+        }
+      }
+    },
+    "Repeats" : {
+      "comment" : "Picker label in the new-habit form introducing the frequency options.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeats"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "comment" : "Confirmation button in form toolbars and the timer-log sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Saves as today's completion. If you already logged a session today, it will be replaced." : {
+      "comment" : "Footer text in the timer-log sheet clarifying single-completion-per-day semantics.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saves as today's completion. If you already logged a session today, it will be replaced."
+          }
+        }
+      }
+    },
+    "Score" : {
+      "comment" : "Metric card title on habit detail, shows the current habit score as a percentage.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score"
+          }
+        }
+      }
+    },
+    "Seed habit not found" : {
+      "comment" : "Developer-only fallback shown in SwiftUI previews when the seeded habit is missing. Not user-facing in production; safe to leave untranslated if that simplifies review.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seed habit not found"
+          }
+        }
+      }
+    },
+    "Session length" : {
+      "comment" : "Section header in the timer-log sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session length"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "comment" : "Title of the Settings tab. Used as the tab label, the content-unavailable title, and the navigation title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Slipped" : {
+      "comment" : "History list value label for negative habits (those the user is trying to avoid) on a day they broke the habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slipped"
+          }
+        }
+      }
+    },
+    "Specific days" : {
+      "comment" : "Frequency picker option in the new-habit form, selects the 'specific weekdays' mode.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Specific days"
+          }
+        }
+      }
+    },
+    "Streak" : {
+      "comment" : "Metric card title on habit detail, shows the current and best streak lengths in days.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        }
+      }
+    },
+    "Target: %lld" : {
+      "comment" : "Stepper label in the new-habit form for the counter target value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target: %lld"
+          }
+        }
+      }
+    },
+    "Target: %lld min" : {
+      "comment" : "Stepper label in the new-habit form for the timer target value in minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target: %lld min"
+          }
+        }
+      }
+    },
+    "Timer" : {
+      "comment" : "Habit type picker option — habits measured by a session duration (e.g. meditate 10 minutes).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer"
+          }
+        }
+      }
+    },
+    "Timer · target %lld min" : {
+      "comment" : "Type subtitle on habit detail for timer habits, with the daily target in minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer · target %lld min"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "comment" : "Title of the Today tab. Used as the tab label, the navigation title, and as a relative-date label ('Today') in the completion history list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "comment" : "Section header in the new-habit form grouping habit-type controls.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "Yes / no" : {
+      "comment" : "Habit type label for binary habits (done/not done, no intermediate state). Used in the new-habit picker and as the type subtitle on habit detail.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes / no"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "comment" : "Relative date label in the completion history list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday"
+          }
+        }
+      }
+    },
+    "completed" : {
+      "comment" : "VoiceOver state for a completed day cell in the monthly calendar grid.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "completed"
+          }
+        }
+      }
+    },
+    "done" : {
+      "comment" : "VoiceOver state for a binary/negative habit row on a completed day. Lower-case to read naturally inside an interpolated sentence ('Meditate, done').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "done"
+          }
+        }
+      }
+    },
+    "missed" : {
+      "comment" : "VoiceOver state for a past day in the monthly calendar grid where the habit was due and not completed.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missed"
+          }
+        }
+      }
+    },
+    "not done" : {
+      "comment" : "VoiceOver state for a binary/negative habit row on a not-yet-completed day. Lower-case to read naturally inside an interpolated sentence ('Meditate, not done').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not done"
+          }
+        }
+      }
+    },
+    "not scheduled" : {
+      "comment" : "VoiceOver state for a past day in the monthly calendar grid where the habit was not due per its frequency.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "not scheduled"
+          }
+        }
+      }
+    },
+    "of %lld" : {
+      "comment" : "Caption in the counter quick-log control, under the current value (e.g. '3' 'of 8'). Argument is the daily target count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of %lld"
+          }
+        }
+      }
+    },
+    "upcoming" : {
+      "comment" : "VoiceOver state for a future day cell in the monthly calendar grid.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "upcoming"
+          }
+        }
+      }
+    }
+  }
 }

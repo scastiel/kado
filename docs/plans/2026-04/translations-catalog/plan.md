@@ -169,7 +169,7 @@ section header, empty state, "Delete" swipe action).
 
 ---
 
-### Task 6: Curate catalog — comments + plural variants
+### Task 6: Curate catalog — comments + plural variants ✅
 
 **Goal**: turn the raw extracted catalog into something a translator
 can work with cold. This is the only task that edits `.xcstrings`
