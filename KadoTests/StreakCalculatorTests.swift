@@ -179,7 +179,9 @@ struct StreakCalculatorTests {
         ]
         let calc = calculator()
         #expect(calc.current(for: h, completions: completions, asOf: asOf) == 1)
-        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 2)
+        // Best = 1: only one qualifying historical week. The end-week
+        // grace doesn't revive a broken run, just prevents reset.
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 1)
     }
 
     // MARK: - Negative habits
