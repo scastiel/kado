@@ -25,8 +25,8 @@ struct CompletionTogglerTests {
         toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        let completion = try #require(habit.completions.first)
+        #expect(habit.completions?.count == 1)
+        let completion = try #require(habit.completions?.first)
         #expect(completion.value == 1.0)
         #expect(TestCalendar.utc.isDate(completion.date, inSameDayAs: TestCalendar.day(0)))
     }
@@ -43,7 +43,7 @@ struct CompletionTogglerTests {
         toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.isEmpty)
+        #expect(habit.completions?.isEmpty ?? true)
         let remaining = try container.mainContext.fetch(FetchDescriptor<CompletionRecord>())
         #expect(remaining.isEmpty)
     }
@@ -60,8 +60,8 @@ struct CompletionTogglerTests {
         toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 2)
-        #expect(habit.completions.contains { $0.id == yesterday.id })
+        #expect(habit.completions?.count == 2)
+        #expect(habit.completions?.contains { $0.id == yesterday.id } ?? false)
     }
 
     @Test("Toggling twice returns to the original state")
@@ -75,7 +75,7 @@ struct CompletionTogglerTests {
         toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.isEmpty)
+        #expect(habit.completions?.isEmpty ?? true)
     }
 
     @Test("Toggle uses the injected calendar for day comparison across timezones")
@@ -110,7 +110,7 @@ struct CompletionTogglerTests {
 
         // Paris-April-13 had no completion, so we inserted one. The Paris-April-14
         // completion (utcEvening) remains untouched.
-        #expect(habit.completions.count == 2)
-        #expect(habit.completions.contains { $0.id == existingOnParisApril14.id })
+        #expect(habit.completions?.count == 2)
+        #expect(habit.completions?.contains { $0.id == existingOnParisApril14.id } ?? false)
     }
 }

@@ -41,4 +41,11 @@ extension EnvironmentValues {
         get { self[StreakCalculatorKey.self] }
         set { self[StreakCalculatorKey.self] = newValue }
     }
+
+    /// Current CloudKit account status, re-observed on `.CKAccountChanged`.
+    /// Uses `@Entry` rather than a hand-rolled `EnvironmentKey` because
+    /// the backing observer is `@MainActor`-isolated and the legacy
+    /// static-default pattern doesn't cross actors cleanly. Default is
+    /// a mock so previews that forget to inject don't crash.
+    @Entry var cloudAccountStatus: any CloudAccountStatusObserving = MockCloudAccountStatusObserver()
 }

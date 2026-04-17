@@ -28,7 +28,7 @@ struct HabitDetailView: View {
                 quickLogSection
                 MonthlyCalendarView(
                     habit: habit.snapshot,
-                    completions: habit.completions.map(\.snapshot)
+                    completions: (habit.completions ?? []).map(\.snapshot)
                 )
                 CompletionHistoryList(habit: habit)
             }
@@ -114,7 +114,7 @@ struct HabitDetailView: View {
     }
 
     private var todayCounterValue: Double {
-        habit.completions
+        habit.completions?
             .first { calendar.isDate($0.date, inSameDayAs: .now) }?
             .value ?? 0
     }
@@ -191,7 +191,7 @@ struct HabitDetailView: View {
     private var scorePercent: String {
         let score = scoreCalculator.currentScore(
             for: habit.snapshot,
-            completions: habit.completions.map(\.snapshot),
+            completions: (habit.completions ?? []).map(\.snapshot),
             asOf: .now
         )
         return "\(Int((score * 100).rounded()))%"
@@ -200,7 +200,7 @@ struct HabitDetailView: View {
     private var currentStreak: Int {
         streakCalculator.current(
             for: habit.snapshot,
-            completions: habit.completions.map(\.snapshot),
+            completions: (habit.completions ?? []).map(\.snapshot),
             asOf: .now
         )
     }
@@ -208,7 +208,7 @@ struct HabitDetailView: View {
     private var bestStreak: Int {
         streakCalculator.best(
             for: habit.snapshot,
-            completions: habit.completions.map(\.snapshot),
+            completions: (habit.completions ?? []).map(\.snapshot),
             asOf: .now
         )
     }

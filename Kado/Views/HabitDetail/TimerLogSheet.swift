@@ -55,7 +55,7 @@ struct TimerLogSheet: View {
     }
 
     private func defaultMinutes() -> Int {
-        let existing = habit.completions.first {
+        let existing = habit.completions?.first {
             calendar.isDate($0.date, inSameDayAs: .now)
         }
         if let existing {

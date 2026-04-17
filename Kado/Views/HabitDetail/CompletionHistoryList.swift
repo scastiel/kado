@@ -11,7 +11,7 @@ struct CompletionHistoryList: View {
     @Environment(\.calendar) private var calendar
 
     private var sortedCompletions: [CompletionRecord] {
-        habit.completions.sorted { $0.date > $1.date }
+        (habit.completions ?? []).sorted { $0.date > $1.date }
     }
 
     var body: some View {

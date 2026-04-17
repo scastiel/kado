@@ -7,6 +7,10 @@ extension KadoSchemaV1 {
     /// constraints, the to-many relationship has an explicit inverse
     /// with cascade delete.
     ///
+    /// `completions` is nullable — CloudKit rejects a non-optional
+    /// relationship on either side of an association at runtime
+    /// (`NSCocoaErrorDomain 134060`). Callers coalesce with `?? []`.
+    ///
     /// `Frequency` and `HabitType` are stored as their JSON-encoded
     /// `Data` blobs (computed accessors do the encode/decode), since
     /// SwiftData's `@Model` macro currently mishandles composite
@@ -21,7 +25,7 @@ extension KadoSchemaV1 {
         var archivedAt: Date?
 
         @Relationship(deleteRule: .cascade, inverse: \CompletionRecord.habit)
-        var completions: [CompletionRecord] = []
+        var completions: [CompletionRecord]? = []
 
         init(
             id: UUID = UUID(),
@@ -30,7 +34,7 @@ extension KadoSchemaV1 {
             type: HabitType = .binary,
             createdAt: Date = .now,
             archivedAt: Date? = nil,
-            completions: [CompletionRecord] = []
+            completions: [CompletionRecord]? = []
         ) {
             self.id = id
             self.name = name

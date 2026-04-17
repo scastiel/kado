@@ -65,7 +65,7 @@ struct CompletionLogger {
     }
 
     private func todayCompletion(for habit: HabitRecord, on date: Date) -> CompletionRecord? {
-        habit.completions.first {
+        habit.completions?.first {
             calendar.isDate($0.date, inSameDayAs: date)
         }
     }
