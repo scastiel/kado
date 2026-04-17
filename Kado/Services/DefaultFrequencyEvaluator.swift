@@ -32,7 +32,7 @@ struct DefaultFrequencyEvaluator: FrequencyEvaluating {
 
         case .daysPerWeek(let target):
             guard target > 0 else { return false }
-            let windowStart = calendar.date(byAdding: .day, value: -6, to: day) ?? day
+            let windowStart = calendar.date(byAdding: .day, value: -6, to: day)!
             let countInWindow = completions.reduce(into: 0) { count, completion in
                 guard completion.habitID == habit.id else { return }
                 let completionDay = calendar.startOfDay(for: completion.date)

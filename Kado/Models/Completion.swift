@@ -6,6 +6,8 @@ import Foundation
 /// - `.counter(target)` → units achieved (e.g. 6 of 8 glasses).
 /// - `.timer(targetSeconds)` → seconds achieved.
 /// - `.negative` → ignored; presence means "I had it" (failure).
+///
+/// Equality and hashing are by `id` only — same rationale as `Habit`.
 struct Completion: Identifiable, Hashable, Sendable {
     let id: UUID
     var habitID: UUID
@@ -25,5 +27,13 @@ struct Completion: Identifiable, Hashable, Sendable {
         self.date = date
         self.value = value
         self.note = note
+    }
+
+    static func == (lhs: Completion, rhs: Completion) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

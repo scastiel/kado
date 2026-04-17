@@ -52,8 +52,7 @@ struct DefaultHabitScoreCalculator: HabitScoreCalculating {
                 score = (1 - alpha) * score + alpha * value
             }
             result.append(DailyScore(date: day, score: score))
-            guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
-            day = next
+            day = calendar.date(byAdding: .day, value: 1, to: day)!
         }
         return result
     }

@@ -3,6 +3,10 @@ import Foundation
 /// Lightweight value-type representation of a habit, used by the score
 /// and frequency services. The SwiftData `@Model` wrapper (next PR)
 /// will project to / from this struct.
+///
+/// Equality and hashing are by `id` only: two snapshots of the same
+/// habit at different times (e.g. before and after a rename) compare
+/// equal, matching the persistence-identity model SwiftData will use.
 struct Habit: Identifiable, Hashable, Sendable {
     let id: UUID
     var name: String
@@ -25,5 +29,13 @@ struct Habit: Identifiable, Hashable, Sendable {
         self.type = type
         self.createdAt = createdAt
         self.archivedAt = archivedAt
+    }
+
+    static func == (lhs: Habit, rhs: Habit) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
