@@ -1,7 +1,7 @@
 # Plan — Habit score calculator
 
 **Date**: 2026-04-16
-**Status**: ready to build
+**Status**: done
 **Spec**: [docs/habit-score.md](../../../habit-score.md)
 **Research**: skipped — `habit-score.md` already serves as the research
 artifact (algorithm, edge cases, envisioned API, and required tests
@@ -219,7 +219,7 @@ daily habits.
 
 ---
 
-### Task 7: Dependency injection wiring
+### Task 7: Dependency injection wiring ✅
 
 **Goal**: Make the calculator discoverable from any SwiftUI view via
 `@Environment`.

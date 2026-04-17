@@ -14,20 +14,13 @@ import SwiftUI
 //   5. Use it in views with `@Environment(\.habitScoreCalculator)`.
 //   6. Inject mocks in tests by overriding the key with `.environment(...)`.
 //
-// Example (to be uncommented once the first service lands in v0.1):
-//
-//     private struct HabitScoreCalculatorKey: EnvironmentKey {
-//         static let defaultValue: any HabitScoreCalculating =
-//             DefaultHabitScoreCalculator()
-//     }
-//
-//     extension EnvironmentValues {
-//         var habitScoreCalculator: any HabitScoreCalculating {
-//             get { self[HabitScoreCalculatorKey.self] }
-//             set { self[HabitScoreCalculatorKey.self] = newValue }
-//         }
-//     }
+private struct HabitScoreCalculatorKey: EnvironmentKey {
+    static let defaultValue: any HabitScoreCalculating = DefaultHabitScoreCalculator()
+}
 
 extension EnvironmentValues {
-    // Service keys will land here, one computed property per service.
+    var habitScoreCalculator: any HabitScoreCalculating {
+        get { self[HabitScoreCalculatorKey.self] }
+        set { self[HabitScoreCalculatorKey.self] = newValue }
+    }
 }
