@@ -2,7 +2,7 @@
 # Plan — New Habit form
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -34,7 +34,7 @@ land with later PRs.
 
 ## Task list
 
-### Task 1: Red tests for `NewHabitFormModel`
+### Task 1: ✅ Red tests for `NewHabitFormModel`
 
 **Goal**: TDD on the form model.
 
@@ -61,7 +61,7 @@ land with later PRs.
 
 ---
 
-### Task 2: Implement `NewHabitFormModel`
+### Task 2: ✅ Implement `NewHabitFormModel`
 
 **Goal**: Minimal `@Observable` model passing the red tests.
 
@@ -103,7 +103,7 @@ land with later PRs.
 
 ---
 
-### Task 3: Build `WeekdayPicker` component
+### Task 3: ✅ Build `WeekdayPicker` component
 
 **Goal**: Reusable 7-capsule toggle row for `Set<Weekday>`.
 
@@ -125,7 +125,7 @@ land with later PRs.
 
 ---
 
-### Task 4: Build `NewHabitFormView`
+### Task 4: ✅ Build `NewHabitFormView`
 
 **Goal**: The form itself.
 
@@ -150,7 +150,7 @@ land with later PRs.
 
 ---
 
-### Task 5: Wire the "+" toolbar button in `TodayView`
+### Task 5: ✅ Wire the "+" toolbar button in `TodayView`
 
 **Goal**: Expose the sheet.
 
@@ -172,11 +172,33 @@ land with later PRs.
 
 ---
 
-### Task 6: (Optional) Polish pass
+### Task 6: (Optional) Polish pass — skipped
 
-Refinements uncovered during Task 5 — keyboard dismissal on
-drag, sheet `.medium`/`.large` detents, stepper ranges, default
-focus timing. Only commit if real issues surface.
+No issues surfaced during Task 5. Build clean on iPhone + iPad,
+76/76 tests green. `@Bindable` / `.sheet` environment propagation
+worked without extra plumbing; `.sensoryFeedback(trigger: saveTick)`
+fires on save without a spurious first-render trigger.
+
+## Notes during build
+
+- **XcodeBuildMCP `test_sim` destination flake hit immediately**
+  after the Today-view PR merged, reproducing the known pattern
+  ("OS:latest … not installed"). Workaround from CLAUDE.md
+  (`xcrun simctl shutdown all && boot`) didn't clear it this
+  time — the actual fix was passing `OS=26.4.1` explicitly
+  because `iPhone 17 Pro` was on 26.4.1 but the tool resolved to
+  `OS:latest` which xcodebuild couldn't match. Worth promoting
+  to CLAUDE.md as a follow-up to the existing note.
+- **`.sheet` inherits `modelContainer`** from the presenter. No
+  explicit propagation needed on `NewHabitFormView`.
+- **`@FocusState` + `.onAppear`** for autofocus worked first try
+  on iOS 18.4 / 26.4.1.
+- **Live tap-through testing was blocked**: XcodeBuildMCP in this
+  config has no UI automation tool (tap/type), so verifying the
+  sheet-presents-and-saves-inserts flow end-to-end required either
+  installing `idb`/Appium or trusting previews + unit tests.
+  Accepted the latter; the `@Observable` tests cover all
+  per-kind validity transitions.
 
 ## Risks and mitigation
 
