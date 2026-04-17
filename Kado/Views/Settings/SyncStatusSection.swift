@@ -9,20 +9,46 @@ import UIKit
 struct SyncStatusSection: View {
     @Environment(\.cloudAccountStatus) private var observer
     @Environment(\.openURL) private var openURL
+    @AppStorage("kado.devMode") private var isDevMode = false
 
     var body: some View {
         Section("iCloud") {
-            row(for: observer.status)
-            if showsSettingsLink(for: observer.status) {
-                Button {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        openURL(url)
+            if isDevMode {
+                devModePausedRow
+            } else {
+                row(for: observer.status)
+                if showsSettingsLink(for: observer.status) {
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            openURL(url)
+                        }
+                    } label: {
+                        Label("Open Settings", systemImage: "arrow.up.right.square")
                     }
-                } label: {
-                    Label("Open Settings", systemImage: "arrow.up.right.square")
                 }
             }
         }
+    }
+
+    private var devModePausedRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "pause.circle.fill")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .frame(width: 28)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Sync paused while dev mode is on")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                Text("Your real habits are safe in iCloud. Turn dev mode off to resume syncing.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder

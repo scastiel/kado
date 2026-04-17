@@ -12,7 +12,6 @@ struct KadoApp: App {
         WindowGroup {
             ContentView()
                 .task { await cloudAccountStatus.refresh() }
-                .id(isDevMode)
         }
         .modelContainer(devModeController.container(forDevMode: isDevMode))
         .environment(\.cloudAccountStatus, cloudAccountStatus)
