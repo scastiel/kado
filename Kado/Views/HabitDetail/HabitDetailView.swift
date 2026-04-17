@@ -16,6 +16,7 @@ struct HabitDetailView: View {
 
     @State private var showingEdit = false
     @State private var showingArchiveConfirmation = false
+    @State private var showingTimerSheet = false
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -24,10 +25,12 @@ struct HabitDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 header
                 metricsRow
+                quickLogSection
                 MonthlyCalendarView(
                     habit: habit.snapshot,
                     completions: habit.completions.map(\.snapshot)
                 )
+                CompletionHistoryList(habit: habit)
             }
             .padding()
         }
@@ -53,6 +56,9 @@ struct HabitDetailView: View {
         .sheet(isPresented: $showingEdit) {
             NewHabitFormView(model: NewHabitFormModel(editing: habit))
         }
+        .sheet(isPresented: $showingTimerSheet) {
+            TimerLogSheet(habit: habit)
+        }
         .confirmationDialog(
             String(localized: "Archive this habit?"),
             isPresented: $showingArchiveConfirmation,
@@ -71,6 +77,56 @@ struct HabitDetailView: View {
         habit.archivedAt = .now
         try? modelContext.save()
         dismiss()
+    }
+
+    // MARK: - Quick-log
+
+    @ViewBuilder
+    private var quickLogSection: some View {
+        switch habit.type {
+        case .counter(let target):
+            CounterQuickLogView(
+                target: target,
+                todayValue: todayCounterValue,
+                onIncrement: incrementCounter,
+                onDecrement: decrementCounter
+            )
+            .disabled(isArchived)
+        case .timer:
+            Button {
+                showingTimerSheet = true
+            } label: {
+                Label("Log a session", systemImage: "timer")
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.accentColor.opacity(0.15))
+                    )
+                    .foregroundStyle(Color.accentColor)
+            }
+            .buttonStyle(.plain)
+            .disabled(isArchived)
+        case .binary, .negative:
+            EmptyView()
+        }
+    }
+
+    private var todayCounterValue: Double {
+        habit.completions
+            .first { calendar.isDate($0.date, inSameDayAs: .now) }?
+            .value ?? 0
+    }
+
+    private func incrementCounter() {
+        CompletionLogger(calendar: calendar).incrementCounter(for: habit, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func decrementCounter() {
+        CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
+        try? modelContext.save()
     }
 
     private var header: some View {

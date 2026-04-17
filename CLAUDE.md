@@ -194,6 +194,19 @@ KadoUITests/                # UI tests (XCTest)
 - Use `ViewThatFits`, `ContainerRelativeShape`, `Layout` protocol
   rather than manual size calculations when possible.
 - Systematic previews for every non-trivial view, with multiple states.
+- **`@State` defaults that depend on `@Environment` must initialize
+  in `.onAppear`, not `init`.** `@State` is seeded before the env is
+  injected, so `Calendar.current` (or any fallback) will leak into
+  `init` instead of the overridden env value. Pattern:
+  ```swift
+  @State private var value: T? = nil
+  var body: some View {
+      ContentView(value: value ?? fallback)
+          .onAppear { if value == nil { value = computeDefault() } }
+  }
+  ```
+  Applied in `TimerLogSheet` so the env calendar drives today-
+  completion prefill, matching the save path.
 
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with
@@ -235,6 +248,14 @@ Tests where they add value, not everywhere. **Mandatory** for:
 ### Framework
 **Swift Testing** (`@Test`, `#expect`) by default. XCTest only for UI
 tests.
+
+**Match numeric types on both sides of `#expect`.** Swift's permissive
+binding lets `#expect(value == 25 * 60)` compile when `value` is
+`Double?` and `25 * 60` is `Int`, but the runtime comparison returns
+`false` for the same logical value — the failure message reads
+`"1500.0 == 1500"` with no hint that the types differ. Always use
+an explicit `Double(...)` or `1500.0` literal when asserting against
+a `Double` value. Same rule applies to `#require`.
 
 ### Workflow
 For any calculation function (score, streak, frequency), **write the
