@@ -23,7 +23,7 @@ struct CompletionToggler {
         on date: Date = .now,
         in context: ModelContext
     ) {
-        if let existing = habit.completions.first(where: {
+        if let existing = habit.completions?.first(where: {
             calendar.isDate($0.date, inSameDayAs: date)
         }) {
             context.delete(existing)

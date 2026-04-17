@@ -75,19 +75,19 @@ struct TodayView: View {
             frequencyEvaluator.isDue(
                 habit: record.snapshot,
                 on: now,
-                completions: record.completions.map(\.snapshot)
+                completions: (record.completions ?? []).map(\.snapshot)
             )
         }
     }
 
     private func isCompletedToday(_ record: HabitRecord) -> Bool {
         let now = Date.now
-        return record.completions.contains { calendar.isDate($0.date, inSameDayAs: now) }
+        return record.completions?.contains { calendar.isDate($0.date, inSameDayAs: now) } ?? false
     }
 
     private func todayValue(for record: HabitRecord) -> Double? {
         let now = Date.now
-        return record.completions
+        return record.completions?
             .first { calendar.isDate($0.date, inSameDayAs: now) }?
             .value
     }

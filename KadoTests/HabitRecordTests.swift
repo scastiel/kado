@@ -61,7 +61,7 @@ struct HabitRecordTests {
         #expect(record.frequency == .daily)
         #expect(record.type == .binary)
         #expect(record.archivedAt == nil)
-        #expect(record.completions.isEmpty)
+        #expect(record.completions?.isEmpty ?? true)
     }
 
     @Test("Cascade delete removes child completions from the context")
@@ -88,7 +88,7 @@ struct HabitRecordTests {
         completion.habit = habit
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.id == completion.id)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.id == completion.id)
     }
 }

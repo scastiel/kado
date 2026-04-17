@@ -24,8 +24,8 @@ struct CompletionLoggerTests {
         logger.incrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == 1)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 1)
     }
 
     @Test("incrementCounter adds to existing today's value")
@@ -40,8 +40,8 @@ struct CompletionLoggerTests {
         logger.incrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == 4)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 4)
     }
 
     @Test("decrementCounter reduces value by 1")
@@ -56,7 +56,7 @@ struct CompletionLoggerTests {
         logger.decrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.first?.value == 4)
+        #expect(habit.completions?.first?.value == 4)
     }
 
     @Test("decrementCounter below 1 deletes the completion")
@@ -71,7 +71,7 @@ struct CompletionLoggerTests {
         logger.decrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.isEmpty)
+        #expect(habit.completions?.isEmpty ?? true)
     }
 
     @Test("decrementCounter with no completion is a no-op")
@@ -84,7 +84,7 @@ struct CompletionLoggerTests {
         logger.decrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.isEmpty)
+        #expect(habit.completions?.isEmpty ?? true)
     }
 
     @Test("logTimerSession creates a completion with value = seconds")
@@ -96,8 +96,8 @@ struct CompletionLoggerTests {
         logger.logTimerSession(for: habit, seconds: 25 * 60, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == Double(25 * 60))
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == Double(25 * 60))
     }
 
     @Test("logTimerSession replaces today's existing completion")
@@ -112,8 +112,8 @@ struct CompletionLoggerTests {
         logger.logTimerSession(for: habit, seconds: 40 * 60, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == Double(40 * 60))
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == Double(40 * 60))
     }
 
     @Test("delete removes the given completion without touching others")
@@ -130,8 +130,8 @@ struct CompletionLoggerTests {
         logger.delete(c1, in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.id == c2.id)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.id == c2.id)
     }
 
     @Test("Incrementing on two consecutive days creates two records")
@@ -145,6 +145,6 @@ struct CompletionLoggerTests {
         logger.incrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
         try container.mainContext.save()
 
-        #expect(habit.completions.count == 2)
+        #expect(habit.completions?.count == 2)
     }
 }
