@@ -1,30 +1,17 @@
 import SwiftUI
 
-/// A single row in the Today list. Renders every `HabitType`, but
-/// only binary and negative habits accept tap-to-toggle. Counter and
-/// timer rows are read-only until the habit detail view ships with
-/// per-type input affordances.
+/// A single row in the Today list. Renders every `HabitType`. The
+/// leading circle is an independent Button that toggles completion
+/// for binary/negative habits; the rest of the row is visual only
+/// and composes with a parent `NavigationLink` to push to detail.
+/// For counter/timer, the leading icon is non-interactive (quick-log
+/// affordances live on the detail view).
 struct HabitRowView: View {
     let habit: Habit
     let isCompletedToday: Bool
-    let onTap: (() -> Void)?
+    let onToggle: (() -> Void)?
 
     var body: some View {
-        Group {
-            if let onTap {
-                Button(action: onTap) { rowContent }
-                    .buttonStyle(.plain)
-                    .sensoryFeedback(.success, trigger: isCompletedToday)
-                    .accessibilityHint(Text("Double tap to toggle completion."))
-            } else {
-                rowContent
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabelText)
-    }
-
-    private var rowContent: some View {
         HStack(spacing: 12) {
             leadingIcon
                 .frame(width: 28, height: 28)
@@ -37,24 +24,45 @@ struct HabitRowView: View {
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
     }
 
     @ViewBuilder
     private var leadingIcon: some View {
         switch habit.type {
         case .binary, .negative:
-            Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
-                .font(.title2)
-                .foregroundStyle(isCompletedToday ? Color.accentColor : Color.secondary)
+            if let onToggle {
+                Button(action: onToggle) {
+                    toggleImage
+                }
+                .buttonStyle(.borderless)
+                .sensoryFeedback(.success, trigger: isCompletedToday)
+                .accessibilityLabel(
+                    isCompletedToday
+                        ? String(localized: "Mark as not done")
+                        : String(localized: "Mark as done")
+                )
+            } else {
+                toggleImage
+            }
         case .counter:
-            Image(systemName: "number.circle")
-                .font(.title2)
-                .foregroundStyle(.secondary)
+            nonInteractiveIcon("number.circle")
         case .timer:
-            Image(systemName: "timer")
-                .font(.title2)
-                .foregroundStyle(.secondary)
+            nonInteractiveIcon("timer")
         }
+    }
+
+    private var toggleImage: some View {
+        Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
+            .font(.title2)
+            .foregroundStyle(isCompletedToday ? Color.accentColor : Color.secondary)
+    }
+
+    private func nonInteractiveIcon(_ systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.title2)
+            .foregroundStyle(.secondary)
     }
 
     @ViewBuilder
@@ -100,22 +108,22 @@ struct HabitRowView: View {
         HabitRowView(
             habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
             isCompletedToday: false,
-            onTap: {}
+            onToggle: {}
         )
         HabitRowView(
             habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
             isCompletedToday: false,
-            onTap: nil
+            onToggle: nil
         )
         HabitRowView(
             habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
             isCompletedToday: false,
-            onTap: nil
+            onToggle: nil
         )
         HabitRowView(
             habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
             isCompletedToday: false,
-            onTap: {}
+            onToggle: {}
         )
     }
 }
@@ -125,22 +133,22 @@ struct HabitRowView: View {
         HabitRowView(
             habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
             isCompletedToday: true,
-            onTap: {}
+            onToggle: {}
         )
         HabitRowView(
             habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
             isCompletedToday: true,
-            onTap: nil
+            onToggle: nil
         )
         HabitRowView(
             habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
             isCompletedToday: true,
-            onTap: nil
+            onToggle: nil
         )
         HabitRowView(
             habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
             isCompletedToday: true,
-            onTap: {}
+            onToggle: {}
         )
     }
 }
@@ -150,12 +158,12 @@ struct HabitRowView: View {
         HabitRowView(
             habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
             isCompletedToday: true,
-            onTap: {}
+            onToggle: {}
         )
         HabitRowView(
             habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
             isCompletedToday: false,
-            onTap: nil
+            onToggle: nil
         )
     }
     .environment(\.dynamicTypeSize, .accessibility3)

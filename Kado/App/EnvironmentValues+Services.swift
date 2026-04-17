@@ -22,6 +22,10 @@ private struct FrequencyEvaluatorKey: EnvironmentKey {
     static let defaultValue: any FrequencyEvaluating = DefaultFrequencyEvaluator()
 }
 
+private struct StreakCalculatorKey: EnvironmentKey {
+    static let defaultValue: any StreakCalculating = DefaultStreakCalculator()
+}
+
 extension EnvironmentValues {
     var habitScoreCalculator: any HabitScoreCalculating {
         get { self[HabitScoreCalculatorKey.self] }
@@ -31,5 +35,10 @@ extension EnvironmentValues {
     var frequencyEvaluator: any FrequencyEvaluating {
         get { self[FrequencyEvaluatorKey.self] }
         set { self[FrequencyEvaluatorKey.self] = newValue }
+    }
+
+    var streakCalculator: any StreakCalculating {
+        get { self[StreakCalculatorKey.self] }
+        set { self[StreakCalculatorKey.self] = newValue }
     }
 }

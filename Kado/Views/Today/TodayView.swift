@@ -20,6 +20,9 @@ struct TodayView: View {
         NavigationStack {
             content
                 .navigationTitle(Text("Today"))
+                .navigationDestination(for: HabitRecord.self) { habit in
+                    HabitDetailView(habit: habit)
+                }
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
@@ -53,11 +56,13 @@ struct TodayView: View {
                 )
             } else {
                 List(due) { record in
-                    HabitRowView(
-                        habit: record.snapshot,
-                        isCompletedToday: isCompletedToday(record),
-                        onTap: canToggle(record) ? { toggle(record) } : nil
-                    )
+                    NavigationLink(value: record) {
+                        HabitRowView(
+                            habit: record.snapshot,
+                            isCompletedToday: isCompletedToday(record),
+                            onToggle: canToggle(record) ? { toggle(record) } : nil
+                        )
+                    }
                 }
             }
         }

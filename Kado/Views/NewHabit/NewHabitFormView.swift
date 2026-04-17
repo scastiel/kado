@@ -20,7 +20,7 @@ struct NewHabitFormView: View {
                 frequencySection
                 typeSection
             }
-            .navigationTitle(Text("New Habit"))
+            .navigationTitle(Text(model.isEditing ? "Edit Habit" : "New Habit"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -106,9 +106,7 @@ struct NewHabitFormView: View {
 
     private func save() {
         guard model.isValid else { return }
-        let habit = model.build()
-        modelContext.insert(habit)
-        try? modelContext.save()
+        model.save(in: modelContext)
         saveTick += 1
         dismiss()
     }
