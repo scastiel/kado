@@ -275,6 +275,30 @@ both the iPhone 16 Pro and iPad Air (M2) simulators, per the
 None — all research-stage questions were resolved. New ones, if any,
 will be added during build and carried to `compound.md`.
 
+## Notes during build
+
+- **Task 2**: Xcode wizard creates a container folder named after the
+  product, so the wizard output ended up nested one level too deep.
+  Fixed with a filesystem move (synchronized folders mean no pbxproj
+  surgery). Also: wizard defaulted the app target to iOS 26.4 and the
+  tests to iOS 18.6 — harmonized both to 18.0 via a direct pbxproj
+  edit. User-confirmed the 18.0 minimum matches `CLAUDE.md`.
+- **Task 2**: Wizard includes `KadoUITests` by default with no way to
+  opt out. Xcode's "Delete target" leaves an orphan
+  `PBXFileSystemSynchronizedRootGroup` entry behind — cleaned by
+  hand, then `rm -rf KadoUITests`.
+- **Task 3**: Plan called for `.gitkeep` in empty folders to preserve
+  the layout. Synchronized root groups pull every file in as a bundle
+  resource and collide on identical filenames (all `.gitkeep`). Pbxproj
+  exception sets would fix it but aren't worth it for bootstrap;
+  dropped the `.gitkeep` files. Empty folders won't persist in git —
+  they materialize when v0.1 drops its first file into each.
+- **Simulator choice**: `CLAUDE.md` names "iPhone 16 Pro (iOS 18.x)"
+  as the default target, but only iOS 26.4 simulators are installed
+  (iPhone 17 Pro etc.). Using iPhone 17 Pro on 26.4 for now. Deployment
+  target 18.0 still builds and runs fine on a 26.4 runtime. Consider
+  updating `CLAUDE.md` to name the current-flagship equivalent.
+
 ## Out of scope
 
 Explicitly deferred — do not pull in during this bootstrap:
