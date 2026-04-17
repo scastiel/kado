@@ -19,10 +19,14 @@ struct KadoApp: App {
         }
     }()
 
+    @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task { await cloudAccountStatus.refresh() }
         }
         .modelContainer(container)
+        .environment(\.cloudAccountStatus, cloudAccountStatus)
     }
 }
