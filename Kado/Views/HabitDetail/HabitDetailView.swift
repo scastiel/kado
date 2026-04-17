@@ -10,6 +10,13 @@ struct HabitDetailView: View {
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.calendar) private var calendar
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var showingEdit = false
+    @State private var showingArchiveConfirmation = false
+
+    private var isArchived: Bool { habit.archivedAt != nil }
 
     var body: some View {
         ScrollView {
@@ -28,17 +35,41 @@ struct HabitDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(String(localized: "Edit")) {
-                    // Wired in Task 8.
+                    showingEdit = true
                 }
-                .disabled(true)
+                .disabled(isArchived)
             }
             ToolbarItem(placement: .secondaryAction) {
-                Button(String(localized: "Archive"), systemImage: "archivebox") {
-                    // Wired in Task 8.
+                Button(
+                    String(localized: "Archive"),
+                    systemImage: "archivebox"
+                ) {
+                    showingArchiveConfirmation = true
                 }
-                .disabled(true)
+                .disabled(isArchived)
             }
         }
+        .sheet(isPresented: $showingEdit) {
+            NewHabitFormView(model: NewHabitFormModel(editing: habit))
+        }
+        .confirmationDialog(
+            String(localized: "Archive this habit?"),
+            isPresented: $showingArchiveConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Archive"), role: .destructive) {
+                archive()
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text("Archived habits stop appearing on Today but keep their history.")
+        }
+    }
+
+    private func archive() {
+        habit.archivedAt = .now
+        try? modelContext.save()
+        dismiss()
     }
 
     private var header: some View {
