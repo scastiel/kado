@@ -168,7 +168,7 @@ daily habits.
 
 ---
 
-### Task 5: Counter, timer, negative habit types
+### Task 5: Counter, timer, negative habit types ✅
 
 **Goal**: Derive `value[n]` per `HabitType`.
 

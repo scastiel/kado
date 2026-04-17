@@ -274,6 +274,143 @@ struct HabitScoreCalculatorTests {
         #expect(scoreEveryDay == scoreMondaysOnly)
     }
 
+    // MARK: Counter, timer, negative habit types
+
+    @Test("Counter habit at target equals binary perfect")
+    func counterAtTargetEqualsBinary() {
+        let binary = makeHabit(createdOffset: 0)
+        let binaryCompletions = (0..<30).map {
+            Completion(habitID: binary.id, date: TestCalendar.day($0))
+        }
+        let binaryScore = calculator.currentScore(
+            for: binary,
+            completions: binaryCompletions,
+            asOf: TestCalendar.day(29)
+        )
+
+        let counter = Habit(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(0)
+        )
+        let counterCompletions = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 8)
+        }
+        let counterScore = calculator.currentScore(
+            for: counter,
+            completions: counterCompletions,
+            asOf: TestCalendar.day(29)
+        )
+
+        #expect(abs(binaryScore - counterScore) < 1e-9)
+    }
+
+    @Test("Counter at 6/8 yields 0.75 of binary perfect")
+    func counterPartialCredit() {
+        let counter = Habit(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(0)
+        )
+        let completions = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 6)
+        }
+        let score = calculator.currentScore(
+            for: counter,
+            completions: completions,
+            asOf: TestCalendar.day(29)
+        )
+        let expected = 0.75 * (1 - pow(0.95, 30))
+        #expect(abs(score - expected) < 1e-9, "got \(score) expected \(expected)")
+    }
+
+    @Test("Counter exceeding target caps at 1.0")
+    func counterCapsAtOne() {
+        let counter = Habit(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(0)
+        )
+        let over = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 12)
+        }
+        let exact = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 8)
+        }
+        let scoreOver = calculator.currentScore(for: counter, completions: over, asOf: TestCalendar.day(29))
+        let scoreExact = calculator.currentScore(for: counter, completions: exact, asOf: TestCalendar.day(29))
+        #expect(scoreOver == scoreExact)
+    }
+
+    @Test("Counter sums multiple same-day completions toward target")
+    func counterSumsSameDay() {
+        let counter = Habit(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(0)
+        )
+        var split: [Completion] = []
+        for d in 0..<30 {
+            split.append(Completion(habitID: counter.id, date: TestCalendar.day(d), value: 3))
+            split.append(Completion(habitID: counter.id, date: TestCalendar.day(d), value: 3))
+            split.append(Completion(habitID: counter.id, date: TestCalendar.day(d), value: 2))
+        }
+        let single = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 8)
+        }
+        let scoreSplit = calculator.currentScore(for: counter, completions: split, asOf: TestCalendar.day(29))
+        let scoreSingle = calculator.currentScore(for: counter, completions: single, asOf: TestCalendar.day(29))
+        #expect(abs(scoreSplit - scoreSingle) < 1e-9)
+    }
+
+    @Test("Timer habit uses ratio of achieved-seconds over target-seconds")
+    func timerRatio() {
+        // Target 30 minutes = 1800s. Achieved 20 minutes = 1200s. Ratio = 2/3.
+        let timer = Habit(
+            name: "Read",
+            frequency: .daily,
+            type: .timer(targetSeconds: 1800),
+            createdAt: TestCalendar.day(0)
+        )
+        let completions = (0..<30).map {
+            Completion(habitID: timer.id, date: TestCalendar.day($0), value: 1200)
+        }
+        let score = calculator.currentScore(for: timer, completions: completions, asOf: TestCalendar.day(29))
+        let expected = (2.0 / 3.0) * (1 - pow(0.95, 30))
+        #expect(abs(score - expected) < 1e-9, "got \(score) expected \(expected)")
+    }
+
+    @Test("Negative habit: no-completion days raise the score")
+    func negativeAvoidedRaisesScore() {
+        let neg = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let score = calculator.currentScore(for: neg, completions: [], asOf: TestCalendar.day(29))
+        #expect(score > 0.75, "got \(score)")
+    }
+
+    @Test("Negative habit: a logged completion drops the score (failure)")
+    func negativeLoggedDropsScore() {
+        let neg = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let allDays = (0..<30).map {
+            Completion(habitID: neg.id, date: TestCalendar.day($0))
+        }
+        let score = calculator.currentScore(for: neg, completions: allDays, asOf: TestCalendar.day(29))
+        #expect(score == 0)
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {

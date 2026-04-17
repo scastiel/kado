@@ -71,9 +71,16 @@ struct DefaultHabitScoreCalculator: HabitScoreCalculating {
         switch habit.type {
         case .binary:
             return completionsOnDay.isEmpty ? 0.0 : 1.0
-        case .counter, .timer, .negative:
-            // Implemented in Task 5.
-            return completionsOnDay.isEmpty ? 0.0 : 1.0
+        case .counter(let target):
+            guard target > 0 else { return 0.0 }
+            let achieved = completionsOnDay.reduce(0.0) { $0 + $1.value }
+            return min(1.0, achieved / target)
+        case .timer(let targetSeconds):
+            guard targetSeconds > 0 else { return 0.0 }
+            let achievedSeconds = completionsOnDay.reduce(0.0) { $0 + $1.value }
+            return min(1.0, achievedSeconds / targetSeconds)
+        case .negative:
+            return completionsOnDay.isEmpty ? 1.0 : 0.0
         }
     }
 }
