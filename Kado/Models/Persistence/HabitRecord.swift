@@ -15,8 +15,8 @@ extension KadoSchemaV1 {
     final class HabitRecord {
         var id: UUID = UUID()
         var name: String = ""
-        var frequencyData: Data = Data()
-        var typeData: Data = Data()
+        private var frequencyData: Data = Data()
+        private var typeData: Data = Data()
         var createdAt: Date = Date()
         var archivedAt: Date?
 
@@ -65,10 +65,14 @@ extension KadoSchemaV1 {
         }
 
         private static func encode<T: Encodable>(_ value: T) -> Data {
-            (try? JSONEncoder().encode(value)) ?? Data()
+            // Encoding our own Codable types is unreachable — fail loud
+            // if a future change breaks it.
+            try! JSONEncoder().encode(value)
         }
 
         private static func decode<T: Decodable>(_ data: Data, fallback: T) -> T {
+            // Decode is forgiving: a corrupt on-disk store falls back to
+            // the type's neutral default rather than crashing the app.
             (try? JSONDecoder().decode(T.self, from: data)) ?? fallback
         }
     }
