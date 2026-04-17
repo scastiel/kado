@@ -1,7 +1,285 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@, counter, target %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, counter, target %2$lld"
+          }
+        }
+      }
+    },
+    "%@, timer, target %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, timer, target %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
 
+    },
+    "%lld / best %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / best %2$lld"
+          }
+        }
+      }
+    },
+    "%lld days ago" : {
+
+    },
+    "%lld days per week" : {
+
+    },
+    "%lld min" : {
+
+    },
+    "A few times a week" : {
+
+    },
+    "Archive" : {
+
+    },
+    "Archive this habit?" : {
+
+    },
+    "Archived" : {
+
+    },
+    "Archived habits stop appearing on Today but keep their history." : {
+
+    },
+    "Avoid" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Come back tomorrow, or check your habit detail to log a past day." : {
+
+    },
+    "completed" : {
+
+    },
+    "Counter" : {
+
+    },
+    "Counter · target %lld" : {
+
+    },
+    "Decrement" : {
+
+    },
+    "Delete" : {
+
+    },
+    "done" : {
+
+    },
+    "Done" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit Habit" : {
+
+    },
+    "Every %lld days" : {
+
+    },
+    "Every day" : {
+
+    },
+    "Every N days" : {
+
+    },
+    "F" : {
+      "comment" : "Short Friday label"
+    },
+    "Frequency" : {
+
+    },
+    "Fri" : {
+
+    },
+    "Friday" : {
+
+    },
+    "Habit name" : {
+
+    },
+    "Habits you create will appear here." : {
+
+    },
+    "History" : {
+
+    },
+    "How is it measured?" : {
+
+    },
+    "Increment" : {
+
+    },
+    "Log a session" : {
+
+    },
+    "Log session" : {
+
+    },
+    "M" : {
+      "comment" : "Short Monday label"
+    },
+    "Mark as done" : {
+
+    },
+    "Mark as not done" : {
+
+    },
+    "missed" : {
+
+    },
+    "Mon" : {
+
+    },
+    "Monday" : {
+
+    },
+    "New habit" : {
+
+    },
+    "New Habit" : {
+
+    },
+    "No habits yet" : {
+
+    },
+    "No history yet." : {
+
+    },
+    "not done" : {
+
+    },
+    "not scheduled" : {
+
+    },
+    "Nothing due today" : {
+
+    },
+    "of %lld" : {
+
+    },
+    "Preferences will land here as the app grows." : {
+
+    },
+    "Repeats" : {
+
+    },
+    "S" : {
+      "comment" : "Short Saturday label\nShort Sunday label"
+    },
+    "Sat" : {
+
+    },
+    "Saturday" : {
+
+    },
+    "Save" : {
+
+    },
+    "Saves as today's completion. If you already logged a session today, it will be replaced." : {
+
+    },
+    "Score" : {
+
+    },
+    "Seed habit not found" : {
+
+    },
+    "Selected: %lld days" : {
+
+    },
+    "Session length" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Slipped" : {
+
+    },
+    "Specific days" : {
+
+    },
+    "Streak" : {
+
+    },
+    "Sun" : {
+
+    },
+    "Sunday" : {
+
+    },
+    "T" : {
+      "comment" : "Short Thursday label\nShort Tuesday label"
+    },
+    "Target: %lld" : {
+
+    },
+    "Target: %lld min" : {
+
+    },
+    "Thu" : {
+
+    },
+    "Thursday" : {
+
+    },
+    "Timer" : {
+
+    },
+    "Timer · target %lld min" : {
+
+    },
+    "Today" : {
+
+    },
+    "Tue" : {
+
+    },
+    "Tuesday" : {
+
+    },
+    "Type" : {
+
+    },
+    "upcoming" : {
+
+    },
+    "W" : {
+      "comment" : "Short Wednesday label"
+    },
+    "Wed" : {
+
+    },
+    "Wednesday" : {
+
+    },
+    "Yes / no" : {
+
+    },
+    "Yesterday" : {
+
+    }
   },
   "version" : "1.0"
 }
