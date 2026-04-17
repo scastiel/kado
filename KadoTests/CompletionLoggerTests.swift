@@ -97,7 +97,7 @@ struct CompletionLoggerTests {
         try container.mainContext.save()
 
         #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == 25 * 60)
+        #expect(habit.completions.first?.value == Double(25 * 60))
     }
 
     @Test("logTimerSession replaces today's existing completion")
@@ -113,7 +113,7 @@ struct CompletionLoggerTests {
         try container.mainContext.save()
 
         #expect(habit.completions.count == 1)
-        #expect(habit.completions.first?.value == 40 * 60)
+        #expect(habit.completions.first?.value == Double(40 * 60))
     }
 
     @Test("delete removes the given completion without touching others")
