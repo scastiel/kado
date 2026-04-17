@@ -104,7 +104,7 @@ struct HabitRowView: View {
             let state = isCompletedToday
                 ? String(localized: "done")
                 : String(localized: "not done")
-            return "\(habit.name), \(state)"
+            return String(localized: "\(habit.name), \(state)")
         case .counter(let target):
             return String(localized: "\(habit.name), counter, target \(Int(target))")
         case .timer(let targetSeconds):

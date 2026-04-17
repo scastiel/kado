@@ -21,6 +21,12 @@ extension Weekday {
         symbol(from: Calendar.current.veryShortStandaloneWeekdaySymbols)
     }
 
+    /// Three-letter standalone weekday abbreviation for frequency
+    /// subtitles and compact lists (e.g. "Mon" in EN, "lun." in FR).
+    var localizedMedium: String {
+        symbol(from: Calendar.current.shortStandaloneWeekdaySymbols)
+    }
+
     /// Full standalone weekday name for accessibility labels and
     /// contexts where the day appears on its own.
     var localizedFull: String {

@@ -142,7 +142,7 @@ conditional navigation title.
 
 ---
 
-### Task 5: Normalize HabitDetailView + TimerLogSheet + CompletionHistoryList
+### Task 5: Normalize HabitDetailView + TimerLogSheet + CompletionHistoryList ✅
 
 **Goal**: wrap the remaining raw literals in the detail surface
 (`"Archived"` badge, timer-sheet headers/footers/buttons, history
