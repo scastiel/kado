@@ -50,6 +50,15 @@ Lightweight MVVM with strict separation:
   the ViewModel. Extract business logic into a free struct with
   injected `Calendar` (pattern: `CompletionToggler`) rather than
   wrapping it in a ViewModel for structure's sake.
+  - **Picker over associated-value enums**: when a domain enum has
+    associated values (e.g. `Frequency.daysPerWeek(Int)`) and the
+    UI presents it as a `Picker`, the ViewModel holds a paired
+    case-only "kind" enum plus one stored property per variant's
+    params. Switching the kind stays non-destructive — the user's
+    partially-entered count/set/target isn't lost when they
+    explore options. Pattern: `NewHabitFormModel.FrequencyKind` +
+    `daysPerWeek`/`specificDays`/`everyNDays`, with one regression
+    test guarding the invariant.
 - **Views**: SwiftUI, ideally with no business logic.
 - **Services**: reusable business logic (HabitScoreCalculator,
   ExportService, NotificationScheduler…). Protocol-defined, injected.
