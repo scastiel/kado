@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// Root view of the app. Hosts the primary TabView shell.
@@ -20,4 +21,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(PreviewContainer.shared)
 }

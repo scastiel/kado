@@ -1,7 +1,7 @@
 # Plan — SwiftData persistence layer
 
 **Date**: 2026-04-16
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -135,7 +135,7 @@ is exercised by tests.
 
 ---
 
-### Task 4: Preview seed helper
+### Task 4: Preview seed helper ✅
 
 **Goal**: SwiftUI previews and tests can spin up an in-memory
 `ModelContainer` populated with a small, realistic habit set.
