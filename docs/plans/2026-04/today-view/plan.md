@@ -2,7 +2,7 @@
 # Plan — Today View
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -39,7 +39,7 @@ separate PR.
 
 ## Task list
 
-### Task 1: Add `frequencyEvaluator` to the environment
+### Task 1: Add `frequencyEvaluator` to the environment ✅
 
 **Goal**: Make `FrequencyEvaluating` injectable the same way
 `HabitScoreCalculating` already is.
@@ -58,7 +58,7 @@ separate PR.
 
 ---
 
-### Task 2: Write tests for `CompletionToggler`
+### Task 2: Write tests for `CompletionToggler` ✅
 
 **Goal**: Red tests for the toggle helper before any implementation.
 
@@ -86,7 +86,7 @@ separate PR.
 
 ---
 
-### Task 3: Implement `CompletionToggler`
+### Task 3: Implement `CompletionToggler` ✅
 
 **Goal**: Minimal struct that inserts or deletes today's
 `CompletionRecord` for a given habit.
@@ -131,7 +131,7 @@ separate PR.
 
 ---
 
-### Task 4: Build `HabitRowView`
+### Task 4: Build `HabitRowView` ✅
 
 **Goal**: A reusable row that renders any habit type, with an
 optional tap action for binary/negative.
@@ -166,7 +166,7 @@ optional tap action for binary/negative.
 
 ---
 
-### Task 5: Wire `TodayView`
+### Task 5: Wire `TodayView` ✅
 
 **Goal**: Replace the placeholder with a working list.
 
