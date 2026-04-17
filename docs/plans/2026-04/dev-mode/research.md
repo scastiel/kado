@@ -1,7 +1,7 @@
 # Research — Dev Mode
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: ready for plan
 **Related**: `docs/ROADMAP.md`, `Kado/Preview Content/PreviewContainer.swift`
 
 ## Problem
@@ -52,10 +52,11 @@ to persist them at all.
 
 ## Proposed approach
 
-**Two `ModelContainer`s, swap at the root view.** Debug-only feature
-(wrapped in `#if DEBUG`) — matches intent ("dev mode"), keeps
-release builds simple, lets us reuse `PreviewContainer.seed`
-without moving it out of `Preview Content/`.
+**Two `ModelContainer`s, swap at the root view.** Shipped in both
+Debug and Release — the user activates dev mode from Settings at
+runtime, it is not a build-time flag. `PreviewContainer.seed` will
+need to move out of `Preview Content/` (Debug-only) into a regular
+source folder so it's reachable in Release builds.
 
 Flow:
 
@@ -64,9 +65,11 @@ Flow:
 2. A `DevModeController` (`@Observable`, `@MainActor`) owns two
    lazily-built containers:
    - `productionContainer`: today's CloudKit-backed container.
-   - `devContainer`: `ModelConfiguration(isStoredInMemoryOnly: true)`,
-     **no CloudKit**, seeded via `PreviewContainer.seed(_:)` on
-     first build.
+   - `devContainer`: on-disk at a separate URL (e.g.
+     `Application Support/KadoDev.sqlite`), **no CloudKit**,
+     seeded via the extracted seed function on first build.
+     Edits persist across app launches as long as dev mode stays
+     on.
    It exposes `var currentContainer: ModelContainer` derived from
    the toggle.
 3. `KadoApp.body` reads the toggle and applies the right container
@@ -74,21 +77,25 @@ Flow:
    tears down and rebuilds the environment when the identity of
    the injected container changes — all `@Query`s re-fetch, so
    the UI snaps to the new store without any per-view work.
-4. Turning dev mode **off** drops the in-memory container
-   reference (or recreates it next time) — sandbox edits vanish.
-5. Turning dev mode **on again** builds a fresh in-memory
-   container + reseeds — clean slate each session.
+4. Turning dev mode **off** drops the dev container reference.
+   The sandbox file stays on disk but is not accessed — real
+   data is back in the UI.
+5. Turning dev mode **on again** deletes the sandbox file and
+   rebuilds a fresh seeded container — a clean slate each
+   off→on cycle is how the user resets dev data (no separate
+   "Reseed" button needed).
 
 ### Key components
 
 - `DevModeController` (new, `Services/` or `App/`): lazy container
-  accessors, `isEnabled` mirror of the `@AppStorage` value.
-- `PreviewContainer.seed(_:)` (existing): reused as-is, possibly
-  expanded to cover longer history (60–90 days) for more satisfying
-  score/history views.
-- `SettingsView`: new section "Developer" with a `Toggle`, visible
-  only under `#if DEBUG`. Copy: "Dev mode — replace your data with
-  a demo dataset. Your real data is safe."
+  accessors, `isEnabled` mirror of the `@AppStorage` value,
+  wipe-and-reseed on off→on transition.
+- Seed function: extracted from `PreviewContainer` into a shippable
+  source folder (e.g. `Services/DevModeSeed.swift`) so it is
+  available in Release. Keep the ~14-day history as-is.
+- `SettingsView`: new section with a `Toggle`, always visible.
+  Copy: "Dev mode — replace your data with a demo dataset. Your
+  real data is safe and returns when you turn this off."
 - `KadoApp`: read toggle, bind to controller, swap container.
 
 ### Data model changes
@@ -97,8 +104,8 @@ None. Uses the existing schema for both containers.
 
 ### UI changes
 
-- Settings: new Developer section with a single toggle + footnote
-  explaining the effect. Only compiled in Debug builds.
+- Settings: new section with a single toggle + footnote
+  explaining the effect. Shipped in Release.
 - No other views change — they keep reading their `@Query` / env
   container.
 
@@ -107,11 +114,11 @@ None. Uses the existing schema for both containers.
 This is mostly wiring and Debug-only plumbing, so the testing bar
 is low. Worth covering:
 
-- `@Test("DevModeController returns a fresh in-memory container when enabled")`
+- `@Test("DevModeController returns the dev container when enabled")`
 - `@Test("DevModeController seeds dev container with at least one habit of each HabitType")`
-- `@Test("Toggling dev mode off discards the in-memory context")`
-  (i.e. calling `isEnabled = false` then `isEnabled = true` again
-  produces a new container identity).
+- `@Test("Toggling dev mode off→on wipes the sandbox and reseeds")`
+  (write a sentinel habit into the dev container, flip off then
+  on, confirm only seed habits remain).
 
 UI behavior (the swap itself) is adequately covered by manual
 check + screenshot.
@@ -157,23 +164,23 @@ exploring the app without committing real data.
   other long-lived services are fine — they don't hold a
   `ModelContext`. Double-check nothing else caches a context
   across the swap.
-- **`@AppStorage` default**: must be `false` in Release builds
-  regardless (defense in depth in case the flag gets flipped via
-  Simulator defaults).
+- **`@AppStorage` default**: `false`. User activates at runtime
+  from Settings.
+- **Seed file location**: moving `PreviewContainer.seed` into a
+  shipped source folder means it's compiled into Release. Keep
+  the Preview-only variants (`.shared`, `emptyContainer`, …) in
+  `Preview Content/` — only the seed function itself needs to move.
 
 ## Open questions
 
-- [ ] **Debug-only, or Release too?** Default proposal: Debug only
-  (cleanest; zero risk for end users). Confirm.
-- [ ] **Seed richness**: current seed is ~14 days. Want to push it
-  to 60–90 days to exercise score curves and history calendars
-  properly?
-- [ ] **Sandbox persistence**: in-memory and discarded each toggle
-  cycle (proposed), or on-disk at a separate URL so edits survive
-  across app launches while dev mode stays on?
-- [ ] **Reset control**: inside dev mode, should the Settings
-  section also expose a "Reseed dev data" button to re-roll the
-  sandbox without toggling off/on?
+Resolved:
+
+- [x] **Debug-only, or Release too?** → Release too. Runtime toggle,
+  no build-time flag.
+- [x] **Seed richness** → ~14 days is fine.
+- [x] **Sandbox persistence** → on-disk at a separate URL.
+- [x] **Reset control** → no separate button; off→on wipes and
+  reseeds.
 
 ## References
 
