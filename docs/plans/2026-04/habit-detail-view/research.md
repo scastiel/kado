@@ -2,7 +2,7 @@
 # Research — Habit Detail view
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: ready for plan
 **Related**: [ROADMAP v0.1 — Habit Detail View](../../../ROADMAP.md), [new-habit-form compound](../new-habit-form/compound.md), [today-view compound](../today-view/compound.md), [habit-score-calculator compound](../habit-score-calculator/compound.md)
 
 ## Problem
@@ -202,37 +202,18 @@ None required. `archivedAt` already exists on `HabitRecord`.
 
 ## Open questions
 
-- [ ] **Scope of this PR**: detail view alone, or detail +
-  streak + edit + archive bundled? *Recommendation*: bundle,
-  with task-level splits during planning. Easier to see the
-  screen's full shape in one reviewable PR.
-- [ ] **Row split: toggle vs. navigate**: leading checkmark is
-  the toggle target, rest of row is a `NavigationLink`? Or
-  `swipeActions` to toggle and row tap navigates? *Recommendation*:
-  leading-circle-toggle. Discoverable, matches the existing
-  visual of the row.
-- [ ] **Calendar range**: last 30 days, current calendar month,
-  or scrollable? *Recommendation*: current calendar month in
-  this PR. Scrollable history is PR B scope.
-- [ ] **Archive UX**: "Archive" confirmed dialog, or swipe-to-
-  archive in Today? *Recommendation*: detail-view button with
-  confirmation dialog. Swipe actions in Today add visual noise
-  for a rare action.
-- [ ] **Delete vs. archive**: v0.1 roadmap says "Habit archive
-  with history preservation" for v1.0. Do we offer *destroy*
-  in v0.1, or only archive? *Recommendation*: archive only in
-  this PR. Destroy lands with Settings' "erase all data" in a
-  later PR.
-- [ ] **Streak `docs/streak.md` spec**: write a small spec doc
-  ahead of the service (like `habit-score.md`)? *Recommendation*:
-  yes — the non-daily edge cases (daysPerWeek, everyNDays,
-  negative) benefit from a short decision log that tests can
-  cite.
-- [ ] **Edit mode initial values**: reopen the form pre-filled
-  from the record's current `name`/`frequency`/`type`. Trivial
-  but decides whether `NewHabitFormModel` gets an `init(editing:)`
-  or an `enum HabitFormMode`. *Recommendation*: `init(editing: HabitRecord)`
-  — simpler, no branching on mode throughout the form.
+All resolved 2026-04-17:
+
+- [x] **Scope**: bundle detail + streak + edit + archive in PR A;
+  counter/timer logging + scrollable history stay in PR B.
+- [x] **Row split**: leading checkmark circle = toggle region, rest
+  of row = `NavigationLink` to detail.
+- [x] **Calendar range**: current calendar month only.
+- [x] **Archive UX**: detail-view button with confirmation dialog.
+- [x] **Delete in v0.1**: no, archive only.
+- [x] **Streak spec doc**: yes, land `docs/streak.md` with the
+  service.
+- [x] **Edit mode**: `NewHabitFormModel.init(editing: HabitRecord)`.
 
 ## References
 
