@@ -2,7 +2,7 @@
 # Research — New Habit form
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: ready for plan
 **Related**: [ROADMAP v0.1 — New/Edit Habit View](../../../ROADMAP.md), [today-view compound](../today-view/compound.md), [swiftdata-models compound](../swiftdata-models/compound.md)
 
 ## Problem
@@ -175,26 +175,16 @@ testing suffice at MVP phase, per CLAUDE.md.
 
 ## Open questions
 
-- [ ] **Include icon + color in v0.1 even though `HabitRecord` has
-  no fields for them?** *Recommendation*: no. Would require a
-  schema migration just to stash values the UI doesn't yet consume
-  elsewhere. Ship them with the detail view / color polish pass.
-- [ ] **Present as sheet or full-screen cover?** *Recommendation*:
-  sheet. Standard creation pattern; respects one-handed use.
-- [ ] **Save button placement**: trailing toolbar (iOS default) or
-  footer button? *Recommendation*: trailing toolbar. Matches
-  Reminders, Calendar, Shortcuts.
-- [ ] **Should the Save action dismiss the sheet, or stay open
-  after save for rapid entry?** *Recommendation*: dismiss. Rapid
-  creation is a power-user feature; dismiss-on-save matches
-  everyone's expectation.
-- [ ] **How do we let the user set the habit's `createdAt`?** Right
-  now defaults to `.now`. Do we expose a "Start date" field?
-  *Recommendation*: no. `.now` is correct for 99% of habits;
-  editing `createdAt` belongs in detail-view "edit" mode where
-  score-backfill implications can be explained.
-- [ ] **Default frequency and type on open?** *Recommendation*:
-  `.daily` + `.binary`. Most common choice, one tap to save.
+All resolved 2026-04-17:
+
+- [x] **Icon + color**: deferred. `HabitRecord` has no fields; no
+  schema migration just for the UI. Ship with detail view / polish.
+- [x] **Presentation**: sheet from Today's "+" toolbar button.
+- [x] **Save placement**: trailing toolbar.
+- [x] **Dismiss on save**: yes, dismiss on successful save.
+- [x] **`createdAt` exposure**: no, defaults to `.now`. Editing lands
+  in detail-view edit mode.
+- [x] **Default frequency + type**: `.daily` + `.binary`.
 
 ## References
 
