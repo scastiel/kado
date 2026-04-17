@@ -1,10 +1,3 @@
-//
-//  KadoApp.swift
-//  Kado
-//
-//  Created by Sébastien Castiel on 16/04/2026.
-//
-
 import SwiftUI
 
 @main
