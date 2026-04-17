@@ -1,13 +1,14 @@
 ---
 name: conductor
-description: Guides feature development through a four-stage workflow — research, plan, build, compound — with Markdown artifacts generated at each stage. Use when the user asks to work on a new feature, investigate a problem, draft a plan, start an implementation, or wrap up a completed piece of work. Also triggers on explicit requests like "do some research on X", "let's plan Y", "build the Z feature", or "let's compound what we just did".
+description: Guides feature development through a five-stage workflow — research, plan, build, compound, done — with Markdown artifacts generated at each stage. Use when the user asks to work on a new feature, investigate a problem, draft a plan, start an implementation, wrap up a completed piece of work, or check whether a PR is ready to merge. Also triggers on explicit requests like "do some research on X", "let's plan Y", "build the Z feature", "let's compound what we just did", or "is this ready to merge".
 ---
 
 # Conductor — Feature Development Workflow
 
 Conductor is a lightweight workflow that structures feature development
-into four optional stages: **research → plan → build → compound**. Each
-stage produces a Markdown artifact stored under `docs/plans/`.
+into five optional stages: **research → plan → build → compound → done**.
+Each of the first four stages produces a Markdown artifact stored under
+`docs/plans/`; `done` is a pre-merge checklist with no artifact.
 
 ## Core principle: flexibility over imposition
 
@@ -33,6 +34,7 @@ charge. Concretely:
 | `plan` | Turn research into an ordered, concrete task list | `plan.md` |
 | `build` | Implement the plan, committing regularly | (code changes) |
 | `compound` | Capture decisions, surprises, lessons for the future | `compound.md` |
+| `done` | Pre-merge checklist: code ready, reviewed, docs current, compound run, PR title/body fresh | (no artifact) |
 
 Detailed instructions for each stage live in separate files to keep
 this overview short. Load them as needed:
@@ -41,6 +43,7 @@ this overview short. Load them as needed:
 - For planning: read `plan.md`
 - For implementation: read `build.md`
 - For wrap-up: read `compound.md`
+- For pre-merge checklist: read `done.md`
 
 ## Directory convention
 
@@ -93,10 +96,52 @@ The user may start a stage with phrasings like:
   first task"
 - **Compound**: "Let's wrap this up", "Capture what we learned",
   "Write the postmortem"
+- **Done**: "Is this ready to merge?", "Run done", "Let's wrap up and
+  merge"
 
 When a stage is invoked, load its instruction file and follow it. Don't
 try to do all stages in one go — each produces a checkpoint the user
 can review before moving on.
+
+## Asking the user questions
+
+Every stage involves points where you need a decision from the user —
+resolving open questions in `research`, confirming task order in
+`plan`, picking between two implementations in `build`, confirming
+pre-merge checks in `done`. **Use the `AskUserQuestion` tool for
+these prompts**, not free-form prose.
+
+Why:
+
+- The question UI renders as a structured picker the user can answer
+  with a click rather than typing.
+- Multiple related questions can be batched in one call instead of
+  chained round-trips.
+- Options force you to pre-think the answer space, which catches
+  sloppy binary framings ("yes/no") when a third option exists.
+
+When to reach for it:
+
+- **Any time you'd otherwise write "Should I X or Y?"** — that's an
+  `AskUserQuestion` call with two options.
+- Confirming a stage transition (research → plan, plan → build).
+- `done`'s first four checks — each is a clean yes/no confirmation
+  that belongs in the tool, not in a paragraph.
+- Resolving an open question carried forward from an earlier stage.
+
+When not to reach for it:
+
+- Pure acknowledgments ("Ok", "Go") where you're not actually asking
+  anything — just proceed.
+- Open-ended prompts with no enumerable answer space ("What should
+  we call this feature?") — free-form text is fine.
+- Mid-sentence confirmations that interrupt flow. Batch them up and
+  ask once at a checkpoint.
+
+Keep question titles short (≤12 chars), option labels ≤12 chars, and
+descriptions ≤25 chars so the UI renders cleanly. Always include an
+"Other" option with `multiSelect: false` unless you're certain the
+options are exhaustive.
 
 ## Open questions
 
