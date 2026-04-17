@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import Kado
 
 @Suite("NewHabitFormModel")
@@ -148,5 +149,97 @@ struct NewHabitFormModelTests {
         #expect(model.daysPerWeek == 5)
         #expect(model.specificDays == [.saturday, .sunday])
         #expect(model.everyNDays == 3)
+    }
+
+    // MARK: - Edit mode
+
+    @Test("init(editing:) pre-fills every field from the habit's current state")
+    func editingInitPreFillsAllFields() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let record = HabitRecord(
+            name: "Run",
+            frequency: .everyNDays(3),
+            type: .timer(targetSeconds: 25 * 60)
+        )
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.isEditing)
+        #expect(model.name == "Run")
+        #expect(model.frequencyKind == .everyNDays)
+        #expect(model.everyNDays == 3)
+        #expect(model.typeKind == .timer)
+        #expect(model.timerTargetMinutes == 25)
+    }
+
+    @Test("init(editing:) round-trips specificDays")
+    func editingInitSpecificDays() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let record = HabitRecord(
+            frequency: .specificDays([.tuesday, .thursday]),
+            type: .counter(target: 5)
+        )
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.frequencyKind == .specificDays)
+        #expect(model.specificDays == [.tuesday, .thursday])
+        #expect(model.typeKind == .counter)
+        #expect(model.counterTarget == 5)
+    }
+
+    @Test("save(in:) on an editing model mutates the record in place")
+    func editingSaveMutatesInPlace() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let original = HabitRecord(
+            name: "Old",
+            frequency: .daily,
+            type: .binary
+        )
+        container.mainContext.insert(original)
+        try container.mainContext.save()
+
+        let model = NewHabitFormModel(editing: original)
+        model.name = "New name"
+        model.frequencyKind = .daysPerWeek
+        model.daysPerWeek = 4
+        model.typeKind = .counter
+        model.counterTarget = 12
+
+        let saved = model.save(in: container.mainContext)
+
+        #expect(saved.id == original.id)
+        #expect(original.name == "New name")
+        #expect(original.frequency == .daysPerWeek(4))
+        #expect(original.type == .counter(target: 12))
+
+        let all = try container.mainContext.fetch(FetchDescriptor<HabitRecord>())
+        #expect(all.count == 1)
+    }
+
+    @Test("save(in:) on a new model inserts a new record")
+    func newSaveInserts() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let model = NewHabitFormModel()
+        model.name = "Fresh"
+
+        let saved = model.save(in: container.mainContext)
+        #expect(saved.name == "Fresh")
+
+        let all = try container.mainContext.fetch(FetchDescriptor<HabitRecord>())
+        #expect(all.count == 1)
+        #expect(all.first?.id == saved.id)
     }
 }
