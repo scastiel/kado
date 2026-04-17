@@ -66,7 +66,7 @@ truth and localize through the catalog.
 
 ---
 
-### Task 2: Normalize ContentView + SettingsView
+### Task 2: Normalize ContentView + SettingsView ✅ (no-op)
 
 **Goal**: close the `Tab()` / `ContentUnavailableView` localization
 leaks flagged in research.
@@ -90,7 +90,7 @@ leaks flagged in research.
 
 ---
 
-### Task 3: Normalize TodayView
+### Task 3: Normalize TodayView ✅ (no-op)
 
 **Goal**: localize empty-state strings and the "New habit" toolbar
 label.
@@ -289,6 +289,20 @@ None blocking. Deferred:
   EN-collision problem entirely, and drops 14 keys from Task 6's
   curation scope. Zero visible EN change (EN symbols match what we
   were typing by hand).
+- **Task 2 no-op**: `Tab(_:systemImage:)`,
+  `ContentUnavailableView(_:systemImage:description:)`, and
+  `.navigationTitle(_:)` all accept `LocalizedStringKey` in iOS 18.
+  Research flagged these as raw-literal leaks — they aren't. Source
+  already correct; strings will surface in the catalog during Task 6.
+- **Catalog auto-population under xcodebuild**:
+  `LOCALIZATION_PREFERS_STRING_CATALOGS=YES` and
+  `SWIFT_EMIT_LOC_STRINGS=YES` are set, but `xcodebuild` (MCP) does
+  NOT write the extracted strings back into the `.xcstrings` file
+  during a normal build — that sync happens in the Xcode IDE. Impact:
+  Task 6 hand-authors the catalog JSON from the inventory rather than
+  relying on auto-extraction. Same endpoint, just more explicit. The
+  hand-authored keys will be preserved by Xcode on future extractions
+  (it merges, doesn't overwrite).
 
 ## Out of scope
 
