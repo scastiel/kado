@@ -2,7 +2,7 @@
 # Plan — Habit Detail view
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -42,7 +42,7 @@ spec doc. Counter/timer logging and scrollable history are PR B.
 
 ## Task list
 
-### Task 1: Write `docs/streak.md` spec
+### Task 1: ✅ Write `docs/streak.md` spec
 
 **Goal**: Pin down streak semantics across frequencies before any
 code.
@@ -68,7 +68,7 @@ code.
 
 ---
 
-### Task 2: Red tests for `StreakCalculator`
+### Task 2: ✅ Red tests for `StreakCalculator`
 
 **Goal**: TDD on the streak service.
 
@@ -95,7 +95,7 @@ code.
 
 ---
 
-### Task 3: Implement `StreakCalculator` + env key
+### Task 3: ✅ Implement `StreakCalculator` + env key
 
 **Goal**: Protocol, default impl, environment injection.
 
@@ -112,7 +112,7 @@ code.
 
 ---
 
-### Task 4: Build `MonthlyCalendarView`
+### Task 4: ✅ Build `MonthlyCalendarView`
 
 **Goal**: Reusable current-month grid.
 
@@ -141,7 +141,7 @@ and iPad.
 
 ---
 
-### Task 5: Build `HabitDetailView`
+### Task 5: ✅ Build `HabitDetailView`
 
 **Goal**: The detail screen itself.
 
@@ -164,7 +164,7 @@ and iPad.
 
 ---
 
-### Task 6: Wire Today row split + navigation
+### Task 6: ✅ Wire Today row split + navigation
 
 **Goal**: Split Today's row into toggle region (leading circle)
 and navigate region (the rest), push to `HabitDetailView`.
@@ -194,7 +194,7 @@ and navigate region (the rest), push to `HabitDetailView`.
 
 ---
 
-### Task 7: `NewHabitFormModel.init(editing:)` + edit-mode save path
+### Task 7: ✅ `NewHabitFormModel.init(editing:)` + edit-mode save path
 
 **Goal**: Reuse the form for editing.
 
@@ -225,7 +225,7 @@ visible.
 
 ---
 
-### Task 8: Detail toolbar — Edit + Archive with confirmation
+### Task 8: ✅ Detail toolbar — Edit + Archive with confirmation
 
 **Goal**: Wire the two actions on `HabitDetailView`.
 
@@ -249,11 +249,38 @@ visible.
 
 ---
 
-### Task 9: (Optional) polish
+### Task 9: (Optional) polish — skipped
 
-Reserved for issues uncovered during Tasks 6–8 — a11y labels,
-empty-state copy, dark-mode checks, Dynamic Type XXXL pass on the
-calendar.
+No issues surfaced. Live sim verification via `simctl io booted
+screenshot` confirms the row split works (leading circle visible,
+chevron indicates navigation, content looks unchanged). iPad
+build green. 94/94 tests green (76 from prior PRs + 14 new streak
++ 4 new edit-mode).
+
+## Notes during build
+
+- **Streak best-value algorithm** got a correction mid-build:
+  initial impl had a dead `isGraceForBest` helper that always
+  returned false; simplified to "end-day grace = don't reset run,
+  don't +1 either." One test expectation also drifted during the
+  refinement — fixed `daysPerWeekResets.best` from 2 to 1 after
+  tracing the actual week boundaries.
+- **Swift implicit-return-from-switch gotcha**: `frequencyLabel`
+  in `HabitDetailView` had three arms returning string literals
+  and one arm doing `return` after a multi-line body. Swift
+  rejected that as "missing return." Fix: explicit `return` on
+  every arm.
+- **`@Bindable` on `HabitRecord` worked cleanly** inside both
+  `HabitDetailView` and `NewHabitFormView` (edit mode). Mutations
+  propagate via SwiftData's observation; the Today list's
+  `@Query` refreshes automatically after archive/save.
+- **`NavigationLink(value: record)` + `navigationDestination(for:
+  HabitRecord.self)`** required no additional Hashable bridging
+  — `HabitRecord` already conforms via SwiftData's `@Model`.
+- **Button-inside-NavigationLink precedence**: `.buttonStyle(.borderless)`
+  on the leading toggle correctly absorbs its tap without
+  triggering navigation. iOS-standard pattern, no extra gesture
+  wiring needed.
 
 ## Risks and mitigation
 
