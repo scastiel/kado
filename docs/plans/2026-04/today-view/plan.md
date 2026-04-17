@@ -212,15 +212,38 @@ optional tap action for binary/negative.
 
 ---
 
-### Task 6: (Optional) UI polish pass
+### Task 6: (Optional) UI polish pass — skipped
 
-**Goal**: Small refinements uncovered during Task 5 — visual
-spacing, accessibility labels, DST edge-cases observed in preview.
+No issues surfaced during Task 5 that warrant a polish pass. Empty
+state renders cleanly in the simulator; previews cover populated
+and "nothing due today" states. Counter/timer trailing labels show
+target only (no today's value) because there's no path to create
+counter/timer completions until the detail view ships — revisit
+when that lands.
 
-**Changes**: TBD; only commit if Task 5 surfaces something.
+## Notes during build
 
-**Commit message (suggested)**:
-`refactor(today): <specific refinement>`
+- **Task 5 manual verification**: the production `ModelContainer` is
+  file-backed and starts empty, so tap-to-toggle couldn't be tested
+  end-to-end on the simulator in this PR. Previews cover the
+  populated rendering. Full manual verification (tap → haptic →
+  persisted state) unlocks once the Create-habit PR lands.
+- **XcodeBuildMCP destination flakiness**: `build_sim` and
+  `test_sim` occasionally fail with
+  `Unable to find a destination matching { platform:iOS Simulator, OS:latest, name:iPhone 17 Pro }`
+  even though the sim is booted and iOS 26.4 simulator SDK is
+  installed. The error cites the missing iOS 26.4 device SDK —
+  xcodebuild seems to walk all scheme destinations and give up
+  when device-side resolution fails. Workaround: shut down and
+  reboot the simulator, then rerun. Cleaning DerivedData also
+  helps. Worth promoting as a CLAUDE.md lesson.
+- **`#Predicate<HabitRecord> { $0.archivedAt == nil }` worked first
+  try** — the fallback path (unfiltered `@Query` + in-memory
+  archive filter) stayed a spec-only contingency.
+- **`.sensoryFeedback(.success, trigger: isCompletedToday)` on the
+  outer view** fires on both true→false and false→true transitions,
+  giving tactile confirmation on tap and undo. No first-render
+  spurious fire observed.
 
 ## Risks and mitigation
 
