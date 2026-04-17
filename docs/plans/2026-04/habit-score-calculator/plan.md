@@ -193,7 +193,7 @@ daily habits.
 
 ---
 
-### Task 6: Archiving and timezone edge cases
+### Task 6: Archiving and timezone edge cases ✅
 
 **Goal**: Handle the boundary conditions from the spec.
 
@@ -256,6 +256,15 @@ daily habits.
 
 None at plan time — all four resolved into the Decisions section
 before build.
+
+## Notes during build
+
+- **Task 6**: Archiving and DST landed without any implementation
+  changes — `FrequencyEvaluator` already short-circuits past
+  `archivedAt`, and the calculator's day-walk uses
+  `Calendar.date(byAdding: .day, ...)` which is DST-safe out of the
+  box. Task 6 reduced to pure regression tests confirming the
+  pre-existing behavior.
 
 ## Out of scope
 

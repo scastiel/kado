@@ -411,6 +411,145 @@ struct HabitScoreCalculatorTests {
         #expect(score == 0)
     }
 
+    // MARK: Lifecycle and timezones
+
+    @Test("Archived habit's score freezes at the archive date")
+    func archivedScoreFrozen() {
+        let archived = Habit(
+            name: "Run",
+            frequency: .daily,
+            type: .binary,
+            createdAt: TestCalendar.day(0),
+            archivedAt: TestCalendar.day(20)
+        )
+        let completions = (0..<30).map {
+            Completion(habitID: archived.id, date: TestCalendar.day($0))
+        }
+        let atArchive = calculator.currentScore(
+            for: archived,
+            completions: completions,
+            asOf: TestCalendar.day(20)
+        )
+        let muchLater = calculator.currentScore(
+            for: archived,
+            completions: completions,
+            asOf: TestCalendar.day(60)
+        )
+        #expect(atArchive == muchLater)
+    }
+
+    @Test("Habit created today and completed today has score equal to alpha")
+    func newHabitOneCompletionEqualsAlpha() {
+        let habit = makeHabit(createdOffset: 10)
+        let completion = Completion(habitID: habit.id, date: TestCalendar.day(10))
+        let score = calculator.currentScore(
+            for: habit,
+            completions: [completion],
+            asOf: TestCalendar.day(10)
+        )
+        #expect(abs(score - 0.05) < 1e-9, "got \(score)")
+    }
+
+    @Test("Backfilling a past completion produces the same score as having it from the start")
+    func backfillIsIdempotent() {
+        let habit = makeHabit(createdOffset: 0)
+        // Path A: completion logged in real-time across all 30 days.
+        let realTime = (0..<30).map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        // Path B: same data, shuffled (simulates backfill order).
+        let backfilled = realTime.shuffled()
+        let scoreRealTime = calculator.currentScore(
+            for: habit,
+            completions: realTime,
+            asOf: TestCalendar.day(29)
+        )
+        let scoreBackfilled = calculator.currentScore(
+            for: habit,
+            completions: backfilled,
+            asOf: TestCalendar.day(29)
+        )
+        #expect(scoreRealTime == scoreBackfilled)
+    }
+
+    @Test("Adding a previously-missing completion raises the score")
+    func backfillRaisesScore() {
+        let habit = makeHabit(createdOffset: 0)
+        let withGap = (0..<30).filter { $0 != 15 }.map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let filled = (0..<30).map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let scoreGap = calculator.currentScore(for: habit, completions: withGap, asOf: TestCalendar.day(29))
+        let scoreFilled = calculator.currentScore(for: habit, completions: filled, asOf: TestCalendar.day(29))
+        #expect(scoreFilled > scoreGap)
+    }
+
+    @Test("DST spring-forward: history yields exactly one entry per calendar day")
+    func dstSpringForwardDayCount() throws {
+        var paris = Calendar(identifier: .gregorian)
+        paris.timeZone = try #require(TimeZone(identifier: "Europe/Paris"))
+        let calc = DefaultHabitScoreCalculator(alpha: 0.05, calendar: paris)
+
+        // Europe/Paris DST 2026 begins Sunday 2026-03-29 (02:00 → 03:00).
+        let start = try #require(paris.date(from: DateComponents(
+            timeZone: TimeZone(identifier: "Europe/Paris"),
+            year: 2026, month: 3, day: 27, hour: 12
+        )))
+        let end = try #require(paris.date(byAdding: .day, value: 6, to: start))
+
+        let habit = Habit(
+            name: "DST",
+            frequency: .daily,
+            type: .binary,
+            createdAt: start
+        )
+        let history = calc.scoreHistory(
+            for: habit,
+            completions: [],
+            from: start,
+            to: end
+        )
+
+        #expect(history.count == 7, "got \(history.count) entries")
+
+        // Each entry must be a distinct startOfDay — no day skipped, none double-counted.
+        let uniqueDays = Set(history.map { paris.startOfDay(for: $0.date) })
+        #expect(uniqueDays.count == 7)
+    }
+
+    @Test("DST fall-back: history yields exactly one entry per calendar day")
+    func dstFallBackDayCount() throws {
+        var paris = Calendar(identifier: .gregorian)
+        paris.timeZone = try #require(TimeZone(identifier: "Europe/Paris"))
+        let calc = DefaultHabitScoreCalculator(alpha: 0.05, calendar: paris)
+
+        // Europe/Paris DST 2026 ends Sunday 2026-10-25 (03:00 → 02:00).
+        let start = try #require(paris.date(from: DateComponents(
+            timeZone: TimeZone(identifier: "Europe/Paris"),
+            year: 2026, month: 10, day: 23, hour: 12
+        )))
+        let end = try #require(paris.date(byAdding: .day, value: 6, to: start))
+
+        let habit = Habit(
+            name: "DST",
+            frequency: .daily,
+            type: .binary,
+            createdAt: start
+        )
+        let history = calc.scoreHistory(
+            for: habit,
+            completions: [],
+            from: start,
+            to: end
+        )
+
+        #expect(history.count == 7, "got \(history.count) entries")
+        let uniqueDays = Set(history.map { paris.startOfDay(for: $0.date) })
+        #expect(uniqueDays.count == 7)
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {
