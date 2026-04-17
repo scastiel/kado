@@ -101,6 +101,22 @@ Swift Concurrency (`async`/`await`, actors). No callback closures
 unless forced by a system API. Respect `MainActor` for anything
 UI-related.
 
+The project sets `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (Xcode's
+"approachable concurrency" default), which propagates MainActor
+isolation to every type by default. Domain value types that need
+cross-actor use (typically those with `Codable` or `Sendable`
+conformances consumed from off-MainActor tests or background
+encoders) must be marked `nonisolated` at the type declaration:
+
+```swift
+nonisolated enum Frequency: Hashable, Codable, Sendable { ... }
+nonisolated struct Habit: Hashable, Sendable { ... }
+```
+
+Without `nonisolated`, the synthesized conformances inherit MainActor
+isolation and emit "main actor-isolated conformance cannot be used in
+nonisolated context" warnings (errors under Swift 6 mode).
+
 ### Dates and calendars
 Day arithmetic always goes through `Calendar` — never raw seconds.
 `addingTimeInterval(86400)` silently breaks across DST boundaries
@@ -159,10 +175,24 @@ KadoUITests/                # UI tests (XCTest)
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with
   `@Relationship(deleteRule:inverse:)`.
-- Migrations: use `VersionedSchema` and `SchemaMigrationPlan` from the
-  first post-v0.1 schema change onward.
+- Migrations: `VersionedSchema` + `SchemaMigrationPlan` are wired from
+  day one (`KadoSchemaV1` + `KadoMigrationPlan` with empty `stages`).
+  When schema evolves, copy `KadoSchemaV1`'s models into a
+  `KadoSchemaV2` namespace, append a `MigrationStage.lightweight(...)`
+  (or `.custom`), and append `KadoSchemaV2.self` to
+  `KadoMigrationPlan.schemas`.
 - Queries: prefer `@Query` in simple views, explicit descriptor + fetch
   in services for complex logic.
+- CloudKit-shape from day one: every property has a default value or
+  is optional, the to-many relationship has an explicit inverse, no
+  `@Attribute(.unique)`, no `Deny` delete rule, no ordered relationships.
+- **Composite Codable workaround**: SwiftData on Xcode 26 / iOS 18
+  does not reliably support enums with associated values as direct
+  stored properties on `@Model` — `ModelContainer.init` crashes at
+  runtime even though build is clean. Workaround: store as
+  `private var fooData: Data` and expose `var foo: Foo { get / set }`
+  with explicit JSON encode/decode. See `HabitRecord` for the canonical
+  pattern. Re-evaluate when Apple fixes the underlying bug.
 
 ---
 
@@ -433,6 +463,11 @@ restating their content.
   research → plan → build → compound stages. Load it when the user
   signals a new feature is starting. Stages can be skipped — confirm
   with the user before bypassing one.
+- When research depends on a load-bearing claim about toolchain
+  behavior ("this storage shape works", "this API supports X"),
+  verify with a 2-minute smoke test before committing the design.
+  Research helpers can be wrong about toolchain-specific specifics;
+  catching it up front is far cheaper than a mid-build pivot.
 
 ### What Claude should NOT do without asking
 - Add a third-party dependency (Swift Package or otherwise).
