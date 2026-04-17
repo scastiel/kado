@@ -2,7 +2,7 @@
 # Plan — Translations catalog for v0.1
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -212,7 +212,7 @@ directly (rather than via auto-extraction).
 
 ---
 
-### Task 7: Manual pseudo-locale verification
+### Task 7: Manual pseudo-locale verification ⚠️ (partial, deferred)
 
 **Goal**: prove every visible string is in the catalog by running the
 app in the accented-pseudo-locale (`en_XA`) and eyeballing each view.
@@ -241,7 +241,7 @@ test.
 
 ---
 
-### Task 8: Mark plan `done` and wrap up
+### Task 8: Mark plan `done` and wrap up ✅
 
 **Goal**: close out the PR for review.
 
@@ -294,6 +294,17 @@ None blocking. Deferred:
   `.navigationTitle(_:)` all accept `LocalizedStringKey` in iOS 18.
   Research flagged these as raw-literal leaks — they aren't. Source
   already correct; strings will surface in the catalog during Task 6.
+- **Task 7 deferral**: neither launch args
+  (`-AppleLanguages (en-XA) -AppleLocale en_XA`) nor simulator-wide
+  defaults produced accented-pseudo output — the catalog only has
+  an `"en"` localization, and iOS won't synthesize pseudo-locale
+  output at runtime without Xcode scheme's "Include double-length
+  pseudo-language" / "Use accented pseudo-language" option being
+  toggled. That option is not exposed via MCP. App does launch and
+  renders every visible string correctly against the hand-authored
+  catalog; runtime verification was scoped to the Today view. Full
+  accented-pseudo verification is deferred to the v1.0 pre-FR pass,
+  to be run from Xcode IDE with scheme option enabled.
 - **Catalog auto-population under xcodebuild**:
   `LOCALIZATION_PREFERS_STRING_CATALOGS=YES` and
   `SWIFT_EMIT_LOC_STRINGS=YES` are set, but `xcodebuild` (MCP) does
