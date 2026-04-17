@@ -2,21 +2,28 @@ import SwiftUI
 
 /// The Settings tab.
 ///
-/// Placeholder at bootstrap. v0.1 adds the iCloud sync toggle and an
-/// "About" entry; v1.0 fills in themes, biometrics, and export.
+/// v0.1 surfaces the iCloud account status only — there is no in-app
+/// sync toggle, by design. Control lives in iOS Settings → Apple ID
+/// → iCloud → Kado, matching the native pattern used by Reminders,
+/// Journal, and Streaks. v1.0 adds About, themes, biometrics, and
+/// export sections below this one.
 struct SettingsView: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView(
-                "Settings",
-                systemImage: "gearshape",
-                description: Text("Preferences will land here as the app grows.")
-            )
+            Form {
+                SyncStatusSection()
+            }
             .navigationTitle("Settings")
         }
     }
 }
 
-#Preview {
+#Preview("Available") {
     SettingsView()
+        .environment(\.cloudAccountStatus, MockCloudAccountStatusObserver(status: .available))
+}
+
+#Preview("Not signed in") {
+    SettingsView()
+        .environment(\.cloudAccountStatus, MockCloudAccountStatusObserver(status: .noAccount))
 }
