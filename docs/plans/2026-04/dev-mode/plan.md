@@ -1,7 +1,7 @@
 # Plan — Dev Mode
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -174,6 +174,25 @@ the dev-mode flag.
 
 None blocking. Will revisit toggle copy during Task 4 based on how
 it reads in-app.
+
+## Notes during build
+
+- **Task 3**: initial sketch used `.onChange(of: isDevMode, initial: true)`
+  to drive activation, which wiped the sandbox on every cold launch
+  and broke the "edits persist across launches while dev mode stays
+  on" contract. Switched to edge-triggered `onChange` (off→on wipes
+  and reseeds; on→off drops the reference) and pushed the
+  "seed-if-empty" check into `DevModeController.devContainer()` so
+  first-time access seeds on demand.
+- **Post-build polish**: initial root used `.id(isDevMode)` on
+  `ContentView` as a safety net to force a remount on swap. Turned
+  out unnecessary — `.modelContainer(_:)` propagates the new
+  container and `@Query` re-fetches in place — and it had a real
+  cost (reset the selected tab/navigation stack). Removed the `.id`.
+- **Sync status row**: added a `"Sync paused while dev mode is on"`
+  state to `SyncStatusSection` (reads the same `@AppStorage` key) so
+  the iCloud section doesn't misleadingly advertise syncing while
+  the sandbox store is active.
 
 ## Out of scope
 
