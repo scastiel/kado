@@ -173,6 +173,107 @@ struct HabitScoreCalculatorTests {
         #expect(current == history.last?.score)
     }
 
+    // MARK: Non-daily frequencies
+
+    @Test("Specific-days perfect adherence yields the same score as daily perfects of equal due-day count")
+    func specificDaysSkipsNonDueDaysIdentically() {
+        // Daily, 30 perfect days.
+        let daily = makeHabit(createdOffset: 0)
+        let dailyCompletions = (0..<30).map {
+            Completion(habitID: daily.id, date: TestCalendar.day($0))
+        }
+        let dailyScore = calculator.currentScore(
+            for: daily,
+            completions: dailyCompletions,
+            asOf: TestCalendar.day(29)
+        )
+
+        // Mon/Wed/Fri, perfect over 10 weeks → 30 due days.
+        let mwf = Habit(
+            name: "MWF",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        var mwfCompletions: [Completion] = []
+        for week in 0..<10 {
+            for offsetInWeek in [0, 2, 4] {
+                mwfCompletions.append(
+                    Completion(habitID: mwf.id, date: TestCalendar.day(week * 7 + offsetInWeek))
+                )
+            }
+        }
+        // Last due day in the 10-week window is week 9, offset 4 → day 67.
+        let mwfScore = calculator.currentScore(
+            for: mwf,
+            completions: mwfCompletions,
+            asOf: TestCalendar.day(67)
+        )
+
+        #expect(abs(dailyScore - mwfScore) < 1e-9, "daily=\(dailyScore) mwf=\(mwfScore)")
+    }
+
+    @Test("Every-3-days perfect adherence equals daily perfect over the same due-day count")
+    func everyNDaysMatchesDailyForEqualDueCount() {
+        let daily = makeHabit(createdOffset: 0)
+        let dailyCompletions = (0..<20).map {
+            Completion(habitID: daily.id, date: TestCalendar.day($0))
+        }
+        let dailyScore = calculator.currentScore(
+            for: daily,
+            completions: dailyCompletions,
+            asOf: TestCalendar.day(19)
+        )
+
+        let everyThree = Habit(
+            name: "Long run",
+            frequency: .everyNDays(3),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        // 20 due days at offsets 0, 3, 6, ..., 57.
+        let everyThreeCompletions = (0..<20).map {
+            Completion(habitID: everyThree.id, date: TestCalendar.day($0 * 3))
+        }
+        let everyThreeScore = calculator.currentScore(
+            for: everyThree,
+            completions: everyThreeCompletions,
+            asOf: TestCalendar.day(57)
+        )
+
+        #expect(abs(dailyScore - everyThreeScore) < 1e-9, "daily=\(dailyScore) every3=\(everyThreeScore)")
+    }
+
+    @Test("Off-schedule completions on non-due days do not contribute to the score")
+    func offScheduleCompletionsIgnored() {
+        let mondayOnly = Habit(
+            name: "Mondays only",
+            frequency: .specificDays([.monday]),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        // User completes every single day for 30 days — but only Mondays count.
+        let everyDay = (0..<30).map {
+            Completion(habitID: mondayOnly.id, date: TestCalendar.day($0))
+        }
+        let scoreEveryDay = calculator.currentScore(
+            for: mondayOnly,
+            completions: everyDay,
+            asOf: TestCalendar.day(29)
+        )
+
+        let mondaysOnly = (0..<30).filter { $0 % 7 == 0 }.map {
+            Completion(habitID: mondayOnly.id, date: TestCalendar.day($0))
+        }
+        let scoreMondaysOnly = calculator.currentScore(
+            for: mondayOnly,
+            completions: mondaysOnly,
+            asOf: TestCalendar.day(29)
+        )
+
+        #expect(scoreEveryDay == scoreMondaysOnly)
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {

@@ -147,7 +147,7 @@ daily habits.
 
 ---
 
-### Task 4: Non-daily frequency support
+### Task 4: Non-daily frequency support ✅
 
 **Goal**: Score calculation correctly skips non-due days.
 
