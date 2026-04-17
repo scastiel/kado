@@ -2,7 +2,7 @@
 # Plan — Detail view quick-log + history
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -34,7 +34,7 @@ writes. No data-model changes.
 
 ## Task list
 
-### Task 1: Red tests for `CompletionLogger`
+### Task 1: ✅ Red tests for `CompletionLogger`
 
 **Goal**: TDD the new counter/timer/delete operations.
 
@@ -58,7 +58,7 @@ writes. No data-model changes.
 
 ---
 
-### Task 2: Implement `CompletionLogger`
+### Task 2: ✅ Implement `CompletionLogger`
 
 **Goal**: Struct with `Calendar` injection, four methods.
 
@@ -83,7 +83,7 @@ writes. No data-model changes.
 
 ---
 
-### Task 3: Update `HabitRowView` to show today's value
+### Task 3: ✅ Update `HabitRowView` to show today's value
 
 **Goal**: Replace `–/8` placeholder with actual today value when
 present.
@@ -105,7 +105,7 @@ present.
 
 ---
 
-### Task 4: Build `CounterQuickLogView`
+### Task 4: ✅ Build `CounterQuickLogView`
 
 **Goal**: `−` / value / `+` trio with target-reached haptic.
 
@@ -125,7 +125,7 @@ present.
 
 ---
 
-### Task 5: Build `TimerLogSheet`
+### Task 5: ✅ Build `TimerLogSheet`
 
 **Goal**: Modal sheet for logging a timer session's minutes.
 
@@ -143,7 +143,7 @@ present.
 
 ---
 
-### Task 6: Build `CompletionHistoryList`
+### Task 6: ✅ Build `CompletionHistoryList`
 
 **Goal**: Scrollable list of completions below the calendar.
 
@@ -162,7 +162,7 @@ present.
 
 ---
 
-### Task 7: Wire quick-log + history into `HabitDetailView`
+### Task 7: ✅ Wire quick-log + history into `HabitDetailView`
 
 **Goal**: Compose the new components on the detail screen.
 
@@ -187,9 +187,31 @@ present.
 
 ---
 
-### Task 8: (Optional) polish
+### Task 8: (Optional) polish — skipped
 
-Reserved for issues during Tasks 3–7.
+No issues surfaced during Tasks 3–7. 106/106 tests green on
+iPhone; iPad Air build clean. Screenshot confirms Today row
+layout unchanged for existing binary habits.
+
+## Notes during build
+
+- **Double vs Int comparison in `#expect`**: the timer-session
+  tests initially failed with `"1500.0 == 1500"` on the same
+  logical value because LHS was `Double?` and RHS was `Int`
+  (from `25 * 60`). Swift compiled the expression via permissive
+  coercion but runtime equality returned false. Fix: explicit
+  `Double(25 * 60)` on the RHS. Worth a CLAUDE.md note under
+  Testing: always match numeric types in `#expect` to avoid
+  silent compile-time coercion.
+- **`@Bindable` across components** continues to propagate
+  SwiftData mutations cleanly — `CompletionHistoryList`,
+  `CounterQuickLogView` callbacks, and `TimerLogSheet` all
+  trigger `habit.completions` updates that the detail view's
+  `HabitRowView`-computed properties pick up on re-render.
+- **`CompletionLogger` mirrors `CompletionToggler`** in shape and
+  test discipline — no protocol, concrete struct, `Calendar`
+  injection. The pattern is clearly a good fit for "mutate a
+  habit's completions from UI" operations.
 
 ## Risks and mitigation
 
