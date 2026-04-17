@@ -119,3 +119,9 @@ struct TodayView: View {
     TodayView()
         .modelContainer(PreviewContainer.noneDueTodayContainer())
 }
+
+#Preview("Dark") {
+    TodayView()
+        .modelContainer(PreviewContainer.shared)
+        .preferredColorScheme(.dark)
+}

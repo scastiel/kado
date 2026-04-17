@@ -54,6 +54,11 @@ struct WeekdayPicker: View {
     StatefulPreview(initial: [])
 }
 
+#Preview("Dark") {
+    StatefulPreview(initial: [.monday, .wednesday, .friday])
+        .preferredColorScheme(.dark)
+}
+
 private struct StatefulPreview: View {
     @State var selection: Set<Weekday>
 
