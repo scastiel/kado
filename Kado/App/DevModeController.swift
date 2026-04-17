@@ -34,14 +34,13 @@ final class DevModeController {
         enabled ? devContainer() : productionContainer()
     }
 
-    /// Wipe any previous sandbox, build a fresh dev container, seed
-    /// it. Call this on every off→on transition.
+    /// Wipe any previous sandbox on disk. Call this on every off→on
+    /// transition. The fresh container is built lazily on next
+    /// `container(forDevMode: true)` and seeded because the file is
+    /// now absent.
     func activateDevMode() {
         cachedDevContainer = nil
         deleteDevStoreFiles()
-        let fresh = buildDevContainer()
-        DevModeSeed.seed(into: fresh.mainContext)
-        cachedDevContainer = fresh
     }
 
     /// Drop the dev container reference. The sandbox file is left on
@@ -60,8 +59,17 @@ final class DevModeController {
     private func devContainer() -> ModelContainer {
         if let cachedDevContainer { return cachedDevContainer }
         let container = buildDevContainer()
+        seedIfEmpty(container)
         cachedDevContainer = container
         return container
+    }
+
+    private func seedIfEmpty(_ container: ModelContainer) {
+        let context = container.mainContext
+        let count = (try? context.fetchCount(FetchDescriptor<HabitRecord>())) ?? 0
+        if count == 0 {
+            DevModeSeed.seed(into: context)
+        }
     }
 
     private func buildDevContainer() -> ModelContainer {
