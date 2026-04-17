@@ -158,6 +158,18 @@ argument to `DefaultCloudAccountStatusObserver.init`. Both the
 class and any constants it references (e.g. `CloudContainerID`)
 need `nonisolated`, otherwise the init evaluation site warns.
 
+The same rule also extends to **static properties and static
+functions on a `@MainActor` type that are used as default-argument
+expressions on that type's init**. Even when the init itself is
+MainActor-isolated, Swift evaluates the default expression in the
+caller's context and warns ("converting `@MainActor () -> T` to
+`() -> T` loses global actor 'MainActor'"). Mark such defaults
+`nonisolated static` when they don't touch MainActor state — e.g.
+`DevModeController.defaultDevStoreURL` and
+`DevModeController.defaultProductionContainer()` are both
+`nonisolated static` because `URL` math and `ModelContainer.init`
+don't need MainActor.
+
 ### Dates and calendars
 Day arithmetic always goes through `Calendar` — never raw seconds.
 `addingTimeInterval(86400)` silently breaks across DST boundaries
@@ -246,6 +258,23 @@ KadoUITests/                # UI tests (XCTest)
   ```
   Applied in `TimerLogSheet` so the env calendar drives today-
   completion prefill, matching the save path.
+- **`.onChange(of: X, initial: true)` is stateless** — the callback
+  fires on launch and on change with the same signature, so it
+  can't distinguish "launched with X already true" from "user just
+  set X to true." If those two paths need different behavior, use
+  edge-triggered `.onChange(of: X) { old, new in ... }` and handle
+  the at-launch case via lazy init keyed on the presence/absence
+  of the underlying state. `DevModeController.devContainer()` uses
+  a "seed if empty" check for this — launches with dev mode already
+  on read the existing sqlite as-is; off→on transitions wipe the
+  file so the next lazy build reseeds.
+- **Swapping `.modelContainer(_:)` at runtime propagates to `@Query`
+  in place** — no `.id(...)` remount is required. `@Query` re-fetches
+  from the new container on the same view identity, so navigation
+  state, selected tab, and scroll position are preserved. Adding
+  `.id(flag)` as a defensive swap-trigger (as the Dev mode work
+  initially did) quietly resets all of that. Trust the swap; don't
+  rebuild the tree unless you've reproduced a real staleness bug.
 
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with

@@ -12,6 +12,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 SyncStatusSection()
+                DevModeSection()
             }
             .navigationTitle("Settings")
         }

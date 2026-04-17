@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 @testable import Kado
 
-@Suite("PreviewContainer seeding")
+@Suite("DevModeSeed seeding")
 @MainActor
 struct PreviewContainerTests {
     @Test("Seeds five habits covering each frequency and type")
@@ -12,7 +12,7 @@ struct PreviewContainerTests {
             for: HabitRecord.self, CompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
-        PreviewContainer.seed(container.mainContext)
+        DevModeSeed.seed(into: container.mainContext)
 
         let habits = try container.mainContext.fetch(FetchDescriptor<HabitRecord>())
         #expect(habits.count == 5)
