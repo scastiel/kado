@@ -94,7 +94,7 @@ will speak in.
 
 ---
 
-### Task 2: FrequencyEvaluator (TDD)
+### Task 2: FrequencyEvaluator (TDD) ✅
 
 **Goal**: Decide whether a habit is "due" on a given calendar day.
 
