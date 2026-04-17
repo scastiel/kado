@@ -14,14 +14,14 @@ struct HabitRowView: View {
             if let onTap {
                 Button(action: onTap) { rowContent }
                     .buttonStyle(.plain)
+                    .sensoryFeedback(.success, trigger: isCompletedToday)
+                    .accessibilityHint(Text("Double tap to toggle completion."))
             } else {
                 rowContent
             }
         }
-        .sensoryFeedback(.success, trigger: isCompletedToday)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
-        .accessibilityHint(onTap == nil ? "" : String(localized: "Double tap to toggle completion."))
     }
 
     private var rowContent: some View {
