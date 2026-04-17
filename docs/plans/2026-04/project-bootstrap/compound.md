@@ -140,6 +140,9 @@ in git.
 
 ## Generalizable lessons
 
+- **[✓ promoted]** PR title + description format (semantic-commit
+  title, four-section Why/What/How/Next-steps body). Added to
+  `CLAUDE.md` under Git and commits → Pull requests.
 - **[→ CLAUDE.md]** Update default simulator from "iPhone 16 Pro (iOS
   18.x)" to "iPhone 17 Pro" and "iPad Air (M2)" to "iPad Air 13-inch
   (M4)", or switch to a version-neutral phrasing.

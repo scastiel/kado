@@ -375,6 +375,24 @@ refactor(habit-detail): extract calendar grid into own view
 
 Scope optional, description in imperative present, no trailing period.
 
+### Pull requests
+
+Every PR has:
+
+- **A semantic-commit-style title** (`<type>(<scope>): <description>`)
+  — same convention as commit messages. The title becomes the
+  squash-merge commit on `main`, so it must stand alone.
+- **A short, bullet-heavy description in four sections**, in this
+  order:
+  - **Why?** — the problem the PR solves
+  - **What?** — product-oriented overview of the change
+  - **How?** — technical notes on the implementation
+  - **Next steps** — follow-ups, open questions, deferred work
+
+Favor bullets over prose. The description should be skimmable in
+30 seconds. Link to `docs/plans/<slug>/` artifacts instead of
+restating their content.
+
 ---
 
 ## Interaction with Claude Code
