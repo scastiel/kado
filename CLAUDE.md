@@ -157,6 +157,15 @@ zone) when DST behavior is under test. The `TestCalendar` helper in
   `NotificationScheduling`) rather than a form (`HabitScoreCalculatorProtocol`).
 - Files: one primary type per file, filename = type name.
 
+### Switch-returning computed properties
+When a `switch` inside a computed property has **any arm** with
+multi-statement logic, put explicit `return` on **every** arm.
+Swift's implicit-return-from-switch only applies when every arm
+is a single expression; mixing `case .x: "literal"` with a
+multi-statement arm that uses `return` raises
+`"missing return in getter expected to return 'T'"` — a confusing
+error for an easy fix. When in doubt, be consistent.
+
 ### File organization
 ```
 Kado/
