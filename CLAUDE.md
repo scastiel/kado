@@ -91,6 +91,24 @@ struct HabitDetailView: View {
 Each service is protocol-defined. Default implementations are used in
 production, mocks in tests.
 
+**`@Entry` macro for `@MainActor`-isolated reference types.** The
+`EnvironmentKey` pattern above works for value-type defaults
+(structs, simple references). It does **not** compose with a
+`@MainActor`-isolated `@Observable` class — the static
+`defaultValue` is evaluated nonisolated and Swift complains about
+calling a MainActor init from there. Use the `@Entry` macro
+instead, which generates the right isolation:
+
+```swift
+extension EnvironmentValues {
+    @Entry var cloudAccountStatus: any CloudAccountStatusObserving = MockCloudAccountStatusObserver()
+}
+```
+
+Pattern in use: `EnvironmentValues+Services.swift`'s
+`cloudAccountStatus` entry, backed by a Debug-only mock in
+`Preview Content/`.
+
 ### View state
 Prefer enums for view state over multiple booleans:
 
@@ -130,6 +148,15 @@ nonisolated struct Habit: Hashable, Sendable { ... }
 Without `nonisolated`, the synthesized conformances inherit MainActor
 isolation and emit "main actor-isolated conformance cannot be used in
 nonisolated context" warnings (errors under Swift 6 mode).
+
+The same rule extends to **service types whose default-argument
+sites are evaluated outside MainActor** — most commonly providers
+fed into a `@MainActor`-isolated init. `DefaultCKAccountStatusProvider`
+is the canonical example: it wraps `CKContainer.accountStatus()` (an
+async call that doesn't need MainActor) and serves as the default
+argument to `DefaultCloudAccountStatusObserver.init`. Both the
+class and any constants it references (e.g. `CloudContainerID`)
+need `nonisolated`, otherwise the init evaluation site warns.
 
 ### Dates and calendars
 Day arithmetic always goes through `Calendar` — never raw seconds.
@@ -232,8 +259,18 @@ KadoUITests/                # UI tests (XCTest)
 - Queries: prefer `@Query` in simple views, explicit descriptor + fetch
   in services for complex logic.
 - CloudKit-shape from day one: every property has a default value or
-  is optional, the to-many relationship has an explicit inverse, no
-  `@Attribute(.unique)`, no `Deny` delete rule, no ordered relationships.
+  is optional, **every relationship is optional on both sides**
+  (the to-one and the to-many — `[CompletionRecord]?` not
+  `[CompletionRecord]`), the to-many relationship has an explicit
+  inverse, no `@Attribute(.unique)`, no `Deny` delete rule, no
+  ordered relationships. The "both sides optional" rule is enforced
+  by CloudKit at `ModelContainer.init` runtime only — a non-optional
+  to-many compiles, mounts under a local-only configuration, and
+  crashes the moment `cloudKitDatabase: .private(...)` is set with
+  `NSCocoaErrorDomain 134060`. Pin the rules with a regression test
+  that walks `Schema.entities` and asserts `relationship.isOptional`
+  / `!attribute.isUnique` — see `KadoTests/CloudKitShapeTests.swift`
+  for the canonical pattern.
 - **Composite Codable workaround**: SwiftData on Xcode 26 / iOS 18
   does not reliably support enums with associated values as direct
   stored properties on `@Model` — `ModelContainer.init` crashes at
@@ -478,6 +515,10 @@ deterministic.
 Boot and use **iPhone 16 Pro** (iOS 18.x) as default target. For iPad
 layout testing: iPad Air (M2). For accessibility testing: enable
 Dynamic Type XXXL and VoiceOver via `simctl` before `snapshot_ui`.
+
+On the current Xcode 26 toolchain, fresh installs ship only the
+iPhone 17 family — iPhone 17 Pro is the practical default and was
+used for the v0.1 CloudKit two-device verification.
 
 If the named sim isn't installed on the machine (`list_sims` doesn't
 show it), substituting a +1 generation (iPhone 17 Pro, iPad Air M4)

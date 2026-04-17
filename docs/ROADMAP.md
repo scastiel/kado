@@ -87,6 +87,13 @@ first.
 - [ ] Import from Loop Habit Tracker (CSV format documented on Loop's
       side)
 
+### CloudKit sync polish
+- [ ] Live sync indicator (subscribe to
+      `NSPersistentCloudKitContainer.eventChangedNotification` and
+      surface "Syncing…", "Up to date", or "Error" in Settings)
+- [ ] Real "Sync now" affordance — replaces v0.1's cosmetic
+      pull-to-refresh once we have a real fetch hook
+
 ### Exit criteria for v0.2
 - [ ] Widgets work on iOS 18 and update correctly after completion
 - [ ] An export followed by an import restores 100% of the data
