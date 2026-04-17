@@ -60,7 +60,8 @@ struct TodayView: View {
                         HabitRowView(
                             habit: record.snapshot,
                             isCompletedToday: isCompletedToday(record),
-                            onToggle: canToggle(record) ? { toggle(record) } : nil
+                            onToggle: canToggle(record) ? { toggle(record) } : nil,
+                            todayValue: todayValue(for: record)
                         )
                     }
                 }
@@ -82,6 +83,13 @@ struct TodayView: View {
     private func isCompletedToday(_ record: HabitRecord) -> Bool {
         let now = Date.now
         return record.completions.contains { calendar.isDate($0.date, inSameDayAs: now) }
+    }
+
+    private func todayValue(for record: HabitRecord) -> Double? {
+        let now = Date.now
+        return record.completions
+            .first { calendar.isDate($0.date, inSameDayAs: now) }?
+            .value
     }
 
     private func canToggle(_ record: HabitRecord) -> Bool {

@@ -10,6 +10,9 @@ struct HabitRowView: View {
     let habit: Habit
     let isCompletedToday: Bool
     let onToggle: (() -> Void)?
+    /// Today's completion value, if any. Counter and timer rows
+    /// surface this in the trailing label (e.g. `3/8`, `12:34/30:00`).
+    var todayValue: Double? = nil
 
     var body: some View {
         HStack(spacing: 12) {
@@ -69,16 +72,30 @@ struct HabitRowView: View {
     private var trailingState: some View {
         switch habit.type {
         case .counter(let target):
-            Text("–/\(Int(target))")
+            Text(counterLabel(target: target))
                 .font(.callout.monospacedDigit())
                 .foregroundStyle(.secondary)
         case .timer(let targetSeconds):
-            Text(formatSeconds(targetSeconds))
+            Text(timerLabel(target: targetSeconds))
                 .font(.callout.monospacedDigit())
                 .foregroundStyle(.secondary)
         case .binary, .negative:
             EmptyView()
         }
+    }
+
+    private func counterLabel(target: Double) -> String {
+        if let todayValue {
+            return "\(Int(todayValue))/\(Int(target))"
+        }
+        return "–/\(Int(target))"
+    }
+
+    private func timerLabel(target: TimeInterval) -> String {
+        if let todayValue {
+            return "\(formatSeconds(todayValue)) / \(formatSeconds(target))"
+        }
+        return formatSeconds(target)
     }
 
     private var accessibilityLabelText: String {
@@ -149,6 +166,29 @@ struct HabitRowView: View {
             habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
             isCompletedToday: true,
             onToggle: {}
+        )
+    }
+}
+
+#Preview("Counter / timer in progress") {
+    List {
+        HabitRowView(
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil,
+            todayValue: 3
+        )
+        HabitRowView(
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            isCompletedToday: true,
+            onToggle: nil,
+            todayValue: 8
+        )
+        HabitRowView(
+            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil,
+            todayValue: 750
         )
     }
 }
