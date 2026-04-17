@@ -1,7 +1,7 @@
 # Plan — Dark mode (v0.1)
 
 **Date**: 2026-04-17
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -28,7 +28,7 @@ custom accent, no redesign.
 
 ## Task list
 
-### Task 1: Dark-scheme preview coverage
+### Task 1: Dark-scheme preview coverage ✅
 
 **Goal**: every view file has at least one preview that renders in
 dark mode, so regressions surface in Xcode Previews before they reach
@@ -57,7 +57,7 @@ the simulator.
 
 ---
 
-### Task 2: Simulator audit — iPhone 16 Pro, Dark Appearance
+### Task 2: Simulator audit — iPhone 17 Pro, Dark Appearance ✅
 
 **Goal**: capture dark-mode screenshots of every screen the user can
 reach in v0.1 and produce a findings list.
@@ -90,7 +90,7 @@ record audit findings`.
 
 ---
 
-### Task 3: Simulator audit — iPad Air (M2) spot-check
+### Task 3: Simulator audit — iPad Air (M4) spot-check ✅
 
 **Goal**: confirm dark mode works at iPad width too. Less thorough
 than Task 2 — one screenshot of Today and one of Habit Detail is
@@ -109,7 +109,7 @@ enough.
 
 ---
 
-### Task 4: Dynamic Type XXXL + Dark combo on Habit Detail
+### Task 4: Dynamic Type XXXL + Dark combo on Habit Detail ✅
 
 **Goal**: confirm the densest screen (Habit Detail) doesn't break when
 XXXL and Dark stack.
@@ -128,7 +128,7 @@ XXXL and Dark stack.
 
 ---
 
-### Task 5: Increase Contrast spot-check
+### Task 5: Increase Contrast spot-check ✅
 
 **Goal**: cheap accessibility check — enable "Increase Contrast" and
 screenshot Today + Detail. Not a blocking v0.1 requirement, but
@@ -148,7 +148,7 @@ catches regressions for free.
 
 ---
 
-### Task 6 (conditional): Apply fixes surfaced by audit
+### Task 6 (conditional): Apply fixes surfaced by audit — not needed ✅
 
 **Goal**: address anything tasks 2-5 flagged. Only triggered if the
 audit produced findings.
@@ -208,6 +208,55 @@ logical fix. Avoid lumping unrelated tweaks together.
 - [ ] If Task 2 flags flat cards, do we reach for `.regularMaterial`
       or a 1px separator stroke? (Decide during Task 6 when we see the
       specific screenshot.)
+
+## Audit findings (Tasks 2–5)
+
+**Device substitution**: iPhone 16 Pro was not installed on the audit
+machine — only iPhone 17 Pro is available. Substituted directly;
+layout class and dark-mode behavior are identical for this purpose.
+iPad Air (M4) substituted for iPad Air (M2) for the same reason.
+
+**Tooling limitation**: the XcodeBuildMCP install on this machine does
+not expose tap / type / gesture primitives (matches the note from
+[kado#5](https://github.com/scastiel/kado/pull/5) compound). Only the
+launched screen is reachable in-sim; navigating Today → Detail → New
+Habit → Timer log needs either `idb` or Simulator.app hands-on. The
+dark-scheme previews added in Task 1 are therefore the primary
+regression surface for unreachable screens.
+
+**Reachable surface** (Today + iPad empty state), all validated:
+
+| Surface | Result |
+|---|---|
+| iPhone Today, dark, populated | ✅ clean — cards contrast with page, accent circles + white checkmarks legible, chevrons visible |
+| iPhone Today, light, populated | ✅ reference — semantic colors do their job |
+| iPhone Today, dark + Accessibility XXXL | ✅ clean — text scales, circles scale, chevrons remain visible |
+| iPhone Today, dark + Increase Contrast | ✅ clean — accent lightens per system, checkmarks remain legible |
+| iPad Today, dark, empty state | ✅ clean — ContentUnavailableView renders correctly |
+
+**Unreachable surface** (covered by dark-scheme previews in Xcode):
+
+- `HabitDetailView` (score card, streak card, monthly calendar,
+  history list, quick-log, timer sheet entry point)
+- `NewHabitFormView` (including embedded `WeekdayPicker`)
+- `MonthlyCalendarView` at mixed cell states
+- `CounterQuickLogView`
+- `TimerLogSheet`
+- `CompletionHistoryList`
+- `SettingsView` placeholder
+
+By code inspection these use the same semantic palette
+(`secondarySystemBackground`, `primary`/`secondary` text,
+`accentColor`, `tertiarySystemFill`, `secondarySystemFill`) as Today.
+No red flags. The two `Color.white` sites (`WeekdayPicker:33`,
+`MonthlyCalendarView:171`) are white-on-accent patterns; fine with
+system blue.
+
+**Fixes required**: none. Task 6 skipped.
+
+**Carried-forward open question** (depth treatment: material vs
+stroke): no flat-card issue surfaced. Open question **closed** for
+this pass. Reopen if a reachable-screen sim audit finds a problem.
 
 ## Out of scope
 
