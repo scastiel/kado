@@ -50,6 +50,15 @@ Lightweight MVVM with strict separation:
   the ViewModel. Extract business logic into a free struct with
   injected `Calendar` (pattern: `CompletionToggler`) rather than
   wrapping it in a ViewModel for structure's sake.
+  - **Picker over associated-value enums**: when a domain enum has
+    associated values (e.g. `Frequency.daysPerWeek(Int)`) and the
+    UI presents it as a `Picker`, the ViewModel holds a paired
+    case-only "kind" enum plus one stored property per variant's
+    params. Switching the kind stays non-destructive — the user's
+    partially-entered count/set/target isn't lost when they
+    explore options. Pattern: `NewHabitFormModel.FrequencyKind` +
+    `daysPerWeek`/`specificDays`/`everyNDays`, with one regression
+    test guarding the invariant.
 - **Views**: SwiftUI, ideally with no business logic.
 - **Services**: reusable business logic (HabitScoreCalculator,
   ExportService, NotificationScheduler…). Protocol-defined, injected.
@@ -416,11 +425,24 @@ where you still open Xcode:
   even though the simulator is booted and its SDK is installed —
   the error text cites the missing iOS *device* SDK. xcodebuild
   appears to walk all scheme destinations and abort when
-  device-side resolution fails, poisoning the simulator build. Fix:
-  `xcrun simctl shutdown all && xcrun simctl boot "<sim name>"`,
-  then rerun. Cleaning DerivedData occasionally helps. No
-  source-level change is needed — the code is fine, the runtime
-  state is not.
+  device-side resolution fails, poisoning the simulator build.
+  Try fixes in this order:
+  1. `xcrun simctl shutdown all && xcrun simctl boot "<sim name>"`,
+     then rerun.
+  2. If that doesn't work, fall back to direct xcodebuild with a
+     **pinned OS version** (the MCP tool sends `OS:latest`, which
+     xcodebuild can't always match even when the SDK is present):
+     ```
+     xcodebuild -project Kado.xcodeproj -scheme Kado \
+       -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.4.1" \
+       test
+     ```
+     Find the real OS version via
+     `xcrun simctl list devices available | grep -A1 "iOS"`.
+  3. Cleaning DerivedData (`rm -rf ~/Library/Developer/Xcode/DerivedData/Kado-*`)
+     occasionally helps.
+  No source-level change is needed — the code is fine, the
+  runtime state is not.
 
 ---
 

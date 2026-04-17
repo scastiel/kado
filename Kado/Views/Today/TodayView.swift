@@ -14,10 +14,24 @@ struct TodayView: View {
     )
     private var activeHabits: [HabitRecord]
 
+    @State private var showingNewHabit = false
+
     var body: some View {
         NavigationStack {
             content
                 .navigationTitle(Text("Today"))
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            showingNewHabit = true
+                        } label: {
+                            Label("New habit", systemImage: "plus")
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingNewHabit) {
+                    NewHabitFormView(model: NewHabitFormModel())
+                }
         }
     }
 
