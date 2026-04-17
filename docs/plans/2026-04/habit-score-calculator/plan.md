@@ -118,7 +118,7 @@ will speak in.
 
 ---
 
-### Task 3: HabitScoreCalculator — invariants and binary daily
+### Task 3: HabitScoreCalculator — invariants and binary daily ✅
 
 **Goal**: First green calculator covering the common path: binary
 daily habits.
