@@ -328,3 +328,11 @@ private struct HabitDetailPreviewWrapper: View {
     }
     .modelContainer(PreviewContainer.shared)
 }
+
+#Preview("Dark") {
+    NavigationStack {
+        HabitDetailPreviewWrapper(habitName: "Morning meditation")
+    }
+    .modelContainer(PreviewContainer.shared)
+    .preferredColorScheme(.dark)
+}

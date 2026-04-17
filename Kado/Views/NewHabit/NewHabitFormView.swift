@@ -134,3 +134,13 @@ struct NewHabitFormView: View {
     return NewHabitFormView(model: model)
         .modelContainer(PreviewContainer.emptyContainer())
 }
+
+#Preview("Dark") {
+    let model = NewHabitFormModel()
+    model.name = "Gym"
+    model.frequencyKind = .specificDays
+    model.specificDays = [.monday, .wednesday, .friday]
+    return NewHabitFormView(model: model)
+        .modelContainer(PreviewContainer.emptyContainer())
+        .preferredColorScheme(.dark)
+}

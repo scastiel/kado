@@ -208,3 +208,30 @@ struct HabitRowView: View {
     }
     .environment(\.dynamicTypeSize, .accessibility3)
 }
+
+#Preview("Dark") {
+    List {
+        HabitRowView(
+            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
+            isCompletedToday: true,
+            onToggle: {}
+        )
+        HabitRowView(
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil,
+            todayValue: 3
+        )
+        HabitRowView(
+            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil
+        )
+        HabitRowView(
+            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
+            isCompletedToday: false,
+            onToggle: {}
+        )
+    }
+    .preferredColorScheme(.dark)
+}

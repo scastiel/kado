@@ -90,3 +90,15 @@ struct TimerLogSheet: View {
     )
     .modelContainer(PreviewContainer.emptyContainer())
 }
+
+#Preview("Dark") {
+    TimerLogSheet(
+        habit: HabitRecord(
+            name: "Read",
+            frequency: .daily,
+            type: .timer(targetSeconds: 30 * 60)
+        )
+    )
+    .modelContainer(PreviewContainer.emptyContainer())
+    .preferredColorScheme(.dark)
+}

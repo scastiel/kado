@@ -23,3 +23,9 @@ struct ContentView: View {
     ContentView()
         .modelContainer(PreviewContainer.shared)
 }
+
+#Preview("Dark") {
+    ContentView()
+        .modelContainer(PreviewContainer.shared)
+        .preferredColorScheme(.dark)
+}

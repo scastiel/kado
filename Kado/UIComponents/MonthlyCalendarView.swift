@@ -232,3 +232,21 @@ struct MonthlyCalendarView: View {
     return MonthlyCalendarView(habit: habit, completions: [])
         .padding()
 }
+
+#Preview("Dark") {
+    let habit = Habit(
+        name: "Meditate",
+        frequency: .daily,
+        type: .binary,
+        createdAt: Calendar.current.date(byAdding: .day, value: -20, to: .now)!
+    )
+    let completions = [1, 2, 3, 5, 7, 8, 10, 12, 13, 14, 18].map { offset in
+        Completion(
+            habitID: habit.id,
+            date: Calendar.current.date(byAdding: .day, value: -offset, to: .now)!
+        )
+    }
+    return MonthlyCalendarView(habit: habit, completions: completions)
+        .padding()
+        .preferredColorScheme(.dark)
+}
