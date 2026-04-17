@@ -2,7 +2,7 @@
 # Research — Detail view quick-log + completion history
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: ready for plan
 **Related**: [ROADMAP v0.1 — deferred from habit-detail-view](../../../ROADMAP.md), [habit-detail-view compound](../habit-detail-view/compound.md)
 
 ## Problem
@@ -201,28 +201,20 @@ with today's value" and "timer with today's value" states.
 
 ## Open questions
 
-- [ ] **Counter `+` / `−` or `+` only?** `−` helps correct
-  mistakes but adds visual weight. *Recommendation*: both, with
-  `−` disabled when value is 0.
-- [ ] **Timer: minute stepper in a sheet, or inline on detail?**
-  *Recommendation*: sheet. Matches iOS pattern for "log a thing
-  now" interactions (Health sessions, Reminders quick-add).
-- [ ] **History list scope**: just today + recent 30 days, or
-  full unbounded history? *Recommendation*: full history in a
-  `LazyVStack`, sorted descending. At habit-scale, perf is fine.
-- [ ] **Swipe-to-delete**: with or without confirmation?
-  *Recommendation*: without (iOS convention).
-- [ ] **Same-day timer logging**: replace the existing completion
-  or add another? *Recommendation*: replace (single record per
-  day invariant).
-- [ ] **Scrollable past-months calendar**: ship in this PR or
-  defer? *Recommendation*: defer. Scope creep; the history list
-  is the more useful surface.
-- [ ] **Update `HabitRowView` to show today's value for
-  counter/timer?** *Recommendation*: yes — it's a 10-line diff
-  and the `–/8` placeholder is a known eyesore.
-- [ ] **Haptic on counter target reached?** *Recommendation*:
-  yes, `.success` on transition from below-target to at-or-above.
+All resolved 2026-04-17:
+
+- [x] Counter controls: both `+` and `−`, minus disabled at 0.
+- [x] Timer: minute stepper in a modal sheet.
+- [x] History list: full history via `LazyVStack`, sorted
+  descending.
+- [x] Swipe-to-delete: no confirmation (iOS convention).
+- [x] Same-day timer: replace today's completion (single record
+  per day invariant).
+- [x] Scrollable past-months calendar: deferred.
+- [x] `HabitRowView` shows today's value for counter/timer when
+  present; falls back to `–/target`.
+- [x] Haptic on counter target reached: yes, on the below→at
+  transition.
 
 ## References
 
