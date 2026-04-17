@@ -27,3 +27,8 @@ struct SettingsView: View {
     SettingsView()
         .environment(\.cloudAccountStatus, MockCloudAccountStatusObserver(status: .noAccount))
 }
+
+#Preview("Dark") {
+    SettingsView()
+        .preferredColorScheme(.dark)
+}

@@ -20,7 +20,9 @@ struct NewHabitFormView: View {
                 frequencySection
                 typeSection
             }
-            .navigationTitle(Text(model.isEditing ? "Edit Habit" : "New Habit"))
+            .navigationTitle(model.isEditing
+                ? String(localized: "Edit Habit")
+                : String(localized: "New Habit"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -133,4 +135,14 @@ struct NewHabitFormView: View {
     model.specificDays = [.monday, .wednesday, .friday]
     return NewHabitFormView(model: model)
         .modelContainer(PreviewContainer.emptyContainer())
+}
+
+#Preview("Dark") {
+    let model = NewHabitFormModel()
+    model.name = "Gym"
+    model.frequencyKind = .specificDays
+    model.specificDays = [.monday, .wednesday, .friday]
+    return NewHabitFormView(model: model)
+        .modelContainer(PreviewContainer.emptyContainer())
+        .preferredColorScheme(.dark)
 }

@@ -221,7 +221,7 @@ struct HabitDetailView: View {
             return String(localized: "\(n) days per week")
         case .specificDays(let days):
             let ordered: [Weekday] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-            let labels = ordered.filter(days.contains).map(shortWeekday(_:))
+            let labels = ordered.filter(days.contains).map(\.localizedMedium)
             return labels.joined(separator: " · ")
         case .everyNDays(let n):
             return String(localized: "Every \(n) days")
@@ -255,17 +255,6 @@ struct HabitDetailView: View {
         }
     }
 
-    private func shortWeekday(_ weekday: Weekday) -> String {
-        switch weekday {
-        case .monday: String(localized: "Mon")
-        case .tuesday: String(localized: "Tue")
-        case .wednesday: String(localized: "Wed")
-        case .thursday: String(localized: "Thu")
-        case .friday: String(localized: "Fri")
-        case .saturday: String(localized: "Sat")
-        case .sunday: String(localized: "Sun")
-        }
-    }
 }
 
 /// Small wrapper for previews — fetches a seeded habit from the
@@ -327,4 +316,12 @@ private struct HabitDetailPreviewWrapper: View {
         HabitDetailPreviewWrapper(habitName: "Morning meditation", archived: true)
     }
     .modelContainer(PreviewContainer.shared)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        HabitDetailPreviewWrapper(habitName: "Drink water")
+    }
+    .modelContainer(PreviewContainer.shared)
+    .preferredColorScheme(.dark)
 }

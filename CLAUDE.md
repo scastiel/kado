@@ -194,6 +194,18 @@ KadoUITests/                # UI tests (XCTest)
 - Use `ViewThatFits`, `ContainerRelativeShape`, `Layout` protocol
   rather than manual size calculations when possible.
 - Systematic previews for every non-trivial view, with multiple states.
+  Include one `#Preview("Dark") { ... .preferredColorScheme(.dark) }`
+  per view file — pick a demanding state (accent-on-dark, mixed cell
+  states, filled form) rather than a neutral one.
+- **Prefer semantic colors; avoid hardcoded literals.** Use
+  `Color.primary` / `Color.secondary` for text, `Color.accentColor`
+  for tint, `Color(.secondarySystemBackground)` / `.tertiarySystemFill`
+  / `.secondarySystemFill` for surfaces. These auto-adapt to light /
+  dark / Increase Contrast. `Color.white` is acceptable only as text
+  on an accent-tinted fill (the standard tinted-button pattern); any
+  other use will not adapt. `Color.black` similarly needs justification.
+  Hex strings, `Color(red:green:blue:)`, and custom palette constants
+  require discussion.
 - **`@State` defaults that depend on `@Environment` must initialize
   in `.onAppear`, not `init`.** `@State` is seeded before the env is
   injected, so `Calendar.current` (or any fallback) will leak into
@@ -329,7 +341,43 @@ Non-negotiable from MVP:
 - EN and FR by v1.0. FR must be native French (no machine translation),
   with attention to gender-neutral phrasing when possible.
 - Use String Catalogs (`.xcstrings`), not legacy `Localizable.strings`.
-- Every user-facing string goes through `String(localized:)`.
+- Every user-facing string goes through localization — but **prefer
+  SwiftUI's `LocalizedStringKey`-typed initializers over explicit
+  `String(localized:)` wrapping**. `Text("foo")`, `Button("foo")`,
+  `Label("foo", systemImage: …)`, `.navigationTitle("foo")`,
+  `Tab("foo", systemImage: …)`, `ContentUnavailableView("foo", …)`,
+  `Section("foo")`, `Picker("foo", selection:)`, etc. all accept
+  `LocalizedStringKey` — the literal is already on the localized
+  path. Reach for `String(localized:)` only when the API is
+  `String`-typed (e.g. `.accessibilityLabel(_:)` with a dynamic
+  value, `TextField` placeholders, `confirmationDialog(_:)` titles),
+  or when a ternary `Text(cond ? "A" : "B")` would otherwise
+  collapse to the non-localizing `StringProtocol` overload (in which
+  case split the `Text` or wrap each arm).
+- **Interpolated strings must be wrapped as a whole**:
+  `String(localized: "\(name), \(state)")` works;
+  `"\(name), \(state)"` is a raw concat that never reaches the
+  catalog.
+- **For weekday labels, use `Weekday.localizedShort`,
+  `.localizedMedium`, or `.localizedFull`** — backed by
+  `Calendar.*StandaloneWeekdaySymbols`, so they auto-localize in
+  every language Apple ships. Never hand-roll catalog entries for
+  weekday abbreviations: Xcode collapses identical keys (e.g.
+  `"T"` with a Tuesday comment and `"T"` with a Thursday comment
+  merge into one entry), and the FR translator is then forced to
+  pick a single letter for both. The same principle applies to
+  month names (use `Calendar.monthSymbols` / `.shortMonthSymbols`
+  when the need arises).
+- **`Localizable.xcstrings` is source code, not a build artifact**.
+  Under `xcodebuild` / XcodeBuildMCP, the `.xcstrings` is NOT
+  auto-populated from source — only the Xcode IDE runs that sync.
+  Hand-author entries when a new key is introduced, commit the
+  catalog alongside the source change. Xcode will merge future
+  extractions with existing entries rather than overwrite.
+- Every catalog entry needs a `comment` describing its on-screen
+  context (imperative, context-first, under ~80 chars). For
+  count-driven interpolations, declare plural variants via
+  `variations.plural.{one,other}`.
 
 ---
 
@@ -431,6 +479,13 @@ Boot and use **iPhone 16 Pro** (iOS 18.x) as default target. For iPad
 layout testing: iPad Air (M2). For accessibility testing: enable
 Dynamic Type XXXL and VoiceOver via `simctl` before `snapshot_ui`.
 
+If the named sim isn't installed on the machine (`list_sims` doesn't
+show it), substituting a +1 generation (iPhone 17 Pro, iPad Air M4)
+is fine — the layout class and dark-mode/accessibility behavior are
+identical for audit purposes. Note the substitution in the plan /
+compound so the record is accurate; don't pretend the nominal sim
+ran.
+
 ### When to open Xcode manually
 
 XcodeBuildMCP works headless (Xcode doesn't need to be open). Cases
@@ -449,6 +504,17 @@ where you still open Xcode:
   large projects, negligible on Kadō early on).
 - Code signing: errors remain opaque, ask the human to fix in Xcode
   when needed.
+- **Tap / type / gesture primitives are not enabled in the default
+  XcodeBuildMCP install.** `build_run_sim` and `screenshot` work, but
+  you cannot tap a habit row to push into Detail, or fill a form
+  field in the New Habit sheet — only the launched screen is
+  reachable. Multi-screen sim audits need either `idb` installed
+  separately, Simulator.app hands-on, or an explicit XcodeBuildMCP
+  reconfigure that enables the UI-automation workflow. Until that's
+  done, plan audits around the single reachable surface + SwiftUI
+  previews for the rest, and flag the gap in the finding notes.
+  First hit in [kado#5](https://github.com/scastiel/kado/pull/5), hit
+  again in [kado#8](https://github.com/scastiel/kado/pull/8).
 - **Destination resolution flakiness**: `test_sim` and
   `build_run_sim` occasionally fail with `Unable to find a
   destination matching { platform:iOS Simulator, OS:latest, name:… }`

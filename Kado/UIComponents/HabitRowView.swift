@@ -104,7 +104,7 @@ struct HabitRowView: View {
             let state = isCompletedToday
                 ? String(localized: "done")
                 : String(localized: "not done")
-            return "\(habit.name), \(state)"
+            return String(localized: "\(habit.name), \(state)")
         case .counter(let target):
             return String(localized: "\(habit.name), counter, target \(Int(target))")
         case .timer(let targetSeconds):
@@ -207,4 +207,31 @@ struct HabitRowView: View {
         )
     }
     .environment(\.dynamicTypeSize, .accessibility3)
+}
+
+#Preview("Dark") {
+    List {
+        HabitRowView(
+            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
+            isCompletedToday: true,
+            onToggle: {}
+        )
+        HabitRowView(
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil,
+            todayValue: 3
+        )
+        HabitRowView(
+            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
+            isCompletedToday: false,
+            onToggle: nil
+        )
+        HabitRowView(
+            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
+            isCompletedToday: false,
+            onToggle: {}
+        )
+    }
+    .preferredColorScheme(.dark)
 }

@@ -139,6 +139,12 @@ struct CompletionHistoryList: View {
         .modelContainer(PreviewContainer.emptyContainer())
 }
 
+#Preview("Dark") {
+    CompletionHistoryListPreviewWrapper(habitName: "Morning meditation")
+        .modelContainer(PreviewContainer.shared)
+        .preferredColorScheme(.dark)
+}
+
 private struct CompletionHistoryListPreviewWrapper: View {
     let habitName: String
 
