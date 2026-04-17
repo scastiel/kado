@@ -11,35 +11,22 @@ struct TimerLogSheet: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.dismiss) private var dismiss
 
-    @State private var minutes: Int
+    /// Prefilled lazily in `.onAppear` so the env calendar (not the
+    /// unrelated `.current`) drives today-completion lookup. `nil`
+    /// before first render.
+    @State private var minutes: Int?
     @State private var saveTick = 0
-
-    init(habit: HabitRecord) {
-        self.habit = habit
-        // Prefill with today's existing value (minutes) or the habit's target.
-        let cal = Calendar.current
-        let existing = habit.completions.first {
-            cal.isDate($0.date, inSameDayAs: .now)
-        }
-        let defaultMinutes: Int = {
-            if let existing {
-                return max(1, Int((existing.value / 60).rounded()))
-            }
-            switch habit.type {
-            case .timer(let seconds): return max(1, Int((seconds / 60).rounded()))
-            default: return 10
-            }
-        }()
-        _minutes = State(initialValue: defaultMinutes)
-    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     Stepper(
-                        String(localized: "\(minutes) min"),
-                        value: $minutes,
+                        String(localized: "\(minutes ?? 1) min"),
+                        value: Binding(
+                            get: { minutes ?? 1 },
+                            set: { minutes = $0 }
+                        ),
                         in: 1...480
                     )
                 } header: {
@@ -59,13 +46,32 @@ struct TimerLogSheet: View {
                 }
             }
             .sensoryFeedback(.success, trigger: saveTick)
+            .onAppear {
+                if minutes == nil {
+                    minutes = defaultMinutes()
+                }
+            }
+        }
+    }
+
+    private func defaultMinutes() -> Int {
+        let existing = habit.completions.first {
+            calendar.isDate($0.date, inSameDayAs: .now)
+        }
+        if let existing {
+            return max(1, Int((existing.value / 60).rounded()))
+        }
+        switch habit.type {
+        case .timer(let seconds): return max(1, Int((seconds / 60).rounded()))
+        default: return 10
         }
     }
 
     private func save() {
+        let m = minutes ?? defaultMinutes()
         CompletionLogger(calendar: calendar).logTimerSession(
             for: habit,
-            seconds: TimeInterval(minutes) * 60,
+            seconds: TimeInterval(m) * 60,
             in: modelContext
         )
         try? modelContext.save()

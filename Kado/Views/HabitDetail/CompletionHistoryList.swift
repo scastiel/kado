@@ -31,7 +31,7 @@ struct CompletionHistoryList: View {
                             .fill(Color(.secondarySystemBackground))
                     )
             } else {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     ForEach(sortedCompletions) { completion in
                         row(for: completion)
                         if completion.id != sortedCompletions.last?.id {
