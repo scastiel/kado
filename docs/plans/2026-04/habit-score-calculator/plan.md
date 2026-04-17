@@ -63,7 +63,7 @@ for v0.1 views to consume.
 
 ## Task list
 
-### Task 1: Domain value types
+### Task 1: Domain value types ✅
 
 **Goal**: Land the lightweight value types the calculator and tests
 will speak in.
