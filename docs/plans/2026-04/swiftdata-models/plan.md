@@ -47,7 +47,7 @@ compiler upgrades.
 
 ## Task list
 
-### Task 1: Custom Codable for Frequency and HabitType
+### Task 1: Custom Codable for Frequency and HabitType ✅
 
 **Goal**: Own the on-disk JSON format for both enums; canonical-shape
 tests pin the bytes so a compiler upgrade can't silently break
@@ -183,6 +183,17 @@ is exercised by tests.
 ## Open questions
 
 None at plan time — all four resolved during research.
+
+## Notes during build
+
+- **Task 1**: The project bootstrap set
+  `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (Xcode 26's
+  "approachable concurrency" default), so newly-introduced Codable
+  conformances inherit MainActor isolation and warn when used from
+  off-MainActor tests. Fixed by marking the value-type enums
+  `nonisolated` (`nonisolated enum Frequency`). Likely to need the
+  same on `Habit`/`Completion`/`Weekday`/`DailyScore` if/when they
+  become cross-actor — flag for compound.
 
 ## Out of scope
 
