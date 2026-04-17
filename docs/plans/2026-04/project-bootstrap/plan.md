@@ -1,7 +1,7 @@
 # Plan — Project bootstrap
 
 **Date**: 2026-04-16
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
