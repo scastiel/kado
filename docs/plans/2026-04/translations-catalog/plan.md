@@ -39,7 +39,7 @@ EN UI unchanged. The `Localizable.xcstrings` file grows on every
 normalization task (Xcode auto-extracts on build); commit it alongside
 its source change to keep diffs narrow.
 
-### Task 1: Weekday helpers + migrate consumers
+### Task 1: Weekday helpers + migrate consumers ✅
 
 **Goal**: add `Weekday.localizedShort: String` and
 `Weekday.localizedFull: String` so weekday labels have one source of
@@ -278,6 +278,17 @@ test.
 None blocking. Deferred:
 - **Automated pseudo-locale test**: revisit during v1.0 pre-FR pass.
 - **`.xcstrings` stable-sort hook**: revisit if diffs become unreadable.
+
+## Notes during build
+
+- **Task 1 pivot**: instead of hand-rolling 14 catalog entries for
+  weekday labels, the helpers now wrap
+  `Calendar.veryShortStandaloneWeekdaySymbols` and
+  `Calendar.standaloneWeekdaySymbols`. Strictly better: auto-localized
+  in every language Apple ships, removes the `"T"/"T"` and `"S"/"S"`
+  EN-collision problem entirely, and drops 14 keys from Task 6's
+  curation scope. Zero visible EN change (EN symbols match what we
+  were typing by hand).
 
 ## Out of scope
 
