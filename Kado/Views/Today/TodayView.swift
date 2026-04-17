@@ -65,6 +65,13 @@ struct TodayView: View {
                         )
                     }
                 }
+                .refreshable {
+                    // SwiftData has no public API to force a CloudKit
+                    // pull; the brief delay lets any in-flight push
+                    // settle so the @Query rebind shows the latest
+                    // remote state when the spinner retracts.
+                    try? await Task.sleep(for: .seconds(1))
+                }
             }
         }
     }
