@@ -194,6 +194,18 @@ KadoUITests/                # UI tests (XCTest)
 - Use `ViewThatFits`, `ContainerRelativeShape`, `Layout` protocol
   rather than manual size calculations when possible.
 - Systematic previews for every non-trivial view, with multiple states.
+  Include one `#Preview("Dark") { ... .preferredColorScheme(.dark) }`
+  per view file — pick a demanding state (accent-on-dark, mixed cell
+  states, filled form) rather than a neutral one.
+- **Prefer semantic colors; avoid hardcoded literals.** Use
+  `Color.primary` / `Color.secondary` for text, `Color.accentColor`
+  for tint, `Color(.secondarySystemBackground)` / `.tertiarySystemFill`
+  / `.secondarySystemFill` for surfaces. These auto-adapt to light /
+  dark / Increase Contrast. `Color.white` is acceptable only as text
+  on an accent-tinted fill (the standard tinted-button pattern); any
+  other use will not adapt. `Color.black` similarly needs justification.
+  Hex strings, `Color(red:green:blue:)`, and custom palette constants
+  require discussion.
 - **`@State` defaults that depend on `@Environment` must initialize
   in `.onAppear`, not `init`.** `@State` is seeded before the env is
   injected, so `Calendar.current` (or any fallback) will leak into
@@ -431,6 +443,13 @@ Boot and use **iPhone 16 Pro** (iOS 18.x) as default target. For iPad
 layout testing: iPad Air (M2). For accessibility testing: enable
 Dynamic Type XXXL and VoiceOver via `simctl` before `snapshot_ui`.
 
+If the named sim isn't installed on the machine (`list_sims` doesn't
+show it), substituting a +1 generation (iPhone 17 Pro, iPad Air M4)
+is fine — the layout class and dark-mode/accessibility behavior are
+identical for audit purposes. Note the substitution in the plan /
+compound so the record is accurate; don't pretend the nominal sim
+ran.
+
 ### When to open Xcode manually
 
 XcodeBuildMCP works headless (Xcode doesn't need to be open). Cases
@@ -449,6 +468,17 @@ where you still open Xcode:
   large projects, negligible on Kadō early on).
 - Code signing: errors remain opaque, ask the human to fix in Xcode
   when needed.
+- **Tap / type / gesture primitives are not enabled in the default
+  XcodeBuildMCP install.** `build_run_sim` and `screenshot` work, but
+  you cannot tap a habit row to push into Detail, or fill a form
+  field in the New Habit sheet — only the launched screen is
+  reachable. Multi-screen sim audits need either `idb` installed
+  separately, Simulator.app hands-on, or an explicit XcodeBuildMCP
+  reconfigure that enables the UI-automation workflow. Until that's
+  done, plan audits around the single reachable surface + SwiftUI
+  previews for the rest, and flag the gap in the finding notes.
+  First hit in [kado#5](https://github.com/scastiel/kado/pull/5), hit
+  again in [kado#8](https://github.com/scastiel/kado/pull/8).
 - **Destination resolution flakiness**: `test_sim` and
   `build_run_sim` occasionally fail with `Unable to find a
   destination matching { platform:iOS Simulator, OS:latest, name:… }`
