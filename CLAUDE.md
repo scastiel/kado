@@ -43,8 +43,13 @@ Firebase, no analytics, no SaaS crash reporting.
 Lightweight MVVM with strict separation:
 
 - **Models**: SwiftData types (`@Model`), pure domain types (structs).
-- **ViewModels**: `@Observable` classes, one per complex view. Simple
-  views can skip them.
+- **ViewModels**: `@Observable` classes, only for views that mutate
+  state outside of `@Query`-driven updates or share state across
+  multiple views. A view whose logic fits in `@Query` + small
+  computed properties + inline actions is a "simple view" — skip
+  the ViewModel. Extract business logic into a free struct with
+  injected `Calendar` (pattern: `CompletionToggler`) rather than
+  wrapping it in a ViewModel for structure's sake.
 - **Views**: SwiftUI, ideally with no business logic.
 - **Services**: reusable business logic (HabitScoreCalculator,
   ExportService, NotificationScheduler…). Protocol-defined, injected.
@@ -405,6 +410,17 @@ where you still open Xcode:
   large projects, negligible on Kadō early on).
 - Code signing: errors remain opaque, ask the human to fix in Xcode
   when needed.
+- **Destination resolution flakiness**: `test_sim` and
+  `build_run_sim` occasionally fail with `Unable to find a
+  destination matching { platform:iOS Simulator, OS:latest, name:… }`
+  even though the simulator is booted and its SDK is installed —
+  the error text cites the missing iOS *device* SDK. xcodebuild
+  appears to walk all scheme destinations and abort when
+  device-side resolution fails, poisoning the simulator build. Fix:
+  `xcrun simctl shutdown all && xcrun simctl boot "<sim name>"`,
+  then rerun. Cleaning DerivedData occasionally helps. No
+  source-level change is needed — the code is fine, the runtime
+  state is not.
 
 ---
 
