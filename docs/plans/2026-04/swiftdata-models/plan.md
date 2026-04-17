@@ -110,7 +110,7 @@ persisted stores.
 
 ---
 
-### Task 3: KadoMigrationPlan + ModelContainer wiring in KadoApp
+### Task 3: KadoMigrationPlan + ModelContainer wiring in KadoApp ✅
 
 **Goal**: Persistence is live in the running app; container construction
 is exercised by tests.
