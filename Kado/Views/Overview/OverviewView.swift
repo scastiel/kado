@@ -167,7 +167,7 @@ struct OverviewView: View {
                         .truncationMode(.tail)
                     Spacer(minLength: 8)
                     if let m = metrics[row.habit.id] {
-                        metricsChip(streak: m.streak, scorePercent: m.scorePercent)
+                        MetricsChip(streak: m.streak, scorePercent: m.scorePercent)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -184,27 +184,6 @@ struct OverviewView: View {
         }
         .padding(.horizontal, 16)
         .allowsHitTesting(false)
-    }
-
-    /// Right-aligned `🔥 streak · score%` chip — same vocabulary as the
-    /// Today row's metrics line. Streak hidden when zero.
-    private func metricsChip(streak: Int, scorePercent: Int) -> some View {
-        HStack(spacing: 6) {
-            if streak > 0 {
-                HStack(spacing: 2) {
-                    Image(systemName: "flame.fill")
-                    Text("\(streak)")
-                }
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Color.orange)
-                Text("·")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            Text("\(scorePercent)%")
-                .font(.caption2.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.secondary)
-        }
     }
 
     private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {

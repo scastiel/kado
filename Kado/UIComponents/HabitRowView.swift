@@ -145,26 +145,8 @@ struct HabitRowView: View {
 
     // MARK: - Metrics line
 
-    @ViewBuilder
     private var metricsLine: some View {
-        HStack(spacing: 6) {
-            if streak > 0 {
-                // Hand-rolled "label" — Label's default icon/title gap
-                // is sized for body text and reads as loose at .caption2.
-                HStack(spacing: 2) {
-                    Image(systemName: "flame.fill")
-                    Text("\(streak)")
-                }
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Color.orange)
-                Text("·")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            Text("\(scorePercent)%")
-                .font(.caption2.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.secondary)
-        }
+        MetricsChip(streak: streak, scorePercent: scorePercent)
     }
 
     // MARK: - Trailing control
