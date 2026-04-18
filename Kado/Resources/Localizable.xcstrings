@@ -103,6 +103,17 @@
         }
       }
     },
+    "%lld%% complete" : {
+      "comment" : "Status label for an Overview cell that shows partial completion (counter or timer between 0 and target). Used in the cell popover and in the VoiceOver label. %lld is the percentage 0-100.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% complete"
+          }
+        }
+      }
+    },
     "A few times a week" : {
       "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
       "localizations" : {
@@ -187,6 +198,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Completed" : {
+      "comment" : "Status label in the Overview cell popover for a fully-completed day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
           }
         }
       }
@@ -441,6 +463,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mark as not done"
+          }
+        }
+      }
+    },
+    "Missed" : {
+      "comment" : "Status label in the Overview cell popover for a scheduled day with no completion logged.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed"
           }
         }
       }
