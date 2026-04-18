@@ -7,12 +7,13 @@ import SwiftUI
 /// - **Center**: habit name on top; below, a "🔥 streak · score%"
 ///   caption that surfaces the per-row metrics that previously only
 ///   lived on Detail.
-/// - **Trailing**: type-aware control, all built from the same
-///   28pt-circle vocabulary so the row reads as a tight strip of
-///   tappable affordances. Binary = checkmark (habit color); negative
-///   = xmark (red); counter = `−` / `+` pair; timer = `+5m` chip.
-///   In every case the *filled* variant is the "recorded" state and
-///   the tinted variant is the "ready to record" state.
+/// - **Trailing**: type-aware control. Binary, counter, and timer
+///   share a 28pt-circle icon vocabulary (checkmark, `−` / `+`,
+///   `+5m`). Negative is the deliberate exception — it keeps a
+///   text "Slipped" pill so a slip never reads as a "done"
+///   achievement at a glance. In every case the *filled* variant
+///   is the recorded state and the tinted / outlined variant is
+///   the ready-to-record state.
 struct HabitRowView: View {
     let habit: Habit
     let state: HabitRowState
@@ -169,7 +170,7 @@ struct HabitRowView: View {
         case .binary:
             binaryCheckButton
         case .negative:
-            negativeCheckButton
+            negativePill
         case .counter(let target):
             counterStepper(target: target)
         case .timer(let targetSeconds):
@@ -226,16 +227,20 @@ struct HabitRowView: View {
     }
 
     @ViewBuilder
-    private var negativeCheckButton: some View {
+    private var negativePill: some View {
         if let onToggle {
             Button(action: onToggle) {
-                checkCircle(
-                    icon: "xmark",
-                    tint: .red,
-                    filled: isComplete
-                )
+                if isComplete {
+                    Label("Slipped", systemImage: "checkmark")
+                        .labelStyle(.titleAndIcon)
+                } else {
+                    Text("Slipped")
+                }
             }
-            .buttonStyle(.borderless)
+            // Outlined when *not* slipped (calm, ready); filled red
+            // with a checkmark when slipped today (recorded).
+            .modifier(NegativePillStyleModifier(isSlipped: isComplete))
+            .controlSize(.small)
             .sensoryFeedback(.success, trigger: state.status)
             .accessibilityLabel(
                 isComplete
@@ -245,10 +250,10 @@ struct HabitRowView: View {
         }
     }
 
-    /// Shared 28pt-circle treatment for binary / negative trailing
-    /// buttons. Tinted-fill background when the day isn't recorded
-    /// yet; full-saturation fill with white icon when it is. Matches
-    /// the counter `+` button styling exactly so the row's trailing
+    /// Shared 28pt-circle treatment for the binary trailing button.
+    /// Tinted-fill background when the day isn't recorded yet;
+    /// full-saturation fill with white icon when it is. Matches the
+    /// counter `+` button styling exactly so the row's trailing
     /// region reads as one cohesive icon strip.
     private func checkCircle(icon: String, tint: Color, filled: Bool) -> some View {
         Image(systemName: icon)
@@ -373,6 +378,24 @@ struct HabitRowView: View {
             return String(localized: "\(progress), streak \(streak), score \(scorePercent) percent")
         }
         return String(localized: "\(progress), score \(scorePercent) percent")
+    }
+}
+
+/// Conditional style swap — `.bordered` vs `.borderedProminent` aren't
+/// the same opaque type, so a plain ternary doesn't compile. Using a
+/// `ViewModifier` keeps the call site flat.
+private struct NegativePillStyleModifier: ViewModifier {
+    let isSlipped: Bool
+    func body(content: Content) -> some View {
+        if isSlipped {
+            content
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+        } else {
+            content
+                .buttonStyle(.bordered)
+                .tint(.red)
+        }
     }
 }
 
