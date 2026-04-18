@@ -80,6 +80,7 @@ struct WeeklyGridLargeView: View {
                 Image(systemName: row.habit.icon)
                     .font(.caption)
                     .foregroundStyle(row.habit.color.color)
+                    .frame(width: 16, alignment: .center)
                 Text(row.habit.name)
                     .font(.caption.weight(.medium))
                     .lineLimit(1)
