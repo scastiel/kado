@@ -211,4 +211,21 @@ struct OverviewMatrixTests {
             if case .scored = $0 { return true } else { return false }
         })
     }
+
+    // MARK: - colorOpacity
+
+    @Test("DayCell.colorOpacity is nil for future and notDue")
+    func opacityNilForNonScored() {
+        #expect(DayCell.future.colorOpacity == nil)
+        #expect(DayCell.notDue.colorOpacity == nil)
+    }
+
+    @Test("DayCell.colorOpacity clamps scored to [0.08, 1.0]")
+    func opacityClampsScored() {
+        #expect(DayCell.scored(0.0).colorOpacity == 0.08)
+        #expect(DayCell.scored(-1.0).colorOpacity == 0.08)
+        #expect(DayCell.scored(0.5).colorOpacity == 0.5)
+        #expect(DayCell.scored(1.0).colorOpacity == 1.0)
+        #expect(DayCell.scored(2.0).colorOpacity == 1.0)
+    }
 }

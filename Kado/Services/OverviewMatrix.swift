@@ -13,6 +13,17 @@ enum DayCell: Equatable, Sendable {
     case future
     case notDue
     case scored(Double)
+
+    /// Opacity used to tint the habit color when rendering this cell.
+    /// `nil` for non-scored cells (caller renders a neutral
+    /// placeholder). The 0.08 floor keeps score-near-zero days
+    /// perceptible against the cell background.
+    var colorOpacity: Double? {
+        switch self {
+        case .future, .notDue: nil
+        case .scored(let s): max(0.08, min(1.0, s))
+        }
+    }
 }
 
 /// Turns habits + completions + a day range into matrix rows.
