@@ -42,6 +42,20 @@ nonisolated enum SharedStore {
         URL.applicationSupportDirectory.appendingPathComponent("default.store")
     }
 
+    /// On-disk location for the dev-mode sandbox sqlite. Shared
+    /// across processes so the widget extension's intent calls
+    /// write to the same sandbox the app is using. Falls back to
+    /// the app's own Application Support directory when the App
+    /// Group entitlement isn't yet active.
+    static func devStoreURL() -> URL {
+        if let base = appGroupContainerURL() {
+            return base
+                .appendingPathComponent("Library/Application Support", isDirectory: true)
+                .appendingPathComponent("KadoDev.sqlite")
+        }
+        return URL.applicationSupportDirectory.appendingPathComponent("KadoDev.sqlite")
+    }
+
     /// Copy the sqlite + sidecars from `legacy` to `target` if a
     /// legacy file exists and `target` is still absent. The legacy
     /// file is *copied*, not moved, so a bad migration doesn't

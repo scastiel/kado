@@ -26,7 +26,7 @@ nonisolated enum IntentContainerResolver {
             migrationPlan: KadoMigrationPlan.self,
             configurations: ModelConfiguration(
                 schema: schema,
-                url: DevModeController.defaultDevStoreURL,
+                url: SharedStore.devStoreURL(),
                 cloudKitDatabase: .none
             )
         )

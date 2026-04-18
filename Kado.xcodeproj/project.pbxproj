@@ -6,6 +6,70 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BE0A50672F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505C2F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift */; };
+		BE0A50682F940D5D00E09C34 /* HabitColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504F2F940D5D00E09C34 /* HabitColor.swift */; };
+		BE0A50692F940D5D00E09C34 /* HabitEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50562F940D5D00E09C34 /* HabitEntity.swift */; };
+		BE0A506A2F940D5D00E09C34 /* KadoSchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50482F940D5D00E09C34 /* KadoSchemaV1.swift */; };
+		BE0A506B2F940D5D00E09C34 /* KadoMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50472F940D5D00E09C34 /* KadoMigrationPlan.swift */; };
+		BE0A506C2F940D5D00E09C34 /* HabitIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50502F940D5D00E09C34 /* HabitIcon.swift */; };
+		BE0A506D2F940D5D00E09C34 /* HabitScoreCalculating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505F2F940D5D00E09C34 /* HabitScoreCalculating.swift */; };
+		BE0A506E2F940D5D00E09C34 /* CompletionToggler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50592F940D5D00E09C34 /* CompletionToggler.swift */; };
+		BE0A506F2F940D5D00E09C34 /* Habit.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504E2F940D5D00E09C34 /* Habit.swift */; };
+		BE0A50702F940D5D00E09C34 /* OverviewMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50602F940D5D00E09C34 /* OverviewMatrix.swift */; };
+		BE0A50712F940D5D00E09C34 /* DailyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505A2F940D5D00E09C34 /* DailyValue.swift */; };
+		BE0A50722F940D5D00E09C34 /* DefaultStreakCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505D2F940D5D00E09C34 /* DefaultStreakCalculator.swift */; };
+		BE0A50732F940D5D00E09C34 /* HabitType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50522F940D5D00E09C34 /* HabitType.swift */; };
+		BE0A50742F940D5D00E09C34 /* CompletionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50452F940D5D00E09C34 /* CompletionRecord.swift */; };
+		BE0A50752F940D5D00E09C34 /* StreakCalculating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50612F940D5D00E09C34 /* StreakCalculating.swift */; };
+		BE0A50762F940D5D00E09C34 /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504B2F940D5D00E09C34 /* Completion.swift */; };
+		BE0A50772F940D5D00E09C34 /* KadoSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50492F940D5D00E09C34 /* KadoSchemaV2.swift */; };
+		BE0A50782F940D5D00E09C34 /* FrequencyEvaluating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505E2F940D5D00E09C34 /* FrequencyEvaluating.swift */; };
+		BE0A50792F940D5D00E09C34 /* CloudContainerID.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50632F940D5D00E09C34 /* CloudContainerID.swift */; };
+		BE0A507A2F940D5D00E09C34 /* IntentContainerResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50572F940D5D00E09C34 /* IntentContainerResolver.swift */; };
+		BE0A507B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift */; };
+		BE0A507C2F940D5D00E09C34 /* HabitRowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50512F940D5D00E09C34 /* HabitRowState.swift */; };
+		BE0A507D2F940D5D00E09C34 /* HabitRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50462F940D5D00E09C34 /* HabitRecord.swift */; };
+		BE0A507E2F940D5D00E09C34 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50652F940D5D00E09C34 /* SharedStore.swift */; };
+		BE0A507F2F940D5D00E09C34 /* DevModeDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50642F940D5D00E09C34 /* DevModeDefaults.swift */; };
+		BE0A50802F940D5D00E09C34 /* CompleteHabitIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50552F940D5D00E09C34 /* CompleteHabitIntent.swift */; };
+		BE0A50812F940D5D00E09C34 /* Frequency.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504D2F940D5D00E09C34 /* Frequency.swift */; };
+		BE0A50822F940D5D00E09C34 /* DailyScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504C2F940D5D00E09C34 /* DailyScore.swift */; };
+		BE0A50832F940D5D00E09C34 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50532F940D5D00E09C34 /* Weekday.swift */; };
+		BE0A50842F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505C2F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift */; };
+		BE0A50852F940D5D00E09C34 /* HabitColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504F2F940D5D00E09C34 /* HabitColor.swift */; };
+		BE0A50862F940D5D00E09C34 /* HabitEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50562F940D5D00E09C34 /* HabitEntity.swift */; };
+		BE0A50872F940D5D00E09C34 /* KadoSchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50482F940D5D00E09C34 /* KadoSchemaV1.swift */; };
+		BE0A50882F940D5D00E09C34 /* KadoMigrationPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50472F940D5D00E09C34 /* KadoMigrationPlan.swift */; };
+		BE0A50892F940D5D00E09C34 /* HabitIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50502F940D5D00E09C34 /* HabitIcon.swift */; };
+		BE0A508A2F940D5D00E09C34 /* HabitScoreCalculating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505F2F940D5D00E09C34 /* HabitScoreCalculating.swift */; };
+		BE0A508B2F940D5D00E09C34 /* CompletionToggler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50592F940D5D00E09C34 /* CompletionToggler.swift */; };
+		BE0A508C2F940D5D00E09C34 /* Habit.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504E2F940D5D00E09C34 /* Habit.swift */; };
+		BE0A508D2F940D5D00E09C34 /* OverviewMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50602F940D5D00E09C34 /* OverviewMatrix.swift */; };
+		BE0A508E2F940D5D00E09C34 /* DailyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505A2F940D5D00E09C34 /* DailyValue.swift */; };
+		BE0A508F2F940D5D00E09C34 /* DefaultStreakCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505D2F940D5D00E09C34 /* DefaultStreakCalculator.swift */; };
+		BE0A50902F940D5D00E09C34 /* HabitType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50522F940D5D00E09C34 /* HabitType.swift */; };
+		BE0A50912F940D5D00E09C34 /* CompletionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50452F940D5D00E09C34 /* CompletionRecord.swift */; };
+		BE0A50922F940D5D00E09C34 /* StreakCalculating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50612F940D5D00E09C34 /* StreakCalculating.swift */; };
+		BE0A50932F940D5D00E09C34 /* Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504B2F940D5D00E09C34 /* Completion.swift */; };
+		BE0A50942F940D5D00E09C34 /* KadoSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50492F940D5D00E09C34 /* KadoSchemaV2.swift */; };
+		BE0A50952F940D5D00E09C34 /* FrequencyEvaluating.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505E2F940D5D00E09C34 /* FrequencyEvaluating.swift */; };
+		BE0A50962F940D5D00E09C34 /* CloudContainerID.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50632F940D5D00E09C34 /* CloudContainerID.swift */; };
+		BE0A50972F940D5D00E09C34 /* IntentContainerResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50572F940D5D00E09C34 /* IntentContainerResolver.swift */; };
+		BE0A50982F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A505B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift */; };
+		BE0A50992F940D5D00E09C34 /* HabitRowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50512F940D5D00E09C34 /* HabitRowState.swift */; };
+		BE0A509A2F940D5D00E09C34 /* HabitRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50462F940D5D00E09C34 /* HabitRecord.swift */; };
+		BE0A509B2F940D5D00E09C34 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50652F940D5D00E09C34 /* SharedStore.swift */; };
+		BE0A509C2F940D5D00E09C34 /* DevModeDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50642F940D5D00E09C34 /* DevModeDefaults.swift */; };
+		BE0A509D2F940D5D00E09C34 /* CompleteHabitIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50552F940D5D00E09C34 /* CompleteHabitIntent.swift */; };
+		BE0A509E2F940D5D00E09C34 /* Frequency.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504D2F940D5D00E09C34 /* Frequency.swift */; };
+		BE0A509F2F940D5D00E09C34 /* DailyScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A504C2F940D5D00E09C34 /* DailyScore.swift */; };
+		BE0A50A02F940D5D00E09C34 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0A50532F940D5D00E09C34 /* Weekday.swift */; };
+		BE58C7602F940AAF0020146E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE58C75F2F940AAF0020146E /* WidgetKit.framework */; };
+		BE58C7622F940AAF0020146E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE58C7612F940AAF0020146E /* SwiftUI.framework */; };
+		BE58C76F2F940AB10020146E /* KadoWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BE4188882F91B4F2006126D6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -14,12 +78,76 @@
 			remoteGlobalIDString = BE4188792F91B4F0006126D6;
 			remoteInfo = Kado;
 		};
+		BE58C76D2F940AB10020146E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE4188722F91B4F0006126D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BE58C75C2F940AAF0020146E;
+			remoteInfo = KadoWidgetsExtension;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		BE58C7702F940AB10020146E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BE58C76F2F940AB10020146E /* KadoWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		BE0A50452F940D5D00E09C34 /* CompletionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionRecord.swift; sourceTree = "<group>"; };
+		BE0A50462F940D5D00E09C34 /* HabitRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitRecord.swift; sourceTree = "<group>"; };
+		BE0A50472F940D5D00E09C34 /* KadoMigrationPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KadoMigrationPlan.swift; sourceTree = "<group>"; };
+		BE0A50482F940D5D00E09C34 /* KadoSchemaV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KadoSchemaV1.swift; sourceTree = "<group>"; };
+		BE0A50492F940D5D00E09C34 /* KadoSchemaV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KadoSchemaV2.swift; sourceTree = "<group>"; };
+		BE0A504B2F940D5D00E09C34 /* Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completion.swift; sourceTree = "<group>"; };
+		BE0A504C2F940D5D00E09C34 /* DailyScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyScore.swift; sourceTree = "<group>"; };
+		BE0A504D2F940D5D00E09C34 /* Frequency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Frequency.swift; sourceTree = "<group>"; };
+		BE0A504E2F940D5D00E09C34 /* Habit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Habit.swift; sourceTree = "<group>"; };
+		BE0A504F2F940D5D00E09C34 /* HabitColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitColor.swift; sourceTree = "<group>"; };
+		BE0A50502F940D5D00E09C34 /* HabitIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitIcon.swift; sourceTree = "<group>"; };
+		BE0A50512F940D5D00E09C34 /* HabitRowState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitRowState.swift; sourceTree = "<group>"; };
+		BE0A50522F940D5D00E09C34 /* HabitType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitType.swift; sourceTree = "<group>"; };
+		BE0A50532F940D5D00E09C34 /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
+		BE0A50552F940D5D00E09C34 /* CompleteHabitIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteHabitIntent.swift; sourceTree = "<group>"; };
+		BE0A50562F940D5D00E09C34 /* HabitEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitEntity.swift; sourceTree = "<group>"; };
+		BE0A50572F940D5D00E09C34 /* IntentContainerResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentContainerResolver.swift; sourceTree = "<group>"; };
+		BE0A50592F940D5D00E09C34 /* CompletionToggler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionToggler.swift; sourceTree = "<group>"; };
+		BE0A505A2F940D5D00E09C34 /* DailyValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyValue.swift; sourceTree = "<group>"; };
+		BE0A505B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFrequencyEvaluator.swift; sourceTree = "<group>"; };
+		BE0A505C2F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultHabitScoreCalculator.swift; sourceTree = "<group>"; };
+		BE0A505D2F940D5D00E09C34 /* DefaultStreakCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultStreakCalculator.swift; sourceTree = "<group>"; };
+		BE0A505E2F940D5D00E09C34 /* FrequencyEvaluating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyEvaluating.swift; sourceTree = "<group>"; };
+		BE0A505F2F940D5D00E09C34 /* HabitScoreCalculating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitScoreCalculating.swift; sourceTree = "<group>"; };
+		BE0A50602F940D5D00E09C34 /* OverviewMatrix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewMatrix.swift; sourceTree = "<group>"; };
+		BE0A50612F940D5D00E09C34 /* StreakCalculating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculating.swift; sourceTree = "<group>"; };
+		BE0A50632F940D5D00E09C34 /* CloudContainerID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudContainerID.swift; sourceTree = "<group>"; };
+		BE0A50642F940D5D00E09C34 /* DevModeDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevModeDefaults.swift; sourceTree = "<group>"; };
+		BE0A50652F940D5D00E09C34 /* SharedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStore.swift; sourceTree = "<group>"; };
 		BE41887A2F91B4F0006126D6 /* Kado.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kado.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4188872F91B4F2006126D6 /* KadoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KadoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KadoWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE58C75F2F940AAF0020146E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		BE58C7612F940AAF0020146E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		BE58C7752F940AC60020146E /* KadoWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KadoWidgetsExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BE58C7732F940AB10020146E /* Exceptions for "KadoWidgets" folder in "KadoWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BE58C75C2F940AAF0020146E /* KadoWidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BE41887C2F91B4F0006126D6 /* Kado */ = {
@@ -30,6 +158,14 @@
 		BE41888A2F91B4F2006126D6 /* KadoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = KadoTests;
+			sourceTree = "<group>";
+		};
+		BE58C7632F940AAF0020146E /* KadoWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BE58C7732F940AB10020146E /* Exceptions for "KadoWidgets" folder in "KadoWidgetsExtension" target */,
+			);
+			path = KadoWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -49,14 +185,95 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BE58C75A2F940AAF0020146E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE58C7622F940AAF0020146E /* SwiftUI.framework in Frameworks */,
+				BE58C7602F940AAF0020146E /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE0A504A2F940D5D00E09C34 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				BE0A50452F940D5D00E09C34 /* CompletionRecord.swift */,
+				BE0A50462F940D5D00E09C34 /* HabitRecord.swift */,
+				BE0A50472F940D5D00E09C34 /* KadoMigrationPlan.swift */,
+				BE0A50482F940D5D00E09C34 /* KadoSchemaV1.swift */,
+				BE0A50492F940D5D00E09C34 /* KadoSchemaV2.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		BE0A50542F940D5D00E09C34 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BE0A504A2F940D5D00E09C34 /* Persistence */,
+				BE0A504B2F940D5D00E09C34 /* Completion.swift */,
+				BE0A504C2F940D5D00E09C34 /* DailyScore.swift */,
+				BE0A504D2F940D5D00E09C34 /* Frequency.swift */,
+				BE0A504E2F940D5D00E09C34 /* Habit.swift */,
+				BE0A504F2F940D5D00E09C34 /* HabitColor.swift */,
+				BE0A50502F940D5D00E09C34 /* HabitIcon.swift */,
+				BE0A50512F940D5D00E09C34 /* HabitRowState.swift */,
+				BE0A50522F940D5D00E09C34 /* HabitType.swift */,
+				BE0A50532F940D5D00E09C34 /* Weekday.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		BE0A50582F940D5D00E09C34 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				BE0A50552F940D5D00E09C34 /* CompleteHabitIntent.swift */,
+				BE0A50562F940D5D00E09C34 /* HabitEntity.swift */,
+				BE0A50572F940D5D00E09C34 /* IntentContainerResolver.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
+		BE0A50622F940D5D00E09C34 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BE0A50582F940D5D00E09C34 /* Intents */,
+				BE0A50592F940D5D00E09C34 /* CompletionToggler.swift */,
+				BE0A505A2F940D5D00E09C34 /* DailyValue.swift */,
+				BE0A505B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift */,
+				BE0A505C2F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift */,
+				BE0A505D2F940D5D00E09C34 /* DefaultStreakCalculator.swift */,
+				BE0A505E2F940D5D00E09C34 /* FrequencyEvaluating.swift */,
+				BE0A505F2F940D5D00E09C34 /* HabitScoreCalculating.swift */,
+				BE0A50602F940D5D00E09C34 /* OverviewMatrix.swift */,
+				BE0A50612F940D5D00E09C34 /* StreakCalculating.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		BE0A50662F940D5D00E09C34 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				BE0A50542F940D5D00E09C34 /* Models */,
+				BE0A50622F940D5D00E09C34 /* Services */,
+				BE0A50632F940D5D00E09C34 /* CloudContainerID.swift */,
+				BE0A50642F940D5D00E09C34 /* DevModeDefaults.swift */,
+				BE0A50652F940D5D00E09C34 /* SharedStore.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		BE4188712F91B4F0006126D6 = {
 			isa = PBXGroup;
 			children = (
+				BE0A50662F940D5D00E09C34 /* Shared */,
+				BE58C7752F940AC60020146E /* KadoWidgetsExtension.entitlements */,
 				BE41887C2F91B4F0006126D6 /* Kado */,
 				BE41888A2F91B4F2006126D6 /* KadoTests */,
+				BE58C7632F940AAF0020146E /* KadoWidgets */,
+				BE58C75E2F940AAF0020146E /* Frameworks */,
 				BE41887B2F91B4F0006126D6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,8 +283,18 @@
 			children = (
 				BE41887A2F91B4F0006126D6 /* Kado.app */,
 				BE4188872F91B4F2006126D6 /* KadoTests.xctest */,
+				BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BE58C75E2F940AAF0020146E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE58C75F2F940AAF0020146E /* WidgetKit.framework */,
+				BE58C7612F940AAF0020146E /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -80,10 +307,12 @@
 				BE4188762F91B4F0006126D6 /* Sources */,
 				BE4188772F91B4F0006126D6 /* Frameworks */,
 				BE4188782F91B4F0006126D6 /* Resources */,
+				BE58C7702F940AB10020146E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BE58C76E2F940AB10020146E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				BE41887C2F91B4F0006126D6 /* Kado */,
@@ -118,6 +347,28 @@
 			productReference = BE4188872F91B4F2006126D6 /* KadoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		BE58C75C2F940AAF0020146E /* KadoWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE58C7742F940AB10020146E /* Build configuration list for PBXNativeTarget "KadoWidgetsExtension" */;
+			buildPhases = (
+				BE58C7592F940AAF0020146E /* Sources */,
+				BE58C75A2F940AAF0020146E /* Frameworks */,
+				BE58C75B2F940AAF0020146E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BE58C7632F940AAF0020146E /* KadoWidgets */,
+			);
+			name = KadoWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = KadoWidgetsExtension;
+			productReference = BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -134,6 +385,9 @@
 					BE4188862F91B4F2006126D6 = {
 						CreatedOnToolsVersion = 26.4;
 						TestTargetID = BE4188792F91B4F0006126D6;
+					};
+					BE58C75C2F940AAF0020146E = {
+						CreatedOnToolsVersion = 26.4.1;
 					};
 				};
 			};
@@ -153,6 +407,7 @@
 			targets = (
 				BE4188792F91B4F0006126D6 /* Kado */,
 				BE4188862F91B4F2006126D6 /* KadoTests */,
+				BE58C75C2F940AAF0020146E /* KadoWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -172,6 +427,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BE58C75B2F940AAF0020146E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -179,6 +441,35 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE0A50672F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift in Sources */,
+				BE0A50682F940D5D00E09C34 /* HabitColor.swift in Sources */,
+				BE0A50692F940D5D00E09C34 /* HabitEntity.swift in Sources */,
+				BE0A506A2F940D5D00E09C34 /* KadoSchemaV1.swift in Sources */,
+				BE0A506B2F940D5D00E09C34 /* KadoMigrationPlan.swift in Sources */,
+				BE0A506C2F940D5D00E09C34 /* HabitIcon.swift in Sources */,
+				BE0A506D2F940D5D00E09C34 /* HabitScoreCalculating.swift in Sources */,
+				BE0A506E2F940D5D00E09C34 /* CompletionToggler.swift in Sources */,
+				BE0A506F2F940D5D00E09C34 /* Habit.swift in Sources */,
+				BE0A50702F940D5D00E09C34 /* OverviewMatrix.swift in Sources */,
+				BE0A50712F940D5D00E09C34 /* DailyValue.swift in Sources */,
+				BE0A50722F940D5D00E09C34 /* DefaultStreakCalculator.swift in Sources */,
+				BE0A50732F940D5D00E09C34 /* HabitType.swift in Sources */,
+				BE0A50742F940D5D00E09C34 /* CompletionRecord.swift in Sources */,
+				BE0A50752F940D5D00E09C34 /* StreakCalculating.swift in Sources */,
+				BE0A50762F940D5D00E09C34 /* Completion.swift in Sources */,
+				BE0A50772F940D5D00E09C34 /* KadoSchemaV2.swift in Sources */,
+				BE0A50782F940D5D00E09C34 /* FrequencyEvaluating.swift in Sources */,
+				BE0A50792F940D5D00E09C34 /* CloudContainerID.swift in Sources */,
+				BE0A507A2F940D5D00E09C34 /* IntentContainerResolver.swift in Sources */,
+				BE0A507B2F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift in Sources */,
+				BE0A507C2F940D5D00E09C34 /* HabitRowState.swift in Sources */,
+				BE0A507D2F940D5D00E09C34 /* HabitRecord.swift in Sources */,
+				BE0A507E2F940D5D00E09C34 /* SharedStore.swift in Sources */,
+				BE0A507F2F940D5D00E09C34 /* DevModeDefaults.swift in Sources */,
+				BE0A50802F940D5D00E09C34 /* CompleteHabitIntent.swift in Sources */,
+				BE0A50812F940D5D00E09C34 /* Frequency.swift in Sources */,
+				BE0A50822F940D5D00E09C34 /* DailyScore.swift in Sources */,
+				BE0A50832F940D5D00E09C34 /* Weekday.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +480,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BE58C7592F940AAF0020146E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE0A50842F940D5D00E09C34 /* DefaultHabitScoreCalculator.swift in Sources */,
+				BE0A50852F940D5D00E09C34 /* HabitColor.swift in Sources */,
+				BE0A50862F940D5D00E09C34 /* HabitEntity.swift in Sources */,
+				BE0A50872F940D5D00E09C34 /* KadoSchemaV1.swift in Sources */,
+				BE0A50882F940D5D00E09C34 /* KadoMigrationPlan.swift in Sources */,
+				BE0A50892F940D5D00E09C34 /* HabitIcon.swift in Sources */,
+				BE0A508A2F940D5D00E09C34 /* HabitScoreCalculating.swift in Sources */,
+				BE0A508B2F940D5D00E09C34 /* CompletionToggler.swift in Sources */,
+				BE0A508C2F940D5D00E09C34 /* Habit.swift in Sources */,
+				BE0A508D2F940D5D00E09C34 /* OverviewMatrix.swift in Sources */,
+				BE0A508E2F940D5D00E09C34 /* DailyValue.swift in Sources */,
+				BE0A508F2F940D5D00E09C34 /* DefaultStreakCalculator.swift in Sources */,
+				BE0A50902F940D5D00E09C34 /* HabitType.swift in Sources */,
+				BE0A50912F940D5D00E09C34 /* CompletionRecord.swift in Sources */,
+				BE0A50922F940D5D00E09C34 /* StreakCalculating.swift in Sources */,
+				BE0A50932F940D5D00E09C34 /* Completion.swift in Sources */,
+				BE0A50942F940D5D00E09C34 /* KadoSchemaV2.swift in Sources */,
+				BE0A50952F940D5D00E09C34 /* FrequencyEvaluating.swift in Sources */,
+				BE0A50962F940D5D00E09C34 /* CloudContainerID.swift in Sources */,
+				BE0A50972F940D5D00E09C34 /* IntentContainerResolver.swift in Sources */,
+				BE0A50982F940D5D00E09C34 /* DefaultFrequencyEvaluator.swift in Sources */,
+				BE0A50992F940D5D00E09C34 /* HabitRowState.swift in Sources */,
+				BE0A509A2F940D5D00E09C34 /* HabitRecord.swift in Sources */,
+				BE0A509B2F940D5D00E09C34 /* SharedStore.swift in Sources */,
+				BE0A509C2F940D5D00E09C34 /* DevModeDefaults.swift in Sources */,
+				BE0A509D2F940D5D00E09C34 /* CompleteHabitIntent.swift in Sources */,
+				BE0A509E2F940D5D00E09C34 /* Frequency.swift in Sources */,
+				BE0A509F2F940D5D00E09C34 /* DailyScore.swift in Sources */,
+				BE0A50A02F940D5D00E09C34 /* Weekday.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -196,6 +523,11 @@
 			isa = PBXTargetDependency;
 			target = BE4188792F91B4F0006126D6 /* Kado */;
 			targetProxy = BE4188882F91B4F2006126D6 /* PBXContainerItemProxy */;
+		};
+		BE58C76E2F940AB10020146E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BE58C75C2F940AAF0020146E /* KadoWidgetsExtension */;
+			targetProxy = BE58C76D2F940AB10020146E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -431,6 +763,70 @@
 			};
 			name = Release;
 		};
+		BE58C7712F940AB10020146E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = KadoWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VKY5EKKU47;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KadoWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = KadoWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.scastiel.kado.KadoWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BE58C7722F940AB10020146E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = KadoWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VKY5EKKU47;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KadoWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = KadoWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.scastiel.kado.KadoWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -457,6 +853,15 @@
 			buildConfigurations = (
 				BE41889F2F91B4F2006126D6 /* Debug */,
 				BE4188A02F91B4F2006126D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BE58C7742F940AB10020146E /* Build configuration list for PBXNativeTarget "KadoWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE58C7712F940AB10020146E /* Debug */,
+				BE58C7722F940AB10020146E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
