@@ -48,7 +48,10 @@ struct DefaultHabitScoreCalculator: HabitScoreCalculating {
         var day = firstDay
         while day <= lastDay {
             if frequencyEvaluator.isDue(habit: habit, on: day, completions: completions) {
-                let value = derivedValue(for: habit, completionsOnDay: completionsByDay[day] ?? [])
+                let value = DailyValue.compute(
+                    for: habit,
+                    completionsOnDay: completionsByDay[day] ?? []
+                )
                 score = (1 - alpha) * score + alpha * value
             }
             result.append(DailyScore(date: day, score: score))
@@ -63,23 +66,6 @@ struct DefaultHabitScoreCalculator: HabitScoreCalculating {
     ) -> [Date: [Completion]] {
         Dictionary(grouping: completions.filter { $0.habitID == habit.id }) {
             calendar.startOfDay(for: $0.date)
-        }
-    }
-
-    private func derivedValue(for habit: Habit, completionsOnDay: [Completion]) -> Double {
-        switch habit.type {
-        case .binary:
-            return completionsOnDay.isEmpty ? 0.0 : 1.0
-        case .counter(let target):
-            guard target > 0 else { return 0.0 }
-            let achieved = completionsOnDay.reduce(0.0) { $0 + $1.value }
-            return min(1.0, achieved / target)
-        case .timer(let targetSeconds):
-            guard targetSeconds > 0 else { return 0.0 }
-            let achievedSeconds = completionsOnDay.reduce(0.0) { $0 + $1.value }
-            return min(1.0, achievedSeconds / targetSeconds)
-        case .negative:
-            return completionsOnDay.isEmpty ? 1.0 : 0.0
         }
     }
 }

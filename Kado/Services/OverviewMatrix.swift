@@ -6,9 +6,14 @@ struct MatrixRow: Equatable, Sendable {
     let days: [DayCell]
 }
 
-/// Per-day state for the matrix. `.scored` carries the EMA score on
-/// that day (0...1); `.notDue` covers pre-creation and off-schedule
-/// days; `.future` is used for dates beyond today.
+/// Per-day state for the matrix. `.scored` carries the day's raw
+/// completion value (0...1); `.notDue` covers pre-creation and
+/// off-schedule days; `.future` is used for dates beyond today.
+///
+/// The value is intentionally NOT the EMA habit score. Daily habits
+/// with partial completion would render as a uniform mid-tone under
+/// EMA smoothing, hiding the per-day "did I do it?" pattern the user
+/// expects to see. See `DailyValue` for the mapping.
 enum DayCell: Equatable, Sendable {
     case future
     case notDue
@@ -35,7 +40,6 @@ enum OverviewMatrix {
         days: [Date],
         today: Date,
         calendar: Calendar,
-        scoreCalculator: any HabitScoreCalculating,
         frequencyEvaluator: any FrequencyEvaluating
     ) -> [MatrixRow] {
         let todayStart = calendar.startOfDay(for: today)
@@ -43,21 +47,11 @@ enum OverviewMatrix {
             .filter { $0.archivedAt == nil }
             .sorted { $0.createdAt < $1.createdAt }
 
-        guard let firstDay = days.first, let lastDay = days.last else {
-            return activeHabits.map { MatrixRow(habit: $0, days: []) }
-        }
-
         return activeHabits.map { habit in
             let habitCompletions = completions.filter { $0.habitID == habit.id }
-            let history = scoreCalculator.scoreHistory(
-                for: habit,
-                completions: habitCompletions,
-                from: firstDay,
-                to: lastDay
-            )
-            let scoreByDay = Dictionary(
-                uniqueKeysWithValues: history.map { ($0.date, $0.score) }
-            )
+            let completionsByDay = Dictionary(grouping: habitCompletions) {
+                calendar.startOfDay(for: $0.date)
+            }
             let habitCreatedStart = calendar.startOfDay(for: habit.createdAt)
 
             let cells = days.map { day -> DayCell in
@@ -70,7 +64,11 @@ enum OverviewMatrix {
                 ) {
                     return .notDue
                 }
-                return .scored(scoreByDay[day] ?? 0.0)
+                let value = DailyValue.compute(
+                    for: habit,
+                    completionsOnDay: completionsByDay[day] ?? []
+                )
+                return .scored(value)
             }
             return MatrixRow(habit: habit, days: cells)
         }

@@ -8,10 +8,6 @@ struct OverviewMatrixTests {
     private let calendar = TestCalendar.utc
     private let today = TestCalendar.day(0) // 2026-04-13, a Monday
 
-    private var scoreCalculator: DefaultHabitScoreCalculator {
-        DefaultHabitScoreCalculator(calendar: calendar)
-    }
-
     private var frequencyEvaluator: DefaultFrequencyEvaluator {
         DefaultFrequencyEvaluator(calendar: calendar)
     }
@@ -31,7 +27,6 @@ struct OverviewMatrixTests {
             days: days(offset: -6, count: 7),
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         #expect(result.isEmpty)
@@ -58,7 +53,6 @@ struct OverviewMatrixTests {
             days: days(offset: -6, count: 7),
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         #expect(result.map { $0.habit.id } == [older.id, newer.id])
@@ -85,7 +79,6 @@ struct OverviewMatrixTests {
             days: days(offset: -6, count: 7),
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         #expect(result.count == 1)
@@ -106,7 +99,6 @@ struct OverviewMatrixTests {
             days: days(offset: 1, count: 3),
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         let row = try #require(result.first)
@@ -129,7 +121,6 @@ struct OverviewMatrixTests {
             days: dayRange,
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         let row = try #require(result.first)
@@ -142,8 +133,9 @@ struct OverviewMatrixTests {
         #expect(notDueCount == 6)
     }
 
-    @Test("Cell is .scored(s) where s matches scoreHistory on due days")
-    func scoredMatchesHistory() throws {
+    @Test("Scored cells reflect the day's completion value (not the EMA score)")
+    func scoredReflectsDailyValue() throws {
+        // Daily binary habit with a completion exactly two days ago.
         let habit = Habit(
             name: "Read",
             frequency: .daily,
@@ -152,10 +144,10 @@ struct OverviewMatrixTests {
         )
         let completion = Completion(
             habitID: habit.id,
-            date: TestCalendar.day(-3),
+            date: TestCalendar.day(-2),
             value: 1
         )
-        let dayRange = days(offset: -6, count: 7)
+        let dayRange = days(offset: -4, count: 5) // -4..0
 
         let result = OverviewMatrix.compute(
             habits: [habit],
@@ -163,24 +155,47 @@ struct OverviewMatrixTests {
             days: dayRange,
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         let row = try #require(result.first)
 
-        // Independent computation from scoreHistory to compare against.
-        let history = scoreCalculator.scoreHistory(
-            for: habit,
-            completions: [completion],
-            from: try #require(dayRange.first),
-            to: try #require(dayRange.last)
-        )
-        let expected = Dictionary(uniqueKeysWithValues: history.map { ($0.date, $0.score) })
+        // Only the day with the completion should be scored 1.0; every
+        // other due day should be 0.0. This is the core contract: the
+        // matrix surfaces per-day completion, not smoothed history.
+        let values: [Double] = row.days.map { cell in
+            if case .scored(let v) = cell { v } else { -1 }
+        }
+        #expect(values == [0.0, 0.0, 1.0, 0.0, 0.0])
+    }
 
-        for (day, cell) in zip(dayRange, row.days) {
-            if case .scored(let s) = cell {
-                #expect(s == expected[day] ?? 0.0)
-            }
+    @Test("Counter habit scored cells use achieved/target fraction")
+    func counterPartialValue() throws {
+        let habit = Habit(
+            name: "Drink water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(-5)
+        )
+        // Today: 6 of 8 → 0.75.
+        let completion = Completion(
+            habitID: habit.id,
+            date: TestCalendar.day(0),
+            value: 6
+        )
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: [completion],
+            days: days(offset: 0, count: 1),
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        let cell = try #require(row.days.first)
+        if case .scored(let v) = cell {
+            #expect(v == 0.75)
+        } else {
+            Issue.record("Expected .scored, got \(cell)")
         }
     }
 
@@ -200,7 +215,6 @@ struct OverviewMatrixTests {
             days: dayRange,
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
         let row = try #require(result.first)

@@ -18,7 +18,6 @@ struct OverviewView: View {
     private var records: [HabitRecord]
 
     @Environment(\.calendar) private var calendar
-    @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
     @State private var selection: CellSelection?
@@ -73,7 +72,6 @@ struct OverviewView: View {
             days: days,
             today: today,
             calendar: calendar,
-            scoreCalculator: scoreCalculator,
             frequencyEvaluator: frequencyEvaluator
         )
 
@@ -150,7 +148,7 @@ struct OverviewView: View {
     }
 
     /// Composes a per-cell VoiceOver label:
-    /// `"{habit}, {localized date}, {state}[, score {pct}%]"`.
+    /// `"{habit}, {localized date}, {state}"`.
     private static func accessibilityLabel(
         habit: Habit,
         date: Date,
@@ -170,8 +168,14 @@ struct OverviewView: View {
         case .notDue:
             state = String(localized: "not scheduled")
         case .scored(let s):
-            let percent = Int((s * 100).rounded())
-            state = String(localized: "score \(percent)%")
+            if s >= 1.0 {
+                state = String(localized: "completed")
+            } else if s <= 0.0 {
+                state = String(localized: "missed")
+            } else {
+                let percent = Int((s * 100).rounded())
+                state = String(localized: "\(percent)% complete")
+            }
         }
         return "\(habit.name), \(dateString), \(state)"
     }

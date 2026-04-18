@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// Small popover body that inspects one (habit × day) cell. Shows the
-/// habit identity, the date, the day's state in plain language, and
-/// — for scored cells — the EMA score as a percentage.
+/// habit identity, the date, and the day's completion status in
+/// plain language. For partial counter/timer completions, adds a
+/// percentage.
 struct CellPopoverContent: View {
     let habit: Habit
     let date: Date
@@ -20,16 +21,8 @@ struct CellPopoverContent: View {
             Text(formattedDate)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            HStack {
-                Text(stateLabel)
-                    .font(.callout.weight(.medium))
-                Spacer()
-                if let percent = scorePercent {
-                    Text(percent)
-                        .font(.callout.monospacedDigit())
-                        .foregroundStyle(habit.color.color)
-                }
-            }
+            Text(statusLabel)
+                .font(.callout.weight(.medium))
         }
         .padding()
         .frame(minWidth: 220, maxWidth: 280)
@@ -43,21 +36,26 @@ struct CellPopoverContent: View {
         return formatter.string(from: date)
     }
 
-    private var stateLabel: String {
+    private var statusLabel: String {
         switch cell {
-        case .future: String(localized: "Upcoming")
-        case .notDue: String(localized: "Not scheduled")
-        case .scored: String(localized: "Scored")
+        case .future:
+            return String(localized: "Upcoming")
+        case .notDue:
+            return String(localized: "Not scheduled")
+        case .scored(let s):
+            if s >= 1.0 {
+                return String(localized: "Completed")
+            } else if s <= 0.0 {
+                return String(localized: "Missed")
+            } else {
+                let percent = Int((s * 100).rounded())
+                return String(localized: "\(percent)% complete")
+            }
         }
-    }
-
-    private var scorePercent: String? {
-        guard case .scored(let s) = cell else { return nil }
-        return "\(Int((s * 100).rounded()))%"
     }
 }
 
-#Preview("Scored") {
+#Preview("Completed") {
     CellPopoverContent(
         habit: Habit(
             name: "Morning meditation",
@@ -68,7 +66,37 @@ struct CellPopoverContent: View {
             icon: "figure.mind.and.body"
         ),
         date: .now,
-        cell: .scored(0.72)
+        cell: .scored(1.0)
+    )
+}
+
+#Preview("Partial") {
+    CellPopoverContent(
+        habit: Habit(
+            name: "Drink water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: .now,
+            color: .blue,
+            icon: "drop.fill"
+        ),
+        date: .now,
+        cell: .scored(0.5)
+    )
+}
+
+#Preview("Missed") {
+    CellPopoverContent(
+        habit: Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: .now,
+            color: .orange,
+            icon: "dumbbell.fill"
+        ),
+        date: .now,
+        cell: .scored(0.0)
     )
 }
 

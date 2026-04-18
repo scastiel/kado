@@ -326,6 +326,22 @@ a cell surfaces an inline popover with that day's completion detail.
   color/icon rendering. Sim-based interaction verification is
   deferred until XcodeBuildMCP's `idb` or UI-automation workflow
   is configured on this machine.
+- **Post-build — cell encoding pivoted from EMA score to per-day
+  value**. First run of the feature exposed an interpretation
+  mismatch: the ROADMAP/plan said "gradient tint tied to habit-score
+  shading," which I read as the EMA, but for daily habits with
+  partial completion the EMA sits in a narrow 0.3–0.45 band across
+  the visible window, so every cell rendered at near-identical
+  opacity. `.specificDays` habits like Gym looked varied only
+  because most of their cells were `.notDue` (tertiary gray)
+  contrasting against any `.scored`. Fix: `OverviewMatrix.compute`
+  now tints cells by the day's raw completion value (binary 0/1,
+  counter/timer `achieved/target`), extracted into a new
+  `DailyValue` namespace shared with `DefaultHabitScoreCalculator`.
+  Matches the user's mental model ("did I do it that day?") and the
+  Detail view's calendar grid. Popover copy simplified to
+  Completed / Missed / partial %, dropping the ambiguous "score"
+  percentage.
 
 ## Out of scope
 
