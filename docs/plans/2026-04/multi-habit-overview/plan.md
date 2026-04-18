@@ -1,7 +1,7 @@
 # Plan — Multi-habit overview
 
 **Date**: 2026-04-17
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -38,7 +38,7 @@ a cell surfaces an inline popover with that day's completion detail.
 - [x] Task 7: Matrix UI primitives
 - [x] Task 8: OverviewView + tab integration
 - [x] Task 9: Cell tap popover
-- [ ] Task 10: Accessibility + multi-size polish
+- [x] Task 10: Accessibility + multi-size polish
 
 ## Task list
 
@@ -318,6 +318,14 @@ a cell surfaces an inline popover with that day's completion detail.
   "unknown model version". Added a wipe-and-retry to
   `DevModeController.buildDevContainer` — valid for the dev sandbox
   (disposable), explicitly NOT applied to the production container.
+- **Task 10 — Overview tab couldn't be reached via `screenshot`
+  alone**. XcodeBuildMCP's default install omits tap / UI-automation
+  primitives (`CLAUDE.md` already flags this), so visual verification
+  of the Overview view relied on SwiftUI previews (populated, empty,
+  dark, Dynamic Type XXXL) plus a Today-tab screenshot confirming
+  color/icon rendering. Sim-based interaction verification is
+  deferred until XcodeBuildMCP's `idb` or UI-automation workflow
+  is configured on this machine.
 
 ## Out of scope
 

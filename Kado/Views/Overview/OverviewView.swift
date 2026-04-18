@@ -134,9 +134,46 @@ struct OverviewView: View {
                     date: days[index],
                     cell: row.days[index]
                 )
+            },
+            cellAccessibilityLabel: { index in
+                guard days.indices.contains(index),
+                      row.days.indices.contains(index) else { return "" }
+                return Self.accessibilityLabel(
+                    habit: row.habit,
+                    date: days[index],
+                    cell: row.days[index],
+                    calendar: calendar
+                )
             }
         )
         .frame(height: Self.rowHeight)
+    }
+
+    /// Composes a per-cell VoiceOver label:
+    /// `"{habit}, {localized date}, {state}[, score {pct}%]"`.
+    private static func accessibilityLabel(
+        habit: Habit,
+        date: Date,
+        cell: DayCell,
+        calendar: Calendar
+    ) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = calendar.locale ?? .current
+        formatter.dateStyle = .full
+        let dateString = formatter.string(from: date)
+
+        let state: String
+        switch cell {
+        case .future:
+            state = String(localized: "upcoming")
+        case .notDue:
+            state = String(localized: "not scheduled")
+        case .scored(let s):
+            let percent = Int((s * 100).rounded())
+            state = String(localized: "score \(percent)%")
+        }
+        return "\(habit.name), \(dateString), \(state)"
     }
 
     private func dayRange(endingAt today: Date) -> [Date] {

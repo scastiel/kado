@@ -10,21 +10,32 @@ struct MatrixRowView: View {
     var cellSize: CGFloat = 32
     var cellSpacing: CGFloat = 4
     var cellTap: ((Int) -> Void)? = nil
+    /// Optional per-cell accessibility label. Passed the cell index
+    /// into `cells` so the caller can compose `{habit, date, state}`.
+    var cellAccessibilityLabel: ((Int) -> String)? = nil
 
     var body: some View {
         HStack(spacing: cellSpacing) {
             ForEach(Array(cells.enumerated()), id: \.offset) { index, cell in
-                if let cellTap {
-                    Button {
-                        cellTap(index)
-                    } label: {
-                        MatrixCell(state: cell, color: habit.color, size: cellSize)
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    MatrixCell(state: cell, color: habit.color, size: cellSize)
-                }
+                cellView(cell: cell, index: index)
+                    .accessibilityLabel(
+                        cellAccessibilityLabel?(index) ?? ""
+                    )
             }
+        }
+    }
+
+    @ViewBuilder
+    private func cellView(cell: DayCell, index: Int) -> some View {
+        if let cellTap {
+            Button {
+                cellTap(index)
+            } label: {
+                MatrixCell(state: cell, color: habit.color, size: cellSize)
+            }
+            .buttonStyle(.plain)
+        } else {
+            MatrixCell(state: cell, color: habit.color, size: cellSize)
         }
     }
 }
