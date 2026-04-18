@@ -2,10 +2,13 @@ import SwiftData
 import SwiftUI
 
 /// The Today tab — lists habits due today and handles tap-to-toggle
-/// for binary and negative habits.
+/// for binary and negative habits. Each row surfaces the habit's
+/// current streak and EMA score from the same services Detail uses.
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
+    @Environment(\.streakCalculator) private var streakCalculator
+    @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.calendar) private var calendar
 
     @Query(
@@ -56,12 +59,26 @@ struct TodayView: View {
                 )
             } else {
                 List(due) { record in
+                    let snap = record.snapshot
+                    let comps = (record.completions ?? []).map(\.snapshot)
                     NavigationLink(value: record) {
                         HabitRowView(
-                            habit: record.snapshot,
-                            isCompletedToday: isCompletedToday(record),
-                            onToggle: canToggle(record) ? { toggle(record) } : nil,
-                            todayValue: todayValue(for: record)
+                            habit: snap,
+                            state: HabitRowState.resolve(
+                                habit: snap,
+                                completions: comps,
+                                calendar: calendar,
+                                asOf: .now
+                            ),
+                            streak: streakCalculator.current(
+                                for: snap, completions: comps, asOf: .now
+                            ),
+                            scorePercent: Int(
+                                (scoreCalculator.currentScore(
+                                    for: snap, completions: comps, asOf: .now
+                                ) * 100).rounded()
+                            ),
+                            onToggle: canToggle(record) ? { toggle(record) } : nil
                         )
                     }
                 }
@@ -85,18 +102,6 @@ struct TodayView: View {
                 completions: (record.completions ?? []).map(\.snapshot)
             )
         }
-    }
-
-    private func isCompletedToday(_ record: HabitRecord) -> Bool {
-        let now = Date.now
-        return record.completions?.contains { calendar.isDate($0.date, inSameDayAs: now) } ?? false
-    }
-
-    private func todayValue(for record: HabitRecord) -> Double? {
-        let now = Date.now
-        return record.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: now) }?
-            .value
     }
 
     private func canToggle(_ record: HabitRecord) -> Bool {
