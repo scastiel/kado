@@ -16,5 +16,9 @@ enum WidgetReloader {
     static func reloadAll(using context: ModelContext) {
         WidgetSnapshotBuilder.rebuildAndWrite(using: context)
         WidgetCenter.shared.reloadAllTimelines()
+        // Reminders share the same "after a habit mutation" cadence
+        // as widgets. Piggyback here so callers don't have to
+        // remember two sync calls.
+        RemindersSync.rescheduleAll(using: context)
     }
 }

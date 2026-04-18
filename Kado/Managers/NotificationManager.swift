@@ -2,7 +2,6 @@ import Foundation
 import Observation
 import SwiftData
 import UserNotifications
-import WidgetKit
 import KadoCore
 
 /// Owns the `UNUserNotificationCenterDelegate` and routes banner
@@ -150,15 +149,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             calendar: calendar,
             now: .now
         )
-        WidgetSnapshotBuilder.rebuildAndWrite(using: context)
-        WidgetCenter.shared.reloadAllTimelines()
-
-        let habits = try? context.fetch(FetchDescriptor<HabitRecord>())
-        let completions = try? context.fetch(FetchDescriptor<CompletionRecord>())
-        await scheduler.rescheduleAll(
-            habits: (habits ?? []).map(\.snapshot),
-            completions: (completions ?? []).map(\.snapshot)
-        )
+        // Widgets and reminders both resync via WidgetReloader —
+        // the "after habit mutation" postamble is already centralized.
+        WidgetReloader.reloadAll(using: context)
     }
 
     private func fetchHabit(id: UUID, in context: ModelContext) -> HabitRecord? {

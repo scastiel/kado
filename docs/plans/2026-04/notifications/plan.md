@@ -242,7 +242,7 @@ relaunch.
 
 ---
 
-### Task 6: Wire `rescheduleAll` into the app lifecycle
+### Task 6: Wire `rescheduleAll` into the app lifecycle ✅
 
 **Goal**: Keep the pending set coherent with SwiftData state.
 
