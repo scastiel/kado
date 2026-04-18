@@ -7,7 +7,7 @@ type: project
 # Plan — Widgets
 
 **Date**: 2026-04-18
-**Status**: draft
+**Status**: in progress
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -40,7 +40,7 @@ app is currently using.
 
 ## Task list
 
-### Task 1: App Group entitlement on main app
+### Task 1: App Group entitlement on main app — ⏸ blocked (human in Xcode)
 
 **Goal**: add `com.apple.security.application-groups` with
 `group.dev.scastiel.kado` to the `Kado` target; no functional
@@ -58,7 +58,7 @@ change yet.
 
 ---
 
-### Task 2: Shared SwiftData store + migration
+### Task 2: Shared SwiftData store + migration — ✅ done
 
 **Goal**: move the production SQLite from the default app-container
 location to the App Group container, with a one-time migration that
@@ -85,7 +85,7 @@ copies any existing store on first launch.
 
 ---
 
-### Task 3: Smoke-test SwiftData + App Group + CloudKit on device
+### Task 3: Smoke-test SwiftData + App Group + CloudKit on device — ⏸ blocked (needs hardware)
 
 **Goal**: before building any widget surface, verify the
 store/container combo works on a real device. Research flagged
@@ -107,7 +107,7 @@ this as the biggest unknown.
 
 ---
 
-### Task 4: Shared dev-mode flag via App Group UserDefaults
+### Task 4: Shared dev-mode flag via App Group UserDefaults — ✅ done
 
 **Goal**: move `@AppStorage("devModeEnabled")` from standard
 UserDefaults into the App Group suite so widgets honor the toggle.
@@ -128,7 +128,7 @@ UserDefaults into the App Group suite so widgets honor the toggle.
 
 ---
 
-### Task 5: `HabitEntity` + `CompleteHabitIntent` (tests first)
+### Task 5: `HabitEntity` + `CompleteHabitIntent` (tests first) — ✅ done
 
 **Goal**: the first `AppIntent`. Toggles today's completion for a
 binary habit idempotently. Fails gracefully for counter/timer
@@ -157,7 +157,7 @@ habits (returns `.result(dialog: "Open app to log")` or similar).
 
 ---
 
-### Task 6: Bootstrap `KadoWidgets` extension target
+### Task 6: Bootstrap `KadoWidgets` extension target — ⏸ blocked (human in Xcode)
 
 **Goal**: empty widget target that builds, signs with the App
 Group entitlement, and shows a placeholder view. Validates the
@@ -427,6 +427,45 @@ left empty (v1.0 scope per ROADMAP).
   (ahead of v1.0 schedule) or stay EN-only until the FR pass? FR
   localization is a single-shot translator task — cleaner if
   batched.
+
+## Notes during build
+
+- **Task 2**: SwiftData's default on-disk store is `default.store`
+  (plus `-shm` / `-wal` sidecars) in `Application Support`, not
+  `Kado.sqlite` as earlier assumed. `SharedStore.legacyStoreURL()`
+  updated accordingly. Migration copies all three files; the main
+  file is the only one guaranteed present.
+- **Task 2**: `SharedStore.productionContainer()` falls back to
+  SwiftData's default location when the App Group entitlement
+  isn't yet active, so the app continues to build and run on dev
+  machines before Task 1 lands. The fallback path doesn't share
+  with the widget extension — that's acceptable since the widget
+  target won't exist until Task 6.
+- **Task 4**: `UserDefaults(suiteName:)` returns a usable instance
+  even when the App Group entitlement isn't active; it just fails
+  to cross-process-share. Fall-through path is therefore safe.
+  `DevModeDefaults.migrateFromStandardIfNeeded()` copies
+  pre-existing values once so users don't lose their dev-mode
+  state on update.
+- **Task 5**: Moved the dev-mode sqlite into the App Group
+  container too (was previously app-sandbox Application Support).
+  The plan said we'd do this in Task 4; shifted to Task 5 because
+  the intent resolver is the first caller that genuinely needs the
+  cross-process visibility.
+- **Task 5**: `CompleteHabitIntent` treats negative habits like
+  binary ones (single tap logs a slip). The plan's success criteria
+  framed the counter/timer rejection as the edge case; negative
+  works because `CompletionToggler` already handles it without
+  special-casing.
+- **Task 5**: Intent is modeled as a toggle, not a set-to-done.
+  Tap once to complete, tap again to undo. The plan's "idempotent
+  repeat" criterion is reinterpreted as "no duplicate records on
+  repeat tap" — verified by the repeat-tap test.
+- **Tasks 1 / 3 / 6**: Claude Code paused here. Adding a new
+  Xcode target and enabling the App Group capability is safer in
+  the Xcode IDE than via `project.pbxproj` surgery, and Task 3
+  requires a physical device. See the hand-off checklist in the
+  PR description (pending).
 
 ## Out of scope
 
