@@ -207,24 +207,36 @@ error for an easy fix. When in doubt, be consistent.
 
 ### File organization
 ```
-Kado/
+Kado/                       # Main iOS app target (views, VMs, managers)
 ├── App/                    # Entry point, app setup
-├── Models/                 # SwiftData @Model + domain types
 ├── Views/                  # SwiftUI, organized by feature
 ├── ViewModels/             # @Observable classes
-├── Services/               # Business logic (protocols + impls)
-├── Managers/               # System API wrappers
 ├── UIComponents/           # Reusable views
 ├── Extensions/             # Swift extensions
 ├── Resources/              # Assets, Localizable
 └── Preview Content/        # SwiftUI preview data
 
-KadoWidgets/                # Widget target
+Packages/
+└── KadoCore/               # Local Swift Package shared across targets
+    └── Sources/KadoCore/   # @Model + domain types, calculators,
+                            #   intents, widget snapshot types,
+                            #   anything extensions need to compile.
+                            # Don't duplicate @Model types into
+                            # targets — share via this package only
+                            # (see SwiftData section for why).
+
+KadoWidgets/                # Widget extension target (reads the
+                            #   App Group snapshot; no SwiftData)
 KadoWatch/                  # watchOS target
 KadoLiveActivity/           # Live Activities target
 KadoTests/                  # Unit tests (Swift Testing)
 KadoUITests/                # UI tests (XCTest)
 ```
+
+Because `Packages/KadoCore/` is a local package, the standard
+`Packages/` line in `.gitignore` would silently drop it from the
+repo. Guard against that with an explicit
+`!Packages/KadoCore/` whitelist.
 
 ### SwiftUI
 - Factor subviews out as soon as a `body` exceeds ~40 lines or when
@@ -316,6 +328,48 @@ KadoUITests/                # UI tests (XCTest)
     Canonical: `HabitRecord.color` in `KadoSchemaV2`.
 
   Re-evaluate when Apple fixes the underlying bug.
+- **Share `@Model` types via the `KadoCore` package, never via
+  duplicated target membership.** SwiftData's schema uses the
+  generic type of a `FetchDescriptor<Model>` to map to its
+  persisted entity. If the same source file is compiled into
+  *both* the main app and the widget extension (via a
+  synchronized folder with dual target membership), SwiftData
+  sees `Kado.HabitRecord` and `KadoWidgetsExtension.HabitRecord`
+  as **distinct** types. A SQLite file stamped by one won't fetch
+  from the other — `context.fetch(descriptor)` traps with
+  `EXC_BREAKPOINT` on even a no-predicate descriptor. Cost us ~10
+  commits before we figured it out. All `@Model` classes live in
+  `Packages/KadoCore/`; main app + extensions link the one
+  compiled module.
+- **Do not open a CloudKit-mirrored SwiftData store from two
+  processes.** `cloudKitDatabase: .private(...)` claims exclusive
+  sync ownership. A second process with the same config traps
+  `NSCocoaErrorDomain 134422` ("another instance of this
+  persistent store actively syncing"). Opening the same file
+  with `.none` from the second process traps at the first fetch
+  because the on-disk metadata is CloudKit-stamped. `allowsSave: false`
+  doesn't help — read-only mode still registers a sync handler.
+  The pattern for extensions is **read-only JSON snapshots in an
+  App Group**: the main app's `WidgetSnapshotBuilder` writes
+  pre-computed data to `group.dev.scastiel.kado/.../widget-snapshot.json`
+  on every mutation; the widget's `SnapshotTimelineProvider`
+  decodes it. No SwiftData in the widget process.
+- **Avoid `#Predicate` in widget / extension code paths.** Even a
+  trivial `#Predicate { $0.archivedAt == nil }` traps with
+  `EXC_BREAKPOINT` on first fetch inside the widget extension on
+  this toolchain. Main-app code is fine; extensions should use a
+  `FetchDescriptor(sortBy: …)` with a Swift-side `.filter { }`
+  pass. Canonical: `HabitEntity.fetchSuggestions` and
+  `WidgetSnapshotBuilder.build`.
+- **AppIntents that mutate SwiftData reuse the app's live
+  container.** `CompleteHabitIntent` sets `openAppWhenRun = true`
+  and reads the container via `ActiveContainer.shared.get()` —
+  which `KadoApp` primes at scene build and on every dev-mode
+  swap. Opening `SharedStore.productionContainer()` fresh per
+  `perform()` invocation would instantiate a second
+  CloudKit-attached container in the same process and trap the
+  same way two processes would. Every new `AppIntent` that
+  mutates state should follow this pattern.
 - **`@Model` default-argument values must be fully qualified.**
   `var color: HabitColor = .blue` fails with "A default value
   requires a fully qualified domain named value (from macro
