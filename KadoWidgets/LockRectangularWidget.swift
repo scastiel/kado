@@ -42,9 +42,12 @@ struct LockRectangularView: View {
                 HStack(spacing: 6) {
                     Text("\(row.streak)d")
                         .font(.caption2.monospacedDigit())
+                        .fixedSize(horizontal: true, vertical: false)
                     scoreBar(progress: row.progress)
+                        .frame(maxWidth: .infinity)
                     Text("\(row.scorePercent)%")
                         .font(.caption2.monospacedDigit())
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
             Spacer(minLength: 0)
