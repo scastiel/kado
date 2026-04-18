@@ -30,7 +30,7 @@ a cell surfaces an inline popover with that day's completion detail.
 ## Progress
 
 - [x] Task 1: HabitColor palette + icon catalog
-- [ ] Task 2: Schema V2 — color + icon fields
+- [x] Task 2: Schema V2 — color + icon fields
 - [ ] Task 3: Color + icon pickers in habit forms
 - [ ] Task 4: Color + icon surface in existing views
 - [ ] Task 5: OverviewMatrix tests (red)
@@ -297,6 +297,27 @@ a cell surfaces an inline popover with that day's completion detail.
       sleep, hygiene, creative).
 - [ ] **Cell opacity floor** (0.08 is a guess) — tune in Task 7
       once cells render against real backgrounds.
+
+## Notes during build
+
+- **Task 2 — SwiftData `@Model` macro rejects shorthand defaults**: writing
+  `var color: HabitColor = .blue` triggered "A default value requires a
+  fully qualified domain named value" from the macro. Using
+  `HabitColor.blue` (fully qualified) satisfies it — though see the
+  next note.
+- **Task 2 — SwiftData can't round-trip even a plain String-raw-value
+  enum on Xcode 26 / iOS 18**. `HabitColor` is just
+  `String`-`RawRepresentable` (no associated values), yet the app
+  crashed at load with `Could not cast Optional<Any> to Kado.HabitColor`.
+  The CLAUDE.md workaround for associated-value enums (store raw blob,
+  expose computed accessor) had to be generalized. Pattern in
+  `KadoSchemaV2.HabitRecord`: `private var colorRaw: String = "blue"`
+  backs `var color: HabitColor { get/set }`.
+- **Task 2 — stale dev sandbox broke launch after schema bump**. Prior
+  V1-shape sqlite on the sim failed SwiftData's staged migration with
+  "unknown model version". Added a wipe-and-retry to
+  `DevModeController.buildDevContainer` — valid for the dev sandbox
+  (disposable), explicitly NOT applied to the production container.
 
 ## Out of scope
 

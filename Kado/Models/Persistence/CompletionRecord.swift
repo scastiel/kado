@@ -43,5 +43,3 @@ extension KadoSchemaV1 {
         }
     }
 }
-
-typealias CompletionRecord = KadoSchemaV1.CompletionRecord

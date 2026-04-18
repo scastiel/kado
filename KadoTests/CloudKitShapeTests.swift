@@ -12,33 +12,42 @@ import Testing
 /// first time `cloudKitDatabase:` is set — and only then; a
 /// local-only container happily mounts the same schema.
 ///
-/// These regression tests pin the current schema shape so a future
-/// commit adding a required relationship or a unique attribute
+/// These regression tests pin every shipped schema version so a
+/// future commit adding a required relationship or a unique attribute
 /// fails fast in CI instead of at first launch under CloudKit.
 @MainActor
 struct CloudKitShapeTests {
-    @Test("KadoSchemaV1: every relationship is optional")
+    private static func shippedSchemas() -> [(String, Schema)] {
+        [
+            ("V1", Schema(versionedSchema: KadoSchemaV1.self)),
+            ("V2", Schema(versionedSchema: KadoSchemaV2.self)),
+        ]
+    }
+
+    @Test("Every shipped schema keeps all relationships optional")
     func allRelationshipsOptional() {
-        let schema = Schema(versionedSchema: KadoSchemaV1.self)
-        for entity in schema.entities {
-            for relationship in entity.relationships {
-                #expect(
-                    relationship.isOptional,
-                    "\(entity.name).\(relationship.name) must be optional for CloudKit"
-                )
+        for (label, schema) in Self.shippedSchemas() {
+            for entity in schema.entities {
+                for relationship in entity.relationships {
+                    #expect(
+                        relationship.isOptional,
+                        "\(label) \(entity.name).\(relationship.name) must be optional for CloudKit"
+                    )
+                }
             }
         }
     }
 
-    @Test("KadoSchemaV1: no attribute is marked unique")
+    @Test("Every shipped schema keeps all attributes non-unique")
     func noUniqueAttributes() {
-        let schema = Schema(versionedSchema: KadoSchemaV1.self)
-        for entity in schema.entities {
-            for attribute in entity.attributes {
-                #expect(
-                    !attribute.isUnique,
-                    "\(entity.name).\(attribute.name) must not be @Attribute(.unique) for CloudKit"
-                )
+        for (label, schema) in Self.shippedSchemas() {
+            for entity in schema.entities {
+                for attribute in entity.attributes {
+                    #expect(
+                        !attribute.isUnique,
+                        "\(label) \(entity.name).\(attribute.name) must not be @Attribute(.unique) for CloudKit"
+                    )
+                }
             }
         }
     }
@@ -50,6 +59,8 @@ struct CloudKitShapeTests {
         #expect(record.frequency == .daily)
         #expect(record.type == .binary)
         #expect(record.archivedAt == nil)
+        #expect(record.color == .blue)
+        #expect(record.icon == HabitIcon.default)
         #expect(record.completions?.isEmpty ?? true)
     }
 

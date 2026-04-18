@@ -13,7 +13,7 @@ struct DevModeControllerTests {
         let storeURL = tempDir.appendingPathComponent("KadoDev.sqlite")
 
         let factory: () -> ModelContainer = {
-            let schema = Schema(versionedSchema: KadoSchemaV1.self)
+            let schema = Schema(versionedSchema: KadoSchemaV2.self)
             return try! ModelContainer(
                 for: schema,
                 migrationPlan: KadoMigrationPlan.self,
