@@ -30,7 +30,9 @@ struct OverviewView: View {
     private static let cellSize: CGFloat = 36
     private static let cellSpacing: CGFloat = 6
     private static let labelHeight: CGFloat = 28
-    private static let rowGap: CGFloat = 8
+    private static let labelBottomPadding: CGFloat = 8
+    private static let rowGap: CGFloat = 12
+    private static let headerHeight: CGFloat = 40
 
     struct CellSelection: Identifiable, Equatable {
         let habit: Habit
@@ -100,9 +102,19 @@ struct OverviewView: View {
     private func scrollingCells(rows: [MatrixRow], days: [Date]) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
+                // Date column headers — scroll horizontally with the cells.
+                HStack(spacing: Self.cellSpacing) {
+                    ForEach(days, id: \.self) { day in
+                        DayColumnHeader(date: day, width: Self.cellSize)
+                    }
+                }
+                .frame(height: Self.headerHeight)
+
+                Color.clear.frame(height: Self.rowGap)
+
                 ForEach(rows, id: \.habit.id) { row in
-                    // Transparent spacer where the label will overlay.
-                    Color.clear.frame(height: Self.labelHeight)
+                    // Transparent spacer where the label + padding overlay.
+                    Color.clear.frame(height: Self.labelHeight + Self.labelBottomPadding)
                     cellRow(row, days: days)
                     if row.habit.id != rows.last?.habit.id {
                         Color.clear.frame(height: Self.rowGap)
@@ -116,6 +128,10 @@ struct OverviewView: View {
 
     private func labelsOverlay(rows: [MatrixRow]) -> some View {
         VStack(alignment: .leading, spacing: 0) {
+            // Match the date-header row + its trailing gap so the first
+            // label lands in the first habit's spacer slot.
+            Color.clear.frame(height: Self.headerHeight + Self.rowGap)
+
             ForEach(rows, id: \.habit.id) { row in
                 HStack(spacing: 8) {
                     Image(systemName: row.habit.icon)
@@ -128,9 +144,10 @@ struct OverviewView: View {
                 }
                 .frame(height: Self.labelHeight, alignment: .leading)
 
-                // Spacer matching the cell row so the next label lands
-                // above that habit's cell row.
-                Color.clear.frame(height: Self.cellSize)
+                // Spacer for the breathing room below the name + the
+                // cell row itself, so the next label lines up with the
+                // next habit's spacer slot.
+                Color.clear.frame(height: Self.labelBottomPadding + Self.cellSize)
                 if row.habit.id != rows.last?.habit.id {
                     Color.clear.frame(height: Self.rowGap)
                 }
