@@ -9,7 +9,7 @@ struct LockRectangularWidget: Widget {
         AppIntentConfiguration(
             kind: kind,
             intent: PickHabitIntent.self,
-            provider: PickedHabitProvider()
+            provider: PickedSnapshotProvider()
         ) { entry in
             LockRectangularView(entry: entry)
                 .containerBackground(.clear, for: .widget)
@@ -21,29 +21,29 @@ struct LockRectangularWidget: Widget {
 }
 
 struct LockRectangularView: View {
-    let entry: PickedHabitEntry
+    let entry: PickedSnapshotEntry
 
     var body: some View {
-        if let habit = entry.habit, let state = entry.state {
-            filled(habit: habit, state: state)
+        if let row = entry.pickedRow {
+            filled(row: row)
         } else {
             pickPrompt
         }
     }
 
-    private func filled(habit: Habit, state: HabitRowState) -> some View {
+    private func filled(row: WidgetTodayRow) -> some View {
         HStack(alignment: .center, spacing: 8) {
-            Image(systemName: habit.icon)
+            Image(systemName: row.habit.icon)
                 .font(.title3)
             VStack(alignment: .leading, spacing: 2) {
-                Text(habit.name)
+                Text(row.habit.name)
                     .font(.headline)
                     .lineLimit(1)
                 HStack(spacing: 6) {
-                    Text("\(entry.streak ?? 0)d")
+                    Text("\(row.streak)d")
                         .font(.caption2.monospacedDigit())
-                    scoreBar(progress: state.progress)
-                    Text("\(entry.scorePercent ?? 0)%")
+                    scoreBar(progress: row.progress)
+                    Text("\(row.scorePercent)%")
                         .font(.caption2.monospacedDigit())
                 }
             }
@@ -51,8 +51,7 @@ struct LockRectangularView: View {
         }
         .widgetAccentable()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(habit.name)
-        .accessibilityValue(accessibilityValue(for: state))
+        .accessibilityLabel(row.habit.name)
     }
 
     private func scoreBar(progress: Double) -> some View {
@@ -77,42 +76,20 @@ struct LockRectangularView: View {
         }
         .widgetAccentable()
     }
-
-    private func accessibilityValue(for state: HabitRowState) -> String {
-        switch state.status {
-        case .complete:
-            return String(localized: "done", comment: "Widget accessibility: habit completed today")
-        case .partial:
-            return String(localized: "\(Int(state.progress * 100))% complete",
-                          comment: "Widget accessibility: habit partially complete. Arg is percent 0-100.")
-        case .none:
-            return String(localized: "not done", comment: "Widget accessibility: habit not completed today")
-        }
-    }
 }
 
 #Preview("Picked habit", as: .accessoryRectangular) {
     LockRectangularWidget()
 } timeline: {
-    PickedHabitEntry(
+    PickedSnapshotEntry(
         date: .now,
-        habit: Habit(
-            id: UUID(),
-            name: "Meditate",
-            frequency: .daily,
-            type: .binary,
-            createdAt: .now,
-            color: .green,
-            icon: "leaf.fill"
-        ),
-        state: HabitRowState(status: .complete, progress: 1.0, valueToday: 1),
-        streak: 12,
-        scorePercent: 87
+        snapshot: PreviewSnapshots.populated,
+        habitID: PreviewSnapshots.firstHabitID
     )
 }
 
 #Preview("Unpicked", as: .accessoryRectangular) {
     LockRectangularWidget()
 } timeline: {
-    PickedHabitEntry.empty()
+    PickedSnapshotEntry(date: .now, snapshot: .empty, habitID: nil)
 }

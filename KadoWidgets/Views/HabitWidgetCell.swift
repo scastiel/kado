@@ -7,19 +7,18 @@ import KadoCore
 /// widgets. Score-shaded background, habit icon, truncated name,
 /// and a type-aware indicator on the right.
 ///
-/// Binary and negative rows wrap the body in `Button(intent:)` so
-/// a tap fires `CompleteHabitIntent` in-process — the widget
-/// reloads on the next timeline refresh (or sooner, via the
-/// app-side `WidgetCenter` reload triggers). Counter and timer
-/// rows render plain — the widget's `widgetURL` opens the app for
-/// per-type input.
+/// Binary and negative rows wrap in `Button(intent:)` so a tap
+/// invokes `CompleteHabitIntent`. Because the widget extension
+/// can't safely open SwiftData, the intent is configured to open
+/// the main app, which performs the toggle. Counter and timer
+/// rows render plain and fall through to the widget's `widgetURL`.
 struct HabitWidgetCell: View {
-    let row: HabitTimelineRow
+    let row: WidgetTodayRow
 
     var body: some View {
-        switch row.habit.type {
+        switch row.habit.typeKind {
         case .binary, .negative:
-            Button(intent: CompleteHabitIntent(habit: HabitEntity(habit: row.habit))) {
+            Button(intent: CompleteHabitIntent(habit: HabitEntity(widgetHabit: row.habit))) {
                 content
             }
             .buttonStyle(.plain)
@@ -55,15 +54,15 @@ struct HabitWidgetCell: View {
     }
 
     private var isComplete: Bool {
-        row.state.status == .complete
+        row.status == .complete
     }
 
     private var background: Color {
-        switch row.state.status {
+        switch row.status {
         case .complete:
             return row.habit.color.color
         case .partial:
-            return row.habit.color.color.opacity(0.3 + row.state.progress * 0.4)
+            return row.habit.color.color.opacity(0.3 + row.progress * 0.4)
         case .none:
             return Color(.quaternarySystemFill)
         }
@@ -71,28 +70,34 @@ struct HabitWidgetCell: View {
 
     @ViewBuilder
     private var indicator: some View {
-        switch row.habit.type {
+        switch row.habit.typeKind {
         case .binary, .negative:
             Image(systemName: isComplete ? "checkmark.circle.fill" : "circle")
-        case .counter(let target):
-            Text(counterLabel(value: row.state.valueToday ?? 0, target: target))
-                .monospacedDigit()
-        case .timer(let targetSeconds):
-            Text(timerLabel(seconds: row.state.valueToday ?? 0, target: targetSeconds))
-                .monospacedDigit()
+        case .counter:
+            if let target = row.habit.target {
+                Text(counterLabel(value: row.valueToday ?? 0, target: target))
+                    .monospacedDigit()
+            }
+        case .timer:
+            if let target = row.habit.target {
+                Text(timerLabel(seconds: row.valueToday ?? 0, target: target))
+                    .monospacedDigit()
+            }
         }
     }
 
     private var accessibilityValue: String {
-        switch row.habit.type {
+        switch row.habit.typeKind {
         case .binary, .negative:
             return isComplete
                 ? String(localized: "done", comment: "Widget accessibility: binary habit completed")
                 : String(localized: "not done", comment: "Widget accessibility: binary habit not completed")
-        case .counter(let target):
-            return counterLabel(value: row.state.valueToday ?? 0, target: target)
-        case .timer(let targetSeconds):
-            return timerLabel(seconds: row.state.valueToday ?? 0, target: targetSeconds)
+        case .counter:
+            guard let target = row.habit.target else { return "" }
+            return counterLabel(value: row.valueToday ?? 0, target: target)
+        case .timer:
+            guard let target = row.habit.target else { return "" }
+            return timerLabel(seconds: row.valueToday ?? 0, target: target)
         }
     }
 

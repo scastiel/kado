@@ -5,22 +5,24 @@ import WidgetKit
 
 /// Toggles today's completion for a binary or negative habit.
 /// Counter and timer habits need the app's per-type input UI, so
-/// this intent refuses them and surfaces an "open the app"
-/// result instead.
+/// this intent refuses them and signals the system to surface
+/// the habit in the app instead.
 ///
-/// Runs either in the foreground app (MainActor) or inside the
-/// widget extension process when the user taps an interactive
-/// widget. Both paths funnel through `apply(habitID:in:calendar:now:)`
-/// which is the single unit of tested behavior.
+/// Runs in the main app process — `openAppWhenRun = true` so
+/// tapping a widget `Button(intent:)` opens the app, which then
+/// performs the toggle against SwiftData. This trades silent
+/// completion for the simpler single-container story the widget
+/// snapshot architecture requires.
 public struct CompleteHabitIntent: AppIntent {
     public static let title: LocalizedStringResource = "Complete Habit"
     public static let description = IntentDescription(
         "Mark a habit as done for today, or undo if it's already done."
     )
 
-    /// Interactive-widget taps invoke this intent without needing
-    /// to open the app.
-    public static let openAppWhenRun: Bool = false
+    /// Always opens the main app because the widget extension
+    /// can't safely attach SwiftData — see `WidgetSnapshotBuilder`
+    /// for the snapshot-based read path.
+    public static let openAppWhenRun: Bool = true
 
     @Parameter(title: "Habit")
     public var habit: HabitEntity
@@ -33,22 +35,16 @@ public struct CompleteHabitIntent: AppIntent {
 
     @MainActor
     public func perform() async throws -> some IntentResult {
-        let context = try IntentContainerResolver.sharedContainer().mainContext
-        let outcome = try Self.apply(
+        let container = try SharedStore.productionContainer()
+        _ = try Self.apply(
             habitID: habit.id,
-            in: context,
+            in: container.mainContext,
             calendar: .current,
             now: .now
         )
+        WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
         WidgetCenter.shared.reloadAllTimelines()
-        switch outcome {
-        case .toggled:
-            return .result()
-        case .opensApp:
-            // Counter / timer habits can't meaningfully be logged
-            // in one tap — ask the system to open the app.
-            throw OpenAppSignal()
-        }
+        return .result()
     }
 
     /// Testable core of the intent. Fetches the habit, toggles
@@ -99,8 +95,4 @@ public struct CompleteHabitIntent: AppIntent {
         }
     }
 
-    /// Sentinel thrown from `perform()` to signal the system to
-    /// open the app rather than silently succeed. AppIntents
-    /// handles the rest.
-    private struct OpenAppSignal: Error {}
 }

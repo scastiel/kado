@@ -17,6 +17,13 @@ struct KadoApp: App {
         WindowGroup {
             ContentView()
                 .task { await cloudAccountStatus.refresh() }
+                .task {
+                    // Seed the widget's App Group JSON snapshot at
+                    // launch so widgets have fresh data even if the
+                    // user hasn't mutated anything since install.
+                    let container = devModeController.container(forDevMode: isDevMode)
+                    WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
+                }
         }
         .modelContainer(devModeController.container(forDevMode: isDevMode))
         .environment(\.cloudAccountStatus, cloudAccountStatus)

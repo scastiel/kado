@@ -7,10 +7,22 @@ import SwiftData
 /// value) because `AppEntity` has its own protocol surface and
 /// we don't want the UI / services types to pull `AppIntents` in
 /// transitively.
+///
+/// The query backing `defaultQuery` reads from the App Group JSON
+/// snapshot rather than SwiftData — two processes can't both
+/// attach CloudKit to the same store, so the widget extension
+/// stays out of SwiftData entirely and trusts the app to keep the
+/// snapshot fresh (see `WidgetSnapshotBuilder`).
 public struct HabitEntity: AppEntity, Identifiable, Hashable, Sendable {
     public let id: UUID
     public let name: String
     public let colorRaw: String
+
+    public init(id: UUID, name: String, colorRaw: String) {
+        self.id = id
+        self.name = name
+        self.colorRaw = colorRaw
+    }
 
     public static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Habit")
 
@@ -22,72 +34,33 @@ public struct HabitEntity: AppEntity, Identifiable, Hashable, Sendable {
 }
 
 public extension HabitEntity {
-    public init(record: HabitRecord) {
-        self.init(
-            id: record.id,
-            name: record.name,
-            colorRaw: record.color.rawValue
-        )
+    init(record: HabitRecord) {
+        self.init(id: record.id, name: record.name, colorRaw: record.color.rawValue)
     }
 
-    public init(habit: Habit) {
-        self.init(
-            id: habit.id,
-            name: habit.name,
-            colorRaw: habit.color.rawValue
-        )
+    init(habit: Habit) {
+        self.init(id: habit.id, name: habit.name, colorRaw: habit.color.rawValue)
     }
 
-    /// Non-archived habits, sorted by creation order. Feeds
-    /// `EntityQuery.suggestedEntities` and is reusable from tests.
-    ///
-    /// Filters `archivedAt == nil` in Swift after a broad fetch
-    /// because `#Predicate` expressions — even a trivial
-    /// `$0.archivedAt == nil` — crash with `EXC_BREAKPOINT` in the
-    /// widget extension process at fetch compilation time. Same
-    /// workaround as `fetch(ids:in:)`.
-    public static func fetchSuggestions(in context: ModelContext) throws -> [HabitEntity] {
-        let descriptor = FetchDescriptor<HabitRecord>(
-            sortBy: [SortDescriptor(\.createdAt)]
-        )
-        return try context.fetch(descriptor)
-            .filter { $0.archivedAt == nil }
-            .map(HabitEntity.init(record:))
-    }
-
-    /// Fetch a specific set of habit IDs, excluding archived ones.
-    ///
-    /// Filters in Swift after a broad `archivedAt == nil` fetch because
-    /// SwiftData's `#Predicate` macro doesn't reliably support
-    /// `Set.contains` / `Array.contains` across toolchain versions —
-    /// the widget extension crashes with `EXC_BREAKPOINT` at fetch
-    /// time when the predicate is compiled into a SQL `IN (...)`
-    /// clause. The in-Swift filter is fine because the typical
-    /// `ids` length is 1 (lock widget) and at most a few dozen.
-    public static func fetch(ids: [UUID], in context: ModelContext) throws -> [HabitEntity] {
-        let idSet = Set(ids)
-        let descriptor = FetchDescriptor<HabitRecord>()
-        return try context.fetch(descriptor)
-            .filter { idSet.contains($0.id) && $0.archivedAt == nil }
-            .map(HabitEntity.init(record:))
+    init(widgetHabit: WidgetHabit) {
+        self.init(id: widgetHabit.id, name: widgetHabit.name, colorRaw: widgetHabit.color.rawValue)
     }
 }
 
-/// `EntityQuery` backing `HabitEntity.defaultQuery`. Resolves the
-/// shared container on each invocation — iOS caches intent metadata
-/// aggressively so holding state here isn't worth the complexity.
+/// `EntityQuery` backing `HabitEntity.defaultQuery`. Reads from
+/// the App Group JSON snapshot, so it works identically in the
+/// main app and the widget extension.
 public struct HabitEntityQuery: EntityQuery {
     public init() {}
 
-    @MainActor
     public func entities(for identifiers: [UUID]) async throws -> [HabitEntity] {
-        let context = try IntentContainerResolver.sharedContainer().mainContext
-        return try HabitEntity.fetch(ids: identifiers, in: context)
+        let idSet = Set(identifiers)
+        return WidgetSnapshotStore.read().habits
+            .filter { idSet.contains($0.id) }
+            .map(HabitEntity.init(widgetHabit:))
     }
 
-    @MainActor
     public func suggestedEntities() async throws -> [HabitEntity] {
-        let context = try IntentContainerResolver.sharedContainer().mainContext
-        return try HabitEntity.fetchSuggestions(in: context)
+        WidgetSnapshotStore.read().habits.map(HabitEntity.init(widgetHabit:))
     }
 }

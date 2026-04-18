@@ -79,7 +79,7 @@ struct CompletionHistoryList: View {
     private func delete(_ completion: CompletionRecord) {
         CompletionLogger(calendar: calendar).delete(completion, in: modelContext)
         try? modelContext.save()
-        WidgetReloader.reloadAll()
+        WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func relativeDate(for date: Date) -> String {

@@ -6,10 +6,7 @@ struct LockInlineWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.lockInline"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(
-            kind: kind,
-            provider: HabitTimelineProvider(limit: 0)
-        ) { entry in
+        StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
             LockInlineView(entry: entry)
                 .containerBackground(.clear, for: .widget)
         }
@@ -20,10 +17,10 @@ struct LockInlineWidget: Widget {
 }
 
 struct LockInlineView: View {
-    let entry: HabitTimelineEntry
+    let entry: SnapshotEntry
 
     var body: some View {
-        if entry.totalCount == 0 {
+        if entry.snapshot.totalDueToday == 0 {
             Label {
                 Text("No habits due today")
             } icon: {
@@ -33,7 +30,7 @@ struct LockInlineView: View {
             Label {
                 Text(
                     String(
-                        localized: "\(entry.completedCount) of \(entry.totalCount) done today",
+                        localized: "\(entry.snapshot.completedToday) of \(entry.snapshot.totalDueToday) done today",
                         comment: "Inline lock widget summary. Arg 1 completed, arg 2 total."
                     )
                 )
@@ -44,8 +41,8 @@ struct LockInlineView: View {
     }
 
     private var summaryIcon: String {
-        if entry.totalCount == 0 { return "checkmark.circle" }
-        if entry.completedCount == entry.totalCount { return "checkmark.circle.fill" }
+        if entry.snapshot.totalDueToday == 0 { return "checkmark.circle" }
+        if entry.snapshot.completedToday == entry.snapshot.totalDueToday { return "checkmark.circle.fill" }
         return "circle.dotted"
     }
 }
@@ -53,32 +50,11 @@ struct LockInlineView: View {
 #Preview("Partial", as: .accessoryInline) {
     LockInlineWidget()
 } timeline: {
-    HabitTimelineEntry(
-        date: .now,
-        rows: [],
-        totalCount: 5,
-        completedCount: 3
-    )
-}
-
-#Preview("All done", as: .accessoryInline) {
-    LockInlineWidget()
-} timeline: {
-    HabitTimelineEntry(
-        date: .now,
-        rows: [],
-        totalCount: 5,
-        completedCount: 5
-    )
+    SnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated)
 }
 
 #Preview("Empty", as: .accessoryInline) {
     LockInlineWidget()
 } timeline: {
-    HabitTimelineEntry(
-        date: .now,
-        rows: [],
-        totalCount: 0,
-        completedCount: 0
-    )
+    SnapshotEntry(date: .now, snapshot: .empty)
 }

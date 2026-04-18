@@ -1,17 +1,20 @@
 import Foundation
+import SwiftData
 import WidgetKit
 import KadoCore
 
-/// Thin wrapper around `WidgetCenter` so mutation sites don't
-/// each have to import WidgetKit directly and so tests can see
-/// the intent of the call from the call site.
+/// Rebuilds the App Group JSON snapshot the widget reads, then
+/// asks WidgetKit to reload all timelines so the changes surface
+/// within a second or two.
 ///
-/// Widgets also refresh hourly by their own timeline policy;
-/// this just compresses the worst-case staleness from an hour
-/// to a second or two when the user acts in-app.
+/// The widget extension can't safely open SwiftData (two
+/// processes can't both attach CloudKit to the same store), so
+/// the snapshot-through-file-system dance is the bridge between
+/// app writes and widget reads.
 @MainActor
 enum WidgetReloader {
-    static func reloadAll() {
+    static func reloadAll(using context: ModelContext) {
+        WidgetSnapshotBuilder.rebuildAndWrite(using: context)
         WidgetCenter.shared.reloadAllTimelines()
     }
 }

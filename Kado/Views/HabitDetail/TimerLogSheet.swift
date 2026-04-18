@@ -76,7 +76,7 @@ struct TimerLogSheet: View {
             in: modelContext
         )
         try? modelContext.save()
-        WidgetReloader.reloadAll()
+        WidgetReloader.reloadAll(using: modelContext)
         saveTick += 1
         dismiss()
     }

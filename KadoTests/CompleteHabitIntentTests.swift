@@ -169,36 +169,4 @@ struct CompleteHabitIntentTests {
         }
     }
 
-    @Test("HabitEntity.fetchSuggestions excludes archived habits")
-    func suggestionsExcludeArchived() throws {
-        let container = try makeContainer()
-        let active = HabitRecord(name: "Active", frequency: .daily, type: .binary)
-        let archived = HabitRecord(
-            name: "Archived",
-            frequency: .daily,
-            type: .binary,
-            archivedAt: .now
-        )
-        container.mainContext.insert(active)
-        container.mainContext.insert(archived)
-        try container.mainContext.save()
-
-        let suggestions = try HabitEntity.fetchSuggestions(in: container.mainContext)
-        #expect(suggestions.map(\.id) == [active.id])
-    }
-
-    @Test("HabitEntity.fetch resolves a specific set of IDs")
-    func fetchByIDs() throws {
-        let container = try makeContainer()
-        let a = HabitRecord(name: "A", frequency: .daily, type: .binary)
-        let b = HabitRecord(name: "B", frequency: .daily, type: .binary)
-        let c = HabitRecord(name: "C", frequency: .daily, type: .binary)
-        container.mainContext.insert(a)
-        container.mainContext.insert(b)
-        container.mainContext.insert(c)
-        try container.mainContext.save()
-
-        let resolved = try HabitEntity.fetch(ids: [a.id, c.id], in: container.mainContext)
-        #expect(Set(resolved.map(\.id)) == Set([a.id, c.id]))
-    }
 }

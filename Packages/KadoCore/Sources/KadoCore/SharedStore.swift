@@ -97,53 +97,23 @@ nonisolated public enum SharedStore {
     public static func productionContainer() throws -> ModelContainer {
         let schema = Schema(versionedSchema: KadoSchemaV2.self)
         let configuration: ModelConfiguration
-        if isExtensionProcess() {
-            // Widget reads the same on-disk sqlite the app writes,
-            // but opens it read-only + CloudKit-attached. Matching
-            // the CloudKit configuration keeps the on-disk metadata
-            // tables happy; `allowsSave: false` prevents the widget
-            // from registering as a second active sync owner (which
-            // would trap with NSCocoaErrorDomain 134422).
-            if let target = productionStoreURL() {
-                configuration = ModelConfiguration(
-                    schema: schema,
-                    url: target,
-                    allowsSave: false,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            } else {
-                configuration = ModelConfiguration(
-                    schema: schema,
-                    allowsSave: false,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            }
+        if let target = productionStoreURL() {
+            migrateLegacyStoreIfNeeded(from: legacyStoreURL(), to: target)
+            configuration = ModelConfiguration(
+                schema: schema,
+                url: target,
+                cloudKitDatabase: .private(CloudContainerID.kado)
+            )
         } else {
-            if let target = productionStoreURL() {
-                migrateLegacyStoreIfNeeded(from: legacyStoreURL(), to: target)
-                configuration = ModelConfiguration(
-                    schema: schema,
-                    url: target,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            } else {
-                configuration = ModelConfiguration(
-                    schema: schema,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            }
+            configuration = ModelConfiguration(
+                schema: schema,
+                cloudKitDatabase: .private(CloudContainerID.kado)
+            )
         }
         return try ModelContainer(
             for: schema,
             migrationPlan: KadoMigrationPlan.self,
             configurations: configuration
         )
-    }
-
-    /// `true` when running inside an app extension (widget, share,
-    /// intent…). App extensions ship in `.appex` bundles; the main
-    /// app bundle ends in `.app`.
-    public static func isExtensionProcess() -> Bool {
-        Bundle.main.bundlePath.hasSuffix(".appex")
     }
 }
