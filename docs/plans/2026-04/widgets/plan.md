@@ -7,7 +7,7 @@ type: project
 # Plan — Widgets
 
 **Date**: 2026-04-18
-**Status**: done (pending device smoke + visual audit)
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -419,14 +419,15 @@ left empty (v1.0 scope per ROADMAP).
 
 ## Open questions
 
-- [ ] Inline-widget fallback text when zero habits exist — "No
-  habits yet" vs. blank vs. system default? Decide during Task 13.
-- [ ] Large widget tap destination — Overview tab at today, or
-  deep-link to the tapped habit's detail? Decide during Task 10.
-- [ ] Should Task 15's catalog additions ship with native FR now
-  (ahead of v1.0 schedule) or stay EN-only until the FR pass? FR
-  localization is a single-shot translator task — cleaner if
-  batched.
+- [x] Inline-widget fallback text when zero habits exist — resolved:
+  "No habits due today" with a `checkmark.circle` icon
+  (`LockInlineWidget.swift`).
+- [x] FR localization — resolved: stayed EN-only, FR pass batched
+  for v1.0 per the roadmap convention.
+- [ ] Large widget tap destination — currently `widgetURL`
+  `kado://overview`, app doesn't yet handle the scheme so tap
+  opens ContentView default. Deferred to a post-v0.2 follow-up
+  (URL-scheme handler + deep-link navigation).
 
 ## Notes during build
 
