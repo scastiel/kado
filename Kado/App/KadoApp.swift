@@ -8,9 +8,14 @@ struct KadoApp: App {
 
     @State private var devModeController = DevModeController()
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
+    @State private var notificationScheduler: any NotificationScheduling = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
+    @State private var notificationManager: NotificationManager
 
     init() {
         DevModeDefaults.migrateFromStandardIfNeeded()
+        let scheduler = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
+        _notificationScheduler = State(initialValue: scheduler)
+        _notificationManager = State(initialValue: NotificationManager(scheduler: scheduler))
     }
 
     var body: some Scene {
@@ -30,9 +35,13 @@ struct KadoApp: App {
                     // user hasn't mutated anything since install.
                     WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
                 }
+                .task {
+                    await notificationManager.configure()
+                }
         }
         .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
+        .environment(\.notificationScheduler, notificationScheduler)
         .onChange(of: isDevMode) { oldValue, newValue in
             if newValue && !oldValue {
                 devModeController.activateDevMode()

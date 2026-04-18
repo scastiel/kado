@@ -196,7 +196,7 @@ or editing a habit.
 
 ---
 
-### Task 5: NotificationManager, category + action registration, delegate routing
+### Task 5: NotificationManager, category + action registration, delegate routing ✅
 
 **Goal**: Register the `.complete` and `.skip` actions with the
 system, handle banner taps in-process, save a completion without
