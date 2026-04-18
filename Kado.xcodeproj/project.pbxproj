@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BE0A541C2F942EA000E09C34 /* KadoCore in Frameworks */ = {isa = PBXBuildFile; productRef = BE0A541B2F942EA000E09C34 /* KadoCore */; };
+		BE0A541E2F942EC300E09C34 /* KadoCore in Frameworks */ = {isa = PBXBuildFile; productRef = BE0A541D2F942EC300E09C34 /* KadoCore */; };
 		BE58C7602F940AAF0020146E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE58C75F2F940AAF0020146E /* WidgetKit.framework */; };
 		BE58C7622F940AAF0020146E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE58C7612F940AAF0020146E /* SwiftUI.framework */; };
 		BE58C76F2F940AB10020146E /* KadoWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -93,6 +95,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE0A541C2F942EA000E09C34 /* KadoCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +111,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE58C7622F940AAF0020146E /* SwiftUI.framework in Frameworks */,
+				BE0A541E2F942EC300E09C34 /* KadoCore in Frameworks */,
 				BE58C7602F940AAF0020146E /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -170,6 +174,7 @@
 			);
 			name = Kado;
 			packageProductDependencies = (
+				BE0A541B2F942EA000E09C34 /* KadoCore */,
 			);
 			productName = Kado;
 			productReference = BE41887A2F91B4F0006126D6 /* Kado.app */;
@@ -216,6 +221,7 @@
 			);
 			name = KadoWidgetsExtension;
 			packageProductDependencies = (
+				BE0A541D2F942EC300E09C34 /* KadoCore */,
 			);
 			productName = KadoWidgetsExtension;
 			productReference = BE58C75D2F940AAF0020146E /* KadoWidgetsExtension.appex */;
@@ -252,6 +258,9 @@
 			);
 			mainGroup = BE4188712F91B4F0006126D6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BE0A541A2F942EA000E09C34 /* XCLocalSwiftPackageReference "Packages/KadoCore" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BE41887B2F91B4F0006126D6 /* Products */;
 			projectDirPath = "";
@@ -661,6 +670,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		BE0A541A2F942EA000E09C34 /* XCLocalSwiftPackageReference "Packages/KadoCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/KadoCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BE0A541B2F942EA000E09C34 /* KadoCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KadoCore;
+		};
+		BE0A541D2F942EC300E09C34 /* KadoCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BE0A541A2F942EA000E09C34 /* XCLocalSwiftPackageReference "Packages/KadoCore" */;
+			productName = KadoCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BE4188722F91B4F0006126D6 /* Project object */;
 }
