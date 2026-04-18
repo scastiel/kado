@@ -21,12 +21,19 @@ enum DayCell: Equatable, Sendable {
 
     /// Opacity used to tint the habit color when rendering this cell.
     /// `nil` for non-scored cells (caller renders a neutral
-    /// placeholder). The 0.08 floor keeps score-near-zero days
-    /// perceptible against the cell background.
+    /// placeholder).
+    ///
+    /// Linear remap from `[0, 1]` value to `[0.2, 1.0]` opacity.
+    /// The 0.2 floor keeps value-0 cells clearly colored — otherwise
+    /// missed-due cells visually collapse into the gray of `.notDue`
+    /// neighbors, losing the "scheduled but missed" signal.
     var colorOpacity: Double? {
         switch self {
-        case .future, .notDue: nil
-        case .scored(let s): max(0.08, min(1.0, s))
+        case .future, .notDue:
+            return nil
+        case .scored(let s):
+            let clamped = max(0.0, min(1.0, s))
+            return 0.2 + 0.8 * clamped
         }
     }
 }

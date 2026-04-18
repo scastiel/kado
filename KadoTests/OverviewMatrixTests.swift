@@ -234,12 +234,16 @@ struct OverviewMatrixTests {
         #expect(DayCell.notDue.colorOpacity == nil)
     }
 
-    @Test("DayCell.colorOpacity clamps scored to [0.08, 1.0]")
-    func opacityClampsScored() {
-        #expect(DayCell.scored(0.0).colorOpacity == 0.08)
-        #expect(DayCell.scored(-1.0).colorOpacity == 0.08)
-        #expect(DayCell.scored(0.5).colorOpacity == 0.5)
-        #expect(DayCell.scored(1.0).colorOpacity == 1.0)
-        #expect(DayCell.scored(2.0).colorOpacity == 1.0)
+    @Test("DayCell.colorOpacity maps scored linearly to [0.2, 1.0]")
+    func opacityMapsScoredLinearly() {
+        func approx(_ cell: DayCell, _ expected: Double) -> Bool {
+            guard let actual = cell.colorOpacity else { return false }
+            return abs(actual - expected) < 1e-9
+        }
+        #expect(approx(.scored(0.0), 0.2))
+        #expect(approx(.scored(-1.0), 0.2))
+        #expect(approx(.scored(0.5), 0.6))
+        #expect(approx(.scored(1.0), 1.0))
+        #expect(approx(.scored(2.0), 1.0))
     }
 }
