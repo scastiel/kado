@@ -7,7 +7,7 @@ type: project
 # Plan — Widgets
 
 **Date**: 2026-04-18
-**Status**: in progress
+**Status**: done (pending device smoke + visual audit)
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -40,7 +40,7 @@ app is currently using.
 
 ## Task list
 
-### Task 1: App Group entitlement on main app — ⏸ blocked (human in Xcode)
+### Task 1: App Group entitlement on main app — ✅ done (human in Xcode)
 
 **Goal**: add `com.apple.security.application-groups` with
 `group.dev.scastiel.kado` to the `Kado` target; no functional
@@ -157,7 +157,7 @@ habits (returns `.result(dialog: "Open app to log")` or similar).
 
 ---
 
-### Task 6: Bootstrap `KadoWidgets` extension target — ⏸ blocked (human in Xcode)
+### Task 6: Bootstrap `KadoWidgets` extension target — ✅ done (human in Xcode)
 
 **Goal**: empty widget target that builds, signs with the App
 Group entitlement, and shows a placeholder view. Validates the
@@ -182,7 +182,7 @@ scaffolding before any data code runs.
 
 ---
 
-### Task 7: Timeline infrastructure
+### Task 7: Timeline infrastructure — ✅ done
 
 **Goal**: shared `HabitTimelineEntry` + `HabitTimelineProvider`
 that reads the App Group store and produces entries for the next
@@ -210,7 +210,7 @@ that reads the App Group store and produces entries for the next
 
 ---
 
-### Task 8: Small home widget — today's grid
+### Task 8: Small home widget — today's grid — ✅ done
 
 **Goal**: first visible widget. Up to 5 habits due today, each
 rendered as a score-tinted chip. Tap binary → `CompleteHabitIntent`;
@@ -232,7 +232,7 @@ tap counter/timer → deep-link to habit detail via `widgetURL`.
 
 ---
 
-### Task 9: Medium home widget — grid + progress
+### Task 9: Medium home widget — grid + progress — ✅ done
 
 **Goal**: 8 habits max, plus a summary line ("3 of 5 due done").
 
@@ -249,7 +249,7 @@ tap counter/timer → deep-link to habit detail via `widgetURL`.
 
 ---
 
-### Task 10: Large home widget — weekly grid
+### Task 10: Large home widget — weekly grid — ✅ done
 
 **Goal**: habits × last 7 days matrix, using
 `OverviewMatrix.compute(...)` directly.
@@ -269,7 +269,7 @@ tap counter/timer → deep-link to habit detail via `widgetURL`.
 
 ---
 
-### Task 11: Lock-screen rectangular widget
+### Task 11: Lock-screen rectangular widget — ✅ done
 
 **Goal**: single habit chosen via `WidgetConfigurationIntent`;
 shows habit name + current streak + mini score bar.
@@ -291,7 +291,7 @@ shows habit name + current streak + mini score bar.
 
 ---
 
-### Task 12: Lock-screen circular widget
+### Task 12: Lock-screen circular widget — ✅ done
 
 **Goal**: same picker intent; shows a progress ring (binary: done /
 not done; counter/timer: value / target).
@@ -309,7 +309,7 @@ not done; counter/timer: value / target).
 
 ---
 
-### Task 13: Lock-screen inline widget
+### Task 13: Lock-screen inline widget — ✅ done
 
 **Goal**: auto-text widget "N of M done today" (no configuration).
 
@@ -325,7 +325,7 @@ not done; counter/timer: value / target).
 
 ---
 
-### Task 14: Widget reload triggers from the app
+### Task 14: Widget reload triggers from the app — ✅ done
 
 **Goal**: call `WidgetCenter.shared.reloadAllTimelines()` from
 every completion mutation so widgets don't show stale state for
@@ -348,7 +348,7 @@ up to an hour.
 
 ---
 
-### Task 15: Localization pass
+### Task 15: Localization pass — ✅ done
 
 **Goal**: every new widget-facing string exists in
 `Localizable.xcstrings` with EN source and a comment. FR entries
@@ -369,7 +369,7 @@ left empty (v1.0 scope per ROADMAP).
 
 ---
 
-### Task 16: Done-gate pass
+### Task 16: Done-gate pass — ⏳ partial (awaiting user's visual audit)
 
 **Goal**: CLAUDE.md's definition-of-done on all six widgets.
 
