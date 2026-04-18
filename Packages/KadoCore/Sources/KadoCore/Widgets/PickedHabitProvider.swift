@@ -1,7 +1,7 @@
 import AppIntents
 import Foundation
 import SwiftData
-import WidgetKit
+@preconcurrency import WidgetKit
 
 /// Timeline provider for the lock-screen widgets that render one
 /// habit picked via `PickHabitIntent`.
