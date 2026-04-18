@@ -34,7 +34,7 @@ a cell surfaces an inline popover with that day's completion detail.
 - [x] Task 3: Color + icon pickers in habit forms
 - [x] Task 4: Color + icon surface in existing views
 - [x] Task 5: OverviewMatrix tests (red)
-- [ ] Task 6: OverviewMatrix implementation (green)
+- [x] Task 6: OverviewMatrix implementation (green)
 - [ ] Task 7: Matrix UI primitives
 - [ ] Task 8: OverviewView + tab integration
 - [ ] Task 9: Cell tap popover

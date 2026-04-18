@@ -27,7 +27,41 @@ enum OverviewMatrix {
         scoreCalculator: any HabitScoreCalculating,
         frequencyEvaluator: any FrequencyEvaluating
     ) -> [MatrixRow] {
-        // Stub — implementation lands in the follow-up commit.
-        []
+        let todayStart = calendar.startOfDay(for: today)
+        let activeHabits = habits
+            .filter { $0.archivedAt == nil }
+            .sorted { $0.createdAt < $1.createdAt }
+
+        guard let firstDay = days.first, let lastDay = days.last else {
+            return activeHabits.map { MatrixRow(habit: $0, days: []) }
+        }
+
+        return activeHabits.map { habit in
+            let habitCompletions = completions.filter { $0.habitID == habit.id }
+            let history = scoreCalculator.scoreHistory(
+                for: habit,
+                completions: habitCompletions,
+                from: firstDay,
+                to: lastDay
+            )
+            let scoreByDay = Dictionary(
+                uniqueKeysWithValues: history.map { ($0.date, $0.score) }
+            )
+            let habitCreatedStart = calendar.startOfDay(for: habit.createdAt)
+
+            let cells = days.map { day -> DayCell in
+                if day > todayStart { return .future }
+                if day < habitCreatedStart { return .notDue }
+                if !frequencyEvaluator.isDue(
+                    habit: habit,
+                    on: day,
+                    completions: habitCompletions
+                ) {
+                    return .notDue
+                }
+                return .scored(scoreByDay[day] ?? 0.0)
+            }
+            return MatrixRow(habit: habit, days: cells)
+        }
     }
 }
