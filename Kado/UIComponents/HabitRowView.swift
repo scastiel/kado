@@ -44,7 +44,8 @@ struct HabitRowView: View {
                 Text(habit.name)
                     .font(.body)
                     .foregroundStyle(.primary)
-                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                 metricsLine
             }
             Spacer(minLength: 8)
