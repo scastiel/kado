@@ -54,6 +54,41 @@ struct HabitRowView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityValue(accessibilityValueText)
+        .accessibilityActions { rowAccessibilityActions }
+    }
+
+    /// VoiceOver picks these up via the Actions rotor. The row's
+    /// default activate stays "navigate to detail" (the
+    /// `NavigationLink` parent supplies it); these expose the pill /
+    /// stepper / chip actions that `.combine` would otherwise hide.
+    @ViewBuilder
+    private var rowAccessibilityActions: some View {
+        if let onToggle {
+            Button(
+                isComplete
+                    ? String(localized: "Mark as not done")
+                    : String(localized: "Mark as done"),
+                action: onToggle
+            )
+        }
+        if let onCounterIncrement {
+            Button(String(localized: "Increment"), action: onCounterIncrement)
+        }
+        if let onCounterDecrement, canDecrement {
+            Button(String(localized: "Decrement"), action: onCounterDecrement)
+        }
+        if let onTimerAddFiveMinutes {
+            Button(String(localized: "Add 5 minutes"), action: onTimerAddFiveMinutes)
+        }
+        if let onLogSpecificValue {
+            Button(String(localized: "Log specific value…"), action: onLogSpecificValue)
+        }
+        if let onEdit {
+            Button(String(localized: "Edit"), action: onEdit)
+        }
+        if let onArchive {
+            Button(String(localized: "Archive"), action: onArchive)
+        }
     }
 
     @ViewBuilder
