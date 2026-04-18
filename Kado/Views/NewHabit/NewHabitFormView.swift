@@ -17,6 +17,7 @@ struct NewHabitFormView: View {
         NavigationStack {
             Form {
                 nameSection
+                appearanceSection
                 frequencySection
                 typeSection
             }
@@ -43,6 +44,13 @@ struct NewHabitFormView: View {
             TextField(String(localized: "Habit name"), text: $model.name)
                 .focused($nameFocused)
                 .submitLabel(.done)
+        }
+    }
+
+    private var appearanceSection: some View {
+        Section(String(localized: "Appearance")) {
+            HabitColorPicker(selection: $model.color)
+            HabitIconPicker(selection: $model.icon, tint: model.color.color)
         }
     }
 

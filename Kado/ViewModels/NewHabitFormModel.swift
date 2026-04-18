@@ -20,6 +20,9 @@ final class NewHabitFormModel {
     var counterTarget: Double = 1
     var timerTargetMinutes: Int = 10
 
+    var color: HabitColor = .blue
+    var icon: String = HabitIcon.default
+
     /// When non-nil, save mutates this record in place instead of
     /// creating a new one.
     private(set) var editingRecord: HabitRecord?
@@ -68,6 +71,8 @@ final class NewHabitFormModel {
         case .negative:
             self.typeKind = .negative
         }
+        self.color = record.color
+        self.icon = record.icon
     }
 
     var isEditing: Bool { editingRecord != nil }
@@ -120,7 +125,9 @@ final class NewHabitFormModel {
         HabitRecord(
             name: trimmedName,
             frequency: frequency,
-            type: type
+            type: type,
+            color: color,
+            icon: icon
         )
     }
 
@@ -132,6 +139,8 @@ final class NewHabitFormModel {
             record.name = trimmedName
             record.frequency = frequency
             record.type = type
+            record.color = color
+            record.icon = icon
             try? context.save()
             return record
         } else {

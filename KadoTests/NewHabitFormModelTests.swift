@@ -288,4 +288,58 @@ struct NewHabitFormModelTests {
         #expect(all.count == 1)
         #expect(all.first?.id == saved.id)
     }
+
+    // MARK: - Appearance (color + icon)
+
+    @Test("Default color is .blue and default icon is the curated default")
+    func appearanceDefaults() {
+        let model = NewHabitFormModel()
+        #expect(model.color == .blue)
+        #expect(model.icon == HabitIcon.default)
+    }
+
+    @Test("build() carries the picked color and icon")
+    func buildCarriesAppearance() {
+        let model = NewHabitFormModel()
+        model.name = "Run"
+        model.color = .mint
+        model.icon = "figure.run"
+
+        let record = model.build()
+        #expect(record.color == .mint)
+        #expect(record.icon == "figure.run")
+    }
+
+    @Test("init(editing:) pre-fills color and icon from the record")
+    func editingInitAppearance() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let record = HabitRecord(name: "Read", color: .purple, icon: "book.fill")
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.color == .purple)
+        #expect(model.icon == "book.fill")
+    }
+
+    @Test("save(in:) on an editing model updates color and icon in place")
+    func editingSaveAppearance() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let original = HabitRecord(name: "Swim", color: .blue, icon: "circle")
+        container.mainContext.insert(original)
+        try container.mainContext.save()
+
+        let model = NewHabitFormModel(editing: original)
+        model.color = .teal
+        model.icon = "figure.pool.swim"
+        _ = model.save(in: container.mainContext)
+
+        #expect(original.color == .teal)
+        #expect(original.icon == "figure.pool.swim")
+    }
 }

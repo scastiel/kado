@@ -114,6 +114,17 @@
         }
       }
     },
+    "Appearance" : {
+      "comment" : "Section header in the new-habit form grouping the color + icon pickers.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        }
+      }
+    },
     "Archive" : {
       "comment" : "Verb. Used as the toolbar button on the habit detail screen and as the destructive action in the archive confirmation dialog.",
       "localizations" : {
