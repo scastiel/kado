@@ -129,15 +129,7 @@ final class DevModeController {
 
     nonisolated static func defaultProductionContainer() -> ModelContainer {
         do {
-            let schema = Schema(versionedSchema: KadoSchemaV2.self)
-            return try ModelContainer(
-                for: schema,
-                migrationPlan: KadoMigrationPlan.self,
-                configurations: ModelConfiguration(
-                    schema: schema,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            )
+            return try SharedStore.productionContainer()
         } catch {
             fatalError("Failed to construct production ModelContainer: \(error)")
         }
