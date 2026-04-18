@@ -712,8 +712,12 @@ A task is done when:
 1. `build_sim` returns success with no new warnings.
 2. `test_sim` passes all existing tests, and new ones have been added
    if business logic was involved.
-3. SwiftUI previews work for new views (human visual check or
-   `screenshot` for simple cases).
+3. SwiftUI previews work for new views, **and** `screenshot` (or a
+   live human visual check) is captured after every visual change.
+   Design bugs — wrong tint, identical states for opposite values,
+   layout overflow, regressed truncation — compile fine and pass
+   `test_sim`. Only a literal pixel check catches them. Cheap
+   insurance, not optional.
 4. Accessibility is tested (Dynamic Type XXXL, VoiceOver on iPhone 16
    Pro minimum).
 5. Behavior is verified on iPhone AND iPad simulator via `build_sim`

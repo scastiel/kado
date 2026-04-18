@@ -2,10 +2,14 @@ import SwiftData
 import SwiftUI
 
 /// The Today tab — lists habits due today and handles tap-to-toggle
-/// for binary and negative habits.
+/// for binary and negative habits, inline counter / timer logging,
+/// and a long-press context menu for the secondary actions
+/// (specific-value sheets, edit, archive).
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
+    @Environment(\.streakCalculator) private var streakCalculator
+    @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.calendar) private var calendar
 
     @Query(
@@ -14,10 +18,31 @@ struct TodayView: View {
     )
     private var activeHabits: [HabitRecord]
 
-    @State private var showingNewHabit = false
+    @State private var path = NavigationPath()
+    @State private var sheet: TodaySheet?
+    @State private var confirmingArchiveOf: HabitRecord?
+
+    /// Single source of truth for sheets the Today surface presents.
+    /// Replaces the boolean soup that would otherwise emerge from
+    /// New / Edit / Log-counter / Log-timer running in parallel.
+    enum TodaySheet: Identifiable {
+        case newHabit
+        case editHabit(HabitRecord)
+        case logCounter(HabitRecord)
+        case logTimer(HabitRecord)
+
+        var id: String {
+            switch self {
+            case .newHabit: "new"
+            case .editHabit(let h): "edit-\(h.id)"
+            case .logCounter(let h): "counter-\(h.id)"
+            case .logTimer(let h): "timer-\(h.id)"
+            }
+        }
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             content
                 .navigationTitle(Text("Today"))
                 .navigationDestination(for: HabitRecord.self) { habit in
@@ -26,15 +51,42 @@ struct TodayView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            showingNewHabit = true
+                            sheet = .newHabit
                         } label: {
                             Label("New habit", systemImage: "plus")
                         }
                     }
                 }
-                .sheet(isPresented: $showingNewHabit) {
-                    NewHabitFormView(model: NewHabitFormModel())
+                .sheet(item: $sheet) { sheet in
+                    sheetContent(for: sheet)
                 }
+                .confirmationDialog(
+                    String(localized: "Archive this habit?"),
+                    isPresented: archiveDialogBinding,
+                    titleVisibility: .visible,
+                    presenting: confirmingArchiveOf
+                ) { habit in
+                    Button(String(localized: "Archive"), role: .destructive) {
+                        archive(habit)
+                    }
+                    Button(String(localized: "Cancel"), role: .cancel) {}
+                } message: { _ in
+                    Text("Archived habits stop appearing on Today but keep their history.")
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(for sheet: TodaySheet) -> some View {
+        switch sheet {
+        case .newHabit:
+            NewHabitFormView(model: NewHabitFormModel())
+        case .editHabit(let habit):
+            NewHabitFormView(model: NewHabitFormModel(editing: habit))
+        case .logCounter(let habit):
+            CounterLogSheet(habit: habit)
+        case .logTimer(let habit):
+            TimerLogSheet(habit: habit)
         }
     }
 
@@ -56,13 +108,44 @@ struct TodayView: View {
                 )
             } else {
                 List(due) { record in
+                    let snap = record.snapshot
+                    let comps = (record.completions ?? []).map(\.snapshot)
+                    let state = HabitRowState.resolve(
+                        habit: snap,
+                        completions: comps,
+                        calendar: calendar,
+                        asOf: .now
+                    )
                     NavigationLink(value: record) {
                         HabitRowView(
-                            habit: record.snapshot,
-                            isCompletedToday: isCompletedToday(record),
+                            habit: snap,
+                            state: state,
+                            streak: streakCalculator.current(
+                                for: snap, completions: comps, asOf: .now
+                            ),
+                            scorePercent: Int(
+                                (scoreCalculator.currentScore(
+                                    for: snap, completions: comps, asOf: .now
+                                ) * 100).rounded()
+                            ),
                             onToggle: canToggle(record) ? { toggle(record) } : nil,
-                            todayValue: todayValue(for: record)
+                            onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
+                            onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
+                            onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil,
+                            onLogSpecificValue: logSheetCallback(for: record),
+                            onOpenDetail: { path.append(record) },
+                            onEdit: { sheet = .editHabit(record) },
+                            onArchive: { confirmingArchiveOf = record }
                         )
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        if canSwipeUndo(record, state: state) {
+                            Button(role: .destructive) {
+                                toggle(record)
+                            } label: {
+                                Label("Undo", systemImage: "arrow.uturn.backward")
+                            }
+                        }
                     }
                 }
                 .refreshable {
@@ -87,17 +170,14 @@ struct TodayView: View {
         }
     }
 
-    private func isCompletedToday(_ record: HabitRecord) -> Bool {
-        let now = Date.now
-        return record.completions?.contains { calendar.isDate($0.date, inSameDayAs: now) } ?? false
+    private var archiveDialogBinding: Binding<Bool> {
+        Binding(
+            get: { confirmingArchiveOf != nil },
+            set: { if !$0 { confirmingArchiveOf = nil } }
+        )
     }
 
-    private func todayValue(for record: HabitRecord) -> Double? {
-        let now = Date.now
-        return record.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: now) }?
-            .value
-    }
+    // MARK: - Type predicates
 
     private func canToggle(_ record: HabitRecord) -> Bool {
         switch record.type {
@@ -106,9 +186,67 @@ struct TodayView: View {
         }
     }
 
+    private func isCounter(_ record: HabitRecord) -> Bool {
+        if case .counter = record.type { return true }
+        return false
+    }
+
+    private func isTimer(_ record: HabitRecord) -> Bool {
+        if case .timer = record.type { return true }
+        return false
+    }
+
+    /// Trailing-swipe Undo only applies to binary / negative when the
+    /// day is already marked. Counter / timer get their undo from the
+    /// row's own `−` button (counter) or the "Log specific value…"
+    /// menu item, so a swipe action would be redundant.
+    private func canSwipeUndo(_ record: HabitRecord, state: HabitRowState) -> Bool {
+        guard state.status == .complete else { return false }
+        switch record.type {
+        case .binary, .negative: return true
+        case .counter, .timer: return false
+        }
+    }
+
+    private func logSheetCallback(for record: HabitRecord) -> (() -> Void)? {
+        switch record.type {
+        case .counter: return { sheet = .logCounter(record) }
+        case .timer: return { sheet = .logTimer(record) }
+        case .binary, .negative: return nil
+        }
+    }
+
+    // MARK: - Actions
+
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, in: modelContext)
+    }
+
+    private func incrementCounter(_ record: HabitRecord) {
+        CompletionLogger(calendar: calendar)
+            .incrementCounter(for: record, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func decrementCounter(_ record: HabitRecord) {
+        CompletionLogger(calendar: calendar)
+            .decrementCounter(for: record, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func addFiveMinutes(_ record: HabitRecord) {
+        // CompletionRecord.value carries seconds for timer habits, so a
+        // five-minute bump is just delta = 300 through the same
+        // increment path the counter uses.
+        CompletionLogger(calendar: calendar)
+            .incrementCounter(for: record, by: 300, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func archive(_ record: HabitRecord) {
+        record.archivedAt = .now
+        try? modelContext.save()
     }
 }
 
