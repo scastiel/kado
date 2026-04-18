@@ -1,7 +1,7 @@
 # Plan — Notifications
 
 **Date**: 2026-04-18
-**Status**: ready to build
+**Status**: in progress
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -37,7 +37,7 @@ else name-only.
 
 ## Task list
 
-### Task 1: Schema V3 + domain fields
+### Task 1: Schema V3 + domain fields ✅
 
 **Goal**: Persist `remindersEnabled`, `reminderHour`, `reminderMinute`
 on habits with a lightweight migration from V2. No behavior wired up
@@ -70,7 +70,7 @@ yet — fields default to off.
 
 ---
 
-### Task 2: Scheduler protocol + center wrapper + fake
+### Task 2: Scheduler protocol + center wrapper + fake ✅
 
 **Goal**: Define the scheduling surface and the system-API seam
 without implementing the real logic yet. Unlocks TDD for task 3.
