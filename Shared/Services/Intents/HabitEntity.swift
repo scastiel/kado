@@ -40,12 +40,19 @@ extension HabitEntity {
 
     /// Non-archived habits, sorted by creation order. Feeds
     /// `EntityQuery.suggestedEntities` and is reusable from tests.
+    ///
+    /// Filters `archivedAt == nil` in Swift after a broad fetch
+    /// because `#Predicate` expressions — even a trivial
+    /// `$0.archivedAt == nil` — crash with `EXC_BREAKPOINT` in the
+    /// widget extension process at fetch compilation time. Same
+    /// workaround as `fetch(ids:in:)`.
     static func fetchSuggestions(in context: ModelContext) throws -> [HabitEntity] {
         let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.archivedAt == nil },
             sortBy: [SortDescriptor(\.createdAt)]
         )
-        return try context.fetch(descriptor).map(HabitEntity.init(record:))
+        return try context.fetch(descriptor)
+            .filter { $0.archivedAt == nil }
+            .map(HabitEntity.init(record:))
     }
 
     /// Fetch a specific set of habit IDs, excluding archived ones.

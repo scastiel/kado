@@ -50,11 +50,13 @@ extension HabitTimelineEntry {
         streakCalculator: any StreakCalculating,
         limit: Int
     ) throws -> HabitTimelineEntry {
+        // `#Predicate` expressions crash the widget extension
+        // process at fetch time — fetch everything and filter
+        // `archivedAt` in Swift. See HabitEntity.fetchSuggestions.
         let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.archivedAt == nil },
             sortBy: [SortDescriptor(\.createdAt)]
         )
-        let records = try context.fetch(descriptor)
+        let records = try context.fetch(descriptor).filter { $0.archivedAt == nil }
 
         var rows: [HabitTimelineRow] = []
         var completed = 0

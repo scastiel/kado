@@ -62,10 +62,10 @@ struct CompleteHabitIntent: AppIntent {
         calendar: Calendar,
         now: Date
     ) throws -> Outcome {
-        let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.id == habitID }
-        )
-        guard let record = try context.fetch(descriptor).first else {
+        // Widget extension can't compile `#Predicate` — fetch all
+        // and search in Swift. See HabitEntity.fetchSuggestions.
+        let descriptor = FetchDescriptor<HabitRecord>()
+        guard let record = try context.fetch(descriptor).first(where: { $0.id == habitID }) else {
             throw IntentError.habitNotFound
         }
         guard record.archivedAt == nil else {

@@ -28,11 +28,13 @@ extension WeeklyMatrixEntry {
         frequencyEvaluator: any FrequencyEvaluating,
         windowDays: Int = 7
     ) throws -> WeeklyMatrixEntry {
+        // Widget extension can't compile `#Predicate` — see
+        // HabitEntity.fetchSuggestions. Filter in Swift.
         let habitDescriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.archivedAt == nil },
             sortBy: [SortDescriptor(\.createdAt)]
         )
         let habitRecords = try context.fetch(habitDescriptor)
+            .filter { $0.archivedAt == nil }
         let habits = habitRecords.map(\.snapshot)
 
         let completionDescriptor = FetchDescriptor<CompletionRecord>()

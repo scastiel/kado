@@ -31,10 +31,10 @@ extension PickedHabitEntry {
         streakCalculator: any StreakCalculating
     ) throws -> PickedHabitEntry {
         guard let habitID else { return .empty(asOf: reference) }
-        let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.id == habitID }
-        )
-        guard let record = try context.fetch(descriptor).first,
+        // Widget extension can't compile `#Predicate` — fetch all
+        // and search in Swift. See HabitEntity.fetchSuggestions.
+        let descriptor = FetchDescriptor<HabitRecord>()
+        guard let record = try context.fetch(descriptor).first(where: { $0.id == habitID }),
               record.archivedAt == nil else {
             return .empty(asOf: reference)
         }
