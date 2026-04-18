@@ -14,18 +14,24 @@ struct KadoApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        let container = devModeController.container(forDevMode: isDevMode)
+        // Publish the active container to the process-scoped cache
+        // so `CompleteHabitIntent` (running in-app via
+        // `openAppWhenRun`) reuses the same instance instead of
+        // opening a second CloudKit-attached one.
+        ActiveContainer.shared.set(container)
+
+        return WindowGroup {
             ContentView()
                 .task { await cloudAccountStatus.refresh() }
                 .task {
                     // Seed the widget's App Group JSON snapshot at
                     // launch so widgets have fresh data even if the
                     // user hasn't mutated anything since install.
-                    let container = devModeController.container(forDevMode: isDevMode)
                     WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
                 }
         }
-        .modelContainer(devModeController.container(forDevMode: isDevMode))
+        .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .onChange(of: isDevMode) { oldValue, newValue in
             if newValue && !oldValue {
@@ -33,6 +39,7 @@ struct KadoApp: App {
             } else if !newValue && oldValue {
                 devModeController.deactivateDevMode()
             }
+            ActiveContainer.shared.set(devModeController.container(forDevMode: newValue))
         }
     }
 }

@@ -35,7 +35,11 @@ public struct CompleteHabitIntent: AppIntent {
 
     @MainActor
     public func perform() async throws -> some IntentResult {
-        let container = try SharedStore.productionContainer()
+        // Reuse the app's live container — opening a fresh one in
+        // the same process would fight for CloudKit ownership and
+        // trap. `openAppWhenRun = true` guarantees the app primes
+        // `ActiveContainer.shared` before this method runs.
+        let container = try ActiveContainer.shared.get()
         _ = try Self.apply(
             habitID: habit.id,
             in: container.mainContext,
