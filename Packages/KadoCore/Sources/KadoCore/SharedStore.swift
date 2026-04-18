@@ -96,21 +96,42 @@ nonisolated public enum SharedStore {
     /// reach.
     public static func productionContainer() throws -> ModelContainer {
         let schema = Schema(versionedSchema: KadoSchemaV2.self)
-        let cloudKit: ModelConfiguration.CloudKitDatabase =
-            isExtensionProcess() ? .none : .private(CloudContainerID.kado)
         let configuration: ModelConfiguration
-        if let target = productionStoreURL() {
-            migrateLegacyStoreIfNeeded(from: legacyStoreURL(), to: target)
-            configuration = ModelConfiguration(
-                schema: schema,
-                url: target,
-                cloudKitDatabase: cloudKit
-            )
+        if isExtensionProcess() {
+            // Widget reads the same on-disk sqlite the app writes,
+            // but opens it read-only + CloudKit-attached. Matching
+            // the CloudKit configuration keeps the on-disk metadata
+            // tables happy; `allowsSave: false` prevents the widget
+            // from registering as a second active sync owner (which
+            // would trap with NSCocoaErrorDomain 134422).
+            if let target = productionStoreURL() {
+                configuration = ModelConfiguration(
+                    schema: schema,
+                    url: target,
+                    allowsSave: false,
+                    cloudKitDatabase: .private(CloudContainerID.kado)
+                )
+            } else {
+                configuration = ModelConfiguration(
+                    schema: schema,
+                    allowsSave: false,
+                    cloudKitDatabase: .private(CloudContainerID.kado)
+                )
+            }
         } else {
-            configuration = ModelConfiguration(
-                schema: schema,
-                cloudKitDatabase: cloudKit
-            )
+            if let target = productionStoreURL() {
+                migrateLegacyStoreIfNeeded(from: legacyStoreURL(), to: target)
+                configuration = ModelConfiguration(
+                    schema: schema,
+                    url: target,
+                    cloudKitDatabase: .private(CloudContainerID.kado)
+                )
+            } else {
+                configuration = ModelConfiguration(
+                    schema: schema,
+                    cloudKitDatabase: .private(CloudContainerID.kado)
+                )
+            }
         }
         return try ModelContainer(
             for: schema,
