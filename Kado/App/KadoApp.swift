@@ -39,7 +39,13 @@ struct KadoApp: App {
             } else if !newValue && oldValue {
                 devModeController.deactivateDevMode()
             }
-            ActiveContainer.shared.set(devModeController.container(forDevMode: newValue))
+            let swapped = devModeController.container(forDevMode: newValue)
+            ActiveContainer.shared.set(swapped)
+            // Widgets read a JSON snapshot, not the live SwiftData
+            // store. Without this the widget keeps showing the
+            // previous dataset (dev vs production) until the next
+            // habit mutation triggers `WidgetReloader.reloadAll`.
+            WidgetReloader.reloadAll(using: swapped.mainContext)
         }
     }
 }
