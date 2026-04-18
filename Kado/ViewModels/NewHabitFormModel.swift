@@ -24,6 +24,17 @@ final class NewHabitFormModel {
     var color: HabitColor = .blue
     var icon: String = HabitIcon.default
 
+    /// Per-habit reminder toggle. When true, `save(in:)` writes the
+    /// time components onto the `HabitRecord`; the scheduler derives
+    /// the actual days-due from `frequency`.
+    var remindersEnabled: Bool = false
+
+    /// DatePicker-bound value. Only the hour + minute components are
+    /// persisted — the day portion is cosmetic and discarded on save.
+    /// Survives `remindersEnabled` toggles so the user's chosen time
+    /// isn't wiped when they explore the toggle.
+    var reminderTime: Date = NewHabitFormModel.defaultReminderTime()
+
     /// When non-nil, save mutates this record in place instead of
     /// creating a new one.
     private(set) var editingRecord: HabitRecord?
@@ -37,6 +48,17 @@ final class NewHabitFormModel {
     }
 
     init() {}
+
+    /// Default is 9:00 today in the current calendar. Stored on the
+    /// type so both fresh and edit inits converge on the same seed
+    /// when the record doesn't yet carry a configured time.
+    static func defaultReminderTime(calendar: Calendar = .current, now: Date = .now) -> Date {
+        calendar.date(bySettingHour: 9, minute: 0, second: 0, of: now) ?? now
+    }
+
+    static func time(fromHour hour: Int, minute: Int, calendar: Calendar = .current, now: Date = .now) -> Date {
+        calendar.date(bySettingHour: hour, minute: minute, second: 0, of: now) ?? now
+    }
 
     /// Pre-fill the form from an existing habit and remember the
     /// record so `save(in:)` updates it in place.
@@ -74,6 +96,11 @@ final class NewHabitFormModel {
         }
         self.color = record.color
         self.icon = record.icon
+        self.remindersEnabled = record.remindersEnabled
+        self.reminderTime = Self.time(
+            fromHour: record.reminderHour,
+            minute: record.reminderMinute
+        )
     }
 
     var isEditing: Bool { editingRecord != nil }
@@ -123,12 +150,16 @@ final class NewHabitFormModel {
     }
 
     func build() -> HabitRecord {
-        HabitRecord(
+        let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
+        return HabitRecord(
             name: trimmedName,
             frequency: frequency,
             type: type,
             color: color,
-            icon: icon
+            icon: icon,
+            remindersEnabled: remindersEnabled,
+            reminderHour: components.hour ?? 9,
+            reminderMinute: components.minute ?? 0
         )
     }
 
@@ -137,12 +168,16 @@ final class NewHabitFormModel {
     @discardableResult
     func save(in context: ModelContext) -> HabitRecord {
         defer { WidgetReloader.reloadAll(using: context) }
+        let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         if let record = editingRecord {
             record.name = trimmedName
             record.frequency = frequency
             record.type = type
             record.color = color
             record.icon = icon
+            record.remindersEnabled = remindersEnabled
+            record.reminderHour = components.hour ?? 9
+            record.reminderMinute = components.minute ?? 0
             try? context.save()
             return record
         } else {

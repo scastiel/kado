@@ -154,7 +154,7 @@ of pending `UNNotificationRequest`s for the next 7 days.
 
 ---
 
-### Task 4: Reminder section in New/Edit habit form
+### Task 4: Reminder section in New/Edit habit form ✅
 
 **Goal**: Let the user enable reminders and pick a time when creating
 or editing a habit.

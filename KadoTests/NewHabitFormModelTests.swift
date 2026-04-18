@@ -325,6 +325,85 @@ struct NewHabitFormModelTests {
         #expect(model.icon == "book.fill")
     }
 
+    // MARK: - Reminders
+
+    @Test("Default reminder state is off at 9:00 local time")
+    func reminderDefaults() {
+        let model = NewHabitFormModel()
+        #expect(model.remindersEnabled == false)
+        let components = Calendar.current.dateComponents([.hour, .minute], from: model.reminderTime)
+        #expect(components.hour == 9)
+        #expect(components.minute == 0)
+    }
+
+    @Test("Toggling remindersEnabled off and back on preserves the chosen time")
+    func reminderToggleIsNonDestructive() {
+        let model = NewHabitFormModel()
+        model.name = "Meditate"
+        model.remindersEnabled = true
+        let chosen = Calendar.current.date(bySettingHour: 7, minute: 15, second: 0, of: .now)!
+        model.reminderTime = chosen
+
+        model.remindersEnabled = false
+        model.remindersEnabled = true
+
+        #expect(model.reminderTime == chosen)
+    }
+
+    @Test("build() maps reminderTime to hour and minute integers")
+    func buildCarriesReminderFields() {
+        let model = NewHabitFormModel()
+        model.name = "Run"
+        model.remindersEnabled = true
+        model.reminderTime = Calendar.current.date(bySettingHour: 6, minute: 45, second: 0, of: .now)!
+
+        let record = model.build()
+        #expect(record.remindersEnabled == true)
+        #expect(record.reminderHour == 6)
+        #expect(record.reminderMinute == 45)
+    }
+
+    @Test("init(editing:) reconstitutes reminderTime from stored hour and minute")
+    func editingInitReminder() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let record = HabitRecord(
+            name: "Sleep",
+            remindersEnabled: true,
+            reminderHour: 22,
+            reminderMinute: 30
+        )
+        container.mainContext.insert(record)
+
+        let model = NewHabitFormModel(editing: record)
+        #expect(model.remindersEnabled == true)
+        let components = Calendar.current.dateComponents([.hour, .minute], from: model.reminderTime)
+        #expect(components.hour == 22)
+        #expect(components.minute == 30)
+    }
+
+    @Test("save(in:) on an editing model updates reminder fields in place")
+    func editingSaveReminder() throws {
+        let container = try ModelContainer(
+            for: HabitRecord.self, CompletionRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let original = HabitRecord(name: "Stretch")
+        container.mainContext.insert(original)
+        try container.mainContext.save()
+
+        let model = NewHabitFormModel(editing: original)
+        model.remindersEnabled = true
+        model.reminderTime = Calendar.current.date(bySettingHour: 8, minute: 5, second: 0, of: .now)!
+        _ = model.save(in: container.mainContext)
+
+        #expect(original.remindersEnabled == true)
+        #expect(original.reminderHour == 8)
+        #expect(original.reminderMinute == 5)
+    }
+
     @Test("save(in:) on an editing model updates color and icon in place")
     func editingSaveAppearance() throws {
         let container = try ModelContainer(
