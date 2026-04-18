@@ -3,7 +3,10 @@ import WidgetKit
 import KadoCore
 
 /// Large home widget — habits × last 7 days matrix read from the
-/// App Group snapshot.
+/// App Group snapshot. Layout mirrors the Overview tab: one row
+/// per habit with the name + icon on top and the seven cells
+/// beneath. No horizontal scroll (the widget can't scroll anyway),
+/// so cell width stretches to fill the container.
 struct WeeklyGridLargeWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.weeklyLarge"
 
@@ -22,54 +25,89 @@ struct WeeklyGridLargeWidget: Widget {
 struct WeeklyGridLargeView: View {
     let entry: SnapshotEntry
 
-    private let rowLimit = 9
-    private let cellSize: CGFloat = 22
+    private let rowLimit = 6
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             header
             if entry.snapshot.matrix.isEmpty {
                 emptyPlaceholder
             } else {
-                matrix
+                habitRows
             }
             Spacer(minLength: 0)
         }
     }
 
     private var header: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .firstTextBaseline) {
             Text("This week")
                 .font(.headline)
             Spacer()
-            ForEach(entry.snapshot.matrixDays, id: \.self) { day in
-                Text(weekdayLabel(for: day))
-                    .font(.caption2.monospaced())
-                    .foregroundStyle(isToday(day) ? Color.primary : Color.secondary)
-                    .frame(width: cellSize, alignment: .center)
+            if !entry.snapshot.matrixDays.isEmpty {
+                dayStripe
+                    .foregroundStyle(.secondary)
             }
         }
     }
 
-    private var matrix: some View {
-        VStack(spacing: 4) {
+    /// Day labels aligned over the cell stripe below each habit —
+    /// renders only the first / middle / last day initials so the
+    /// header stays readable at widget density.
+    private var dayStripe: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(entry.snapshot.matrixDays.enumerated()), id: \.offset) { index, day in
+                Text(weekdayLabel(for: day))
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(isToday(day) ? Color.primary : Color.secondary)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(maxWidth: 240)
+    }
+
+    private var habitRows: some View {
+        VStack(alignment: .leading, spacing: 10) {
             ForEach(entry.snapshot.matrix.prefix(rowLimit), id: \.habit.id) { row in
-                HStack(spacing: 0) {
-                    HStack(spacing: 6) {
-                        Image(systemName: row.habit.icon)
-                            .font(.caption)
-                            .foregroundStyle(row.habit.color.color)
-                        Text(row.habit.name)
-                            .font(.caption)
-                            .lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    ForEach(Array(row.cells.enumerated()), id: \.offset) { _, cell in
-                        WidgetMatrixCell(cell: cell, color: row.habit.color, size: cellSize)
-                    }
+                habitBlock(for: row)
+            }
+        }
+    }
+
+    private func habitBlock(for row: WidgetMatrixRow) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                Image(systemName: row.habit.icon)
+                    .font(.caption)
+                    .foregroundStyle(row.habit.color.color)
+                Text(row.habit.name)
+                    .font(.caption.weight(.medium))
+                    .lineLimit(1)
+            }
+            cellStripe(for: row)
+        }
+    }
+
+    private func cellStripe(for row: WidgetMatrixRow) -> some View {
+        GeometryReader { geo in
+            let spacing: CGFloat = 4
+            let count = CGFloat(row.cells.count)
+            let cellWidth = max(
+                8,
+                (geo.size.width - spacing * max(0, count - 1)) / count
+            )
+            HStack(spacing: spacing) {
+                ForEach(Array(row.cells.enumerated()), id: \.offset) { _, cell in
+                    WidgetMatrixCell(
+                        cell: cell,
+                        color: row.habit.color,
+                        size: min(cellWidth, 26)
+                    )
+                    .frame(width: cellWidth)
                 }
             }
         }
+        .frame(height: 22)
     }
 
     private var emptyPlaceholder: some View {
@@ -95,18 +133,17 @@ struct WeeklyGridLargeView: View {
 }
 
 /// Widget-local cell view — the app uses `MatrixCell` with a
-/// `DayCell` enum from `OverviewMatrix`; the widget reads
-/// `WidgetDayCell` values decoded from JSON so we render directly
-/// from those.
+/// `DayCell` enum; the widget reads `WidgetDayCell` values
+/// decoded from JSON so we render directly from those.
 struct WidgetMatrixCell: View {
     let cell: WidgetDayCell
     let color: HabitColor
     let size: CGFloat
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 6, style: .continuous)
+        RoundedRectangle(cornerRadius: 4, style: .continuous)
             .fill(fill)
-            .frame(width: size, height: size)
+            .frame(height: size)
     }
 
     private var fill: Color {
@@ -118,7 +155,7 @@ struct WidgetMatrixCell: View {
     }
 }
 
-#Preview("Seven habits × 7 days", as: .systemLarge) {
+#Preview("Populated", as: .systemLarge) {
     WeeklyGridLargeWidget()
 } timeline: {
     SnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated)
