@@ -16,6 +16,9 @@ public struct Habit: Identifiable, Hashable, Sendable {
     public var archivedAt: Date?
     public var color: HabitColor
     public var icon: String
+    public var remindersEnabled: Bool
+    public var reminderHour: Int
+    public var reminderMinute: Int
 
     public init(
         id: UUID = UUID(),
@@ -25,7 +28,10 @@ public struct Habit: Identifiable, Hashable, Sendable {
         createdAt: Date,
         archivedAt: Date? = nil,
         color: HabitColor = .blue,
-        icon: String = HabitIcon.default
+        icon: String = HabitIcon.default,
+        remindersEnabled: Bool = false,
+        reminderHour: Int = 9,
+        reminderMinute: Int = 0
     ) {
         self.id = id
         self.name = name
@@ -35,6 +41,9 @@ public struct Habit: Identifiable, Hashable, Sendable {
         self.archivedAt = archivedAt
         self.color = color
         self.icon = icon
+        self.remindersEnabled = remindersEnabled
+        self.reminderHour = reminderHour
+        self.reminderMinute = reminderMinute
     }
 
     public static func == (lhs: Habit, rhs: Habit) -> Bool {
