@@ -44,6 +44,31 @@ struct CompletionLogger {
         }
     }
 
+    /// Replaces today's completion with the exact value. Used by the
+    /// "Log specific value…" sheet on the Today row's context menu —
+    /// the row's `−/+` stepper handles unit changes; this handles
+    /// "I forgot all day, set it to 5". A non-positive value deletes
+    /// today's completion (preserves the "no completion ↔ not started"
+    /// bijection).
+    func setCounter(
+        for habit: HabitRecord,
+        on date: Date = .now,
+        to value: Double,
+        in context: ModelContext
+    ) {
+        let existing = todayCompletion(for: habit, on: date)
+        if value <= 0 {
+            if let existing { context.delete(existing) }
+            return
+        }
+        if let existing {
+            existing.value = value
+        } else {
+            let completion = CompletionRecord(date: date, value: value, habit: habit)
+            context.insert(completion)
+        }
+    }
+
     /// Replaces today's completion with one recording the given
     /// session duration. Single-record-per-day invariant holds.
     func logTimerSession(

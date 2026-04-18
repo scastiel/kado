@@ -87,6 +87,63 @@ struct CompletionLoggerTests {
         #expect(habit.completions?.isEmpty ?? true)
     }
 
+    @Test("setCounter creates a completion at the exact value when none exists")
+    func setCounterCreatesAtValue() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(0), to: 5, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 5)
+    }
+
+    @Test("setCounter overwrites today's existing value (does not add)")
+    func setCounterOverwrites() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 3, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(0), to: 7, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 7)
+    }
+
+    @Test("setCounter to 0 deletes the existing completion")
+    func setCounterZeroDeletes() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 3, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(0), to: 0, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
+    @Test("setCounter to 0 with no existing completion is a no-op")
+    func setCounterZeroNoOp() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(0), to: 0, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
     @Test("logTimerSession creates a completion with value = seconds")
     func timerSessionCreates() throws {
         let habit = HabitRecord(type: .timer(targetSeconds: 30 * 60))

@@ -2,8 +2,9 @@ import SwiftData
 import SwiftUI
 
 /// The Today tab — lists habits due today and handles tap-to-toggle
-/// for binary and negative habits. Each row surfaces the habit's
-/// current streak and EMA score from the same services Detail uses.
+/// for binary and negative habits, inline counter / timer logging,
+/// and a long-press context menu for the secondary actions
+/// (specific-value sheets, edit, archive).
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
@@ -17,10 +18,31 @@ struct TodayView: View {
     )
     private var activeHabits: [HabitRecord]
 
-    @State private var showingNewHabit = false
+    @State private var path = NavigationPath()
+    @State private var sheet: TodaySheet?
+    @State private var confirmingArchiveOf: HabitRecord?
+
+    /// Single source of truth for sheets the Today surface presents.
+    /// Replaces the boolean soup that would otherwise emerge from
+    /// New / Edit / Log-counter / Log-timer running in parallel.
+    enum TodaySheet: Identifiable {
+        case newHabit
+        case editHabit(HabitRecord)
+        case logCounter(HabitRecord)
+        case logTimer(HabitRecord)
+
+        var id: String {
+            switch self {
+            case .newHabit: "new"
+            case .editHabit(let h): "edit-\(h.id)"
+            case .logCounter(let h): "counter-\(h.id)"
+            case .logTimer(let h): "timer-\(h.id)"
+            }
+        }
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             content
                 .navigationTitle(Text("Today"))
                 .navigationDestination(for: HabitRecord.self) { habit in
@@ -29,15 +51,42 @@ struct TodayView: View {
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            showingNewHabit = true
+                            sheet = .newHabit
                         } label: {
                             Label("New habit", systemImage: "plus")
                         }
                     }
                 }
-                .sheet(isPresented: $showingNewHabit) {
-                    NewHabitFormView(model: NewHabitFormModel())
+                .sheet(item: $sheet) { sheet in
+                    sheetContent(for: sheet)
                 }
+                .confirmationDialog(
+                    String(localized: "Archive this habit?"),
+                    isPresented: archiveDialogBinding,
+                    titleVisibility: .visible,
+                    presenting: confirmingArchiveOf
+                ) { habit in
+                    Button(String(localized: "Archive"), role: .destructive) {
+                        archive(habit)
+                    }
+                    Button(String(localized: "Cancel"), role: .cancel) {}
+                } message: { _ in
+                    Text("Archived habits stop appearing on Today but keep their history.")
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(for sheet: TodaySheet) -> some View {
+        switch sheet {
+        case .newHabit:
+            NewHabitFormView(model: NewHabitFormModel())
+        case .editHabit(let habit):
+            NewHabitFormView(model: NewHabitFormModel(editing: habit))
+        case .logCounter(let habit):
+            CounterLogSheet(habit: habit)
+        case .logTimer(let habit):
+            TimerLogSheet(habit: habit)
         }
     }
 
@@ -81,7 +130,11 @@ struct TodayView: View {
                             onToggle: canToggle(record) ? { toggle(record) } : nil,
                             onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
                             onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
-                            onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil
+                            onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil,
+                            onLogSpecificValue: logSheetCallback(for: record),
+                            onOpenDetail: { path.append(record) },
+                            onEdit: { sheet = .editHabit(record) },
+                            onArchive: { confirmingArchiveOf = record }
                         )
                     }
                 }
@@ -107,6 +160,15 @@ struct TodayView: View {
         }
     }
 
+    private var archiveDialogBinding: Binding<Bool> {
+        Binding(
+            get: { confirmingArchiveOf != nil },
+            set: { if !$0 { confirmingArchiveOf = nil } }
+        )
+    }
+
+    // MARK: - Type predicates
+
     private func canToggle(_ record: HabitRecord) -> Bool {
         switch record.type {
         case .binary, .negative: true
@@ -123,6 +185,16 @@ struct TodayView: View {
         if case .timer = record.type { return true }
         return false
     }
+
+    private func logSheetCallback(for record: HabitRecord) -> (() -> Void)? {
+        switch record.type {
+        case .counter: return { sheet = .logCounter(record) }
+        case .timer: return { sheet = .logTimer(record) }
+        case .binary, .negative: return nil
+        }
+    }
+
+    // MARK: - Actions
 
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
@@ -147,6 +219,11 @@ struct TodayView: View {
         // increment path the counter uses.
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, by: 300, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func archive(_ record: HabitRecord) {
+        record.archivedAt = .now
         try? modelContext.save()
     }
 }

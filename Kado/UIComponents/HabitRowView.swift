@@ -25,6 +25,12 @@ struct HabitRowView: View {
     var onCounterDecrement: (() -> Void)? = nil
     /// Timer: add five minutes to today's session. `nil` for other types.
     var onTimerAddFiveMinutes: (() -> Void)? = nil
+    /// Context-menu actions. Caller decides which apply per habit type
+    /// — passing `nil` hides the corresponding menu item.
+    var onLogSpecificValue: (() -> Void)? = nil
+    var onOpenDetail: (() -> Void)? = nil
+    var onEdit: (() -> Void)? = nil
+    var onArchive: (() -> Void)? = nil
 
     private var isComplete: Bool { state.status == .complete }
 
@@ -44,9 +50,34 @@ struct HabitRowView: View {
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
+        .contextMenu { contextMenuContent }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityValue(accessibilityValueText)
+    }
+
+    @ViewBuilder
+    private var contextMenuContent: some View {
+        if let onLogSpecificValue {
+            Button(action: onLogSpecificValue) {
+                Label("Log specific value…", systemImage: "square.and.pencil")
+            }
+        }
+        if let onOpenDetail {
+            Button(action: onOpenDetail) {
+                Label("Open detail", systemImage: "arrow.right")
+            }
+        }
+        if let onEdit {
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+        }
+        if let onArchive {
+            Button(role: .destructive, action: onArchive) {
+                Label("Archive", systemImage: "archivebox")
+            }
+        }
     }
 
     // MARK: - Leading badge
