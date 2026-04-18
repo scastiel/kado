@@ -148,10 +148,14 @@ struct HabitRowView: View {
     private var metricsLine: some View {
         HStack(spacing: 6) {
             if streak > 0 {
-                Label("\(streak)", systemImage: "flame.fill")
-                    .labelStyle(.titleAndIcon)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(Color.orange)
+                // Hand-rolled "label" — Label's default icon/title gap
+                // is sized for body text and reads as loose at .caption2.
+                HStack(spacing: 2) {
+                    Image(systemName: "flame.fill")
+                    Text("\(streak)")
+                }
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.orange)
                 Text("·")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
