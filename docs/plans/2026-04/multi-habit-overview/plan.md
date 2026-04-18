@@ -1,7 +1,7 @@
 # Plan — Multi-habit overview
 
 **Date**: 2026-04-17
-**Status**: draft
+**Status**: in progress
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -26,6 +26,19 @@ a cell surfaces an inline popover with that day's completion detail.
   searchable SF Symbol grid
 - **Color palette**: 8 semantic named colors adapting to dark mode
   (exact palette locked in Task 1)
+
+## Progress
+
+- [x] Task 1: HabitColor palette + icon catalog
+- [ ] Task 2: Schema V2 — color + icon fields
+- [ ] Task 3: Color + icon pickers in habit forms
+- [ ] Task 4: Color + icon surface in existing views
+- [ ] Task 5: OverviewMatrix tests (red)
+- [ ] Task 6: OverviewMatrix implementation (green)
+- [ ] Task 7: Matrix UI primitives
+- [ ] Task 8: OverviewView + tab integration
+- [ ] Task 9: Cell tap popover
+- [ ] Task 10: Accessibility + multi-size polish
 
 ## Task list
 
