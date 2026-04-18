@@ -89,14 +89,27 @@ struct OverviewView: View {
             }
             .padding(.vertical, 8)
         }
-        .popover(item: $selection) { sel in
-            CellPopoverContent(
-                habit: sel.habit,
-                date: sel.date,
-                cell: sel.cell
-            )
-            .presentationCompactAdaptation(.popover)
-        }
+    }
+
+    /// Binding that reflects whether a specific (habit, date) cell is
+    /// the currently selected one. Used to attach `.popover` per-cell
+    /// so the popover anchors to the tapped button rather than the
+    /// whole matrix.
+    private func selectionBinding(habit: Habit, date: Date) -> Binding<Bool> {
+        Binding(
+            get: {
+                guard let sel = selection else { return false }
+                return sel.habit.id == habit.id && sel.date == date
+            },
+            set: { newValue in
+                if !newValue,
+                   let sel = selection,
+                   sel.habit.id == habit.id,
+                   sel.date == date {
+                    selection = nil
+                }
+            }
+        )
     }
 
     private func scrollingCells(rows: [MatrixRow], days: [Date]) -> some View {
@@ -179,6 +192,10 @@ struct OverviewView: View {
                         calendar: calendar
                     )
                 )
+                .popover(isPresented: selectionBinding(habit: row.habit, date: day)) {
+                    CellPopoverContent(habit: row.habit, date: day, cell: cell)
+                        .presentationCompactAdaptation(.popover)
+                }
             }
         }
         .frame(height: Self.cellSize)
