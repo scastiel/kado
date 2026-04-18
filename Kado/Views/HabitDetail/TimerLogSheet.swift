@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Modal sheet for logging a timer habit's session duration in
 /// minutes. Replaces today's completion on save (single-record-
@@ -75,6 +76,7 @@ struct TimerLogSheet: View {
             in: modelContext
         )
         try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
         saveTick += 1
         dismiss()
     }

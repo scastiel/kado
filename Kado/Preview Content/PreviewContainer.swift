@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import KadoCore
 
 /// In-memory `ModelContainer` seeded with a small, realistic habit
 /// set covering each `Frequency` and `HabitType` variant. Use from

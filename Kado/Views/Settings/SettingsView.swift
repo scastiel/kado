@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// The Settings tab.
 ///

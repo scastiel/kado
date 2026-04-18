@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Horizontal row of color swatches. The selected swatch shows a
 /// check; others are plain circles in their own color.

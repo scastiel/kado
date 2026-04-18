@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Quick-log control for counter habits on the detail view.
 /// Shows today's value next to the target, with `−` and `+`

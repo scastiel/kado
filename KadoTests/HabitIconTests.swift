@@ -1,5 +1,6 @@
 import Testing
 @testable import Kado
+import KadoCore
 
 @Suite("HabitIcon catalog")
 struct HabitIconTests {

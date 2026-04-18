@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import KadoCore
 
 /// Shows the current CloudKit account status inside the Settings
 /// `Form`. No in-app toggle — control lives in iOS Settings → Apple ID
@@ -9,7 +10,7 @@ import UIKit
 struct SyncStatusSection: View {
     @Environment(\.cloudAccountStatus) private var observer
     @Environment(\.openURL) private var openURL
-    @AppStorage(DevModeDefaults.key) private var isDevMode = false
+    @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
 
     var body: some View {
         Section("iCloud") {

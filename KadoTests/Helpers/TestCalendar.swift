@@ -1,4 +1,5 @@
 import Foundation
+import KadoCore
 
 /// Deterministic calendar + reference date for service tests. Pinned
 /// to UTC and Gregorian so day arithmetic is reproducible regardless

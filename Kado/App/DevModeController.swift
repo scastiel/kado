@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import KadoCore
 
 /// Owns the two `ModelContainer`s the app can run against: the
 /// production CloudKit-backed store and an on-disk dev sandbox.
@@ -123,21 +124,11 @@ final class DevModeController {
         )
     }
 
-    nonisolated static let defaultDevStoreURL: URL = {
-        URL.applicationSupportDirectory.appendingPathComponent("KadoDev.sqlite")
-    }()
+    nonisolated static var defaultDevStoreURL: URL { SharedStore.devStoreURL() }
 
     nonisolated static func defaultProductionContainer() -> ModelContainer {
         do {
-            let schema = Schema(versionedSchema: KadoSchemaV2.self)
-            return try ModelContainer(
-                for: schema,
-                migrationPlan: KadoMigrationPlan.self,
-                configurations: ModelConfiguration(
-                    schema: schema,
-                    cloudKitDatabase: .private(CloudContainerID.kado)
-                )
-            )
+            return try SharedStore.productionContainer()
         } catch {
             fatalError("Failed to construct production ModelContainer: \(error)")
         }

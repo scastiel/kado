@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Root view of the app. Hosts the primary TabView shell.
 ///

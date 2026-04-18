@@ -1,6 +1,7 @@
 import CloudKit
 import Foundation
 import Observation
+import KadoCore
 
 /// Thin protocol around `CKContainer.accountStatus()` so the observer
 /// can be unit-tested without hitting CloudKit. Not MainActor-isolated

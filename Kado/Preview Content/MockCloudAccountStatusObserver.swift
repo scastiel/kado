@@ -1,4 +1,5 @@
 import Observation
+import KadoCore
 
 /// Test-/preview-only observer that returns a fixed `CloudAccountStatus`.
 ///

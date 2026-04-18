@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import SwiftData
+import KadoCore
 
 /// Draft state for the New Habit sheet. Holds one stored property
 /// per kind's associated value so toggling between `frequencyKind`
@@ -135,6 +136,7 @@ final class NewHabitFormModel {
     /// then saves. Returns the final record (new or edited).
     @discardableResult
     func save(in context: ModelContext) -> HabitRecord {
+        defer { WidgetReloader.reloadAll(using: context) }
         if let record = editingRecord {
             record.name = trimmedName
             record.frequency = frequency

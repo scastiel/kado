@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Grid of curated SF Symbols. The selected icon renders on a tinted
 /// background; others sit in a neutral fill.

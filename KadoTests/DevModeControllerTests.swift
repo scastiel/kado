@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import Testing
 @testable import Kado
+import KadoCore
 
 @Suite("DevModeController")
 @MainActor

@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import Kado
+import KadoCore
 
 @Suite("Frequency Codable")
 struct FrequencyCodingTests {

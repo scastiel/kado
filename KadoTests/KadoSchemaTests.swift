@@ -2,6 +2,7 @@ import Testing
 import Foundation
 import SwiftData
 @testable import Kado
+import KadoCore
 
 @Suite("KadoSchema + KadoMigrationPlan")
 @MainActor

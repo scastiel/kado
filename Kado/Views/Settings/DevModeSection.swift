@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Settings section for the in-app dev mode toggle.
 ///
@@ -11,8 +12,8 @@ import SwiftUI
 /// flips the toggle by accident doesn't see their habits disappear
 /// without warning. Subsequent activations skip the alert.
 struct DevModeSection: View {
-    @AppStorage(DevModeDefaults.key) private var isDevMode = false
-    @AppStorage(DevModeDefaults.hasConfirmedKey) private var hasConfirmed = false
+    @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
+    @AppStorage(DevModeDefaults.hasConfirmedKey, store: DevModeDefaults.sharedDefaults) private var hasConfirmed = false
     @State private var showingConfirmation = false
 
     var body: some View {

@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import Kado
+import KadoCore
 
 @Suite("HabitScoreCalculator — invariants and binary daily")
 struct HabitScoreCalculatorTests {

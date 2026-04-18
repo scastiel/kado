@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Detail screen for a single habit. Shows score, streak, frequency,
 /// type, and a current-month completion grid. Toolbar actions open
@@ -76,6 +77,7 @@ struct HabitDetailView: View {
     private func archive() {
         habit.archivedAt = .now
         try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
         dismiss()
     }
 
@@ -122,11 +124,13 @@ struct HabitDetailView: View {
     private func incrementCounter() {
         CompletionLogger(calendar: calendar).incrementCounter(for: habit, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func decrementCounter() {
         CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
     }
 
     private var header: some View {

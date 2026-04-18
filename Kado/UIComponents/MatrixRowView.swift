@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// One habit's row in the Overview matrix: a leading label (icon +
 /// name) and a horizontal list of day cells. The `cellTap` closure

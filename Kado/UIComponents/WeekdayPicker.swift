@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Horizontal row of 7 toggleable capsules, Monday through Sunday.
 /// Each capsule toggles membership in the bound set.
