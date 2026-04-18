@@ -3,10 +3,14 @@ import SwiftUI
 
 @main
 struct KadoApp: App {
-    @AppStorage(DevModeDefaults.key) private var isDevMode = false
+    @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
 
     @State private var devModeController = DevModeController()
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
+
+    init() {
+        DevModeDefaults.migrateFromStandardIfNeeded()
+    }
 
     var body: some Scene {
         WindowGroup {

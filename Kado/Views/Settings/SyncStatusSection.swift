@@ -9,7 +9,7 @@ import UIKit
 struct SyncStatusSection: View {
     @Environment(\.cloudAccountStatus) private var observer
     @Environment(\.openURL) private var openURL
-    @AppStorage(DevModeDefaults.key) private var isDevMode = false
+    @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
 
     var body: some View {
         Section("iCloud") {
