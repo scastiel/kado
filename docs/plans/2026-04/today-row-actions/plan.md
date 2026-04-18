@@ -1,7 +1,7 @@
 # Plan — Today Row Actions
 
 **Date**: 2026-04-18
-**Status**: ready to build
+**Status**: done (built 2026-04-18)
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -40,7 +40,7 @@ still navigates to Detail. No SwiftData schema change in this PR;
 
 ## Task list
 
-### Task 1: `HabitRowState` tests (red)
+### Task 1 ✅: `HabitRowState` tests (red)
 
 **Goal**: Specify the row's derived state before writing the
 implementation.
@@ -66,7 +66,7 @@ implementation.
 
 ---
 
-### Task 2: `HabitRowState` implementation (green)
+### Task 2 ✅: `HabitRowState` implementation (green)
 
 **Goal**: Make Task 1's tests pass.
 
@@ -94,7 +94,7 @@ implementation.
 
 ---
 
-### Task 3: Rewrite `HabitRowView` — layout, ring, metrics line
+### Task 3 ✅: Rewrite `HabitRowView` — layout, ring, metrics line
 
 **Goal**: Establish the new visual structure end-to-end with
 binary/negative trailing pills wired up. Counter/timer trailing
@@ -146,7 +146,7 @@ stays text-only this commit (replaced in Task 4 / 5).
 
 ---
 
-### Task 4: Counter trailing stepper
+### Task 4 ✅: Counter trailing stepper
 
 **Goal**: Replace the counter row's text-only trailing with an
 inline `− value/target +` stepper that calls `CompletionLogger`
@@ -181,7 +181,7 @@ directly.
 
 ---
 
-### Task 5: Timer `+5m` chip trailing
+### Task 5 ✅: Timer `+5m` chip trailing
 
 **Goal**: Replace the timer row's text-only trailing with a
 `+5m` chip that adds 5 minutes to today's session.
@@ -210,7 +210,7 @@ directly.
 
 ---
 
-### Task 6: Context menu — Log specific value, Open detail, Edit, Archive
+### Task 6 ✅: Context menu — Log specific value, Open detail, Edit, Archive
 
 **Goal**: Add a `.contextMenu` to every row exposing the
 secondary actions.
@@ -258,7 +258,7 @@ secondary actions.
 
 ---
 
-### Task 7: Swipe-from-trailing Undo on completed binary/negative
+### Task 7 ✅: Swipe-from-trailing Undo on completed binary/negative
 
 **Goal**: Match the iOS convention for "I marked the wrong row" —
 swipe in from the trailing edge of a completed binary/negative
@@ -280,7 +280,7 @@ row to reveal a destructive Undo.
 
 ---
 
-### Task 8: Accessibility + Dynamic Type + dark-mode polish
+### Task 8 ✅: Accessibility + Dynamic Type + dark-mode polish
 
 **Goal**: Validation pass; tighten anything that surfaced.
 
@@ -354,6 +354,55 @@ None for the user. Internal to-decide-during-build:
   `TextField` is the smallest implementation. If a richer numeric
   pad would be appreciated, that's a Task 6 sub-decision. Default
   to minimal; revisit if it feels janky in build.
+
+## Notes during build
+
+- **Task 3 — Negative pill state**: first cut made the `Slipped` pill
+  always `.borderedProminent` red, which gave no visual difference
+  between "not slipped today" and "slipped today." Fixed before
+  commit by introducing a `NegativePillStyleModifier` that swaps
+  `.bordered` (outlined, calm) for not-slipped and
+  `.borderedProminent` (filled red + checkmark) for slipped.
+  Mirrors the binary "filled vs not" pattern but with red instead
+  of habit color.
+- **Task 5 — No new logger wrapper**: skipped the
+  `incrementTimerSeconds(by:)` thin wrapper — `incrementCounter`'s
+  existing `delta` parameter handles the seconds delta directly,
+  with a comment at the call site explaining the
+  units-per-habit-type convention. Saved 8 lines and one extra
+  test.
+- **Task 6 — `setCounter` over `incrementCounter`**: the
+  "Log specific value…" sheet for counters genuinely needs
+  *replace*, not *increment*. Added `CompletionLogger.setCounter`
+  (with four new tests) that overwrites today's value and deletes
+  the record when set to 0 (preserves the
+  no-completion ↔ not-started bijection).
+- **Task 6 — `NavigationStack` path**: switched
+  `NavigationStack { ... }` to `NavigationStack(path: $path)` so
+  the context-menu *Open detail* item could push programmatically.
+  No regression on tap-to-navigate; both compose cleanly.
+- **Task 8 — `.combine` + multiple actions**: the row keeps
+  `.accessibilityElement(children: .combine)` (one VoiceOver entry
+  per habit), but the trailing pill / stepper / chip actions get
+  buried in that mode. Added an `.accessibilityActions` block that
+  re-exposes them via the VoiceOver Actions rotor. The default
+  activate stays "push detail" via the `NavigationLink`.
+- **Button-in-NavigationLink tap region**: the locked-decision risk
+  from the plan didn't materialize. Tapping `Mark done` /
+  `Slipped` / stepper buttons / `+5m` fires the action and does
+  not push Detail; tapping anywhere else on the row pushes Detail.
+  Verified manually in the simulator on iPhone 17 Pro with the
+  `screenshot` tool confirming the layout.
+- **iPad layout**: `build_sim` against iPad Air 11-inch (M4)
+  succeeded. Visual verification deferred (the default
+  XcodeBuildMCP install can't reach more than the launched
+  surface).
+- **xcstrings auto-noise**: the previously-stashed Xcode-generated
+  entries (`%lld`, `%@. %@`, `Checking iCloud…`, etc.) were
+  brought to this branch but **not cleaned up** — they ride
+  along as inert auto-extracted entries. They're real strings the
+  app uses; full hand-authoring (comments + FR translations) is a
+  catalog-cleanup follow-up.
 
 ## Out of scope
 
