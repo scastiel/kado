@@ -1,7 +1,7 @@
 # Plan — Notifications
 
 **Date**: 2026-04-18
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -292,7 +292,7 @@ authorization is `.notDetermined`, request permission inline.
 
 ---
 
-### Task 8: SettingsView → NotificationsSection
+### Task 8: SettingsView → NotificationsSection ✅
 
 **Goal**: Let the user see permission state and jump to iOS Settings
 without opening the Settings app manually.
