@@ -343,17 +343,16 @@ row to reveal a destructive Undo.
 
 ## Open questions
 
-None for the user. Internal to-decide-during-build:
+None for the user. Both internal questions resolved during build:
 
-- [ ] Whether to add a thin `incrementTimerSeconds(by:)` wrapper
-  to `CompletionLogger`, or pass `delta: 300` to
-  `incrementCounter` (which already supports custom delta). The
-  wrapper improves readability at the call site; not adding it
-  saves 8 lines. Decide at Task 5.
-- [ ] Counter "Log specific value…" sheet: minimal `Form` +
-  `TextField` is the smallest implementation. If a richer numeric
-  pad would be appreciated, that's a Task 6 sub-decision. Default
-  to minimal; revisit if it feels janky in build.
+- [x] **Logger wrapper** — passed `delta: 300` directly through
+  `incrementCounter`. The call site comment explains the seconds
+  convention; the thin wrapper would have added 8 lines and a
+  test for nothing.
+- [x] **Counter "Log specific value…" sheet** — went minimal: a
+  `Form` + `Stepper` matching `TimerLogSheet`'s shape. No richer
+  numeric pad needed; the row's `+`/`−` covers fine adjustments,
+  the sheet covers "set to N" jumps.
 
 ## Notes during build
 
