@@ -3,18 +3,17 @@ import SwiftUI
 
 /// Overview tab: habits × days matrix.
 ///
-/// Layout:
-/// - Outer vertical `ScrollView` so the large `Overview` title
-///   collapses as on Today and Settings.
-/// - Inside, an `HStack(alignment: .top)`:
-///   - Leading column (pinned): habit icon + name per row. Sits
-///     outside the horizontal scroll so it stays put.
-///   - Trailing column: a single `ScrollView(.horizontal)` wrapping
-///     a `VStack` of cell rows. One scroll view → one scroll state
-///     → every row moves together. Anchored at today via
-///     `defaultScrollAnchor(.trailing)`.
-/// - Row heights match between the labels column and the cells
-///   column so the two stay aligned visually.
+/// Layout (single horizontal scroll):
+/// - One full-width `ScrollView(.horizontal)` holds a VStack that,
+///   per habit, alternates a clear "name" spacer and a cells row.
+///   Every cell row moves together because there's only one scroll
+///   state.
+/// - A sibling VStack overlays the scroll view with the habit
+///   labels, positioned over the clear spacer rows. It has a
+///   transparent background and `.allowsHitTesting(false)` so the
+///   scroll + cell taps still reach the layer below.
+/// - Outer `ScrollView(.vertical)` keeps the "Overview" title
+///   collapsing like Today and Settings.
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -30,8 +29,8 @@ struct OverviewView: View {
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 36
     private static let cellSpacing: CGFloat = 6
-    private static let rowSpacing: CGFloat = 8
-    private static let labelWidth: CGFloat = 130
+    private static let labelHeight: CGFloat = 28
+    private static let rowGap: CGFloat = 8
 
     struct CellSelection: Identifiable, Equatable {
         let habit: Habit
@@ -82,12 +81,11 @@ struct OverviewView: View {
         )
 
         return ScrollView(.vertical) {
-            HStack(alignment: .top, spacing: 12) {
-                labelsColumn(rows: rows)
-                cellsScrollView(rows: rows, days: days)
+            ZStack(alignment: .topLeading) {
+                scrollingCells(rows: rows, days: days)
+                labelsOverlay(rows: rows)
             }
-            .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.vertical, 8)
         }
         .popover(item: $selection) { sel in
             CellPopoverContent(
@@ -99,35 +97,47 @@ struct OverviewView: View {
         }
     }
 
-    private func labelsColumn(rows: [MatrixRow]) -> some View {
-        VStack(alignment: .leading, spacing: Self.rowSpacing) {
+    private func scrollingCells(rows: [MatrixRow], days: [Date]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(rows, id: \.habit.id) { row in
+                    // Transparent spacer where the label will overlay.
+                    Color.clear.frame(height: Self.labelHeight)
+                    cellRow(row, days: days)
+                    if row.habit.id != rows.last?.habit.id {
+                        Color.clear.frame(height: Self.rowGap)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+        .defaultScrollAnchor(.trailing)
+    }
+
+    private func labelsOverlay(rows: [MatrixRow]) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(rows, id: \.habit.id) { row in
                 HStack(spacing: 8) {
                     Image(systemName: row.habit.icon)
                         .font(.callout.weight(.semibold))
                         .foregroundStyle(row.habit.color.color)
-                        .frame(width: 22)
                     Text(row.habit.name)
-                        .font(.subheadline)
+                        .font(.subheadline.weight(.medium))
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
-                .frame(height: Self.cellSize, alignment: .leading)
-            }
-        }
-        .frame(width: Self.labelWidth, alignment: .leading)
-    }
+                .frame(height: Self.labelHeight, alignment: .leading)
 
-    private func cellsScrollView(rows: [MatrixRow], days: [Date]) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: Self.rowSpacing) {
-                ForEach(rows, id: \.habit.id) { row in
-                    cellRow(row, days: days)
+                // Spacer matching the cell row so the next label lands
+                // above that habit's cell row.
+                Color.clear.frame(height: Self.cellSize)
+                if row.habit.id != rows.last?.habit.id {
+                    Color.clear.frame(height: Self.rowGap)
                 }
             }
-            .padding(.trailing, 8)
         }
-        .defaultScrollAnchor(.trailing)
+        .padding(.horizontal, 16)
+        .allowsHitTesting(false)
     }
 
     private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
