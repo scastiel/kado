@@ -81,20 +81,38 @@ nonisolated enum SharedStore {
     /// URL when available (and migrates any legacy store across),
     /// otherwise falls back to SwiftData's default location so the
     /// app still launches without the entitlement.
+    ///
+    /// In extension processes (e.g. the widget) this opens the
+    /// store WITHOUT attaching CloudKit, because extension targets
+    /// typically don't carry the iCloud container entitlement —
+    /// attempting `cloudKitDatabase: .private(...)` from a process
+    /// that lacks the entitlement traps at the first fetch. The
+    /// main-app process handles sync; the widget reads the same
+    /// on-disk sqlite locally via the App Group.
     static func productionContainer() throws -> ModelContainer {
+        try productionContainer(syncWithCloudKit: !isExtensionProcess())
+    }
+
+    /// Explicit variant for callers that want to override the
+    /// auto-detected CloudKit-attachment behavior (mostly for
+    /// tests or for app code that wants to keep the main store
+    /// CloudKit-less).
+    static func productionContainer(syncWithCloudKit: Bool) throws -> ModelContainer {
         let schema = Schema(versionedSchema: KadoSchemaV2.self)
+        let cloudKit: ModelConfiguration.CloudKitDatabase =
+            syncWithCloudKit ? .private(CloudContainerID.kado) : .none
         let configuration: ModelConfiguration
         if let target = productionStoreURL() {
             migrateLegacyStoreIfNeeded(from: legacyStoreURL(), to: target)
             configuration = ModelConfiguration(
                 schema: schema,
                 url: target,
-                cloudKitDatabase: .private(CloudContainerID.kado)
+                cloudKitDatabase: cloudKit
             )
         } else {
             configuration = ModelConfiguration(
                 schema: schema,
-                cloudKitDatabase: .private(CloudContainerID.kado)
+                cloudKitDatabase: cloudKit
             )
         }
         return try ModelContainer(
@@ -102,5 +120,12 @@ nonisolated enum SharedStore {
             migrationPlan: KadoMigrationPlan.self,
             configurations: configuration
         )
+    }
+
+    /// `true` when running inside an app extension (widget, share,
+    /// intent…). App extensions ship in `.appex` bundles; the main
+    /// app bundle ends in `.app`.
+    static func isExtensionProcess() -> Bool {
+        Bundle.main.bundlePath.hasSuffix(".appex")
     }
 }
