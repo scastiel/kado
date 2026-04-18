@@ -1022,6 +1022,17 @@
         }
       }
     },
+    "Undo" : {
+      "comment" : "Trailing-swipe destructive action on a completed binary or negative habit row in the Today list. Restores the row to its un-marked state.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
     "upcoming" : {
       "comment" : "VoiceOver state for a future day cell in the monthly calendar grid.",
       "localizations" : {

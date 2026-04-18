@@ -110,15 +110,16 @@ struct TodayView: View {
                 List(due) { record in
                     let snap = record.snapshot
                     let comps = (record.completions ?? []).map(\.snapshot)
+                    let state = HabitRowState.resolve(
+                        habit: snap,
+                        completions: comps,
+                        calendar: calendar,
+                        asOf: .now
+                    )
                     NavigationLink(value: record) {
                         HabitRowView(
                             habit: snap,
-                            state: HabitRowState.resolve(
-                                habit: snap,
-                                completions: comps,
-                                calendar: calendar,
-                                asOf: .now
-                            ),
+                            state: state,
                             streak: streakCalculator.current(
                                 for: snap, completions: comps, asOf: .now
                             ),
@@ -136,6 +137,15 @@ struct TodayView: View {
                             onEdit: { sheet = .editHabit(record) },
                             onArchive: { confirmingArchiveOf = record }
                         )
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        if canSwipeUndo(record, state: state) {
+                            Button(role: .destructive) {
+                                toggle(record)
+                            } label: {
+                                Label("Undo", systemImage: "arrow.uturn.backward")
+                            }
+                        }
                     }
                 }
                 .refreshable {
@@ -184,6 +194,18 @@ struct TodayView: View {
     private func isTimer(_ record: HabitRecord) -> Bool {
         if case .timer = record.type { return true }
         return false
+    }
+
+    /// Trailing-swipe Undo only applies to binary / negative when the
+    /// day is already marked. Counter / timer get their undo from the
+    /// row's own `−` button (counter) or the "Log specific value…"
+    /// menu item, so a swipe action would be redundant.
+    private func canSwipeUndo(_ record: HabitRecord, state: HabitRowState) -> Bool {
+        guard state.status == .complete else { return false }
+        switch record.type {
+        case .binary, .negative: return true
+        case .counter, .timer: return false
+        }
     }
 
     private func logSheetCallback(for record: HabitRecord) -> (() -> Void)? {
