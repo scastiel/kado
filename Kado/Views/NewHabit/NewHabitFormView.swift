@@ -10,9 +10,11 @@ struct NewHabitFormView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.notificationScheduler) private var notificationScheduler
 
     @FocusState private var nameFocused: Bool
     @State private var saveTick: Int = 0
+    @State private var showingPermissionDeniedAlert = false
 
     var body: some View {
         NavigationStack {
@@ -38,6 +40,17 @@ struct NewHabitFormView: View {
             }
             .sensoryFeedback(.success, trigger: saveTick)
             .onAppear { nameFocused = true }
+            .alert(
+                String(localized: "Notifications are disabled"),
+                isPresented: $showingPermissionDeniedAlert
+            ) {
+                Button(String(localized: "Open Settings")) {
+                    openNotificationSettings()
+                }
+                Button(String(localized: "Not now"), role: .cancel) {}
+            } message: {
+                Text(String(localized: "Enable notifications in Settings to receive this reminder."))
+            }
         }
     }
 
@@ -151,9 +164,23 @@ struct NewHabitFormView: View {
 
     private func save() {
         guard model.isValid else { return }
-        model.save(in: modelContext)
-        saveTick += 1
-        dismiss()
+        Task {
+            if model.remindersEnabled {
+                let status = await notificationScheduler.requestAuthorizationIfNeeded()
+                if status == .denied {
+                    showingPermissionDeniedAlert = true
+                    return
+                }
+            }
+            model.save(in: modelContext)
+            saveTick += 1
+            dismiss()
+        }
+    }
+
+    private func openNotificationSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 }
 

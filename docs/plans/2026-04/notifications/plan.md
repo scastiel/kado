@@ -270,7 +270,7 @@ relaunch.
 
 ---
 
-### Task 7: First-run permission prompt
+### Task 7: First-run permission prompt ✅
 
 **Goal**: When a user saves a new habit with reminders enabled and
 authorization is `.notDetermined`, request permission inline.
