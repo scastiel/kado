@@ -32,7 +32,7 @@ a cell surfaces an inline popover with that day's completion detail.
 - [x] Task 1: HabitColor palette + icon catalog
 - [x] Task 2: Schema V2 — color + icon fields
 - [x] Task 3: Color + icon pickers in habit forms
-- [ ] Task 4: Color + icon surface in existing views
+- [x] Task 4: Color + icon surface in existing views
 - [ ] Task 5: OverviewMatrix tests (red)
 - [ ] Task 6: OverviewMatrix implementation (green)
 - [ ] Task 7: Matrix UI primitives

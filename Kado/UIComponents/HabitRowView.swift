@@ -37,7 +37,7 @@ struct HabitRowView: View {
         case .binary, .negative:
             if let onToggle {
                 Button(action: onToggle) {
-                    toggleImage
+                    iconBadge
                 }
                 .buttonStyle(.borderless)
                 .sensoryFeedback(.success, trigger: isCompletedToday)
@@ -47,25 +47,31 @@ struct HabitRowView: View {
                         : String(localized: "Mark as done")
                 )
             } else {
-                toggleImage
+                iconBadge
             }
-        case .counter:
-            nonInteractiveIcon("number.circle")
-        case .timer:
-            nonInteractiveIcon("timer")
+        case .counter, .timer:
+            iconBadge
         }
     }
 
-    private var toggleImage: some View {
-        Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
-            .font(.title2)
-            .foregroundStyle(isCompletedToday ? Color.accentColor : Color.secondary)
-    }
-
-    private func nonInteractiveIcon(_ systemName: String) -> some View {
-        Image(systemName: systemName)
-            .font(.title2)
-            .foregroundStyle(.secondary)
+    /// Circular badge showing the habit's icon in its color. Fills with
+    /// the habit color when the day is complete; shows an outline
+    /// treatment otherwise.
+    private var iconBadge: some View {
+        ZStack {
+            Circle()
+                .fill(isCompletedToday ? habit.color.color : Color.clear)
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            habit.color.color.opacity(isCompletedToday ? 0 : 0.5),
+                            lineWidth: 1.5
+                        )
+                }
+            Image(systemName: habit.icon)
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(isCompletedToday ? Color.white : habit.color.color)
+        }
     }
 
     @ViewBuilder
@@ -123,22 +129,22 @@ struct HabitRowView: View {
 #Preview("All types — not done") {
     List {
         HabitRowView(
-            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
+            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now, color: .purple, icon: "figure.mind.and.body"),
             isCompletedToday: false,
             onToggle: {}
         )
         HabitRowView(
-            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now, color: .blue, icon: "drop.fill"),
             isCompletedToday: false,
             onToggle: nil
         )
         HabitRowView(
-            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
+            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now, color: .mint, icon: "book.fill"),
             isCompletedToday: false,
             onToggle: nil
         )
         HabitRowView(
-            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
+            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now, color: .red, icon: "flame.fill"),
             isCompletedToday: false,
             onToggle: {}
         )
@@ -148,22 +154,22 @@ struct HabitRowView: View {
 #Preview("All types — done") {
     List {
         HabitRowView(
-            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now),
+            habit: Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now, color: .purple, icon: "figure.mind.and.body"),
             isCompletedToday: true,
             onToggle: {}
         )
         HabitRowView(
-            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now),
+            habit: Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now, color: .blue, icon: "drop.fill"),
             isCompletedToday: true,
             onToggle: nil
         )
         HabitRowView(
-            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now),
+            habit: Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now, color: .mint, icon: "book.fill"),
             isCompletedToday: true,
             onToggle: nil
         )
         HabitRowView(
-            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now),
+            habit: Habit(name: "No social media", frequency: .daily, type: .negative, createdAt: .now, color: .red, icon: "flame.fill"),
             isCompletedToday: true,
             onToggle: {}
         )

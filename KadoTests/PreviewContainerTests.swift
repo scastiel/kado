@@ -34,6 +34,6 @@ struct PreviewContainerTests {
         })
 
         let completions = try container.mainContext.fetch(FetchDescriptor<CompletionRecord>())
-        #expect(completions.count == 5 * 7) // 5 habits × 7 sample completions each
+        #expect(completions.count == 5 * DevModeSeed.completionsPerHabit)
     }
 }

@@ -147,7 +147,7 @@ struct MonthlyCalendarView: View {
     private func fill(for state: CellState) -> Color {
         switch state {
         case .future: Color(.tertiarySystemFill)
-        case .completed: Color.accentColor.opacity(0.9)
+        case .completed: habit.color.color.opacity(0.9)
         case .missed: Color(.secondarySystemFill)
         case .nonDue: Color(.tertiarySystemFill).opacity(0.4)
         }
