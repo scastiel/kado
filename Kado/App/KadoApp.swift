@@ -9,7 +9,7 @@ struct KadoApp: App {
 
     @State private var devModeController = DevModeController()
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
-    @State private var notificationScheduler: any NotificationScheduling = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
+    @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
 
     init() {

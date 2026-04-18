@@ -90,8 +90,14 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
 
     private func makeRequest(habit: Habit, day: Date, streak: Int) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
+        // Title is the habit name — that's what the user asked to be
+        // reminded of. Body (when present) augments with a streak
+        // nudge. Keeping title + body non-redundant avoids iOS
+        // stacking "Meditate" over "Meditate."
         content.title = habit.name
-        content.body = composeBody(habitName: habit.name, streak: streak)
+        if let bodyText = composeBody(streak: streak) {
+            content.body = bodyText
+        }
         content.categoryIdentifier = Self.categoryIdentifier
         content.userInfo = ["habitID": habit.id.uuidString]
         content.sound = .default
@@ -106,14 +112,14 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
         return UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
     }
 
-    private func composeBody(habitName: String, streak: Int) -> String {
-        guard streak > 0 else { return habitName }
+    private func composeBody(streak: Int) -> String? {
+        guard streak > 0 else { return nil }
         let format = String(
             localized: "notifications.body.streak",
-            defaultValue: "%@ — %lld day streak",
-            comment: "Reminder banner body when a habit has an active streak. 1st: habit name. 2nd: streak length in days."
+            defaultValue: "%lld day streak — keep it going",
+            comment: "Reminder banner body when a habit has an active streak. Argument: streak length in days."
         )
-        return String(format: format, habitName, streak)
+        return String(format: format, streak)
     }
 
     private var dayFormatter: DateFormatter {

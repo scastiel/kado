@@ -1,5 +1,4 @@
 import Foundation
-import Observation
 import SwiftData
 import UserNotifications
 import KadoCore
@@ -24,7 +23,6 @@ import KadoCore
 /// so it's unit-testable without having to fabricate a real
 /// `UNNotificationResponse` (which has no public init).
 @MainActor
-@Observable
 final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let completeActionIdentifier = "kado.action.complete"
     static let skipActionIdentifier = "kado.action.skip"
@@ -77,8 +75,11 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     /// Pure function extracting what the delegate should do from the
     /// action identifier + payload. No I/O, no SwiftData — cheap to
-    /// test exhaustively.
-    static func route(
+    /// test exhaustively. `nonisolated` because the delegate
+    /// callback resolves routing before hopping to MainActor so the
+    /// non-Sendable `userInfo` dictionary doesn't cross the Task
+    /// boundary.
+    nonisolated static func route(
         actionIdentifier: String,
         userInfo: [AnyHashable: Any]
     ) -> Decision {
@@ -117,11 +118,16 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping @Sendable () -> Void
     ) {
-        let actionID = response.actionIdentifier
-        let userInfo = response.notification.request.content.userInfo
+        // Resolve routing synchronously in the nonisolated context
+        // so only Sendable values (the enum case) cross into the
+        // MainActor Task. `userInfo` is `[AnyHashable: Any]` — not
+        // Sendable — so it must not be captured by the Task.
+        let decision = Self.route(
+            actionIdentifier: response.actionIdentifier,
+            userInfo: response.notification.request.content.userInfo
+        )
 
         Task { @MainActor in
-            let decision = Self.route(actionIdentifier: actionID, userInfo: userInfo)
             switch decision {
             case .complete(let habitID):
                 await self.handleComplete(habitID: habitID)

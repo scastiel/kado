@@ -172,18 +172,20 @@ struct DefaultNotificationSchedulerTests {
         #expect(storedID == habit.id.uuidString)
     }
 
-    @Test("Body shows name only when streak is zero")
-    func bodyWithoutStreak() async throws {
+    @Test("Title is the habit name; body is empty when streak is zero")
+    func contentWithoutStreak() async throws {
         let (scheduler, center) = makeScheduler()
         let habit = makeHabit(frequency: .daily)
         await scheduler.rescheduleAll(habits: [habit], completions: [])
         let first = try #require(center.pending.first)
         #expect(first.content.title == "Meditate")
-        #expect(first.content.body == "Meditate")
+        // No streak → no body text. Title alone renders the
+        // habit name without the duplicate stacked line.
+        #expect(first.content.body.isEmpty)
     }
 
-    @Test("Body shows '<Name> — N day streak' when streak is positive")
-    func bodyWithStreak() async throws {
+    @Test("Body carries a streak nudge when streak is positive")
+    func contentWithStreak() async throws {
         let (scheduler, center) = makeScheduler()
         let habit = makeHabit(frequency: .daily)
         let completions: [Completion] = (-4...(-1)).map {
@@ -191,8 +193,10 @@ struct DefaultNotificationSchedulerTests {
         }
         await scheduler.rescheduleAll(habits: [habit], completions: completions)
         let first = try #require(center.pending.first)
-        #expect(first.content.body.hasPrefix("Meditate — "))
+        #expect(first.content.title == "Meditate")
         #expect(first.content.body.contains("day streak"))
+        // Body must not duplicate the habit name — that's the title's job.
+        #expect(!first.content.body.contains("Meditate"))
     }
 
     @Test("Trigger fires at the configured hour and minute")
