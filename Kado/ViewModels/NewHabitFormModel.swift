@@ -135,6 +135,7 @@ final class NewHabitFormModel {
     /// then saves. Returns the final record (new or edited).
     @discardableResult
     func save(in context: ModelContext) -> HabitRecord {
+        defer { WidgetReloader.reloadAll() }
         if let record = editingRecord {
             record.name = trimmedName
             record.frequency = frequency

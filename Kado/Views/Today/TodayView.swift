@@ -221,18 +221,22 @@ struct TodayView: View {
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private func incrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private func decrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
             .decrementCounter(for: record, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private func addFiveMinutes(_ record: HabitRecord) {
@@ -242,11 +246,13 @@ struct TodayView: View {
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, by: 300, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private func archive(_ record: HabitRecord) {
         record.archivedAt = .now
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 }
 

@@ -76,6 +76,7 @@ struct HabitDetailView: View {
     private func archive() {
         habit.archivedAt = .now
         try? modelContext.save()
+        WidgetReloader.reloadAll()
         dismiss()
     }
 
@@ -122,11 +123,13 @@ struct HabitDetailView: View {
     private func incrementCounter() {
         CompletionLogger(calendar: calendar).incrementCounter(for: habit, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private func decrementCounter() {
         CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
         try? modelContext.save()
+        WidgetReloader.reloadAll()
     }
 
     private var header: some View {
