@@ -17,15 +17,20 @@ struct KadoSchemaTests {
         #expect(KadoSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
     }
 
-    @Test("Migration plan declares V1 → V2 lightweight stage")
-    func migrationPlanShape() {
-        #expect(KadoMigrationPlan.schemas.count == 2)
-        #expect(KadoMigrationPlan.stages.count == 1)
+    @Test("V3 version identifier is 3.0.0")
+    func v3Version() {
+        #expect(KadoSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
     }
 
-    @Test("In-memory ModelContainer constructs from the current (V2) schema")
+    @Test("Migration plan declares V1→V2 and V2→V3 lightweight stages")
+    func migrationPlanShape() {
+        #expect(KadoMigrationPlan.schemas.count == 3)
+        #expect(KadoMigrationPlan.stages.count == 2)
+    }
+
+    @Test("In-memory ModelContainer constructs from the current (V3) schema")
     func containerBuildsFromPlan() throws {
-        let schema = Schema(versionedSchema: KadoSchemaV2.self)
+        let schema = Schema(versionedSchema: KadoSchemaV3.self)
         let container = try ModelContainer(
             for: schema,
             migrationPlan: KadoMigrationPlan.self,
@@ -72,5 +77,43 @@ struct KadoSchemaTests {
         #expect(habit.name == "Pre-migration habit")
         #expect(habit.color == .blue)
         #expect(habit.icon == HabitIcon.default)
+    }
+
+    @Test("Lightweight migration from V2 populates default reminder fields")
+    func v2ToV3Migration() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("migration-test-\(UUID().uuidString).store")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        // Step 1: seed a V2 store.
+        do {
+            let schema = Schema(versionedSchema: KadoSchemaV2.self)
+            let config = ModelConfiguration(schema: schema, url: url)
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: nil,
+                configurations: config
+            )
+            let habit = KadoSchemaV2.HabitRecord(name: "V2 habit", color: .orange)
+            container.mainContext.insert(habit)
+            try container.mainContext.save()
+        }
+
+        // Step 2: reopen as V3; lightweight stage fills reminder defaults.
+        let schema = Schema(versionedSchema: KadoSchemaV3.self)
+        let config = ModelConfiguration(schema: schema, url: url)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: KadoMigrationPlan.self,
+            configurations: config
+        )
+        let habits = try container.mainContext.fetch(FetchDescriptor<KadoSchemaV3.HabitRecord>())
+        #expect(habits.count == 1)
+        let habit = try #require(habits.first)
+        #expect(habit.name == "V2 habit")
+        #expect(habit.color == .orange)
+        #expect(habit.remindersEnabled == false)
+        #expect(habit.reminderHour == 9)
+        #expect(habit.reminderMinute == 0)
     }
 }

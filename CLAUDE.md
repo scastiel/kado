@@ -170,6 +170,19 @@ caller's context and warns ("converting `@MainActor () -> T` to
 `nonisolated static` because `URL` math and `ModelContainer.init`
 don't need MainActor.
 
+**`NSLock` is effectively banned in async code under Swift 6.**
+The non-scoped `lock()` / `unlock()` pair is marked "unavailable from
+asynchronous contexts" — a warning now, an error under Swift 6 mode.
+Your options:
+- **Cross-thread shared mutable state** → use an `actor`.
+- **Single-threaded test fakes or preview mocks** → drop the lock
+  entirely and mark `@unchecked Sendable` with a one-line comment
+  explaining that callers drive it sequentially. `FakeUserNotificationCenter`
+  in `KadoTests/Helpers/` is the canonical example.
+- **Scoped locking of a synchronous critical section inside an
+  async function** → `OSAllocatedUnfairLock.withLock { }` is fine
+  because the scoped closure doesn't span a suspension.
+
 ### Dates and calendars
 Day arithmetic always goes through `Calendar` — never raw seconds.
 `addingTimeInterval(86400)` silently breaks across DST boundaries
@@ -293,10 +306,33 @@ repo. Guard against that with an explicit
   `@Relationship(deleteRule:inverse:)`.
 - Migrations: `VersionedSchema` + `SchemaMigrationPlan` are wired from
   day one (`KadoSchemaV1` + `KadoMigrationPlan` with empty `stages`).
-  When schema evolves, copy `KadoSchemaV1`'s models into a
-  `KadoSchemaV2` namespace, append a `MigrationStage.lightweight(...)`
-  (or `.custom`), and append `KadoSchemaV2.self` to
+  When schema evolves, copy the current version's models into a new
+  `KadoSchemaVN` namespace, append a `MigrationStage.lightweight(...)`
+  (or `.custom`), and append `KadoSchemaVN.self` to
   `KadoMigrationPlan.schemas`.
+- **Schema-bump checklist**. Bumping the "current" version is not
+  local — these files all pin to a specific `KadoSchemaVN.self` and
+  must move in the same commit, or tests + production diverge:
+  1. `Packages/KadoCore/Sources/KadoCore/Models/Persistence/KadoSchemaVN.swift`
+     (new file) — copy the prior schema's `@Model` bodies, add your
+     new properties (all default-valued for CloudKit).
+  2. `KadoMigrationPlan.swift` — append the new version to `schemas`
+     and append a migration stage.
+  3. `HabitRecord` / `CompletionRecord` **typealias** — move from the
+     prior schema file to the bottom of the new one
+     (`public typealias HabitRecord = KadoSchemaVN.HabitRecord`).
+  4. Production factories: `SharedStore.productionContainer()` and
+     `DevModeController.makeDevContainer()` both build
+     `Schema(versionedSchema: KadoSchemaVN.self)` — bump both.
+  5. Tests: `KadoSchemaTests`, `CloudKitShapeTests`,
+     `WidgetSnapshotBuilderTests`, `DevModeControllerTests`,
+     `CompleteHabitIntentTests` — every `Schema(versionedSchema:)`
+     and every `FetchDescriptor<KadoSchemaV(N-1).HabitRecord>`
+     reference. Add a `KadoSchemaTests.vNVersion` + a V(N-1) → VN
+     migration regression test.
+  6. Domain `Habit` struct (`Packages/KadoCore/Sources/KadoCore/Models/Habit.swift`)
+     — add the new fields with defaults so existing call sites keep
+     compiling. The `@Model`'s `snapshot` must map them through.
 - Queries: prefer `@Query` in simple views, explicit descriptor + fetch
   in services for complex logic.
 - CloudKit-shape from day one: every property has a default value or

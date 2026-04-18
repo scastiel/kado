@@ -8,7 +8,7 @@ import KadoCore
 @MainActor
 struct WidgetSnapshotBuilderTests {
     private func makeContainer() throws -> ModelContainer {
-        let schema = Schema(versionedSchema: KadoSchemaV2.self)
+        let schema = Schema(versionedSchema: KadoSchemaV3.self)
         return try ModelContainer(
             for: schema,
             migrationPlan: KadoMigrationPlan.self,

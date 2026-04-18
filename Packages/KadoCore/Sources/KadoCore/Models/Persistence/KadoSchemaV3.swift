@@ -1,28 +1,28 @@
 import Foundation
 import SwiftData
 
-/// Version 2 of Kadō's persistent schema. Adds per-habit `color` and
-/// `icon`, migrated from V1 via a lightweight stage. V1 stays frozen
-/// — never modify a shipped schema in place.
-public enum KadoSchemaV2: VersionedSchema {
-    public static let versionIdentifier = Schema.Version(2, 0, 0)
+/// Version 3 of Kadō's persistent schema. Adds per-habit reminder
+/// fields (`remindersEnabled`, `reminderHour`, `reminderMinute`),
+/// migrated from V2 via a lightweight stage. V2 stays frozen — never
+/// modify a shipped schema in place.
+public enum KadoSchemaV3: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(3, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
         [HabitRecord.self, CompletionRecord.self]
     }
 }
 
-public extension KadoSchemaV2 {
-    /// Persistent representation of a habit. Mirrors V1 plus `color`
-    /// and `icon`, both defaulted so CloudKit / lightweight-migration
-    /// can fill existing rows.
+public extension KadoSchemaV3 {
+    /// Persistent representation of a habit. Mirrors V2 plus the three
+    /// reminder fields, each default-valued so CloudKit /
+    /// lightweight-migration can fill existing rows.
     ///
-    /// `Frequency` and `HabitType` are stored as JSON-encoded `Data`
-    /// because SwiftData's `@Model` macro mishandles composite Codable
-    /// enums on this toolchain. `HabitColor` hits the same ceiling
-    /// despite being a plain String-raw-value enum — SwiftData reads
-    /// it back as `Any?` and fails to cast. Workaround: store the raw
-    /// String and expose `color: HabitColor` via a computed accessor.
+    /// Reminder time is stored as two primitive `Int`s (hour 0–23,
+    /// minute 0–59) rather than a `Date` to sidestep CloudKit's
+    /// timezone-stamping and to match the "fires at 9:00 wherever the
+    /// device is" semantics. Primitives don't hit the SwiftData
+    /// custom-enum storage bug.
     @Model
     public final class HabitRecord {
         public var id: UUID = UUID()
@@ -33,6 +33,9 @@ public extension KadoSchemaV2 {
         public var archivedAt: Date?
         private var colorRaw: String = "blue"
         public var icon: String = "circle"
+        public var remindersEnabled: Bool = false
+        public var reminderHour: Int = 9
+        public var reminderMinute: Int = 0
 
         @Relationship(deleteRule: .cascade, inverse: \CompletionRecord.habit)
         public var completions: [CompletionRecord]? = []
@@ -44,8 +47,11 @@ public extension KadoSchemaV2 {
             type: HabitType = .binary,
             createdAt: Date = .now,
             archivedAt: Date? = nil,
-            color: HabitColor = .blue,
+            color: HabitColor = HabitColor.blue,
             icon: String = HabitIcon.default,
+            remindersEnabled: Bool = false,
+            reminderHour: Int = 9,
+            reminderMinute: Int = 0,
             completions: [CompletionRecord]? = []
         ) {
             self.id = id
@@ -56,6 +62,9 @@ public extension KadoSchemaV2 {
             self.archivedAt = archivedAt
             self.colorRaw = color.rawValue
             self.icon = icon
+            self.remindersEnabled = remindersEnabled
+            self.reminderHour = reminderHour
+            self.reminderMinute = reminderMinute
             self.completions = completions
         }
 
@@ -83,7 +92,10 @@ public extension KadoSchemaV2 {
                 createdAt: createdAt,
                 archivedAt: archivedAt,
                 color: color,
-                icon: icon
+                icon: icon,
+                remindersEnabled: remindersEnabled,
+                reminderHour: reminderHour,
+                reminderMinute: reminderMinute
             )
         }
 
@@ -96,8 +108,8 @@ public extension KadoSchemaV2 {
         }
     }
 
-    /// Persistent completion event. Identical shape to V1 — copied so
-    /// V2 is a complete, self-contained schema.
+    /// Persistent completion event. Identical shape to V2 — copied so
+    /// V3 is a complete, self-contained schema.
     @Model
     public final class CompletionRecord {
         public var id: UUID = UUID()
@@ -132,3 +144,5 @@ public extension KadoSchemaV2 {
     }
 }
 
+public typealias HabitRecord = KadoSchemaV3.HabitRecord
+public typealias CompletionRecord = KadoSchemaV3.CompletionRecord

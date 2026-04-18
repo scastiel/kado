@@ -22,6 +22,7 @@ struct CloudKitShapeTests {
         [
             ("V1", Schema(versionedSchema: KadoSchemaV1.self)),
             ("V2", Schema(versionedSchema: KadoSchemaV2.self)),
+            ("V3", Schema(versionedSchema: KadoSchemaV3.self)),
         ]
     }
 
@@ -62,6 +63,9 @@ struct CloudKitShapeTests {
         #expect(record.archivedAt == nil)
         #expect(record.color == .blue)
         #expect(record.icon == HabitIcon.default)
+        #expect(record.remindersEnabled == false)
+        #expect(record.reminderHour == 9)
+        #expect(record.reminderMinute == 0)
         #expect(record.completions?.isEmpty ?? true)
     }
 

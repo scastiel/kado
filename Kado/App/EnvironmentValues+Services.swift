@@ -49,4 +49,10 @@ extension EnvironmentValues {
     /// static-default pattern doesn't cross actors cleanly. Default is
     /// a mock so previews that forget to inject don't crash.
     @Entry var cloudAccountStatus: any CloudAccountStatusObserving = MockCloudAccountStatusObserver()
+
+    /// Reminder notification scheduler. Default is a mock so previews
+    /// and unit tests never hit `UNUserNotificationCenter`; the main
+    /// app injects `DefaultNotificationScheduler(center: LiveUserNotificationCenter())`
+    /// at scene build.
+    @Entry var notificationScheduler: any NotificationScheduling = MockNotificationScheduler()
 }

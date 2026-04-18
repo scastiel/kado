@@ -10,9 +10,11 @@ struct NewHabitFormView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.notificationScheduler) private var notificationScheduler
 
     @FocusState private var nameFocused: Bool
     @State private var saveTick: Int = 0
+    @State private var showingPermissionDeniedAlert = false
 
     var body: some View {
         NavigationStack {
@@ -21,6 +23,7 @@ struct NewHabitFormView: View {
                 appearanceSection
                 frequencySection
                 typeSection
+                reminderSection
             }
             .navigationTitle(model.isEditing
                 ? String(localized: "Edit Habit")
@@ -37,6 +40,17 @@ struct NewHabitFormView: View {
             }
             .sensoryFeedback(.success, trigger: saveTick)
             .onAppear { nameFocused = true }
+            .alert(
+                String(localized: "Notifications are disabled"),
+                isPresented: $showingPermissionDeniedAlert
+            ) {
+                Button(String(localized: "Open Settings")) {
+                    openNotificationSettings()
+                }
+                Button(String(localized: "Not now"), role: .cancel) {}
+            } message: {
+                Text(String(localized: "Enable notifications in Settings to receive this reminder."))
+            }
         }
     }
 
@@ -115,11 +129,58 @@ struct NewHabitFormView: View {
         }
     }
 
+    private var reminderSection: some View {
+        Section {
+            Toggle(String(localized: "Remind me"), isOn: $model.remindersEnabled)
+            if model.remindersEnabled {
+                DatePicker(
+                    String(localized: "Time"),
+                    selection: $model.reminderTime,
+                    displayedComponents: .hourAndMinute
+                )
+            }
+        } header: {
+            Text("Reminder")
+        } footer: {
+            if model.remindersEnabled {
+                Text(String(localized: "Fires on \(frequencyFooter)"))
+            }
+        }
+    }
+
+    private var frequencyFooter: String {
+        switch model.frequency {
+        case .daily:
+            return String(localized: "every day")
+        case .daysPerWeek(let n):
+            return String(localized: "\(n) days each week")
+        case .specificDays(let days):
+            let ordered: [Weekday] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+            return ordered.filter(days.contains).map(\.localizedMedium).joined(separator: " · ")
+        case .everyNDays(let n):
+            return String(localized: "every \(n) days")
+        }
+    }
+
     private func save() {
         guard model.isValid else { return }
-        model.save(in: modelContext)
-        saveTick += 1
-        dismiss()
+        Task {
+            if model.remindersEnabled {
+                let status = await notificationScheduler.requestAuthorizationIfNeeded()
+                if status == .denied {
+                    showingPermissionDeniedAlert = true
+                    return
+                }
+            }
+            model.save(in: modelContext)
+            saveTick += 1
+            dismiss()
+        }
+    }
+
+    private func openNotificationSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 }
 
@@ -142,6 +203,15 @@ struct NewHabitFormView: View {
     model.name = "Gym"
     model.frequencyKind = .specificDays
     model.specificDays = [.monday, .wednesday, .friday]
+    return NewHabitFormView(model: model)
+        .modelContainer(PreviewContainer.emptyContainer())
+}
+
+#Preview("Reminder on") {
+    let model = NewHabitFormModel()
+    model.name = "Meditate"
+    model.remindersEnabled = true
+    model.reminderTime = Calendar.current.date(bySettingHour: 7, minute: 15, second: 0, of: .now)!
     return NewHabitFormView(model: model)
         .modelContainer(PreviewContainer.emptyContainer())
 }
