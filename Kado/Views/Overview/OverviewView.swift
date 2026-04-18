@@ -23,6 +23,8 @@ struct OverviewView: View {
 
     @Environment(\.calendar) private var calendar
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
+    @Environment(\.streakCalculator) private var streakCalculator
+    @Environment(\.habitScoreCalculator) private var scoreCalculator
 
     @State private var selection: CellSelection?
 
@@ -69,10 +71,11 @@ struct OverviewView: View {
     private var matrix: some View {
         let today = calendar.startOfDay(for: .now)
         let days = dayRange(endingAt: today)
-        let habits = records.map { $0.snapshot }
-        let completions = records.flatMap {
-            ($0.completions ?? []).map { $0.snapshot }
+        let snapshots = records.map { record -> (Habit, [Completion]) in
+            (record.snapshot, (record.completions ?? []).map(\.snapshot))
         }
+        let habits = snapshots.map(\.0)
+        let completions = snapshots.flatMap(\.1)
         let rows = OverviewMatrix.compute(
             habits: habits,
             completions: completions,
@@ -81,11 +84,16 @@ struct OverviewView: View {
             calendar: calendar,
             frequencyEvaluator: frequencyEvaluator
         )
+        let metrics = Dictionary(uniqueKeysWithValues: snapshots.map { (habit, comps) in
+            let streak = streakCalculator.current(for: habit, completions: comps, asOf: .now)
+            let score = scoreCalculator.currentScore(for: habit, completions: comps, asOf: .now)
+            return (habit.id, (streak: streak, scorePercent: Int((score * 100).rounded())))
+        })
 
         return ScrollView(.vertical) {
             ZStack(alignment: .topLeading) {
                 scrollingCells(rows: rows, days: days)
-                labelsOverlay(rows: rows)
+                labelsOverlay(rows: rows, metrics: metrics)
             }
             .padding(.vertical, 8)
         }
@@ -139,7 +147,10 @@ struct OverviewView: View {
         .defaultScrollAnchor(.trailing)
     }
 
-    private func labelsOverlay(rows: [MatrixRow]) -> some View {
+    private func labelsOverlay(
+        rows: [MatrixRow],
+        metrics: [UUID: (streak: Int, scorePercent: Int)]
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             // Match the date-header row + its trailing gap so the first
             // label lands in the first habit's spacer slot.
@@ -154,8 +165,13 @@ struct OverviewView: View {
                         .font(.subheadline.weight(.medium))
                         .lineLimit(1)
                         .truncationMode(.tail)
+                    Spacer(minLength: 8)
+                    if let m = metrics[row.habit.id] {
+                        metricsChip(streak: m.streak, scorePercent: m.scorePercent)
+                    }
                 }
-                .frame(height: Self.labelHeight, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: Self.labelHeight)
 
                 // Spacer for the breathing room below the name + the
                 // cell row itself, so the next label lines up with the
@@ -168,6 +184,27 @@ struct OverviewView: View {
         }
         .padding(.horizontal, 16)
         .allowsHitTesting(false)
+    }
+
+    /// Right-aligned `🔥 streak · score%` chip — same vocabulary as the
+    /// Today row's metrics line. Streak hidden when zero.
+    private func metricsChip(streak: Int, scorePercent: Int) -> some View {
+        HStack(spacing: 6) {
+            if streak > 0 {
+                HStack(spacing: 2) {
+                    Image(systemName: "flame.fill")
+                    Text("\(streak)")
+                }
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.orange)
+                Text("·")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Text("\(scorePercent)%")
+                .font(.caption2.weight(.semibold).monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
     }
 
     private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
