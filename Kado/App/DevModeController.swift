@@ -124,7 +124,16 @@ final class DevModeController {
     }
 
     nonisolated static let defaultDevStoreURL: URL = {
-        URL.applicationSupportDirectory.appendingPathComponent("KadoDev.sqlite")
+        // Prefer the App Group container so the widget extension's
+        // intent process can reach the same dev sandbox when the user
+        // has dev mode on. Falls back to the app's Application Support
+        // directory if the App Group entitlement isn't active yet.
+        if let base = SharedStore.appGroupContainerURL() {
+            return base
+                .appendingPathComponent("Library/Application Support", isDirectory: true)
+                .appendingPathComponent("KadoDev.sqlite")
+        }
+        return URL.applicationSupportDirectory.appendingPathComponent("KadoDev.sqlite")
     }()
 
     nonisolated static func defaultProductionContainer() -> ModelContainer {
