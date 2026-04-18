@@ -30,6 +30,14 @@ extension HabitEntity {
         )
     }
 
+    init(habit: Habit) {
+        self.init(
+            id: habit.id,
+            name: habit.name,
+            colorRaw: habit.color.rawValue
+        )
+    }
+
     /// Non-archived habits, sorted by creation order. Feeds
     /// `EntityQuery.suggestedEntities` and is reusable from tests.
     static func fetchSuggestions(in context: ModelContext) throws -> [HabitEntity] {

@@ -5,13 +5,12 @@
 //  Created by Sébastien Castiel on 18/04/2026.
 //
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 @main
 struct KadoWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        KadoWidgets()
-        KadoWidgetsControl()
+        TodayGridSmallWidget()
     }
 }
