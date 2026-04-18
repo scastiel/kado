@@ -133,18 +133,12 @@ struct OverviewView: View {
                 .scrollTargetLayout()
                 .padding(.vertical, 2)
             }
-            .scrollPosition(id: $scrolledDay, anchor: .trailing)
+            .defaultScrollAnchor(.trailing)
+            .scrollPosition(id: $scrolledDay)
         }
         .padding(12)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .onAppear {
-            // Anchor every card at today on first appearance; subsequent
-            // pans update the shared binding, syncing all cards.
-            if scrolledDay == nil {
-                scrolledDay = days.last
-            }
-        }
     }
 
     private func dayRange(endingAt today: Date) -> [Date] {
