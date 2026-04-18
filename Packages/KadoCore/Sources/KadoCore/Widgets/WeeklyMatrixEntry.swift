@@ -10,6 +10,12 @@ public struct WeeklyMatrixEntry: TimelineEntry, Sendable {
     public let days: [Date]
     public let rows: [MatrixRow]
 
+    public init(date: Date, days: [Date], rows: [MatrixRow]) {
+        self.date = date
+        self.days = days
+        self.rows = rows
+    }
+
     public static func placeholder() -> WeeklyMatrixEntry {
         WeeklyMatrixEntry(date: .now, days: [], rows: [])
     }

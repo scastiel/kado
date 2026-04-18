@@ -9,13 +9,13 @@ public extension KadoSchemaV1 {
     /// force-unwraps `habit?.id`.
     @Model
     public final class CompletionRecord {
-        var id: UUID = UUID()
-        var date: Date = Date()
-        var value: Double = 1.0
-        var note: String?
-        var habit: HabitRecord?
+        public var id: UUID = UUID()
+        public var date: Date = Date()
+        public var value: Double = 1.0
+        public var note: String?
+        public var habit: HabitRecord?
 
-        init(
+        public init(
             id: UUID = UUID(),
             date: Date = .now,
             value: Double = 1.0,
@@ -32,7 +32,7 @@ public extension KadoSchemaV1 {
         /// Pure value-type projection. Traps if the completion has no
         /// parent habit — that state should not exist outside
         /// transient CloudKit sync windows the app does not project from.
-        var snapshot: Completion {
+        public var snapshot: Completion {
             Completion(
                 id: id,
                 habitID: habit!.id,

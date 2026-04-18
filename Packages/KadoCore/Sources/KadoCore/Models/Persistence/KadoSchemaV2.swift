@@ -25,19 +25,19 @@ public extension KadoSchemaV2 {
     /// String and expose `color: HabitColor` via a computed accessor.
     @Model
     public final class HabitRecord {
-        var id: UUID = UUID()
-        var name: String = ""
+        public var id: UUID = UUID()
+        public var name: String = ""
         private var frequencyData: Data = Data()
         private var typeData: Data = Data()
-        var createdAt: Date = Date()
-        var archivedAt: Date?
+        public var createdAt: Date = Date()
+        public var archivedAt: Date?
         private var colorRaw: String = "blue"
-        var icon: String = "circle"
+        public var icon: String = "circle"
 
         @Relationship(deleteRule: .cascade, inverse: \CompletionRecord.habit)
-        var completions: [CompletionRecord]? = []
+        public var completions: [CompletionRecord]? = []
 
-        init(
+        public init(
             id: UUID = UUID(),
             name: String = "",
             frequency: Frequency = .daily,
@@ -59,22 +59,22 @@ public extension KadoSchemaV2 {
             self.completions = completions
         }
 
-        var frequency: Frequency {
+        public var frequency: Frequency {
             get { Self.decode(frequencyData, fallback: .daily) }
             set { frequencyData = Self.encode(newValue) }
         }
 
-        var type: HabitType {
+        public var type: HabitType {
             get { Self.decode(typeData, fallback: .binary) }
             set { typeData = Self.encode(newValue) }
         }
 
-        var color: HabitColor {
+        public var color: HabitColor {
             get { HabitColor(rawValue: colorRaw) ?? .blue }
             set { colorRaw = newValue.rawValue }
         }
 
-        var snapshot: Habit {
+        public var snapshot: Habit {
             Habit(
                 id: id,
                 name: name,
@@ -100,13 +100,13 @@ public extension KadoSchemaV2 {
     /// V2 is a complete, self-contained schema.
     @Model
     public final class CompletionRecord {
-        var id: UUID = UUID()
-        var date: Date = Date()
-        var value: Double = 1.0
-        var note: String?
-        var habit: HabitRecord?
+        public var id: UUID = UUID()
+        public var date: Date = Date()
+        public var value: Double = 1.0
+        public var note: String?
+        public var habit: HabitRecord?
 
-        init(
+        public init(
             id: UUID = UUID(),
             date: Date = .now,
             value: Double = 1.0,
@@ -120,7 +120,7 @@ public extension KadoSchemaV2 {
             self.habit = habit
         }
 
-        var snapshot: Completion {
+        public var snapshot: Completion {
             Completion(
                 id: id,
                 habitID: habit!.id,

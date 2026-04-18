@@ -1,6 +1,6 @@
 import Foundation
 import SwiftData
-import WidgetKit
+@preconcurrency import WidgetKit
 
 /// Timeline provider shared by the small and medium home-screen
 /// widgets. Parameterized by `limit` (number of on-screen rows)
@@ -11,8 +11,12 @@ import WidgetKit
 /// `WidgetCenter.shared.reloadAllTimelines()` (Task 14) so
 /// completion-state drift between the widget and the app is
 /// bounded by a second or two, not an hour.
-public struct HabitTimelineProvider: TimelineProvider {
+public struct HabitTimelineProvider: TimelineProvider, Sendable {
     public let limit: Int
+
+    public init(limit: Int) {
+        self.limit = limit
+    }
 
     public func placeholder(in context: Context) -> HabitTimelineEntry {
         HabitTimelineEntry.placeholder(limit: limit)

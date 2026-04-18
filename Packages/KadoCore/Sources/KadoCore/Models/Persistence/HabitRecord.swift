@@ -17,17 +17,17 @@ public extension KadoSchemaV1 {
     /// Codable enums as direct stored properties on this toolchain.
     @Model
     public final class HabitRecord {
-        var id: UUID = UUID()
-        var name: String = ""
+        public var id: UUID = UUID()
+        public var name: String = ""
         private var frequencyData: Data = Data()
         private var typeData: Data = Data()
-        var createdAt: Date = Date()
-        var archivedAt: Date?
+        public var createdAt: Date = Date()
+        public var archivedAt: Date?
 
         @Relationship(deleteRule: .cascade, inverse: \CompletionRecord.habit)
-        var completions: [CompletionRecord]? = []
+        public var completions: [CompletionRecord]? = []
 
-        init(
+        public init(
             id: UUID = UUID(),
             name: String = "",
             frequency: Frequency = .daily,

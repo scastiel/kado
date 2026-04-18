@@ -4,6 +4,11 @@ import Foundation
 public struct MatrixRow: Equatable, Sendable {
     public let habit: Habit
     public let days: [DayCell]
+
+    public init(habit: Habit, days: [DayCell]) {
+        self.habit = habit
+        self.days = days
+    }
 }
 
 /// Per-day state for the matrix. `.scored` carries the day's raw

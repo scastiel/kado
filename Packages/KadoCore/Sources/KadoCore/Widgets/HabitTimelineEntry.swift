@@ -11,6 +11,14 @@ public struct HabitTimelineRow: Identifiable, Equatable, Sendable {
     public let state: HabitRowState
     public let streak: Int
     public let scorePercent: Int
+
+    public init(id: UUID, habit: Habit, state: HabitRowState, streak: Int, scorePercent: Int) {
+        self.id = id
+        self.habit = habit
+        self.state = state
+        self.streak = streak
+        self.scorePercent = scorePercent
+    }
 }
 
 /// Timeline entry for the small and medium home-screen widgets.
@@ -22,6 +30,13 @@ public struct HabitTimelineEntry: TimelineEntry, Sendable {
     public let rows: [HabitTimelineRow]
     public let totalCount: Int
     public let completedCount: Int
+
+    public init(date: Date, rows: [HabitTimelineRow], totalCount: Int, completedCount: Int) {
+        self.date = date
+        self.rows = rows
+        self.totalCount = totalCount
+        self.completedCount = completedCount
+    }
 
     public static func placeholder(limit: Int) -> HabitTimelineEntry {
         HabitTimelineEntry(

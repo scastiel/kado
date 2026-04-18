@@ -9,6 +9,8 @@ public struct PickedHabitProvider: AppIntentTimelineProvider {
     public typealias Intent = PickHabitIntent
     public typealias Entry = PickedHabitEntry
 
+    public init() {}
+
     public func placeholder(in context: Context) -> PickedHabitEntry {
         .empty()
     }

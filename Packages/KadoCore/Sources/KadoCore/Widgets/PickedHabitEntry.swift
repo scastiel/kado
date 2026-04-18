@@ -13,6 +13,14 @@ public struct PickedHabitEntry: TimelineEntry, Sendable {
     public let streak: Int?
     public let scorePercent: Int?
 
+    public init(date: Date, habit: Habit?, state: HabitRowState?, streak: Int?, scorePercent: Int?) {
+        self.date = date
+        self.habit = habit
+        self.state = state
+        self.streak = streak
+        self.scorePercent = scorePercent
+    }
+
     public static func empty(asOf date: Date = .now) -> PickedHabitEntry {
         PickedHabitEntry(date: date, habit: nil, state: nil, streak: nil, scorePercent: nil)
     }

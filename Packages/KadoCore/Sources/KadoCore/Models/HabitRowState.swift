@@ -19,6 +19,12 @@ nonisolated public struct HabitRowState: Equatable, Sendable {
     public let progress: Double
     public let valueToday: Double?
 
+    public init(status: Status, progress: Double, valueToday: Double?) {
+        self.status = status
+        self.progress = progress
+        self.valueToday = valueToday
+    }
+
     public static func resolve(
         habit: Habit,
         completions: [Completion],

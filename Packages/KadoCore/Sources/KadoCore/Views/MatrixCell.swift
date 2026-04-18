@@ -9,6 +9,12 @@ public struct MatrixCell: View {
     public let color: HabitColor
     public var size: CGFloat = 32
 
+    public init(state: DayCell, color: HabitColor, size: CGFloat = 32) {
+        self.state = state
+        self.color = color
+        self.size = size
+    }
+
     public var body: some View {
         RoundedRectangle(cornerRadius: 6, style: .continuous)
             .fill(fill)

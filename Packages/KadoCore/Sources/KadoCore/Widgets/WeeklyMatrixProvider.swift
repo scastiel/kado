@@ -1,8 +1,10 @@
 import Foundation
 import SwiftData
-import WidgetKit
+@preconcurrency import WidgetKit
 
-public struct WeeklyMatrixProvider: TimelineProvider {
+public struct WeeklyMatrixProvider: TimelineProvider, Sendable {
+    public init() {}
+
     public func placeholder(in context: Context) -> WeeklyMatrixEntry {
         .placeholder()
     }
