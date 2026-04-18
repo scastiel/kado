@@ -49,12 +49,22 @@ extension HabitEntity {
     }
 
     /// Fetch a specific set of habit IDs, excluding archived ones.
+    ///
+    /// Filters in Swift after a broad `archivedAt == nil` fetch because
+    /// SwiftData's `#Predicate` macro doesn't reliably support
+    /// `Set.contains` / `Array.contains` across toolchain versions —
+    /// the widget extension crashes with `EXC_BREAKPOINT` at fetch
+    /// time when the predicate is compiled into a SQL `IN (...)`
+    /// clause. The in-Swift filter is fine because the typical
+    /// `ids` length is 1 (lock widget) and at most a few dozen.
     static func fetch(ids: [UUID], in context: ModelContext) throws -> [HabitEntity] {
         let idSet = Set(ids)
         let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { idSet.contains($0.id) && $0.archivedAt == nil }
+            predicate: #Predicate { $0.archivedAt == nil }
         )
-        return try context.fetch(descriptor).map(HabitEntity.init(record:))
+        return try context.fetch(descriptor)
+            .filter { idSet.contains($0.id) }
+            .map(HabitEntity.init(record:))
     }
 }
 
