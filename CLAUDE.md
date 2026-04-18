@@ -300,13 +300,29 @@ KadoUITests/                # UI tests (XCTest)
   that walks `Schema.entities` and asserts `relationship.isOptional`
   / `!attribute.isUnique` — see `KadoTests/CloudKitShapeTests.swift`
   for the canonical pattern.
-- **Composite Codable workaround**: SwiftData on Xcode 26 / iOS 18
-  does not reliably support enums with associated values as direct
-  stored properties on `@Model` — `ModelContainer.init` crashes at
-  runtime even though build is clean. Workaround: store as
-  `private var fooData: Data` and expose `var foo: Foo { get / set }`
-  with explicit JSON encode/decode. See `HabitRecord` for the canonical
-  pattern. Re-evaluate when Apple fixes the underlying bug.
+- **Custom-enum storage workaround**: SwiftData on Xcode 26 / iOS 18
+  does not reliably support **any** custom enum type as a direct
+  `@Model` stored property — not just associated-value enums. Even
+  plain `String`-raw-value enums (e.g. `HabitColor`) crash at load
+  with `Could not cast Optional<Any> to <EnumType>` despite Codable
+  / Sendable / RawRepresentable being satisfied. Workarounds:
+  - For associated-value enums, store `private var fooData: Data`
+    and expose `var foo: Foo` with explicit JSON encode/decode.
+    Canonical: `HabitRecord.frequency`, `.type` in every schema
+    version.
+  - For `RawRepresentable` enums with primitive raw values, store
+    `private var fooRaw: String` (or the enum's raw type) and
+    expose `var foo: Foo { Foo(rawValue: fooRaw) ?? .default }`.
+    Canonical: `HabitRecord.color` in `KadoSchemaV2`.
+
+  Re-evaluate when Apple fixes the underlying bug.
+- **`@Model` default-argument values must be fully qualified.**
+  `var color: HabitColor = .blue` fails with "A default value
+  requires a fully qualified domain named value (from macro
+  'Model')" plus a cascade of "type 'Any?' has no member 'blue'"
+  errors. Write `var color: HabitColor = HabitColor.blue` instead.
+  Only `@Model` class bodies need this — plain struct initializers
+  tolerate leading-dot shorthand as usual.
 
 ---
 
