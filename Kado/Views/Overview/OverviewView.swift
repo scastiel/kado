@@ -3,11 +3,13 @@ import SwiftUI
 
 /// Overview tab: one card per non-archived habit. Each card stacks
 /// the habit label (icon + name) above a horizontal strip of day
-/// cells covering the last ~30 days. Cards stack vertically so the
-/// large `Overview` title collapses naturally while scrolling, like
-/// Today and Settings. Each card's cell strip owns its own
-/// horizontal scroll (anchored at today on the right); labels stay
-/// put since they live outside the strip.
+/// cells. Cards scroll vertically so the `Overview` nav title
+/// collapses naturally like Today and Settings.
+///
+/// Every cell-strip ScrollView shares one `scrollPosition` binding,
+/// so panning horizontally on any card simultaneously scrolls all
+/// cards. Labels live outside the horizontal scroll region and
+/// therefore stay put.
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -19,6 +21,7 @@ struct OverviewView: View {
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
     @State private var selection: CellSelection?
+    @State private var scrolledDay: Date?
 
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 36
@@ -103,38 +106,45 @@ struct OverviewView: View {
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                MatrixRowView(
-                    habit: row.habit,
-                    cells: row.days,
-                    cellSize: Self.cellSize,
-                    cellSpacing: Self.cellSpacing,
-                    cellTap: { index in
-                        guard days.indices.contains(index),
-                              row.days.indices.contains(index) else { return }
-                        selection = CellSelection(
-                            habit: row.habit,
-                            date: days[index],
-                            cell: row.days[index]
+                HStack(spacing: Self.cellSpacing) {
+                    ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { _, pair in
+                        let (day, cell) = pair
+                        Button {
+                            selection = CellSelection(habit: row.habit, date: day, cell: cell)
+                        } label: {
+                            MatrixCell(
+                                state: cell,
+                                color: row.habit.color,
+                                size: Self.cellSize
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(
+                            Self.accessibilityLabel(
+                                habit: row.habit,
+                                date: day,
+                                cell: cell,
+                                calendar: calendar
+                            )
                         )
-                    },
-                    cellAccessibilityLabel: { index in
-                        guard days.indices.contains(index),
-                              row.days.indices.contains(index) else { return "" }
-                        return Self.accessibilityLabel(
-                            habit: row.habit,
-                            date: days[index],
-                            cell: row.days[index],
-                            calendar: calendar
-                        )
+                        .id(day)
                     }
-                )
+                }
+                .scrollTargetLayout()
                 .padding(.vertical, 2)
             }
-            .defaultScrollAnchor(.trailing)
+            .scrollPosition(id: $scrolledDay, anchor: .trailing)
         }
         .padding(12)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .onAppear {
+            // Anchor every card at today on first appearance; subsequent
+            // pans update the shared binding, syncing all cards.
+            if scrolledDay == nil {
+                scrolledDay = days.last
+            }
+        }
     }
 
     private func dayRange(endingAt today: Date) -> [Date] {
