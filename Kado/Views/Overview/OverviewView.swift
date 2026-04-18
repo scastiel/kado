@@ -21,12 +21,22 @@ struct OverviewView: View {
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
+    @State private var selection: CellSelection?
+
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 32
     private static let cellSpacing: CGFloat = 4
     private static let labelWidth: CGFloat = 130
     private static let headerHeight: CGFloat = 36
     private static let rowHeight: CGFloat = 32
+
+    struct CellSelection: Identifiable, Equatable {
+        let habit: Habit
+        let date: Date
+        let cell: DayCell
+
+        var id: String { "\(habit.id)-\(date.timeIntervalSince1970)" }
+    }
 
     var body: some View {
         NavigationStack {
@@ -74,13 +84,21 @@ struct OverviewView: View {
                 VStack(alignment: .leading, spacing: Self.cellSpacing) {
                     dayHeaderRow(days: days)
                     ForEach(rows, id: \.habit.id) { row in
-                        cellRow(row)
+                        cellRow(row, days: days)
                     }
                 }
             }
             .defaultScrollAnchor(.trailing)
         }
         .padding()
+        .popover(item: $selection) { sel in
+            CellPopoverContent(
+                habit: sel.habit,
+                date: sel.date,
+                cell: sel.cell
+            )
+            .presentationCompactAdaptation(.popover)
+        }
     }
 
     private func stickyLabelColumn(rows: [MatrixRow]) -> some View {
@@ -102,12 +120,22 @@ struct OverviewView: View {
         .frame(height: Self.headerHeight)
     }
 
-    private func cellRow(_ row: MatrixRow) -> some View {
-        HStack(spacing: Self.cellSpacing) {
-            ForEach(Array(row.days.enumerated()), id: \.offset) { _, cell in
-                MatrixCell(state: cell, color: row.habit.color, size: Self.cellSize)
+    private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
+        MatrixRowView(
+            habit: row.habit,
+            cells: row.days,
+            cellSize: Self.cellSize,
+            cellSpacing: Self.cellSpacing,
+            cellTap: { index in
+                guard days.indices.contains(index),
+                      row.days.indices.contains(index) else { return }
+                selection = CellSelection(
+                    habit: row.habit,
+                    date: days[index],
+                    cell: row.days[index]
+                )
             }
-        }
+        )
         .frame(height: Self.rowHeight)
     }
 

@@ -489,6 +489,17 @@
         }
       }
     },
+    "Not scheduled" : {
+      "comment" : "Status label in the Overview cell popover when a day is off-schedule for the habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not scheduled"
+          }
+        }
+      }
+    },
     "Nothing due today" : {
       "comment" : "Empty-state title shown on the Today view when the user has habits but none are due today.",
       "localizations" : {
@@ -562,6 +573,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Score"
+          }
+        }
+      }
+    },
+    "Scored" : {
+      "comment" : "Status label in the Overview cell popover for a day that contributes to the EMA score (past or today, on-schedule).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scored"
           }
         }
       }
@@ -694,6 +716,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Type"
+          }
+        }
+      }
+    },
+    "Upcoming" : {
+      "comment" : "Status label in the Overview cell popover for a future day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
           }
         }
       }
