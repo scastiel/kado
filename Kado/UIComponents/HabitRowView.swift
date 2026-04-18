@@ -179,33 +179,28 @@ struct HabitRowView: View {
     // MARK: - Timer chip
 
     /// Trailing `+5m` quick-log chip. Tap adds five minutes to today's
-    /// session — the fast-path power-user action. The full session
-    /// editor (existing `TimerLogSheet`) is reachable from the row's
-    /// context menu via "Log specific value…" (Task 6).
+    /// session — the fast-path power-user action. The leading ring
+    /// communicates progress; the full session editor (existing
+    /// `TimerLogSheet`) is reachable from the row's context menu via
+    /// "Log specific value…".
     @ViewBuilder
     private func timerAddFiveChip(target: TimeInterval) -> some View {
-        HStack(spacing: 8) {
-            Text(timerLabel(target: target))
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(isComplete ? habit.color.color : .secondary)
-
-            if let onTimerAddFiveMinutes {
-                Button(action: onTimerAddFiveMinutes) {
-                    Text("+5m")
-                        .font(.callout.weight(.semibold).monospacedDigit())
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 10)
-                        .background(
-                            Capsule().fill(habit.color.color.opacity(0.15))
-                        )
-                        .foregroundStyle(habit.color.color)
-                }
-                .buttonStyle(.borderless)
-                .accessibilityLabel(String(localized: "Add 5 minutes"))
+        if let onTimerAddFiveMinutes {
+            Button(action: onTimerAddFiveMinutes) {
+                Text("+5m")
+                    .font(.callout.weight(.semibold).monospacedDigit())
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 10)
+                    .background(
+                        Capsule().fill(habit.color.color.opacity(0.15))
+                    )
+                    .foregroundStyle(habit.color.color)
             }
-        }
-        .sensoryFeedback(.success, trigger: isComplete) { old, new in
-            !old && new
+            .buttonStyle(.borderless)
+            .accessibilityLabel(String(localized: "Add 5 minutes"))
+            .sensoryFeedback(.success, trigger: isComplete) { old, new in
+                !old && new
+            }
         }
     }
 
@@ -287,10 +282,6 @@ struct HabitRowView: View {
             .disabled(!canDecrement)
             .accessibilityLabel(String(localized: "Decrement"))
 
-            Text(counterLabel(target: target))
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(isComplete ? habit.color.color : .secondary)
-
             Button(action: { onCounterIncrement?() }) {
                 Image(systemName: "plus")
                     .font(.callout.weight(.semibold))
@@ -304,42 +295,22 @@ struct HabitRowView: View {
     }
 
     private func counterStepperPlusOnly(target: Double) -> some View {
-        HStack(spacing: 8) {
-            Text(counterLabel(target: target))
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(isComplete ? habit.color.color : .secondary)
-
-            Button(action: { onCounterIncrement?() }) {
-                Image(systemName: "plus")
-                    .font(.callout.weight(.semibold))
-                    .frame(width: 28, height: 28)
-                    .background(Circle().fill(habit.color.color.opacity(0.15)))
-                    .foregroundStyle(habit.color.color)
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(String(localized: "Increment"))
+        Button(action: { onCounterIncrement?() }) {
+            Image(systemName: "plus")
+                .font(.callout.weight(.semibold))
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(habit.color.color.opacity(0.15)))
+                .foregroundStyle(habit.color.color)
         }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(String(localized: "Increment"))
     }
 
     private var canDecrement: Bool {
         (state.valueToday ?? 0) > 0
     }
 
-    // MARK: - Counter / timer labels (preserved from prior layout)
-
-    private func counterLabel(target: Double) -> String {
-        if let value = state.valueToday {
-            return "\(Int(value))/\(Int(target))"
-        }
-        return "–/\(Int(target))"
-    }
-
-    private func timerLabel(target: TimeInterval) -> String {
-        if let value = state.valueToday {
-            return "\(formatSeconds(value)) / \(formatSeconds(target))"
-        }
-        return formatSeconds(target)
-    }
+    // MARK: - Formatting helpers
 
     private func formatSeconds(_ seconds: TimeInterval) -> String {
         let total = Int(seconds)
@@ -364,11 +335,37 @@ struct HabitRowView: View {
         }
     }
 
-    private var accessibilityValueText: String {
-        if streak > 0 {
-            return String(localized: "Streak \(streak), score \(scorePercent) percent")
+    /// Value-only progress phrase for counter / timer rows. Empty for
+    /// binary / negative (their state lives in `accessibilityLabel`).
+    /// Surfaced here because the visual `value/target` text was
+    /// removed in favor of the leading progress ring — VoiceOver
+    /// users still need the numbers.
+    private var accessibilityProgressText: String {
+        switch habit.type {
+        case .binary, .negative:
+            return ""
+        case .counter(let target):
+            let v = Int(state.valueToday ?? 0)
+            return String(localized: "\(v) of \(Int(target))")
+        case .timer(let targetSeconds):
+            let v = Int((state.valueToday ?? 0) / 60)
+            let t = Int(targetSeconds / 60)
+            return String(localized: "\(v) of \(t) minutes")
         }
-        return String(localized: "Score \(scorePercent) percent")
+    }
+
+    private var accessibilityValueText: String {
+        let progress = accessibilityProgressText
+        if progress.isEmpty {
+            if streak > 0 {
+                return String(localized: "Streak \(streak), score \(scorePercent) percent")
+            }
+            return String(localized: "Score \(scorePercent) percent")
+        }
+        if streak > 0 {
+            return String(localized: "\(progress), streak \(streak), score \(scorePercent) percent")
+        }
+        return String(localized: "\(progress), score \(scorePercent) percent")
     }
 }
 

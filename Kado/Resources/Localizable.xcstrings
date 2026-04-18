@@ -23,6 +23,28 @@
         }
       }
     },
+    "%@, score %lld percent" : {
+      "comment" : "VoiceOver value for a counter or timer Today row when the habit has no current streak. First arg: today's progress (e.g. '3 of 8'). Second arg: EMA score percent (0-100).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, score %2$lld percent"
+          }
+        }
+      }
+    },
+    "%@, streak %lld, score %lld percent" : {
+      "comment" : "VoiceOver value for a counter or timer Today row when the habit has a non-zero streak. First arg: today's progress (e.g. '3 of 8'). Second arg: streak length in days. Third arg: EMA score percent (0-100).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, streak %2$lld, score %3$lld percent"
+          }
+        }
+      }
+    },
     "%@, timer, target %@" : {
       "comment" : "VoiceOver label for a timer habit row. First arg: habit name. Second arg: formatted target duration (e.g. '30:00').",
       "localizations" : {
@@ -117,12 +139,23 @@
       }
     },
     "%lld of %lld" : {
-      "comment" : "Stepper label in the counter-log sheet. First arg: current value. Second arg: target.",
+      "comment" : "Stepper label in the counter-log sheet, and VoiceOver progress fragment for a counter Today row. First arg: current value. Second arg: target.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "%lld of %lld minutes" : {
+      "comment" : "VoiceOver progress fragment for a timer Today row. First arg: minutes logged today. Second arg: target minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld minutes"
           }
         }
       }
