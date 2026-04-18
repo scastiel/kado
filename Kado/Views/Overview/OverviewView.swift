@@ -1,15 +1,20 @@
 import SwiftData
 import SwiftUI
 
-/// Overview tab: one card per non-archived habit. Each card stacks
-/// the habit label (icon + name) above a horizontal strip of day
-/// cells. Cards scroll vertically so the `Overview` nav title
-/// collapses naturally like Today and Settings.
+/// Overview tab: habits × days matrix.
 ///
-/// Every cell-strip ScrollView shares one `scrollPosition` binding,
-/// so panning horizontally on any card simultaneously scrolls all
-/// cards. Labels live outside the horizontal scroll region and
-/// therefore stay put.
+/// Layout:
+/// - Outer vertical `ScrollView` so the large `Overview` title
+///   collapses as on Today and Settings.
+/// - Inside, an `HStack(alignment: .top)`:
+///   - Leading column (pinned): habit icon + name per row. Sits
+///     outside the horizontal scroll so it stays put.
+///   - Trailing column: a single `ScrollView(.horizontal)` wrapping
+///     a `VStack` of cell rows. One scroll view → one scroll state
+///     → every row moves together. Anchored at today via
+///     `defaultScrollAnchor(.trailing)`.
+/// - Row heights match between the labels column and the cells
+///   column so the two stay aligned visually.
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -21,11 +26,12 @@ struct OverviewView: View {
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
     @State private var selection: CellSelection?
-    @State private var scrolledDay: Date?
 
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 36
     private static let cellSpacing: CGFloat = 6
+    private static let rowSpacing: CGFloat = 8
+    private static let labelWidth: CGFloat = 130
 
     struct CellSelection: Identifiable, Equatable {
         let habit: Habit
@@ -76,12 +82,12 @@ struct OverviewView: View {
         )
 
         return ScrollView(.vertical) {
-            LazyVStack(spacing: 12) {
-                ForEach(rows, id: \.habit.id) { row in
-                    habitCard(row, days: days)
-                }
+            HStack(alignment: .top, spacing: 12) {
+                labelsColumn(rows: rows)
+                cellsScrollView(rows: rows, days: days)
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
         .popover(item: $selection) { sel in
             CellPopoverContent(
@@ -93,52 +99,62 @@ struct OverviewView: View {
         }
     }
 
-    private func habitCard(_ row: MatrixRow, days: [Date]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: row.habit.icon)
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(row.habit.color.color)
-                Text(row.habit.name)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Self.cellSpacing) {
-                    ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { _, pair in
-                        let (day, cell) = pair
-                        Button {
-                            selection = CellSelection(habit: row.habit, date: day, cell: cell)
-                        } label: {
-                            MatrixCell(
-                                state: cell,
-                                color: row.habit.color,
-                                size: Self.cellSize
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(
-                            Self.accessibilityLabel(
-                                habit: row.habit,
-                                date: day,
-                                cell: cell,
-                                calendar: calendar
-                            )
-                        )
-                        .id(day)
-                    }
+    private func labelsColumn(rows: [MatrixRow]) -> some View {
+        VStack(alignment: .leading, spacing: Self.rowSpacing) {
+            ForEach(rows, id: \.habit.id) { row in
+                HStack(spacing: 8) {
+                    Image(systemName: row.habit.icon)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(row.habit.color.color)
+                        .frame(width: 22)
+                    Text(row.habit.name)
+                        .font(.subheadline)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                .scrollTargetLayout()
-                .padding(.vertical, 2)
+                .frame(height: Self.cellSize, alignment: .leading)
             }
-            .defaultScrollAnchor(.trailing)
-            .scrollPosition(id: $scrolledDay)
         }
-        .padding(12)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(width: Self.labelWidth, alignment: .leading)
+    }
+
+    private func cellsScrollView(rows: [MatrixRow], days: [Date]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: Self.rowSpacing) {
+                ForEach(rows, id: \.habit.id) { row in
+                    cellRow(row, days: days)
+                }
+            }
+            .padding(.trailing, 8)
+        }
+        .defaultScrollAnchor(.trailing)
+    }
+
+    private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
+        HStack(spacing: Self.cellSpacing) {
+            ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { _, pair in
+                let (day, cell) = pair
+                Button {
+                    selection = CellSelection(habit: row.habit, date: day, cell: cell)
+                } label: {
+                    MatrixCell(
+                        state: cell,
+                        color: row.habit.color,
+                        size: Self.cellSize
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(
+                    Self.accessibilityLabel(
+                        habit: row.habit,
+                        date: day,
+                        cell: cell,
+                        calendar: calendar
+                    )
+                )
+            }
+        }
+        .frame(height: Self.cellSize)
     }
 
     private func dayRange(endingAt today: Date) -> [Date] {
