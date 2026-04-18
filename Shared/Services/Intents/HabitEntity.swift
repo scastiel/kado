@@ -66,11 +66,9 @@ extension HabitEntity {
     /// `ids` length is 1 (lock widget) and at most a few dozen.
     static func fetch(ids: [UUID], in context: ModelContext) throws -> [HabitEntity] {
         let idSet = Set(ids)
-        let descriptor = FetchDescriptor<HabitRecord>(
-            predicate: #Predicate { $0.archivedAt == nil }
-        )
+        let descriptor = FetchDescriptor<HabitRecord>()
         return try context.fetch(descriptor)
-            .filter { idSet.contains($0.id) }
+            .filter { idSet.contains($0.id) && $0.archivedAt == nil }
             .map(HabitEntity.init(record:))
     }
 }
