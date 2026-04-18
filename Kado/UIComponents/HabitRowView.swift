@@ -17,9 +17,12 @@ struct HabitRowView: View {
     let state: HabitRowState
     let streak: Int
     let scorePercent: Int
-    /// Binary / negative: fires the toggle. `nil` for counter / timer
-    /// (their actions land in upcoming commits).
+    /// Binary / negative: fires the toggle. `nil` for counter / timer.
     let onToggle: (() -> Void)?
+    /// Counter: increment / decrement today's value by 1. `nil` for
+    /// other types.
+    var onCounterIncrement: (() -> Void)? = nil
+    var onCounterDecrement: (() -> Void)? = nil
 
     private var isComplete: Bool { state.status == .complete }
 
@@ -99,9 +102,7 @@ struct HabitRowView: View {
         case .negative:
             negativePill
         case .counter(let target):
-            Text(counterLabel(target: target))
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(.secondary)
+            counterStepper(target: target)
         case .timer(let targetSeconds):
             Text(timerLabel(target: targetSeconds))
                 .font(.callout.monospacedDigit())
@@ -154,6 +155,75 @@ struct HabitRowView: View {
                     : String(localized: "Mark as done")
             )
         }
+    }
+
+    // MARK: - Counter stepper
+
+    /// Inline `−  value/target  +` stepper. Collapses to `value/target +`
+    /// (no minus) when the row width can't host both buttons — the
+    /// usual case at Dynamic Type XXL+ where the labels grow large.
+    /// Decrement is disabled at zero so "no completion" stays equivalent
+    /// to "not started today" (matches CompletionLogger semantics).
+    @ViewBuilder
+    private func counterStepper(target: Double) -> some View {
+        ViewThatFits(in: .horizontal) {
+            counterStepperFull(target: target)
+            counterStepperPlusOnly(target: target)
+        }
+        .sensoryFeedback(.success, trigger: isComplete) { old, new in
+            !old && new
+        }
+    }
+
+    private func counterStepperFull(target: Double) -> some View {
+        HStack(spacing: 8) {
+            Button(action: { onCounterDecrement?() }) {
+                Image(systemName: "minus")
+                    .font(.callout.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(Color(.secondarySystemFill)))
+                    .foregroundStyle(canDecrement ? Color.primary : Color.secondary)
+            }
+            .buttonStyle(.borderless)
+            .disabled(!canDecrement)
+            .accessibilityLabel(String(localized: "Decrement"))
+
+            Text(counterLabel(target: target))
+                .font(.callout.monospacedDigit())
+                .foregroundStyle(isComplete ? habit.color.color : .secondary)
+
+            Button(action: { onCounterIncrement?() }) {
+                Image(systemName: "plus")
+                    .font(.callout.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(habit.color.color.opacity(0.15)))
+                    .foregroundStyle(habit.color.color)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(String(localized: "Increment"))
+        }
+    }
+
+    private func counterStepperPlusOnly(target: Double) -> some View {
+        HStack(spacing: 8) {
+            Text(counterLabel(target: target))
+                .font(.callout.monospacedDigit())
+                .foregroundStyle(isComplete ? habit.color.color : .secondary)
+
+            Button(action: { onCounterIncrement?() }) {
+                Image(systemName: "plus")
+                    .font(.callout.weight(.semibold))
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(habit.color.color.opacity(0.15)))
+                    .foregroundStyle(habit.color.color)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(String(localized: "Increment"))
+        }
+    }
+
+    private var canDecrement: Bool {
+        (state.valueToday ?? 0) > 0
     }
 
     // MARK: - Counter / timer labels (preserved from prior layout)

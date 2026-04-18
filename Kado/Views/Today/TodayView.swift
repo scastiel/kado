@@ -78,7 +78,9 @@ struct TodayView: View {
                                     for: snap, completions: comps, asOf: .now
                                 ) * 100).rounded()
                             ),
-                            onToggle: canToggle(record) ? { toggle(record) } : nil
+                            onToggle: canToggle(record) ? { toggle(record) } : nil,
+                            onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
+                            onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil
                         )
                     }
                 }
@@ -111,9 +113,26 @@ struct TodayView: View {
         }
     }
 
+    private func isCounter(_ record: HabitRecord) -> Bool {
+        if case .counter = record.type { return true }
+        return false
+    }
+
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, in: modelContext)
+    }
+
+    private func incrementCounter(_ record: HabitRecord) {
+        CompletionLogger(calendar: calendar)
+            .incrementCounter(for: record, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func decrementCounter(_ record: HabitRecord) {
+        CompletionLogger(calendar: calendar)
+            .decrementCounter(for: record, in: modelContext)
+        try? modelContext.save()
     }
 }
 
