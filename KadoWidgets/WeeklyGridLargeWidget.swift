@@ -26,44 +26,43 @@ struct WeeklyGridLargeView: View {
     let entry: SnapshotEntry
 
     private let rowLimit = 6
+    private static let cellSpacing: CGFloat = 4
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            header
+        VStack(alignment: .leading, spacing: 8) {
+            Text("This week")
+                .font(.headline)
             if entry.snapshot.matrix.isEmpty {
                 emptyPlaceholder
             } else {
+                weekdayStripe
                 habitRows
             }
             Spacer(minLength: 0)
         }
     }
 
-    private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("This week")
-                .font(.headline)
-            Spacer()
-            if !entry.snapshot.matrixDays.isEmpty {
-                dayStripe
-                    .foregroundStyle(.secondary)
+    /// Day labels laid out with the same full-width stretch as the
+    /// per-habit cell stripes below, so each label sits directly
+    /// above its column of cells.
+    private var weekdayStripe: some View {
+        GeometryReader { geo in
+            let spacing: CGFloat = Self.cellSpacing
+            let count = CGFloat(max(entry.snapshot.matrixDays.count, 1))
+            let cellWidth = max(
+                8,
+                (geo.size.width - spacing * max(0, count - 1)) / count
+            )
+            HStack(spacing: spacing) {
+                ForEach(entry.snapshot.matrixDays, id: \.self) { day in
+                    Text(weekdayLabel(for: day))
+                        .font(.caption2.monospaced())
+                        .foregroundStyle(isToday(day) ? Color.primary : Color.secondary)
+                        .frame(width: cellWidth)
+                }
             }
         }
-    }
-
-    /// Day labels aligned over the cell stripe below each habit —
-    /// renders only the first / middle / last day initials so the
-    /// header stays readable at widget density.
-    private var dayStripe: some View {
-        HStack(spacing: 0) {
-            ForEach(Array(entry.snapshot.matrixDays.enumerated()), id: \.offset) { index, day in
-                Text(weekdayLabel(for: day))
-                    .font(.caption2.monospaced())
-                    .foregroundStyle(isToday(day) ? Color.primary : Color.secondary)
-                    .frame(maxWidth: .infinity)
-            }
-        }
-        .frame(maxWidth: 240)
+        .frame(height: 14)
     }
 
     private var habitRows: some View {
@@ -91,8 +90,8 @@ struct WeeklyGridLargeView: View {
 
     private func cellStripe(for row: WidgetMatrixRow) -> some View {
         GeometryReader { geo in
-            let spacing: CGFloat = 4
-            let count = CGFloat(row.cells.count)
+            let spacing: CGFloat = Self.cellSpacing
+            let count = CGFloat(max(row.cells.count, 1))
             let cellWidth = max(
                 8,
                 (geo.size.width - spacing * max(0, count - 1)) / count
