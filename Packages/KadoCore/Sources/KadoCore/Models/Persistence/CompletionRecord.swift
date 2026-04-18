@@ -8,7 +8,7 @@ public extension KadoSchemaV1 {
     /// (cascade delete should remove orphans), so `snapshot`
     /// force-unwraps `habit?.id`.
     @Model
-    final class CompletionRecord {
+    public final class CompletionRecord {
         var id: UUID = UUID()
         var date: Date = Date()
         var value: Double = 1.0

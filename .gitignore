@@ -26,7 +26,8 @@ DerivedData/
 # Swift Package Manager
 .build/
 .swiftpm/
-Packages/
+Packages/*
+!Packages/KadoCore/
 Package.pins
 Package.resolved
 *.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/

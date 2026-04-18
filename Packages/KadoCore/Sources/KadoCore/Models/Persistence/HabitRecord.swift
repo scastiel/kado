@@ -16,7 +16,7 @@ public extension KadoSchemaV1 {
     /// SwiftData's `@Model` macro currently mishandles composite
     /// Codable enums as direct stored properties on this toolchain.
     @Model
-    final class HabitRecord {
+    public final class HabitRecord {
         var id: UUID = UUID()
         var name: String = ""
         private var frequencyData: Data = Data()
