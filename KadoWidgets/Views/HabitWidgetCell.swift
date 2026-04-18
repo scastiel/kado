@@ -1,6 +1,7 @@
 import AppIntents
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 /// One habit row as it appears in the small and medium home
 /// widgets. Score-shaded background, habit icon, truncated name,

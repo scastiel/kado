@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import SwiftData
+import KadoCore
 
 /// Draft state for the New Habit sheet. Holds one stored property
 /// per kind's associated value so toggling between `frequencyKind`

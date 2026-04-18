@@ -1,4 +1,5 @@
 import Observation
+import KadoCore
 
 /// Exposes the current CloudKit account status to views and services.
 /// Implementations are `@Observable` so SwiftUI re-renders when the

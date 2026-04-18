@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Small popover body that inspects one (habit × day) cell. Shows the
 /// habit identity, the date, and the day's completion status in

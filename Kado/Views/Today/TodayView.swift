@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// The Today tab — lists habits due today and handles tap-to-toggle
 /// for binary and negative habits, inline counter / timer logging,

@@ -1,6 +1,7 @@
 import CloudKit
 import Testing
 @testable import Kado
+import KadoCore
 
 @MainActor
 struct CloudAccountStatusTests {

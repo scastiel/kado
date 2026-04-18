@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Modal sheet for creating a new habit. Scoped to the four core
 /// fields (name, frequency, type) — icon, color, reminders, and

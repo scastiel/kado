@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 @main
 struct KadoWidgetsBundle: WidgetBundle {

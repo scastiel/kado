@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 // MARK: - Service injection via SwiftUI Environment
 //

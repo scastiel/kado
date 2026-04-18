@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Detail screen for a single habit. Shows score, streak, frequency,
 /// type, and a current-month completion grid. Toolbar actions open

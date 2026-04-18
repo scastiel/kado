@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 struct LockRectangularWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.lockRectangular"

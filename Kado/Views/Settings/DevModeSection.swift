@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Settings section for the in-app dev mode toggle.
 ///

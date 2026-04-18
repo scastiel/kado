@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 /// The small home widget — up to five habits due today as
 /// tappable, score-shaded chips. Uses `HabitTimelineProvider`

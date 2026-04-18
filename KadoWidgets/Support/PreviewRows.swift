@@ -1,4 +1,5 @@
 import Foundation
+import KadoCore
 
 /// Canned data for widget SwiftUI previews. Covers the four habit
 /// types + representative state-shape combos (done, partial, not

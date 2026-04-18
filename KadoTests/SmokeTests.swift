@@ -1,5 +1,6 @@
 import Testing
 @testable import Kado
+import KadoCore
 
 /// Smoke tests — the single-test-case proof that the Swift Testing
 /// target is wired and can `@testable import Kado`. Real coverage

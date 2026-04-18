@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 @testable import Kado
+import KadoCore
 
 @Suite("SharedStore")
 struct SharedStoreTests {

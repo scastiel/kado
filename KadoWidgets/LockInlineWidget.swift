@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 struct LockInlineWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.lockInline"

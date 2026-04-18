@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 @main
 struct KadoApp: App {

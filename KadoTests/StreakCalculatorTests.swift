@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 @testable import Kado
+import KadoCore
 
 @Suite("StreakCalculator")
 @MainActor

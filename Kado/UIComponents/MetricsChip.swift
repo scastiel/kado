@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// `🔥 streak · score%` caption used wherever a habit's current
 /// situational state is surfaced inline (Today row, Overview label

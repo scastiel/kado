@@ -1,4 +1,5 @@
 import Foundation
+import KadoCore
 
 /// The five CloudKit account states the app cares about, mapped 1:1
 /// from `CKAccountStatus`. Declaring our own enum keeps views free

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import KadoCore
 
 /// Seeds a `ModelContext` with a realistic demo dataset covering each
 /// `Frequency` and `HabitType` variant, plus ~30 days of historical

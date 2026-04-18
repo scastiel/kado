@@ -1,4 +1,5 @@
 import Foundation
+import KadoCore
 
 /// Sample `WeeklyMatrixEntry` for SwiftUI previews.
 enum PreviewMatrix {

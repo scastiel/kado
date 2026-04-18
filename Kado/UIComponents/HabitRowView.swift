@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// A single row in the Today list. Three regions:
 /// - **Leading**: 38pt circular badge — fills with the habit color when

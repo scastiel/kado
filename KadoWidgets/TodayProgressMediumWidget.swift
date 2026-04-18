@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 /// The medium home widget — up to eight habits in a two-column
 /// grid plus a header line summarising the day's progress.

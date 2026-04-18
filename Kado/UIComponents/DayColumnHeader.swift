@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Column header for one day in the Overview matrix: weekday letter
 /// above the day-of-month number. The weekday label uses Apple's

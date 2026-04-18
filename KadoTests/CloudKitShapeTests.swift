@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import Testing
 @testable import Kado
+import KadoCore
 
 /// CloudKit imposes several runtime-enforced rules on SwiftData
 /// schemas:

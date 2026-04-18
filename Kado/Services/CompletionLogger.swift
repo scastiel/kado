@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import KadoCore
 
 /// Counter/timer completion operations for the detail view's
 /// quick-log surface. Mirrors `CompletionToggler`'s shape but

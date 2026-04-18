@@ -1,6 +1,7 @@
 import Testing
 import SwiftUI
 @testable import Kado
+import KadoCore
 
 @Suite("EnvironmentValues service registration")
 struct EnvironmentValuesServicesTests {

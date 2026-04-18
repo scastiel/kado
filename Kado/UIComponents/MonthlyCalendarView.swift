@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Current-month calendar grid showing completion state per day.
 /// Renders as a 7-column `LazyVGrid` with weekday headers and

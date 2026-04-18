@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import KadoCore
 
 /// Large home widget — habits × last 7 days matrix, reusing
 /// `OverviewMatrix.compute` so the cell tinting matches the

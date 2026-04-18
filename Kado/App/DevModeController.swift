@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import KadoCore
 
 /// Owns the two `ModelContainer`s the app can run against: the
 /// production CloudKit-backed store and an on-disk dev sandbox.

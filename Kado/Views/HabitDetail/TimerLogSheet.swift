@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Modal sheet for logging a timer habit's session duration in
 /// minutes. Replaces today's completion on save (single-record-

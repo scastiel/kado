@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import KadoCore
 
 /// Shows the current CloudKit account status inside the Settings
 /// `Form`. No in-app toggle — control lives in iOS Settings → Apple ID

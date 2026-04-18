@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import KadoCore
 
 /// Thin wrapper around `WidgetCenter` so mutation sites don't
 /// each have to import WidgetKit directly and so tests can see

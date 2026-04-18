@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Scrollable list of completions for a habit, sorted newest first.
 /// Swipe-to-delete removes a completion. Empty state shows a neutral

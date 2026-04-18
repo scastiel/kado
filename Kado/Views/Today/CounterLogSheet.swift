@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import KadoCore
 
 /// Modal sheet for setting a counter habit's value to an exact number.
 /// Reachable from the Today row's context menu — the row's `−/+`
