@@ -23,6 +23,8 @@ struct HabitRowView: View {
     /// other types.
     var onCounterIncrement: (() -> Void)? = nil
     var onCounterDecrement: (() -> Void)? = nil
+    /// Timer: add five minutes to today's session. `nil` for other types.
+    var onTimerAddFiveMinutes: (() -> Void)? = nil
 
     private var isComplete: Bool { state.status == .complete }
 
@@ -104,9 +106,40 @@ struct HabitRowView: View {
         case .counter(let target):
             counterStepper(target: target)
         case .timer(let targetSeconds):
-            Text(timerLabel(target: targetSeconds))
+            timerAddFiveChip(target: targetSeconds)
+        }
+    }
+
+    // MARK: - Timer chip
+
+    /// Trailing `+5m` quick-log chip. Tap adds five minutes to today's
+    /// session — the fast-path power-user action. The full session
+    /// editor (existing `TimerLogSheet`) is reachable from the row's
+    /// context menu via "Log specific value…" (Task 6).
+    @ViewBuilder
+    private func timerAddFiveChip(target: TimeInterval) -> some View {
+        HStack(spacing: 8) {
+            Text(timerLabel(target: target))
                 .font(.callout.monospacedDigit())
-                .foregroundStyle(.secondary)
+                .foregroundStyle(isComplete ? habit.color.color : .secondary)
+
+            if let onTimerAddFiveMinutes {
+                Button(action: onTimerAddFiveMinutes) {
+                    Text("+5m")
+                        .font(.callout.weight(.semibold).monospacedDigit())
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 10)
+                        .background(
+                            Capsule().fill(habit.color.color.opacity(0.15))
+                        )
+                        .foregroundStyle(habit.color.color)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(String(localized: "Add 5 minutes"))
+            }
+        }
+        .sensoryFeedback(.success, trigger: isComplete) { old, new in
+            !old && new
         }
     }
 

@@ -80,7 +80,8 @@ struct TodayView: View {
                             ),
                             onToggle: canToggle(record) ? { toggle(record) } : nil,
                             onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
-                            onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil
+                            onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
+                            onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil
                         )
                     }
                 }
@@ -118,6 +119,11 @@ struct TodayView: View {
         return false
     }
 
+    private func isTimer(_ record: HabitRecord) -> Bool {
+        if case .timer = record.type { return true }
+        return false
+    }
+
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, in: modelContext)
@@ -132,6 +138,15 @@ struct TodayView: View {
     private func decrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
             .decrementCounter(for: record, in: modelContext)
+        try? modelContext.save()
+    }
+
+    private func addFiveMinutes(_ record: HabitRecord) {
+        // CompletionRecord.value carries seconds for timer habits, so a
+        // five-minute bump is just delta = 300 through the same
+        // increment path the counter uses.
+        CompletionLogger(calendar: calendar)
+            .incrementCounter(for: record, by: 300, in: modelContext)
         try? modelContext.save()
     }
 }

@@ -127,6 +127,17 @@
         }
       }
     },
+    "+5m" : {
+      "comment" : "Trailing chip on a timer habit row in the Today list. Tapping it adds five minutes to today's session.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+5m"
+          }
+        }
+      }
+    },
     "A few times a week" : {
       "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
       "localizations" : {
@@ -134,6 +145,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A few times a week"
+          }
+        }
+      }
+    },
+    "Add 5 minutes" : {
+      "comment" : "VoiceOver label for the +5m chip on a timer habit row in the Today list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add 5 minutes"
           }
         }
       }
