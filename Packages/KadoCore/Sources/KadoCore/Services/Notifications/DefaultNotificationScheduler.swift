@@ -30,8 +30,6 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
     let frequencyEvaluator: any FrequencyEvaluating
     let streakCalculator: any StreakCalculating
     let calendar: Calendar
-
-    /// Clock injection for tests; production uses `Date.init`.
     let now: @Sendable () -> Date
 
     public init(
@@ -49,15 +47,80 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
     }
 
     public func rescheduleAll(habits: [Habit], completions: [Completion]) async {
-        // Implementation lands in Task 3 (TDD).
+        await clearAllOwnedRequests()
+        let today = calendar.startOfDay(for: now())
+        for habit in habits where habit.remindersEnabled && habit.archivedAt == nil {
+            let habitCompletions = completions.filter { $0.habitID == habit.id }
+            let streak = streakCalculator.current(for: habit, completions: habitCompletions, asOf: now())
+            for offset in 0..<Self.windowDays {
+                guard let day = calendar.date(byAdding: .day, value: offset, to: today) else { continue }
+                guard frequencyEvaluator.isDue(habit: habit, on: day, completions: habitCompletions) else { continue }
+                let request = makeRequest(habit: habit, day: day, streak: streak)
+                try? await center.add(request)
+            }
+        }
     }
 
     public func cancel(habitID: UUID) async {
-        // Implementation lands in Task 3 (TDD).
+        let pending = await center.pendingNotificationRequests()
+        let prefix = Self.identifierPrefix + habitID.uuidString + "."
+        let matches = pending
+            .map(\.identifier)
+            .filter { $0.hasPrefix(prefix) }
+        await center.removePendingNotificationRequests(withIdentifiers: matches)
     }
 
     public func requestAuthorizationIfNeeded() async -> UNAuthorizationStatus {
-        // Implementation lands in Task 3 (TDD).
-        await center.authorizationStatus()
+        let current = await center.authorizationStatus()
+        guard current == .notDetermined else { return current }
+        _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
+        return await center.authorizationStatus()
+    }
+
+    // MARK: - Internals
+
+    private func clearAllOwnedRequests() async {
+        let pending = await center.pendingNotificationRequests()
+        let ours = pending
+            .map(\.identifier)
+            .filter { $0.hasPrefix(Self.identifierPrefix) }
+        guard !ours.isEmpty else { return }
+        await center.removePendingNotificationRequests(withIdentifiers: ours)
+    }
+
+    private func makeRequest(habit: Habit, day: Date, streak: Int) -> UNNotificationRequest {
+        let content = UNMutableNotificationContent()
+        content.title = habit.name
+        content.body = composeBody(habitName: habit.name, streak: streak)
+        content.categoryIdentifier = Self.categoryIdentifier
+        content.userInfo = ["habitID": habit.id.uuidString]
+        content.sound = .default
+
+        var components = calendar.dateComponents([.year, .month, .day], from: day)
+        components.hour = habit.reminderHour
+        components.minute = habit.reminderMinute
+        components.timeZone = calendar.timeZone
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        let identifier = Self.identifierPrefix + habit.id.uuidString + "." + dayFormatter.string(from: day)
+        return UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+    }
+
+    private func composeBody(habitName: String, streak: Int) -> String {
+        guard streak > 0 else { return habitName }
+        let format = String(
+            localized: "notifications.body.streak",
+            defaultValue: "%@ — %lld day streak",
+            comment: "Reminder banner body when a habit has an active streak. 1st: habit name. 2nd: streak length in days."
+        )
+        return String(format: format, habitName, streak)
+    }
+
+    private var dayFormatter: DateFormatter {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = calendar.timeZone
+        return f
     }
 }

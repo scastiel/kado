@@ -111,7 +111,7 @@ without implementing the real logic yet. Unlocks TDD for task 3.
 
 ---
 
-### Task 3: Schedule derivation tests + implementation (TDD)
+### Task 3: Schedule derivation tests + implementation (TDD) ✅
 
 **Goal**: Given a habit and its completions, produce the correct set
 of pending `UNNotificationRequest`s for the next 7 days.
