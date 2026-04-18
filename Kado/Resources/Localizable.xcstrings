@@ -224,6 +224,17 @@
         }
       }
     },
+    "Create habits from the Today tab to see them here." : {
+      "comment" : "Empty-state description on the Overview tab when no habits exist.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create habits from the Today tab to see them here."
+          }
+        }
+      }
+    },
     "Decrement" : {
       "comment" : "VoiceOver label for the minus button in the counter quick-log control.",
       "localizations" : {
@@ -485,6 +496,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nothing due today"
+          }
+        }
+      }
+    },
+    "Overview" : {
+      "comment" : "Tab + navigation title for the multi-habit overview matrix.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview"
           }
         }
       }
