@@ -1,15 +1,13 @@
 import SwiftData
 import SwiftUI
 
-/// Overview tab: a habits × days matrix. Each row is one non-archived
-/// habit; each column is one of the last ~30 days; each cell is
-/// tinted by the habit's color at an opacity derived from its EMA
-/// score that day.
-///
-/// Layout: sticky left column (habit icon + name) outside the
-/// horizontal scroll view; the scrolling region contains day-column
-/// headers plus one row of cells per habit. Initial scroll position
-/// anchors at today (newest-on-right, scroll left into history).
+/// Overview tab: one card per non-archived habit. Each card stacks
+/// the habit label (icon + name) above a horizontal strip of day
+/// cells covering the last ~30 days. Cards stack vertically so the
+/// large `Overview` title collapses naturally while scrolling, like
+/// Today and Settings. Each card's cell strip owns its own
+/// horizontal scroll (anchored at today on the right); labels stay
+/// put since they live outside the strip.
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -23,11 +21,8 @@ struct OverviewView: View {
     @State private var selection: CellSelection?
 
     private static let dayWindow = 30
-    private static let cellSize: CGFloat = 32
-    private static let cellSpacing: CGFloat = 4
-    private static let labelWidth: CGFloat = 130
-    private static let headerHeight: CGFloat = 36
-    private static let rowHeight: CGFloat = 32
+    private static let cellSize: CGFloat = 36
+    private static let cellSpacing: CGFloat = 6
 
     struct CellSelection: Identifiable, Equatable {
         let habit: Habit
@@ -39,14 +34,17 @@ struct OverviewView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if records.isEmpty {
-                    emptyState
-                } else {
-                    matrix
-                }
-            }
-            .navigationTitle("Overview")
+            content
+                .navigationTitle("Overview")
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if records.isEmpty {
+            emptyState
+        } else {
+            matrix
         }
     }
 
@@ -58,14 +56,13 @@ struct OverviewView: View {
         )
     }
 
-    @ViewBuilder
     private var matrix: some View {
+        let today = calendar.startOfDay(for: .now)
+        let days = dayRange(endingAt: today)
         let habits = records.map { $0.snapshot }
         let completions = records.flatMap {
             ($0.completions ?? []).map { $0.snapshot }
         }
-        let today = calendar.startOfDay(for: .now)
-        let days = dayRange(endingAt: today)
         let rows = OverviewMatrix.compute(
             habits: habits,
             completions: completions,
@@ -75,20 +72,14 @@ struct OverviewView: View {
             frequencyEvaluator: frequencyEvaluator
         )
 
-        HStack(alignment: .top, spacing: 8) {
-            stickyLabelColumn(rows: rows)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: Self.cellSpacing) {
-                    dayHeaderRow(days: days)
-                    ForEach(rows, id: \.habit.id) { row in
-                        cellRow(row, days: days)
-                    }
+        return ScrollView(.vertical) {
+            LazyVStack(spacing: 12) {
+                ForEach(rows, id: \.habit.id) { row in
+                    habitCard(row, days: days)
                 }
             }
-            .defaultScrollAnchor(.trailing)
+            .padding()
         }
-        .padding()
         .popover(item: $selection) { sel in
             CellPopoverContent(
                 habit: sel.habit,
@@ -99,52 +90,57 @@ struct OverviewView: View {
         }
     }
 
-    private func stickyLabelColumn(rows: [MatrixRow]) -> some View {
-        VStack(alignment: .leading, spacing: Self.cellSpacing) {
-            Color.clear.frame(height: Self.headerHeight)
-            ForEach(rows, id: \.habit.id) { row in
-                HabitRowLabel(habit: row.habit, height: Self.rowHeight)
+    private func habitCard(_ row: MatrixRow, days: [Date]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: row.habit.icon)
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(row.habit.color.color)
+                Text(row.habit.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                MatrixRowView(
+                    habit: row.habit,
+                    cells: row.days,
+                    cellSize: Self.cellSize,
+                    cellSpacing: Self.cellSpacing,
+                    cellTap: { index in
+                        guard days.indices.contains(index),
+                              row.days.indices.contains(index) else { return }
+                        selection = CellSelection(
+                            habit: row.habit,
+                            date: days[index],
+                            cell: row.days[index]
+                        )
+                    },
+                    cellAccessibilityLabel: { index in
+                        guard days.indices.contains(index),
+                              row.days.indices.contains(index) else { return "" }
+                        return Self.accessibilityLabel(
+                            habit: row.habit,
+                            date: days[index],
+                            cell: row.days[index],
+                            calendar: calendar
+                        )
+                    }
+                )
+                .padding(.vertical, 2)
+            }
+            .defaultScrollAnchor(.trailing)
         }
-        .frame(width: Self.labelWidth, alignment: .leading)
+        .padding(12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func dayHeaderRow(days: [Date]) -> some View {
-        HStack(spacing: Self.cellSpacing) {
-            ForEach(days, id: \.self) { day in
-                DayColumnHeader(date: day, width: Self.cellSize)
-            }
+    private func dayRange(endingAt today: Date) -> [Date] {
+        (0..<Self.dayWindow).reversed().compactMap { offset in
+            calendar.date(byAdding: .day, value: -offset, to: today)
         }
-        .frame(height: Self.headerHeight)
-    }
-
-    private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
-        MatrixRowView(
-            habit: row.habit,
-            cells: row.days,
-            cellSize: Self.cellSize,
-            cellSpacing: Self.cellSpacing,
-            cellTap: { index in
-                guard days.indices.contains(index),
-                      row.days.indices.contains(index) else { return }
-                selection = CellSelection(
-                    habit: row.habit,
-                    date: days[index],
-                    cell: row.days[index]
-                )
-            },
-            cellAccessibilityLabel: { index in
-                guard days.indices.contains(index),
-                      row.days.indices.contains(index) else { return "" }
-                return Self.accessibilityLabel(
-                    habit: row.habit,
-                    date: days[index],
-                    cell: row.days[index],
-                    calendar: calendar
-                )
-            }
-        )
-        .frame(height: Self.rowHeight)
     }
 
     /// Composes a per-cell VoiceOver label:
@@ -178,12 +174,6 @@ struct OverviewView: View {
             }
         }
         return "\(habit.name), \(dateString), \(state)"
-    }
-
-    private func dayRange(endingAt today: Date) -> [Date] {
-        (0..<Self.dayWindow).reversed().compactMap { offset in
-            calendar.date(byAdding: .day, value: -offset, to: today)
-        }
     }
 }
 
