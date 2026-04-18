@@ -12,6 +12,9 @@ struct ContentView: View {
             Tab("Today", systemImage: "list.bullet.clipboard") {
                 TodayView()
             }
+            Tab("Overview", systemImage: "square.grid.2x2") {
+                OverviewView()
+            }
             Tab("Settings", systemImage: "gearshape") {
                 SettingsView()
             }

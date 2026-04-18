@@ -60,8 +60,8 @@ DNA (habit score, offline, privacy) in place from the start.
 
 ## v0.2 — Visible iOS-native
 
-**Objective**: the iOS differentiators Loop lacks and that users see
-first.
+**Objective**: the iOS-native surfaces users see first — widgets, an
+at-a-glance overview, notifications, frictionless data portability.
 
 **Estimate**: 2-3 weeks.
 
@@ -71,6 +71,15 @@ first.
 - [ ] Large home screen widget: weekly view
 - [ ] Lock screen widget (rectangular, circular, inline)
 - [ ] App Group configured for data sharing
+
+### Multi-habit overview
+- [ ] New "Overview" tab: habits × days matrix, all habits on a shared
+      day axis (Loop / Way of Life pattern)
+- [ ] Cells encode completion with habit-score shading, not binary
+      checkmarks — keeps Kadō's score DNA visible at a glance
+- [ ] Horizontal scroll back through history; sticky habit-name column
+- [ ] Tap a cell to open the per-habit Detail for that date
+- [ ] Dark mode, Dynamic Type, VoiceOver labels for every cell
 
 ### Notifications
 - [ ] Reminders per habit, at fixed time
@@ -99,6 +108,8 @@ first.
 - [ ] An export followed by an import restores 100% of the data
       (automated test)
 - [ ] Notifications respect system settings (Focus, Do Not Disturb)
+- [ ] Overview shows ≥30 days of history for all habits legibly on
+      iPhone 16 Pro and iPad Air
 
 ---
 

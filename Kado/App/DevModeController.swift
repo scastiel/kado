@@ -73,20 +73,34 @@ final class DevModeController {
     private func buildDevContainer() -> ModelContainer {
         ensureParentDirectoryExists(for: devStoreURL)
         do {
-            let schema = Schema(versionedSchema: KadoSchemaV1.self)
-            let configuration = ModelConfiguration(
-                schema: schema,
-                url: devStoreURL,
-                cloudKitDatabase: .none
-            )
-            return try ModelContainer(
-                for: schema,
-                migrationPlan: KadoMigrationPlan.self,
-                configurations: configuration
-            )
+            return try makeDevContainer()
         } catch {
-            fatalError("Failed to construct dev ModelContainer: \(error)")
+            // Dev sandbox is disposable — if SwiftData can't open the
+            // file (e.g. stale schema from an older schema version that
+            // pre-dates the current migration plan), wipe and rebuild
+            // empty. A production container does NOT get this
+            // treatment; user data is never silently discarded.
+            deleteDevStoreFiles()
+            do {
+                return try makeDevContainer()
+            } catch {
+                fatalError("Failed to construct dev ModelContainer after wipe: \(error)")
+            }
         }
+    }
+
+    private func makeDevContainer() throws -> ModelContainer {
+        let schema = Schema(versionedSchema: KadoSchemaV2.self)
+        let configuration = ModelConfiguration(
+            schema: schema,
+            url: devStoreURL,
+            cloudKitDatabase: .none
+        )
+        return try ModelContainer(
+            for: schema,
+            migrationPlan: KadoMigrationPlan.self,
+            configurations: configuration
+        )
     }
 
     private func deleteDevStoreFiles() {
@@ -115,7 +129,7 @@ final class DevModeController {
 
     nonisolated static func defaultProductionContainer() -> ModelContainer {
         do {
-            let schema = Schema(versionedSchema: KadoSchemaV1.self)
+            let schema = Schema(versionedSchema: KadoSchemaV2.self)
             return try ModelContainer(
                 for: schema,
                 migrationPlan: KadoMigrationPlan.self,

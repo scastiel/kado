@@ -81,5 +81,3 @@ extension KadoSchemaV1 {
         }
     }
 }
-
-typealias HabitRecord = KadoSchemaV1.HabitRecord

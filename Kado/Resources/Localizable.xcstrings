@@ -103,6 +103,17 @@
         }
       }
     },
+    "%lld%% complete" : {
+      "comment" : "Status label for an Overview cell that shows partial completion (counter or timer between 0 and target). Used in the cell popover and in the VoiceOver label. %lld is the percentage 0-100.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld%% complete"
+          }
+        }
+      }
+    },
     "A few times a week" : {
       "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
       "localizations" : {
@@ -110,6 +121,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A few times a week"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "comment" : "Section header in the new-habit form grouping the color + icon pickers.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
           }
         }
       }
@@ -180,6 +202,17 @@
         }
       }
     },
+    "Completed" : {
+      "comment" : "Status label in the Overview cell popover for a fully-completed day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        }
+      }
+    },
     "Come back tomorrow, or check your habit detail to log a past day." : {
       "comment" : "Empty-state description shown on the Today view when the user has habits but none are due today.",
       "localizations" : {
@@ -209,6 +242,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Counter · target %lld"
+          }
+        }
+      }
+    },
+    "Create habits from the Today tab to see them here." : {
+      "comment" : "Empty-state description on the Overview tab when no habits exist.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create habits from the Today tab to see them here."
           }
         }
       }
@@ -423,6 +467,17 @@
         }
       }
     },
+    "Missed" : {
+      "comment" : "Status label in the Overview cell popover for a scheduled day with no completion logged.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed"
+          }
+        }
+      }
+    },
     "New Habit" : {
       "comment" : "Navigation title for the habit form when creating a new habit.",
       "localizations" : {
@@ -467,6 +522,17 @@
         }
       }
     },
+    "Not scheduled" : {
+      "comment" : "Status label in the Overview cell popover when a day is off-schedule for the habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not scheduled"
+          }
+        }
+      }
+    },
     "Nothing due today" : {
       "comment" : "Empty-state title shown on the Today view when the user has habits but none are due today.",
       "localizations" : {
@@ -474,6 +540,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nothing due today"
+          }
+        }
+      }
+    },
+    "Overview" : {
+      "comment" : "Tab + navigation title for the multi-habit overview matrix.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview"
           }
         }
       }
@@ -529,6 +606,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Score"
+          }
+        }
+      }
+    },
+    "Scored" : {
+      "comment" : "Status label in the Overview cell popover for a day that contributes to the EMA score (past or today, on-schedule).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scored"
           }
         }
       }
@@ -661,6 +749,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Type"
+          }
+        }
+      }
+    },
+    "Upcoming" : {
+      "comment" : "Status label in the Overview cell popover for a future day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
           }
         }
       }
