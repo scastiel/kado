@@ -14,5 +14,6 @@ struct KadoWidgetsBundle: WidgetBundle {
         TodayGridSmallWidget()
         TodayProgressMediumWidget()
         WeeklyGridLargeWidget()
+        LockRectangularWidget()
     }
 }
