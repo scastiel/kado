@@ -128,7 +128,11 @@ struct WeeklyGridLargeView: View {
 
     private func weekdayLabel(for day: Date) -> String {
         let weekdayValue = Calendar.current.component(.weekday, from: day)
-        return Weekday(rawValue: weekdayValue)?.localizedShort ?? ""
+        // `localizedMedium` returns the three-letter standalone
+        // symbol for the current locale ("Sun", "Mon", "dim",
+        // "lun"); truncating to two characters gives the stem the
+        // user expects across languages.
+        return String(Weekday(rawValue: weekdayValue)?.localizedMedium.prefix(2) ?? "")
     }
 }
 
