@@ -12,5 +12,6 @@ import WidgetKit
 struct KadoWidgetsBundle: WidgetBundle {
     var body: some Widget {
         TodayGridSmallWidget()
+        TodayProgressMediumWidget()
     }
 }
