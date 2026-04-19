@@ -29,6 +29,7 @@ struct SyncStatusSection: View {
                 }
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var devModePausedRow: some View {

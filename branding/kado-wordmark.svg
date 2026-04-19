@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" fill="none">
+  <g transform="translate(0,0)">
+    <path d="M 92 30&#xA;             C 102 44, 102 68, 90 82&#xA;             C 78 96, 56 100, 38 92&#xA;             C 20 84, 12 64, 18 46&#xA;             C 24 28, 44 18, 62 22&#xA;             C 74 24, 82 28, 88 34" stroke="currentColor" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.95"></path>
+    <circle cx="92" cy="30" r="5" fill="currentColor" opacity="0.95"></circle>
+  </g>
+  <g transform="translate(128,0)">
+    <text x="0" y="74" font-family="Fraunces, Georgia, serif" font-size="64" font-weight="500" fill="currentColor" style="font-variation-settings: &#39;opsz&#39; 72, &#39;SOFT&#39; 30; letter-spacing: -0.02em;">Kadō</text>
+    <text x="2" y="98" font-family="&#39;Noto Serif JP&#39;, serif" font-size="14" fill="currentColor" opacity="0.55" style="letter-spacing: 0.18em;">稼 働 ・ in operation</text>
+  </g>
+</svg>

@@ -13,7 +13,7 @@ struct WeeklyGridLargeWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
             WeeklyGridLargeView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://overview"))
         }
         .configurationDisplayName(Text("This Week"))
@@ -57,7 +57,7 @@ struct WeeklyGridLargeView: View {
                 ForEach(entry.snapshot.matrixDays, id: \.self) { day in
                     Text(weekdayLabel(for: day))
                         .font(.caption2.monospaced())
-                        .foregroundStyle(isToday(day) ? Color.primary : Color.secondary)
+                        .foregroundStyle(isToday(day) ? Color.kadoForeground : Color.kadoForegroundSecondary)
                         .frame(width: cellWidth)
                 }
             }
@@ -114,10 +114,10 @@ struct WeeklyGridLargeView: View {
         VStack(spacing: 6) {
             Image(systemName: "square.grid.3x3")
                 .font(.title2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
             Text("No habits yet")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -153,7 +153,7 @@ struct WidgetMatrixCell: View {
     private var fill: Color {
         switch cell {
         case .future: Color.clear
-        case .notDue: Color(.tertiarySystemFill)
+        case .notDue: Color.kadoHairline
         case .scored: color.color.opacity(cell.colorOpacity ?? 0)
         }
     }

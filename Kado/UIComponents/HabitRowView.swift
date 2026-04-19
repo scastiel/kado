@@ -43,8 +43,8 @@ struct HabitRowView: View {
                 .frame(width: 38, height: 38)
             VStack(alignment: .leading, spacing: 2) {
                 Text(habit.name)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.kadoForeground)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 metricsLine
@@ -140,8 +140,8 @@ struct HabitRowView: View {
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(isComplete ? Color.white : habit.color.color)
         }
-        .animation(.easeOut(duration: 0.2), value: state.progress)
-        .animation(.easeOut(duration: 0.2), value: isComplete)
+        .animation(KadoMotion.base, value: state.progress)
+        .animation(KadoMotion.base, value: isComplete)
     }
 
     // MARK: - Metrics line
@@ -275,8 +275,8 @@ struct HabitRowView: View {
                 Image(systemName: "minus")
                     .font(.callout.weight(.semibold))
                     .frame(width: 28, height: 28)
-                    .background(Circle().fill(Color(.secondarySystemFill)))
-                    .foregroundStyle(canDecrement ? Color.primary : Color.secondary)
+                    .background(Circle().fill(Color.kadoPaper200))
+                    .foregroundStyle(canDecrement ? Color.kadoForeground : Color.kadoForegroundSecondary)
             }
             .buttonStyle(.borderless)
             .disabled(!canDecrement)

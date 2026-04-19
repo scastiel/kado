@@ -17,6 +17,8 @@ struct SettingsView: View {
                 BackupSection()
                 DevModeSection()
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle("Settings")
         }
     }

@@ -10,6 +10,9 @@ let package = Package(
         .library(name: "KadoCore", targets: ["KadoCore"])
     ],
     targets: [
-        .target(name: "KadoCore")
+        .target(
+            name: "KadoCore",
+            resources: [.process("Resources")]
+        )
     ]
 )

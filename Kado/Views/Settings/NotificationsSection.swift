@@ -25,6 +25,7 @@ struct NotificationsSection: View {
                 }
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
         .task { await refreshStatus() }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {

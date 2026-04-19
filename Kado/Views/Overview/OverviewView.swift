@@ -98,6 +98,8 @@ struct OverviewView: View {
             }
             .padding(.vertical, 8)
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.kadoBackground.ignoresSafeArea())
     }
 
     /// Binding that reflects whether a specific (habit, date) cell is

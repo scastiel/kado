@@ -139,6 +139,7 @@ struct TodayView: View {
                             onArchive: { confirmingArchiveOf = record }
                         )
                     }
+                    .listRowBackground(Color.kadoBackgroundSecondary)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         if canSwipeUndo(record, state: state) {
                             Button(role: .destructive) {
@@ -149,6 +150,8 @@ struct TodayView: View {
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
+                .background(Color.kadoBackground.ignoresSafeArea())
                 .refreshable {
                     // SwiftData has no public API to force a CloudKit
                     // pull; the brief delay lets any in-flight push

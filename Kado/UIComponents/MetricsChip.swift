@@ -15,20 +15,20 @@ struct MetricsChip: View {
             if streak > 0 {
                 // Hand-rolled "label" — Label's default icon-to-title
                 // gap is sized for body text and reads as loose at
-                // .caption2.
+                // 11pt.
                 HStack(spacing: 2) {
                     Image(systemName: "flame.fill")
                     Text("\(streak)")
                 }
-                .font(.caption2.weight(.semibold))
+                .font(.system(size: 11, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color.orange)
                 Text("·")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
             Text("\(scorePercent)%")
-                .font(.caption2.weight(.semibold).monospacedDigit())
-                .foregroundStyle(.secondary)
+                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }
 }

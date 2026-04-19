@@ -40,6 +40,7 @@ struct DevModeSection: View {
         } footer: {
             Text("Replaces your data with a demo dataset. Your real data is safe and returns when you turn this off. Edits made while dev mode is on are discarded the next time you turn it on.")
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
         .alert("Enable dev mode?", isPresented: $showingConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Enable", role: .destructive) {

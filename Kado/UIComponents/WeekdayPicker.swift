@@ -31,10 +31,10 @@ struct WeekdayPicker: View {
                 .font(.callout.weight(.medium))
                 .frame(maxWidth: .infinity)
                 .frame(height: 36)
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .foregroundStyle(isSelected ? Color.white : Color.kadoForeground)
                 .background(
                     Capsule()
-                        .fill(isSelected ? Color.accentColor : Color(.tertiarySystemFill))
+                        .fill(isSelected ? Color.accentColor : Color.kadoHairline)
                 )
         }
         .buttonStyle(.plain)

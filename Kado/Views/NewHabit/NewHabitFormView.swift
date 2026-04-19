@@ -25,6 +25,8 @@ struct NewHabitFormView: View {
                 typeSection
                 reminderSection
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle(model.isEditing
                 ? String(localized: "Edit Habit")
                 : String(localized: "New Habit"))
@@ -60,6 +62,7 @@ struct NewHabitFormView: View {
                 .focused($nameFocused)
                 .submitLabel(.done)
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var appearanceSection: some View {
@@ -67,6 +70,7 @@ struct NewHabitFormView: View {
             HabitColorPicker(selection: $model.color)
             HabitIconPicker(selection: $model.icon, tint: model.color.color)
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var frequencySection: some View {
@@ -98,6 +102,7 @@ struct NewHabitFormView: View {
                 )
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var typeSection: some View {
@@ -127,6 +132,7 @@ struct NewHabitFormView: View {
                 )
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var reminderSection: some View {
@@ -146,6 +152,7 @@ struct NewHabitFormView: View {
                 Text(String(localized: "Fires on \(frequencyFooter)"))
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var frequencyFooter: String {

@@ -150,7 +150,7 @@ struct HabitDetailView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
-                        Capsule().fill(Color(.tertiarySystemFill))
+                        Capsule().fill(Color.kadoHairline)
                     )
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
@@ -185,8 +185,8 @@ struct HabitDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: KadoRadius.card)
+                .fill(Color.kadoBackgroundSecondary)
         )
     }
 
