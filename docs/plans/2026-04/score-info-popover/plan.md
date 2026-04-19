@@ -120,8 +120,10 @@ in both color schemes; Dynamic Type XXXL doesn't truncate.
 
 ## Open questions
 
-- [ ] Should the popover also open by long-press, or tap-only? Plan
-  assumes tap-only (simpler, more discoverable).
+- [x] ~~Should the popover also open by long-press, or tap-only?~~
+  **Resolved: tap-only.** Shipped as tap-only; no long-press
+  gesture added. Can be revisited if discoverability feedback
+  suggests otherwise.
 
 ## Notes during build
 
