@@ -18,6 +18,7 @@ struct HabitDetailView: View {
     @State private var showingEdit = false
     @State private var showingArchiveConfirmation = false
     @State private var showingTimerSheet = false
+    @State private var showingScoreInfo = false
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -160,16 +161,44 @@ struct HabitDetailView: View {
 
     private var metricsRow: some View {
         HStack(spacing: 12) {
-            metricCard(
-                title: String(localized: "Score"),
-                value: scorePercent,
-                systemImage: "chart.line.uptrend.xyaxis"
-            )
+            scoreCard
             metricCard(
                 title: String(localized: "Streak"),
                 value: String(localized: "\(currentStreak) / best \(bestStreak)"),
                 systemImage: "flame.fill"
             )
+        }
+    }
+
+    private var scoreCard: some View {
+        Button {
+            showingScoreInfo = true
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 4) {
+                    Label(String(localized: "Score"), systemImage: "chart.line.uptrend.xyaxis")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Text(scorePercent)
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: KadoRadius.card)
+                    .fill(Color.kadoBackgroundSecondary)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(Text("Shows how the score is calculated."))
+        .popover(isPresented: $showingScoreInfo) {
+            ScoreExplanationPopover()
+                .presentationCompactAdaptation(.popover)
         }
     }
 
