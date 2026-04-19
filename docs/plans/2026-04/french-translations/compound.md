@@ -133,28 +133,35 @@ pure source text.
 
 - **What happened**: a post-build inspection of
   `Kado.app/PlugIns/KadoWidgetsExtension.appex/` found no
-  `fr.lproj` and the Info.plist has no `CFBundleLocalizations`.
+  `fr.lproj` and the Info.plist had no `CFBundleLocalizations`.
   The catalog lives in the main app target's synchronized folder
   (`Kado/Resources/Localizable.xcstrings`) and isn't included in
-  the widget extension's target membership. So widget *kind*
-  names, descriptions, and lock-screen fallbacks will render EN
-  regardless of system language — even though the catalog
+  the widget extension's target membership. Widget kind names,
+  descriptions, and lock-screen fallbacks would render EN
+  regardless of system language — even though the main catalog
   contains all the FR translations.
-- **What we did**: documented as a follow-up; did not block the
-  PR. The fix requires editing project.pbxproj (Xcode IDE
-  operation) to add the catalog as a file-level exception to the
-  widget extension target membership, or to duplicate the
-  widget-relevant keys into a `KadoWidgets/Resources/` catalog.
-  Neither is safe via pure text edits — MCP-only tooling can't
-  check target-membership toggles.
+- **What we did**: added a second catalog at
+  `KadoWidgets/Resources/Localizable.xcstrings` with the
+  ~26 widget-used keys (kind names, descriptions, lock-screen
+  fallbacks, format shells, VO states) and their FR values. The
+  synchronized-folder mechanism automatically compiles the
+  catalog into `fr.lproj/Localizable.strings` inside the widget
+  extension bundle. Verified post-build:
+  `KadoWidgetsExtension.appex/fr.lproj/Localizable.strings`
+  contains all 26 translated entries.
 - **Lesson**: when localizing an app with extensions, **verify
   each extension's compiled `.appex` contains the language's
   `.lproj` before claiming the feature complete**. The
-  `LocalizationCoverageTests` guard the catalog, but the catalog
-  is only source — target-membership is what determines whether
-  the compiled bundle actually ships it. Add a build-phase check
-  or a second test that inspects the `.appex` structure if this
-  ever regresses.
+  `LocalizationCoverageTests` guard the catalog source — but the
+  catalog is only source; target-membership determines whether
+  the compiled bundle ships it. For synchronized-folder projects,
+  the pattern is one catalog per target folder; cross-target
+  sharing requires either pbxproj exceptions (Xcode-IDE-only) or
+  Bundle.module lookups via a package. Duplicating widget keys
+  was the cheapest fix that stays MCP-automatable.
+- **Test update**: `LocalizationCoverageTests.catalogPaths` now
+  walks both catalogs. Future new targets with user-facing
+  strings should append their catalog path to this list.
 
 ### Code review polish after compound
 
@@ -250,25 +257,30 @@ pure source text.
   Pseudo-locale IDE sweep also deferred — MCP can't drive the
   scheme-level option; author runs it before v1.0 App Store
   submission.
-- **[→ ROADMAP.md]** Widget-extension FR localization is a
-  **v1.0 blocker** discovered in post-merge review. Fix requires
-  adding the catalog to the widget extension's target membership
-  via Xcode IDE (or duplicating widget-relevant keys into a
-  separate `KadoWidgets/Resources/` catalog). Without this fix,
-  widget kind names and descriptions render EN regardless of
-  system language.
+- **[→ CLAUDE.md candidate]** For multi-target iOS apps using
+  synchronized folders, **each target with user-facing strings
+  needs its own `Localizable.xcstrings`**. The widget extension
+  (and any future extension — Live Activities, watchOS, etc.)
+  keeps overlapping keys in sync with the main app's catalog
+  through copy-paste. `LocalizationCoverageTests` walks every
+  catalog listed in `catalogPaths`; append when a new target
+  ships.
 
 ## Metrics
 
-- Tasks completed: 14 of 14
-- Tests added: 1 (`LocalizationCoverageTests`)
-- Commits: ~14 (1 research, 1 plan, 12 feat/fix/test/chore/docs)
-- Catalog entries translated: ~160 EN → FR
+- Tasks completed: 14 of 14 plan tasks + 2 post-review fixes
+  (widget catalog, test polish)
+- Tests added: 1 (`LocalizationCoverageTests`), extended
+  post-review to walk both catalogs
+- Commits: ~18 (1 research, 1 plan, 12 feat/fix/chore/test/docs
+  across phases 2-3, 2 docs+polish commits after compound, 2
+  widget-catalog commits)
+- Catalog entries translated: ~160 in main catalog, ~26 in
+  widget catalog (overlap with main on the shared keys)
 - Source files touched: 3 (`OverviewView.swift` — empty-state
-  dedupe; `ROADMAP.md` — move FR from v1.0 to v0.2 stream;
-  `CLAUDE.md` — FR conventions note). Widget source unchanged;
-  `Text("\(row.streak)d")` pattern was already on the
-  LocalizedStringKey path.
+  dedupe; `ROADMAP.md`; `CLAUDE.md`). Widget Swift sources
+  unchanged; the existing `Text("…")` call sites already sit
+  on the LocalizedStringKey path.
 - Build/test status: 243/243 passing, no new warnings.
 
 ## References
