@@ -652,7 +652,7 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "tous les %lld jour"
+                  "value" : "tous les jours"
                 }
               },
               "other" : {
@@ -693,7 +693,7 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Tous les %lld jour"
+                  "value" : "Tous les jours"
                 }
               },
               "other" : {
@@ -780,7 +780,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Programmé %@"
+            "value" : "Programme %@"
           }
         }
       }
@@ -897,7 +897,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comment la mesurer ?"
+            "value" : "Mode de mesure"
           }
         }
       }
