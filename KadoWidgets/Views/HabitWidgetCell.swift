@@ -36,7 +36,7 @@ struct HabitWidgetCell: View {
             Text(row.habit.name)
                 .font(.caption)
                 .lineLimit(1)
-                .foregroundStyle(isComplete ? Color.white : Color.primary)
+                .foregroundStyle(isComplete ? Color.white : Color.kadoForeground)
             Spacer(minLength: 4)
             indicator
                 .font(.caption2)
@@ -64,7 +64,7 @@ struct HabitWidgetCell: View {
         case .partial:
             return row.habit.color.color.opacity(0.3 + row.progress * 0.4)
         case .none:
-            return Color(.quaternarySystemFill)
+            return Color.kadoHairline
         }
     }
 

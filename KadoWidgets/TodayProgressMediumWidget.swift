@@ -10,7 +10,7 @@ struct TodayProgressMediumWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
             TodayProgressMediumView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://today"))
         }
         .configurationDisplayName(Text("Today · Progress"))
@@ -48,7 +48,7 @@ struct TodayProgressMediumView: View {
                 )
             )
             .font(.caption.monospacedDigit())
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }
 

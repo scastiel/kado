@@ -11,7 +11,7 @@ struct TodayGridSmallWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
             TodayGridSmallView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://today"))
         }
         .configurationDisplayName(Text("Today"))
@@ -44,10 +44,10 @@ struct TodayEmptyPlaceholder: View {
         VStack(spacing: 6) {
             Image(systemName: "checkmark.circle")
                 .font(.title2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
             Text("All done")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
