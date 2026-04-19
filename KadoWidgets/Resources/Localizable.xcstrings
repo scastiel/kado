@@ -19,7 +19,7 @@
       }
     },
     "%lld / %lld done" : {
-      "comment" : "Medium widget progress summary. Arg 1 completed, arg 2 total.",
+      "comment" : "Widget progress summary. Arg 1 is completed count, arg 2 is total count.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -54,6 +54,7 @@
     },
     "%lld of %lld habits done today" : {
       "comment" : "Medium widget VoiceOver summary. Arg 1 completed, arg 2 total.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -121,7 +122,7 @@
       }
     },
     "done" : {
-      "comment" : "VoiceOver state: binary habit completed today.",
+      "comment" : "Widget accessibility: binary habit completed",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -223,7 +224,7 @@
       }
     },
     "not done" : {
-      "comment" : "VoiceOver state: binary habit not yet completed today.",
+      "comment" : "Widget accessibility: binary habit not completed",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -375,23 +376,6 @@
         }
       }
     },
-    "Today Summary" : {
-      "comment" : "Inline lock widget display name.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today Summary"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Résumé du jour"
-          }
-        }
-      }
-    },
     "Today · Progress" : {
       "comment" : "Medium home widget display name.",
       "localizations" : {
@@ -405,6 +389,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aujourd'hui · Progression"
+          }
+        }
+      }
+    },
+    "Today Summary" : {
+      "comment" : "Inline lock widget display name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today Summary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé du jour"
           }
         }
       }

@@ -15,10 +15,11 @@ enum DevModeSeed {
 
     static func seed(into context: ModelContext, calendar: Calendar = .current) {
         let today = calendar.startOfDay(for: .now)
+        let names = SeedNames.forCurrentLocale()
 
         let habits: [HabitRecord] = [
             HabitRecord(
-                name: "Morning meditation",
+                name: names.meditation,
                 frequency: .daily,
                 type: .binary,
                 createdAt: calendar.date(byAdding: .day, value: -45, to: today)!,
@@ -26,7 +27,7 @@ enum DevModeSeed {
                 icon: "figure.mind.and.body"
             ),
             HabitRecord(
-                name: "Gym",
+                name: names.gym,
                 frequency: .specificDays([.monday, .wednesday, .friday]),
                 type: .binary,
                 createdAt: calendar.date(byAdding: .day, value: -60, to: today)!,
@@ -34,7 +35,7 @@ enum DevModeSeed {
                 icon: "dumbbell.fill"
             ),
             HabitRecord(
-                name: "Drink water",
+                name: names.water,
                 frequency: .daily,
                 type: .counter(target: 8),
                 createdAt: calendar.date(byAdding: .day, value: -30, to: today)!,
@@ -42,7 +43,7 @@ enum DevModeSeed {
                 icon: "drop.fill"
             ),
             HabitRecord(
-                name: "Read",
+                name: names.read,
                 frequency: .daily,
                 type: .timer(targetSeconds: 1800),
                 createdAt: calendar.date(byAdding: .day, value: -40, to: today)!,
@@ -50,7 +51,7 @@ enum DevModeSeed {
                 icon: "book.fill"
             ),
             HabitRecord(
-                name: "No social media",
+                name: names.noSocialMedia,
                 frequency: .daily,
                 type: .negative,
                 createdAt: calendar.date(byAdding: .day, value: -30, to: today)!,
@@ -75,5 +76,34 @@ enum DevModeSeed {
         }
 
         try? context.save()
+    }
+
+    private struct SeedNames {
+        let meditation: String
+        let gym: String
+        let water: String
+        let read: String
+        let noSocialMedia: String
+
+        static func forCurrentLocale() -> SeedNames {
+            switch Locale.current.language.languageCode?.identifier {
+            case "fr":
+                SeedNames(
+                    meditation: "Méditation du matin",
+                    gym: "Salle de sport",
+                    water: "Boire de l'eau",
+                    read: "Lecture",
+                    noSocialMedia: "Pas de réseaux sociaux"
+                )
+            default:
+                SeedNames(
+                    meditation: "Morning meditation",
+                    gym: "Gym",
+                    water: "Drink water",
+                    read: "Read",
+                    noSocialMedia: "No social media"
+                )
+            }
+        }
     }
 }
