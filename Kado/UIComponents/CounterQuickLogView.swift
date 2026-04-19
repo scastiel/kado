@@ -21,9 +21,9 @@ struct CounterQuickLogView: View {
                     .font(.title2.weight(.semibold))
                     .frame(width: 44, height: 44)
                     .background(
-                        Circle().fill(Color(.secondarySystemFill))
+                        Circle().fill(Color.kadoPaper200)
                     )
-                    .foregroundStyle(canDecrement ? Color.primary : Color.secondary)
+                    .foregroundStyle(canDecrement ? Color.kadoForeground : Color.kadoForegroundSecondary)
             }
             .buttonStyle(.plain)
             .disabled(!canDecrement)
@@ -54,8 +54,8 @@ struct CounterQuickLogView: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: KadoRadius.card)
+                .fill(Color.kadoBackgroundSecondary)
         )
         .sensoryFeedback(.success, trigger: targetReached) { old, new in
             !old && new

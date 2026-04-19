@@ -147,10 +147,10 @@ struct MonthlyCalendarView: View {
 
     private func fill(for state: CellState) -> Color {
         switch state {
-        case .future: Color(.tertiarySystemFill)
+        case .future: Color.kadoHairline
         case .completed: habit.color.color.opacity(0.9)
-        case .missed: Color(.secondarySystemFill)
-        case .nonDue: Color(.tertiarySystemFill).opacity(0.4)
+        case .missed: Color.kadoPaper200
+        case .nonDue: Color.kadoHairline.opacity(0.4)
         }
     }
 

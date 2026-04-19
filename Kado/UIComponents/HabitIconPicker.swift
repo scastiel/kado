@@ -35,7 +35,7 @@ struct HabitIconPicker: View {
             .foregroundStyle(selection == icon ? Color.white : tint)
             .background {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(selection == icon ? tint : Color(.tertiarySystemFill))
+                    .fill(selection == icon ? tint : Color.kadoHairline)
             }
     }
 }

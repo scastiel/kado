@@ -28,8 +28,8 @@ struct CompletionHistoryList: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.secondarySystemBackground))
+                        RoundedRectangle(cornerRadius: KadoRadius.card)
+                            .fill(Color.kadoBackgroundSecondary)
                     )
             } else {
                 LazyVStack(spacing: 0) {
@@ -41,8 +41,8 @@ struct CompletionHistoryList: View {
                     }
                 }
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.secondarySystemBackground))
+                    RoundedRectangle(cornerRadius: KadoRadius.card)
+                        .fill(Color.kadoBackgroundSecondary)
                 )
             }
         }
