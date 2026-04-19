@@ -1,8 +1,9 @@
 # Plan — Score info popover
 
 **Date**: 2026-04-19
-**Status**: in progress
+**Status**: done
 **Research**: _(skipped — feature is small, single UI surface)_
+**Compound**: [compound.md](./compound.md)
 
 ## Summary
 
