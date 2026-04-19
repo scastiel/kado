@@ -345,6 +345,12 @@
             "state" : "translated",
             "value" : "%lld%% complete"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld %% accompli"
+          }
         }
       }
     },
@@ -596,6 +602,12 @@
             "state" : "translated",
             "value" : "Completed"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fait"
+          }
         }
       }
     },
@@ -663,6 +675,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create habits from the Today tab to see them here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crée des habitudes depuis l'onglet Aujourd'hui pour les voir ici."
           }
         }
       }
@@ -1343,6 +1361,12 @@
             "state" : "translated",
             "value" : "missed"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "manqué"
+          }
         }
       }
     },
@@ -1353,6 +1377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Missed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manqué"
           }
         }
       }
@@ -1495,6 +1525,12 @@
             "state" : "translated",
             "value" : "not scheduled"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "non prévu"
+          }
         }
       }
     },
@@ -1505,6 +1541,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not scheduled"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non prévu"
           }
         }
       }
@@ -1664,6 +1706,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Overview"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vue d'ensemble"
           }
         }
       }
@@ -2321,6 +2369,12 @@
             "state" : "translated",
             "value" : "upcoming"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "à venir"
+          }
         }
       }
     },
@@ -2331,6 +2385,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Upcoming"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À venir"
           }
         }
       }
