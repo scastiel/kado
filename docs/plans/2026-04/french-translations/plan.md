@@ -2,8 +2,9 @@
 # Plan — French translations
 
 **Date**: 2026-04-19
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
+**Compound**: [compound.md](./compound.md)
 
 ## Summary
 
@@ -470,18 +471,19 @@ to ready-for-review. Author merges.
   test bundle, fall back to a build-phase copy or load from the
   main bundle via `Bundle(for: …)`.
 
-## Open questions
+## Open questions — resolved
 
-- [ ] Is it worth creating a *second* regression test that pins FR
-  strings to specific visual surfaces (render TodayView under fr_FR,
-  assert specific text appears)? Defer unless Task 12 surfaces drift.
-- [ ] Should we declare FR plural variants on `%lld / best %lld`
-  even though the form is masculine-invariant? Probably no; revisit
-  if the FR draft reads oddly.
-- [ ] Does the author want a final human-speaker review pass from
-  someone else before merge, or is self-review sufficient? (CLAUDE.md
-  says "native French speaker" without specifying a second pair of
-  eyes — defer to the author.)
+- [x] **Second regression test pinning FR strings to views?** —
+  Deferred. The catalog-level `LocalizationCoverageTests` caught
+  every gap (~10 missed keys) without visual assertions.
+  Reassess if Task 12's screenshot sweep surfaces real FR drift;
+  none observed.
+- [x] **FR plurals on `%lld / best %lld`?** — No. Kept
+  `%1$lld / meilleure %2$lld` as non-plural; "meilleure 1"
+  reads fine idiomatically.
+- [x] **Second human-speaker review pass?** — Author is the
+  native French speaker and final arbiter. Self-review
+  through the chunk-by-chunk draft loop was sufficient.
 
 ## Out of scope
 
