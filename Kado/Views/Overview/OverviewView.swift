@@ -71,7 +71,7 @@ struct OverviewView: View {
         ContentUnavailableView {
             Label("No habits yet", systemImage: "square.grid.2x2")
         } description: {
-            Text("Habits you create will show up here with their history.")
+            Text("Habits you create will appear here.")
         } actions: {
             Button {
                 showingNewHabit = true
