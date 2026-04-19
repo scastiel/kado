@@ -1480,6 +1480,171 @@
           }
         }
       }
+    },
+    "Import Data" : {
+      "comment" : "Settings button that imports a Kadō JSON backup.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Data"
+          }
+        }
+      }
+    },
+    "Import Kadō backup" : {
+      "comment" : "Title of the confirmation sheet shown before applying an import.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Kadō backup"
+          }
+        }
+      }
+    },
+    "Imported habits and completions will merge with your current data by matching IDs. Nothing will be deleted." : {
+      "comment" : "Footer on the import confirmation sheet explaining merge semantics.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imported habits and completions will merge with your current data by matching IDs. Nothing will be deleted."
+          }
+        }
+      }
+    },
+    "Habits" : {
+      "comment" : "Label for the habit-count row in the import confirmation sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits"
+          }
+        }
+      }
+    },
+    "Completions" : {
+      "comment" : "Label for the completion-count row in the import confirmation sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completions"
+          }
+        }
+      }
+    },
+    "%lld (%lld new, %lld updated)" : {
+      "comment" : "Count breakdown in the import confirmation sheet. Args: total, new, updated.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld (%2$lld new, %3$lld updated)"
+          }
+        }
+      }
+    },
+    "Import" : {
+      "comment" : "Confirm button on the import sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import"
+          }
+        }
+      }
+    },
+    "Import complete" : {
+      "comment" : "Alert title shown after a successful import.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import complete"
+          }
+        }
+      }
+    },
+    "Habits: %lld (%lld new, %lld updated)\nCompletions: %lld (%lld new, %lld updated)" : {
+      "comment" : "Message in the import-complete alert. Args: habit total/new/updated, completion total/new/updated.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits: %1$lld (%2$lld new, %3$lld updated)\nCompletions: %4$lld (%5$lld new, %6$lld updated)"
+          }
+        }
+      }
+    },
+    "Not a Kadō backup" : {
+      "comment" : "Alert title shown when the file can't be decoded as a backup.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a Kadō backup"
+          }
+        }
+      }
+    },
+    "The file couldn't be decoded as a Kadō backup." : {
+      "comment" : "Alert message for an undecodable backup file.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file couldn't be decoded as a Kadō backup."
+          }
+        }
+      }
+    },
+    "Newer Kadō version" : {
+      "comment" : "Alert title shown when the backup's formatVersion is newer than this app.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Newer Kadō version"
+          }
+        }
+      }
+    },
+    "This backup was created by a newer Kadō version. Update Kadō to import." : {
+      "comment" : "Alert message shown for a newer-version backup.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This backup was created by a newer Kadō version. Update Kadō to import."
+          }
+        }
+      }
+    },
+    "Couldn't read file" : {
+      "comment" : "Alert title shown when the selected file couldn't be read.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't read file"
+          }
+        }
+      }
+    },
+    "The file couldn't be read. Try a different file." : {
+      "comment" : "Alert message shown when the selected file couldn't be read.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file couldn't be read. Try a different file."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
