@@ -176,7 +176,8 @@ README, landing page, first wave of downloads.
 - [ ] Restore from a backup
 
 ### Localization
-- [ ] Complete native FR (not machine-translated)
+- [x] Complete native FR (not machine-translated) — **shipped in
+      v0.2 stream**, see `docs/plans/2026-04/french-translations/`
 - [ ] Accessibility: VoiceOver verified on every view, clear labels in
       EN and FR
 - [ ] App Store screenshots in 2 languages

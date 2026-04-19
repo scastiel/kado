@@ -520,8 +520,23 @@ Non-negotiable from MVP:
 
 ## Localization
 
-- EN and FR by v1.0. FR must be native French (no machine translation),
-  with attention to gender-neutral phrasing when possible.
+- EN + native FR shipped (see
+  `docs/plans/2026-04/french-translations/`). FR conventions locked:
+  **`tu`** (not `vous`) throughout — matches Streaks / Loop FR and
+  the HIG personal-app default. **`série`** for "streak".
+  **`habitude`** (feminine) drives adjective / past-participle
+  agreement (`archivée`, `meilleure série`, `nouvelles`,
+  `modifiées`). Technical loanwords kept: `score`, `widget`,
+  `emoji`, `Kadō` (brand, macron preserved). For count-driven
+  frequency keys, the `one` variant in FR can drop `%lld` entirely
+  when the idiomatic phrase does — e.g. `Every %lld days` →
+  `one: "Tous les jours"`, not `"Tous les 1 jour"`. Never
+  machine-translate; always draft-review-commit with the native
+  speaker as final arbiter.
+- A regression test (`KadoTests/LocalizationCoverageTests.swift`)
+  walks the shipped catalog and fails if any user-facing key lacks
+  a non-empty FR translation. Run it before merging any PR that
+  adds a new EN key.
 - Use String Catalogs (`.xcstrings`), not legacy `Localizable.strings`.
 - Every user-facing string goes through localization — but **prefer
   SwiftUI's `LocalizedStringKey`-typed initializers over explicit
