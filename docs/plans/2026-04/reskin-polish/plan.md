@@ -1,8 +1,9 @@
 # Plan — Paper/sage re-skin: polish follow-up
 
 **Date**: 2026-04-19
-**Status**: ready to build
+**Status**: done
 **Source PR**: [#17 (merged)](https://github.com/scastiel/kado/pull/17)
+**Shipped in**: [#18](https://github.com/scastiel/kado/pull/18) — see [compound.md](./compound.md) for scope additions (empty-state CTAs, `daysPerWeek` fix, Today/Scheduled rename) and the `qlmanage → rsvg-convert` pivot.
 
 ## Summary
 
