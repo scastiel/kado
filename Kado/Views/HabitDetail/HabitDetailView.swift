@@ -196,9 +196,10 @@ struct HabitDetailView: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint(Text("Shows how the score is calculated."))
-        .popover(isPresented: $showingScoreInfo) {
-            ScoreExplanationPopover()
-                .presentationCompactAdaptation(.popover)
+        .sheet(isPresented: $showingScoreInfo) {
+            ScoreExplanationSheet()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
     }
 
