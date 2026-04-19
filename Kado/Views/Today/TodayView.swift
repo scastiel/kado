@@ -139,6 +139,7 @@ struct TodayView: View {
                             onArchive: { confirmingArchiveOf = record }
                         )
                     }
+                    .listRowBackground(Color.kadoBackgroundSecondary)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         if canSwipeUndo(record, state: state) {
                             Button(role: .destructive) {
