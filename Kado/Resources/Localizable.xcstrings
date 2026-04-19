@@ -13,6 +13,12 @@
             "state" : "translated",
             "value" : "%1$@, %2$@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
         }
       }
     },
@@ -23,6 +29,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, counter, target %2$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, compteur, objectif %2$lld"
           }
         }
       }
@@ -35,6 +47,12 @@
             "state" : "translated",
             "value" : "%1$@, score %2$lld percent"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, score %2$lld pour cent"
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, streak %2$lld, score %3$lld percent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, série %2$lld, score %3$lld pour cent"
           }
         }
       }
@@ -57,6 +81,12 @@
             "state" : "translated",
             "value" : "%1$@, timer, target %2$@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, minuteur, objectif %2$@"
+          }
         }
       }
     },
@@ -65,6 +95,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "%1$@. %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "%1$@. %2$@"
           }
         }
@@ -224,6 +260,12 @@
             "state" : "translated",
             "value" : "%1$lld of %2$lld"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld sur %2$lld"
+          }
         }
       }
     },
@@ -256,6 +298,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld sur %2$lld minutes"
           }
         }
       }
@@ -322,6 +370,12 @@
             "state" : "translated",
             "value" : "Add 5 minutes"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter 5 minutes"
+          }
         }
       }
     },
@@ -361,6 +415,12 @@
             "state" : "translated",
             "value" : "Archive"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archiver"
+          }
         }
       }
     },
@@ -371,6 +431,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archive this habit?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archiver cette habitude ?"
           }
         }
       }
@@ -393,6 +459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archived habits stop appearing on Today but keep their history."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes archivées disparaissent de l'onglet Aujourd'hui mais gardent leur historique."
           }
         }
       }
@@ -442,6 +514,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Come back tomorrow, or check your habit detail to log a past day."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reviens demain, ou consulte le détail d'une habitude pour noter un jour passé."
           }
         }
       }
@@ -533,6 +611,23 @@
         }
       }
     },
+    "Create your first habit" : {
+      "comment" : "Empty-state call-to-action button in the Today tab that opens the new-habit sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create your first habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer ta première habitude"
+          }
+        }
+      }
+    },
     "Data" : {
       "comment" : "Settings section heading for import and export.",
       "localizations" : {
@@ -551,6 +646,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Decrement"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diminuer"
           }
         }
       }
@@ -582,6 +683,12 @@
             "state" : "translated",
             "value" : "done"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fait"
+          }
         }
       }
     },
@@ -603,6 +710,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier"
           }
         }
       }
@@ -860,6 +973,12 @@
             "state" : "translated",
             "value" : "Habits you create will appear here."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes que tu crées apparaîtront ici."
+          }
         }
       }
     },
@@ -976,6 +1095,12 @@
             "state" : "translated",
             "value" : "Increment"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Augmenter"
+          }
         }
       }
     },
@@ -1024,6 +1149,12 @@
             "state" : "translated",
             "value" : "Log a session"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer une session"
+          }
         }
       }
     },
@@ -1034,6 +1165,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Log session"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer une session"
           }
         }
       }
@@ -1046,6 +1183,12 @@
             "state" : "translated",
             "value" : "Log specific value…"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisir une valeur…"
+          }
         }
       }
     },
@@ -1056,6 +1199,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Log value"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisir la valeur"
           }
         }
       }
@@ -1068,6 +1217,12 @@
             "state" : "translated",
             "value" : "Mark as done"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer comme fait"
+          }
         }
       }
     },
@@ -1078,6 +1233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mark as not done"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer comme non fait"
           }
         }
       }
@@ -1111,6 +1272,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "New habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouvelle habitude"
           }
         }
       }
@@ -1162,6 +1329,12 @@
             "state" : "translated",
             "value" : "No habits yet"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude pour l'instant"
+          }
         }
       }
     },
@@ -1194,6 +1367,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "not done"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "non fait"
           }
         }
       }
@@ -1239,6 +1418,12 @@
             "state" : "translated",
             "value" : "Not scheduled today"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non prévu aujourd'hui"
+          }
         }
       }
     },
@@ -1253,6 +1438,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nothing due today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien de prévu aujourd'hui"
           }
         }
       }
@@ -1331,6 +1522,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open detail"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le détail"
           }
         }
       }
@@ -1487,6 +1684,12 @@
             "state" : "translated",
             "value" : "Scheduled"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prévu"
+          }
         }
       }
     },
@@ -1508,6 +1711,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Score %lld percent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score %lld pour cent"
           }
         }
       }
@@ -1591,6 +1800,12 @@
             "state" : "translated",
             "value" : "Slipped"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raté"
+          }
         }
       }
     },
@@ -1630,6 +1845,12 @@
             "state" : "translated",
             "value" : "Streak %1$lld, score %2$lld percent"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %1$lld, score %2$lld pour cent"
+          }
         }
       }
     },
@@ -1648,6 +1869,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tap to open detail, or long-press to edit or archive."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appuie pour ouvrir le détail, ou maintiens pour modifier ou archiver."
           }
         }
       }
@@ -1821,6 +2048,12 @@
             "state" : "translated",
             "value" : "Today"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui"
+          }
         }
       }
     },
@@ -1892,6 +2125,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Undo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler"
           }
         }
       }
