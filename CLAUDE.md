@@ -441,6 +441,16 @@ binding lets `#expect(value == 25 * 60)` compile when `value` is
 an explicit `Double(...)` or `1500.0` literal when asserting against
 a `Double` value. Same rule applies to `#require`.
 
+**Don't hand-compute canonical serialized strings in tests.** When a
+test asserts against a hand-typed ISO8601 timestamp, JSON blob, or
+any encoder-produced output, paste the actual encoder output rather
+than computing it mentally. A "canonical shape" test that expects
+`"2023-11-15T13:20:00Z"` for epoch `1_700_100_000` is wrong (it's
+`2023-11-16T02:00:00Z`) and burns a `test_sim` cycle to discover.
+The right workflow: write the test with a placeholder expectation,
+run once, paste the printed actual, commit. The expected value is
+then ground truth, not a second source for the same calculation.
+
 ### Workflow
 For any calculation function (score, streak, frequency), **write the
 test before the implementation**. Example:
