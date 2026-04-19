@@ -60,7 +60,9 @@ public struct DefaultBackupExporter: BackupExporting {
 
     /// Reads `CFBundleShortVersionString` from the main bundle with a
     /// safe fallback — previews and tests run with no version stamped.
-    public static func bundleVersion() -> String {
+    /// `nonisolated` so it's usable as a default-argument expression
+    /// from any actor context.
+    public nonisolated static func bundleVersion() -> String {
         (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "unknown"
     }
 

@@ -55,4 +55,13 @@ extension EnvironmentValues {
     /// app injects `DefaultNotificationScheduler(center: LiveUserNotificationCenter())`
     /// at scene build.
     @Entry var notificationScheduler: any NotificationScheduling = MockNotificationScheduler()
+
+    /// Serializes the live SwiftData store into a `BackupDocument` for
+    /// the Settings → Export flow. Uses `@Entry` because the default
+    /// is `@MainActor`-isolated.
+    @Entry var backupExporter: any BackupExporting = DefaultBackupExporter()
+
+    /// Parses a `BackupDocument` and merges it into the live store for
+    /// the Settings → Import flow.
+    @Entry var backupImporter: any BackupImporting = DefaultBackupImporter()
 }
