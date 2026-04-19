@@ -1,6 +1,5 @@
 import Foundation
 import Testing
-@testable import Kado
 
 /// Guards against the "added an English key but forgot to translate it"
 /// regression. Walks the shipped `Localizable.xcstrings` and asserts
@@ -8,7 +7,6 @@ import Testing
 /// accepting either a plain `stringUnit` or ICU `variations.plural`
 /// wrapper. Orphan keys (empty string, developer-only entries not
 /// user-facing) can be skipped by adding them to `keysExempt`.
-@MainActor
 struct LocalizationCoverageTests {
     private static let keysExempt: Set<String> = [
         // Orphan key sometimes left behind by Xcode IDE extraction
@@ -43,6 +41,8 @@ struct LocalizationCoverageTests {
         // stringsdict-backed resource), fall back to reading the
         // source file from the repo when the test runs in an Xcode
         // context where the catalog isn't copied into the test target.
+        // The fallback path assumes this test file lives under
+        // `<repo>/KadoTests/`; break if the test file relocates.
         if let url = Bundle.main.url(
             forResource: "Localizable", withExtension: "xcstrings"
         ) {
@@ -67,18 +67,22 @@ struct LocalizationCoverageTests {
         }
 
         if let variations = langEntry["variations"] as? [String: Any],
-           let plural = variations["plural"] as? [String: Any]
+           let plural = variations["plural"] as? [String: Any],
+           !plural.isEmpty
         {
-            // Any non-empty plural form counts as covered.
+            // Every declared plural form must have a non-empty value.
+            // Accepting any single form would let a language declare
+            // `one` but forget `other` (or vice versa) and still pass,
+            // leaving the missing form to fall back to the key at
+            // runtime.
             for (_, form) in plural {
-                if let formDict = form as? [String: Any],
-                   let stringUnit = formDict["stringUnit"] as? [String: Any],
-                   let value = stringUnit["value"] as? String,
-                   !value.isEmpty
-                {
-                    return true
-                }
+                guard let formDict = form as? [String: Any],
+                      let stringUnit = formDict["stringUnit"] as? [String: Any],
+                      let value = stringUnit["value"] as? String,
+                      !value.isEmpty
+                else { return false }
             }
+            return true
         }
 
         return false
