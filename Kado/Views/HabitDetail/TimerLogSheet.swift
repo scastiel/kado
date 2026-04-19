@@ -35,7 +35,10 @@ struct TimerLogSheet: View {
                 } footer: {
                     Text("Saves as today's completion. If you already logged a session today, it will be replaced.")
                 }
+                .listRowBackground(Color.kadoBackgroundSecondary)
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle(Text("Log session"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

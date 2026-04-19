@@ -46,7 +46,10 @@ struct CounterLogSheet: View {
                 } footer: {
                     Text("Saves as today's completion. Setting it to 0 clears today's progress.")
                 }
+                .listRowBackground(Color.kadoBackgroundSecondary)
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle(Text("Log value"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

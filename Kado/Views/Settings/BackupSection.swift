@@ -42,6 +42,7 @@ struct BackupSection: View {
                 Label("Import Data", systemImage: "square.and.arrow.down")
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
         .sheet(item: $shareItem) { item in
             ShareSheet(activityItems: [item.url])
                 .ignoresSafeArea()
