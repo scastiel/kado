@@ -27,7 +27,7 @@ struct ScoreExplanationSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(String(localized: "Done")) { dismiss() }
+                    Button("Done") { dismiss() }
                 }
             }
         }
@@ -35,10 +35,9 @@ struct ScoreExplanationSheet: View {
 
     private func bullet(_ text: LocalizedStringKey) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
-            Image(systemName: "circle.fill")
-                .font(.system(size: 5))
+            Text("•")
                 .foregroundStyle(.secondary)
-                .padding(.top, 6)
+                .accessibilityHidden(true)
             Text(text)
                 .fixedSize(horizontal: false, vertical: true)
         }

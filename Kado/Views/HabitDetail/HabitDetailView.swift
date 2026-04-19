@@ -176,12 +176,13 @@ struct HabitDetailView: View {
         } label: {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
-                    Label(String(localized: "Score"), systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Score", systemImage: "chart.line.uptrend.xyaxis")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Image(systemName: "info.circle")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                 }
                 Text(scorePercent)
                     .font(.title2.weight(.bold))

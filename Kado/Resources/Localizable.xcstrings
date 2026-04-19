@@ -255,7 +255,7 @@
       }
     },
     "About this score" : {
-      "comment" : "Header of the popover that explains how the habit score is calculated, opened by tapping the Score card on habit detail.",
+      "comment" : "Navigation title of the sheet that explains how the habit score is calculated, opened by tapping the Score card on habit detail.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -812,7 +812,7 @@
       }
     },
     "It reflects your habit's strength over time, not a streak." : {
-      "comment" : "First bullet in the score explanation popover; plain-English statement that the score is not a streak.",
+      "comment" : "First bullet in the score explanation sheet; plain-English statement that the score is not a streak.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -823,7 +823,7 @@
       }
     },
     "It starts at 0% and climbs slowly. A young habit can read low even when you're perfect — that's intentional." : {
-      "comment" : "Fourth bullet in the score explanation popover; explains why new habits show a low score.",
+      "comment" : "Fourth bullet in the score explanation sheet; explains why new habits show a low score.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1126,7 +1126,7 @@
       }
     },
     "Only scheduled days count. If your habit runs Mon/Wed/Fri, other days are skipped." : {
-      "comment" : "Third bullet in the score explanation popover; explains that non-scheduled days do not affect the score.",
+      "comment" : "Third bullet in the score explanation sheet; explains that non-scheduled days do not affect the score. 'Mon/Wed/Fri' is an example — translators should localize the weekday abbreviations for their locale.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1199,7 +1199,7 @@
       }
     },
     "Recent days weigh more than older ones. A missed day loses about half its impact after two weeks." : {
-      "comment" : "Second bullet in the score explanation popover; describes the exponential moving average's recency weighting.",
+      "comment" : "Second bullet in the score explanation sheet; describes the exponential moving average's recency weighting.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1368,7 +1368,7 @@
       }
     },
     "Shows how the score is calculated." : {
-      "comment" : "VoiceOver hint on the tappable Score card on habit detail; announces that activating it reveals the explanation popover.",
+      "comment" : "VoiceOver hint on the tappable Score card on habit detail; announces that activating it reveals the explanation sheet.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
