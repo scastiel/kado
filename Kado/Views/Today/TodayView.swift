@@ -116,7 +116,7 @@ struct TodayView: View {
                     Section {
                         ForEach(due) { row($0) }
                     } header: {
-                        Text("Today")
+                        Text("Scheduled")
                     }
                 }
                 if !other.isEmpty {
