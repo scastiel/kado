@@ -1,7 +1,7 @@
 # Plan — Paper / sage re-skin
 
 **Date**: 2026-04-19
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -51,7 +51,7 @@ hand-off bundle. Get them before Task 2 / Task 6 respectively:
 
 ## Task list
 
-### Task 1: KadoCore plumbing + Theme tokens
+### Task 1: KadoCore plumbing + Theme tokens ✅
 
 **Goal**: Add every design token and a light/dark-aware color system
 in `KadoCore`, so nothing else in the plan has to invent a hex.
@@ -76,7 +76,7 @@ in `KadoCore`, so nothing else in the plan has to invent a hex.
 
 ---
 
-### Task 2: Bundle Fraunces + KadoFont registration
+### Task 2: Bundle Fraunces + KadoFont registration ✅
 
 **Goal**: Register the Fraunces variable font at app launch and
 expose `.kadoDisplay(size:)` + `.kadoEyebrow()` helpers.
@@ -101,7 +101,7 @@ expose `.kadoDisplay(size:)` + `.kadoEyebrow()` helpers.
 
 ---
 
-### Task 3: Apply KadoThemeModifier at the root
+### Task 3: Apply KadoThemeModifier at the root ✅
 
 **Goal**: Replace the system-blue tint and grouped-list gray with
 sage + paper. Set the nav bar large-title font to Fraunces via
@@ -137,7 +137,7 @@ sage + paper. Set the nav bar large-title font to Fraunces via
 
 ---
 
-### Task 4: HabitRowView token pass
+### Task 4: HabitRowView token pass ✅
 
 **Goal**: Apply the 5-point hand-off patch. Keep row shape, state
 machines, accessibility, and previews intact.
@@ -173,7 +173,7 @@ machines, accessibility, and previews intact.
 
 ---
 
-### Task 5: Widget re-skin
+### Task 5: Widget re-skin ✅
 
 **Goal**: Bring the six widget surfaces onto paper + sage. Widget
 target already links `KadoCore`, so tokens are reachable.
@@ -207,7 +207,7 @@ target already links `KadoCore`, so tokens are reachable.
 
 ---
 
-### Task 6: App icon
+### Task 6: App icon ✅
 
 **Goal**: Replace the empty AppIcon slot with the ensō mark.
 
@@ -233,7 +233,7 @@ target already links `KadoCore`, so tokens are reachable.
 
 ---
 
-### Task 7: Verification + polish
+### Task 7: Verification + polish ✅
 
 **Goal**: Golden-path smoke test on the full re-skin, capture PR
 screenshots, fix any obvious regressions.
@@ -304,11 +304,40 @@ through):
 
 ## Open questions
 
-- [ ] How big a visual delta we tolerate on the nav bar title. If
-      the hand-off mock's 40pt/opsz48/-0.015em looks materially
-      nicer than the 34pt `UINavigationBarAppearance` fallback, we
-      may want to upgrade to the `safeAreaInset` path after all.
-      Decide after Task 3 screenshots land.
+- [ ] Nav bar large title reads slightly thin at Fraunces-Regular
+      34pt. Acceptable for v0.2; revisit if we upgrade to the
+      `safeAreaInset` path or bump to Fraunces-Medium later.
+
+## Notes during build
+
+- **Task 2 — Info.plist `UIAppFonts` is not required** when the
+  TTF lives inside a Swift package's resource bundle and is loaded
+  at runtime via `CTFontManagerRegisterFontsForURL` + `Bundle.module`.
+  The hand-off's README instructed to add `UIAppFonts` — that only
+  applies when the font ships at the main-app bundle root, which is
+  not our case. Skipped; nothing broke.
+- **Task 2 — `nonisolated static var didRegister` is not Swift 6
+  clean**. Switched to the `static let registration: Void = { … }()`
+  idiom — Swift guarantees once-semantics for static `let`, no lock
+  or isolation annotation needed. Same pattern applied to
+  `KadoThemeModifier`'s `ApplyOnce`.
+- **Task 6 — `magick` can't rasterize SVG without `librsvg`**, which
+  isn't installed locally. `qlmanage -t -s 1024` handles SVG
+  natively via macOS QuickLook and produced the 1024×1024 PNG in
+  one call. Documented for future icon passes.
+- **Task 7 — the polish sweep found six files** still referencing
+  `Color(.secondarySystemBackground)` or `Color(.tertiarySystemFill)`.
+  These were painting iOS's default gray on top of the new paper
+  surface. Converted to `kadoBackgroundSecondary` / `kadoHairline`
+  / `kadoPaper200`. `.primary` / `.secondary` foregrounds left
+  alone — they auto-adapt fine.
+- **Task 7 — visual audit is Today-tab only**. Tap/type/gesture
+  primitives aren't enabled on this XcodeBuildMCP install, and the
+  app doesn't have a URL scheme for Overview / Settings / Detail,
+  so `screenshot` can't reach those surfaces without hands-on
+  simulator interaction. The polish commits are confident on
+  token-level consistency but would benefit from a manual
+  walk-through before merging.
 
 ## Out of scope
 
