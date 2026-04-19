@@ -45,6 +45,8 @@ struct TodayView: View {
     var body: some View {
         NavigationStack(path: $path) {
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.kadoBackground.ignoresSafeArea())
                 .navigationTitle(Text("Today"))
                 .navigationDestination(for: HabitRecord.self) { habit in
                     HabitDetailView(habit: habit)
@@ -94,70 +96,95 @@ struct TodayView: View {
     @ViewBuilder
     private var content: some View {
         if activeHabits.isEmpty {
-            ContentUnavailableView(
-                "No habits yet",
-                systemImage: "list.bullet.clipboard",
-                description: Text("Habits you create will appear here.")
-            )
+            ContentUnavailableView {
+                Label("No habits yet", systemImage: "list.bullet.clipboard")
+            } description: {
+                Text("Habits you create will appear here.")
+            } actions: {
+                Button {
+                    sheet = .newHabit
+                } label: {
+                    Label("Create your first habit", systemImage: "plus")
+                }
+                .buttonStyle(.borderedProminent)
+            }
         } else {
             let due = habitsDueToday
-            if due.isEmpty {
-                ContentUnavailableView(
-                    "Nothing due today",
-                    systemImage: "checkmark.circle",
-                    description: Text("Come back tomorrow, or check your habit detail to log a past day.")
-                )
-            } else {
-                List(due) { record in
-                    let snap = record.snapshot
-                    let comps = (record.completions ?? []).map(\.snapshot)
-                    let state = HabitRowState.resolve(
-                        habit: snap,
-                        completions: comps,
-                        calendar: calendar,
-                        asOf: .now
-                    )
-                    NavigationLink(value: record) {
-                        HabitRowView(
-                            habit: snap,
-                            state: state,
-                            streak: streakCalculator.current(
-                                for: snap, completions: comps, asOf: .now
-                            ),
-                            scorePercent: Int(
-                                (scoreCalculator.currentScore(
-                                    for: snap, completions: comps, asOf: .now
-                                ) * 100).rounded()
-                            ),
-                            onToggle: canToggle(record) ? { toggle(record) } : nil,
-                            onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
-                            onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
-                            onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil,
-                            onLogSpecificValue: logSheetCallback(for: record),
-                            onOpenDetail: { path.append(record) },
-                            onEdit: { sheet = .editHabit(record) },
-                            onArchive: { confirmingArchiveOf = record }
-                        )
-                    }
-                    .listRowBackground(Color.kadoBackgroundSecondary)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        if canSwipeUndo(record, state: state) {
-                            Button(role: .destructive) {
-                                toggle(record)
-                            } label: {
-                                Label("Undo", systemImage: "arrow.uturn.backward")
-                            }
-                        }
+            let other = habitsNotDueToday
+            List {
+                if !due.isEmpty {
+                    Section {
+                        ForEach(due) { row($0) }
+                    } header: {
+                        Text("Scheduled")
                     }
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.kadoBackground.ignoresSafeArea())
-                .refreshable {
-                    // SwiftData has no public API to force a CloudKit
-                    // pull; the brief delay lets any in-flight push
-                    // settle so the @Query rebind shows the latest
-                    // remote state when the spinner retracts.
-                    try? await Task.sleep(for: .seconds(1))
+                if !other.isEmpty {
+                    Section {
+                        ForEach(other) { row($0) }
+                    } header: {
+                        Text("Not scheduled today")
+                    } footer: {
+                        // Reason the second section exists — every
+                        // active habit is reachable for edit or
+                        // archive from here even if it's not due
+                        // today. Detail view (via tap) is still the
+                        // only place to log a past day.
+                        Text("Tap to open detail, or long-press to edit or archive.")
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.kadoBackground.ignoresSafeArea())
+            .refreshable {
+                // SwiftData has no public API to force a CloudKit
+                // pull; the brief delay lets any in-flight push
+                // settle so the @Query rebind shows the latest
+                // remote state when the spinner retracts.
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func row(_ record: HabitRecord) -> some View {
+        let snap = record.snapshot
+        let comps = (record.completions ?? []).map(\.snapshot)
+        let state = HabitRowState.resolve(
+            habit: snap,
+            completions: comps,
+            calendar: calendar,
+            asOf: .now
+        )
+        NavigationLink(value: record) {
+            HabitRowView(
+                habit: snap,
+                state: state,
+                streak: streakCalculator.current(
+                    for: snap, completions: comps, asOf: .now
+                ),
+                scorePercent: Int(
+                    (scoreCalculator.currentScore(
+                        for: snap, completions: comps, asOf: .now
+                    ) * 100).rounded()
+                ),
+                onToggle: canToggle(record) ? { toggle(record) } : nil,
+                onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
+                onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
+                onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil,
+                onLogSpecificValue: logSheetCallback(for: record),
+                onOpenDetail: { path.append(record) },
+                onEdit: { sheet = .editHabit(record) },
+                onArchive: { confirmingArchiveOf = record }
+            )
+        }
+        .listRowBackground(Color.kadoBackgroundSecondary)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            if canSwipeUndo(record, state: state) {
+                Button(role: .destructive) {
+                    toggle(record)
+                } label: {
+                    Label("Undo", systemImage: "arrow.uturn.backward")
                 }
             }
         }
@@ -166,11 +193,28 @@ struct TodayView: View {
     private var habitsDueToday: [HabitRecord] {
         let now = Date.now
         return activeHabits.filter { record in
-            frequencyEvaluator.isDue(
-                habit: record.snapshot,
-                on: now,
-                completions: (record.completions ?? []).map(\.snapshot)
-            )
+            isDueTodayOrCompletedToday(record, on: now)
+        }
+    }
+
+    private var habitsNotDueToday: [HabitRecord] {
+        let now = Date.now
+        return activeHabits.filter { record in
+            !isDueTodayOrCompletedToday(record, on: now)
+        }
+    }
+
+    /// "Show this habit in the Today section" — evaluator says it's
+    /// due today, OR the user already logged a completion today (so
+    /// the row should stay visible with its tick even once the
+    /// daysPerWeek rolling quota saturates).
+    private func isDueTodayOrCompletedToday(_ record: HabitRecord, on now: Date) -> Bool {
+        let completions = (record.completions ?? []).map(\.snapshot)
+        if frequencyEvaluator.isDue(habit: record.snapshot, on: now, completions: completions) {
+            return true
+        }
+        return completions.contains { completion in
+            calendar.isDate(completion.date, inSameDayAs: now)
         }
     }
 

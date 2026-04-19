@@ -1,11 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
-  <defs>
-    <linearGradient id="icon-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FBF8F2"></stop>
-      <stop offset="1" stop-color="#F0E8D8"></stop>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="180" height="180" fill="url(#icon-bg)"></rect>
   <g transform="translate(30,30)">
     <path d="M 92 30
              C 102 44, 102 68, 90 82
