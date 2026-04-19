@@ -36,8 +36,9 @@ struct HabitDetailView: View {
             }
             .padding()
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle(Text(habit.name))
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(String(localized: "Edit")) {
@@ -136,8 +137,6 @@ struct HabitDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(habit.name)
-                .font(.largeTitle.weight(.bold))
             HStack(spacing: 12) {
                 Label(frequencyLabel, systemImage: frequencyIcon)
                 Label(typeLabel, systemImage: typeIcon)
