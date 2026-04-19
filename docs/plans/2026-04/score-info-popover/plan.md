@@ -1,7 +1,7 @@
 # Plan — Score info popover
 
 **Date**: 2026-04-19
-**Status**: ready to build
+**Status**: in progress
 **Research**: _(skipped — feature is small, single UI surface)_
 
 ## Summary
@@ -121,6 +121,15 @@ in both color schemes; Dynamic Type XXXL doesn't truncate.
 
 - [ ] Should the popover also open by long-press, or tap-only? Plan
   assumes tap-only (simpler, more discoverable).
+
+## Notes during build
+
+- **Task 3**: the project's `Localizable.xcstrings` is currently EN-only
+  — FR isn't set up at the project level yet (`knownRegions` in
+  `project.pbxproj` lists only `en` and `Base`, and no existing entry
+  has an `fr` localization). Scoped Task 3 to EN entries. FR will be
+  added as part of the separate `translations-catalog` feature when
+  project-level FR support lands — new entries will be picked up then.
 
 ## Out of scope
 
