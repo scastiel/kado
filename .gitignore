@@ -61,3 +61,7 @@ secrets.plist
 
 # Logs
 *.log
+
+# Marketing site — assets/ is populated at deploy time from branding/ and
+# docs/screenshots/iphone-67-appstore/. See .github/workflows/pages.yml.
+site/assets/
