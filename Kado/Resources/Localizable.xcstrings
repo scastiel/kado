@@ -1167,6 +1167,7 @@
     },
     "Habit" : {
       "comment" : "Rectangular lock widget display name.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
