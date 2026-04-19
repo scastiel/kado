@@ -40,7 +40,9 @@ public struct KadoThemeModifier: ViewModifier {
             let nav = UINavigationBarAppearance()
             nav.configureWithDefaultBackground()
             nav.titleTextAttributes = [
-                .foregroundColor: UIColor(Color.kadoForeground)
+                .foregroundColor: UIColor(Color.kadoForeground),
+                .font: UIFont(name: "Fraunces-Medium", size: 17)
+                    ?? UIFont.systemFont(ofSize: 17, weight: .semibold)
             ]
             nav.largeTitleTextAttributes = [
                 .foregroundColor: UIColor(Color.kadoForeground),
