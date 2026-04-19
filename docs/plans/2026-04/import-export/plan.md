@@ -1,7 +1,7 @@
 # Plan — Import/Export (JSON round-trip)
 
 **Date**: 2026-04-18
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -41,6 +41,16 @@ schema change.
   (matches `HabitScoreCalculator` and `CompletionToggler` patterns).
 
 ## Task list
+
+All six tasks shipped on `feature/import-export` ([PR #16](https://github.com/scastiel/kado/pull/16)).
+Test count: 219 → 241 (+22 tests).
+
+- ✅ Task 1 — `feat(import-export): backup DTOs with canonical JSON shape` (95283f8)
+- ✅ Task 2 — `feat(import-export): exporter that serializes the live store` (88f97aa)
+- ✅ Task 3 — `feat(import-export): importer with upsert-by-uuid merge` (dadbf8d)
+- ✅ Task 4 — `feat(import-export): export button in Settings via ShareLink` (c711715)
+- ✅ Task 5 — `feat(import-export): import sheet, confirmation, and error paths` (e35675d)
+- ✅ Task 6 — `test(import-export): round-trip integration covering every field` (927fd53)
 
 ### Task 1: Codable DTOs + canonical JSON fixture test
 
