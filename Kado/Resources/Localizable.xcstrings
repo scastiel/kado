@@ -133,6 +133,12 @@
             "state" : "translated",
             "value" : "%1$lld / %2$lld done"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld faites"
+          }
         }
       }
     },
@@ -301,6 +307,12 @@
             "state" : "translated",
             "value" : "%1$lld of %2$lld done today"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld sur %2$lld faites aujourd'hui"
+          }
         }
       }
     },
@@ -312,6 +324,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld of %2$lld habits done today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld habitudes sur %2$lld faites aujourd'hui"
           }
         }
       }
@@ -440,6 +458,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All done"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout est fait"
           }
         }
       }
@@ -1065,6 +1089,23 @@
         }
       }
     },
+    "Habit" : {
+      "comment" : "Rectangular lock widget display name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitude"
+          }
+        }
+      }
+    },
     "Habit name" : {
       "comment" : "Text field placeholder in the new-habit form.",
       "localizations" : {
@@ -1090,6 +1131,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Habit Progress"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression de l'habitude"
           }
         }
       }
@@ -1119,6 +1166,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Habits due today with a completion summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes prévues aujourd'hui avec un résumé de progression."
           }
         }
       }
@@ -1587,6 +1640,12 @@
             "state" : "translated",
             "value" : "No habits due today"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude prévue aujourd'hui"
+          }
         }
       }
     },
@@ -1836,6 +1895,12 @@
             "state" : "translated",
             "value" : "One-line summary of today's habits."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé en une ligne des habitudes du jour."
+          }
         }
       }
     },
@@ -1911,6 +1976,12 @@
             "state" : "translated",
             "value" : "Pick a habit"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une habitude"
+          }
         }
       }
     },
@@ -1922,6 +1993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quick tap-to-complete for the habits due today."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valide rapidement les habitudes du jour d'un tap."
           }
         }
       }
@@ -2188,6 +2265,12 @@
             "state" : "translated",
             "value" : "Show one habit on the lock screen."
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche une habitude sur l'écran verrouillé."
+          }
         }
       }
     },
@@ -2342,6 +2425,12 @@
             "state" : "translated",
             "value" : "Tap to pick a habit"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touche pour choisir une habitude"
+          }
         }
       }
     },
@@ -2445,6 +2534,12 @@
             "state" : "translated",
             "value" : "This week"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette semaine"
+          }
         }
       }
     },
@@ -2456,6 +2551,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "This Week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette semaine"
           }
         }
       }
@@ -2531,6 +2632,12 @@
             "state" : "translated",
             "value" : "Today · Progress"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd'hui · Progression"
+          }
         }
       }
     },
@@ -2543,6 +2650,12 @@
             "state" : "translated",
             "value" : "Today Summary"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé du jour"
+          }
         }
       }
     },
@@ -2554,6 +2667,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today's progress for one habit as a ring."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression d'une habitude du jour en anneau."
           }
         }
       }
@@ -2720,6 +2839,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your habit grid for the past seven days."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta grille d'habitudes sur les sept derniers jours."
           }
         }
       }
