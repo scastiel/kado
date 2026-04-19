@@ -175,11 +175,19 @@ struct TodayView: View {
     private var habitsDueToday: [HabitRecord] {
         let now = Date.now
         return activeHabits.filter { record in
-            frequencyEvaluator.isDue(
-                habit: record.snapshot,
-                on: now,
-                completions: (record.completions ?? []).map(\.snapshot)
-            )
+            let completions = (record.completions ?? []).map(\.snapshot)
+            if frequencyEvaluator.isDue(habit: record.snapshot, on: now, completions: completions) {
+                return true
+            }
+            // Keep the row visible when the habit was completed today
+            // even though the quota is already met. Otherwise tapping a
+            // daysPerWeek habit that saturates the rolling window
+            // silently removes it from the list mid-interaction.
+            // Scheduler + Overview + score keep pure quota semantics;
+            // this is a UI-only concern.
+            return completions.contains { completion in
+                calendar.isDate(completion.date, inSameDayAs: now)
+            }
         }
     }
 
