@@ -45,6 +45,8 @@ struct TodayView: View {
     var body: some View {
         NavigationStack(path: $path) {
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.kadoBackground.ignoresSafeArea())
                 .navigationTitle(Text("Today"))
                 .navigationDestination(for: HabitRecord.self) { habit in
                     HabitDetailView(habit: habit)
@@ -94,11 +96,18 @@ struct TodayView: View {
     @ViewBuilder
     private var content: some View {
         if activeHabits.isEmpty {
-            ContentUnavailableView(
-                "No habits yet",
-                systemImage: "list.bullet.clipboard",
-                description: Text("Habits you create will appear here.")
-            )
+            ContentUnavailableView {
+                Label("No habits yet", systemImage: "list.bullet.clipboard")
+            } description: {
+                Text("Habits you create will appear here.")
+            } actions: {
+                Button {
+                    sheet = .newHabit
+                } label: {
+                    Label("Create your first habit", systemImage: "plus")
+                }
+                .buttonStyle(.borderedProminent)
+            }
         } else {
             let due = habitsDueToday
             if due.isEmpty {

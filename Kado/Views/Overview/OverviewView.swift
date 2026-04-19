@@ -28,6 +28,7 @@ struct OverviewView: View {
     @Environment(\.habitScoreCalculator) private var scoreCalculator
 
     @State private var selection: CellSelection?
+    @State private var showingNewHabit = false
 
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 36
@@ -48,7 +49,12 @@ struct OverviewView: View {
     var body: some View {
         NavigationStack {
             content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.kadoBackground.ignoresSafeArea())
                 .navigationTitle("Overview")
+                .sheet(isPresented: $showingNewHabit) {
+                    NewHabitFormView(model: NewHabitFormModel())
+                }
         }
     }
 
@@ -62,11 +68,18 @@ struct OverviewView: View {
     }
 
     private var emptyState: some View {
-        ContentUnavailableView(
-            "No habits yet",
-            systemImage: "square.grid.2x2",
-            description: Text("Create habits from the Today tab to see them here.")
-        )
+        ContentUnavailableView {
+            Label("No habits yet", systemImage: "square.grid.2x2")
+        } description: {
+            Text("Habits you create will show up here with their history.")
+        } actions: {
+            Button {
+                showingNewHabit = true
+            } label: {
+                Label("Create your first habit", systemImage: "plus")
+            }
+            .buttonStyle(.borderedProminent)
+        }
     }
 
     private var matrix: some View {
