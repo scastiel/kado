@@ -33,10 +33,12 @@ public struct KadoThemeModifier: ViewModifier {
             guard !didRun else { return }
             didRun = true
 
+            // Keep the system's default nav bar material so the large
+            // title stays visible and the bar blends naturally with the
+            // paper content behind it. Only override typography: ink
+            // foreground + Fraunces for the large title.
             let nav = UINavigationBarAppearance()
-            nav.configureWithTransparentBackground()
-            nav.backgroundColor = UIColor(Color.kadoBackground).withAlphaComponent(0.85)
-            nav.shadowColor = UIColor(Color.kadoHairline)
+            nav.configureWithDefaultBackground()
             nav.titleTextAttributes = [
                 .foregroundColor: UIColor(Color.kadoForeground)
             ]
@@ -49,10 +51,10 @@ public struct KadoThemeModifier: ViewModifier {
             UINavigationBar.appearance().scrollEdgeAppearance = nav
             UINavigationBar.appearance().compactAppearance = nav
 
+            // Tab bar stays on the default blur too — ensures the
+            // floating tab pill reads correctly over paper.
             let tab = UITabBarAppearance()
             tab.configureWithDefaultBackground()
-            tab.backgroundColor = UIColor(Color.kadoBackground).withAlphaComponent(0.8)
-            tab.shadowColor = UIColor(Color.kadoHairline)
             UITabBar.appearance().standardAppearance = tab
             UITabBar.appearance().scrollEdgeAppearance = tab
         }
