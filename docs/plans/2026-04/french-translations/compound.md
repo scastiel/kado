@@ -129,6 +129,51 @@ pure source text.
   gaps then fix in one batch." When a test has a bounded failure
   surface, ask it for the full list up front.
 
+### Post-merge review: widget extension bundle has no fr.lproj
+
+- **What happened**: a post-build inspection of
+  `Kado.app/PlugIns/KadoWidgetsExtension.appex/` found no
+  `fr.lproj` and the Info.plist has no `CFBundleLocalizations`.
+  The catalog lives in the main app target's synchronized folder
+  (`Kado/Resources/Localizable.xcstrings`) and isn't included in
+  the widget extension's target membership. So widget *kind*
+  names, descriptions, and lock-screen fallbacks will render EN
+  regardless of system language — even though the catalog
+  contains all the FR translations.
+- **What we did**: documented as a follow-up; did not block the
+  PR. The fix requires editing project.pbxproj (Xcode IDE
+  operation) to add the catalog as a file-level exception to the
+  widget extension target membership, or to duplicate the
+  widget-relevant keys into a `KadoWidgets/Resources/` catalog.
+  Neither is safe via pure text edits — MCP-only tooling can't
+  check target-membership toggles.
+- **Lesson**: when localizing an app with extensions, **verify
+  each extension's compiled `.appex` contains the language's
+  `.lproj` before claiming the feature complete**. The
+  `LocalizationCoverageTests` guard the catalog, but the catalog
+  is only source — target-membership is what determines whether
+  the compiled bundle actually ships it. Add a build-phase check
+  or a second test that inspects the `.appex` structure if this
+  ever regresses.
+
+### Code review polish after compound
+
+- **What happened**: a `/review` pass after compound flagged four
+  minor polish items on `LocalizationCoverageTests`: unused
+  `@testable` import, unneeded `@MainActor`, permissive plural
+  check (any form passing), and a zombie catalog key
+  (`Habits you create will show up here with their history.`).
+- **What we did**: applied three of the four in a follow-up
+  commit (`test(l10n): tighten plural coverage and trim imports`).
+  The zombie key had already been removed by an Xcode IDE pass
+  before the fix could land — harmless serendipity.
+- **Lesson**: compound is worth running *after* review, not
+  before. The review caught testability issues that a compound
+  written pre-review would have missed. Also: tightening the
+  plural check from "any non-empty form" to "every declared form
+  non-empty" turned a latent false-negative into a real check
+  with no code cost.
+
 ## What worked well
 
 - **Draft-review loop at chunk boundaries**, per plan. The author
@@ -205,6 +250,13 @@ pure source text.
   Pseudo-locale IDE sweep also deferred — MCP can't drive the
   scheme-level option; author runs it before v1.0 App Store
   submission.
+- **[→ ROADMAP.md]** Widget-extension FR localization is a
+  **v1.0 blocker** discovered in post-merge review. Fix requires
+  adding the catalog to the widget extension's target membership
+  via Xcode IDE (or duplicating widget-relevant keys into a
+  separate `KadoWidgets/Resources/` catalog). Without this fix,
+  widget kind names and descriptions render EN regardless of
+  system language.
 
 ## Metrics
 

@@ -178,6 +178,12 @@ README, landing page, first wave of downloads.
 ### Localization
 - [x] Complete native FR (not machine-translated) — **shipped in
       v0.2 stream**, see `docs/plans/2026-04/french-translations/`
+- [ ] **Widget extension FR** — catalog lives in the main app target
+      only; widget extension bundle has no `fr.lproj`. Add catalog
+      to the widget target's membership in Xcode IDE, or duplicate
+      widget-relevant keys into `KadoWidgets/Resources/`. Without
+      this, widget kind names render EN even under fr_FR.
+- [ ] Pseudo-locale IDE smoke test pass before App Store submission
 - [ ] Accessibility: VoiceOver verified on every view, clear labels in
       EN and FR
 - [ ] App Store screenshots in 2 languages
