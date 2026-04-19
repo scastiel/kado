@@ -14,6 +14,7 @@ struct KadoApp: App {
 
     init() {
         DevModeDefaults.migrateFromStandardIfNeeded()
+        KadoFont.register()
         let scheduler = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
         _notificationScheduler = State(initialValue: scheduler)
         _notificationManager = State(initialValue: NotificationManager(scheduler: scheduler))
