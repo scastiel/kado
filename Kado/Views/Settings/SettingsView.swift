@@ -16,11 +16,33 @@ struct SettingsView: View {
                 NotificationsSection()
                 BackupSection()
                 DevModeSection()
+                wordmarkFooter
             }
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle("Settings")
         }
+    }
+
+    /// Decorative wordmark at the bottom of Settings. Rendered as the
+    /// footer of an empty Section so it sits below every card with
+    /// the same inset as the rest of the Form. `Text(verbatim:)`
+    /// skips the localization path — 稼働 is brand art, not a phrase
+    /// that translates. The accessibilityLabel carries the
+    /// translatable phrasing VoiceOver reads.
+    private var wordmarkFooter: some View {
+        Section {
+            EmptyView()
+        } footer: {
+            Text(verbatim: "稼 働 · in operation")
+                .font(.system(size: 13, design: .serif))
+                .tracking(2.0)
+                .foregroundStyle(Color.kadoForegroundTertiary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 24)
+                .accessibilityLabel(String(localized: "Kadō — in operation"))
+        }
+        .listRowBackground(Color.clear)
     }
 }
 
