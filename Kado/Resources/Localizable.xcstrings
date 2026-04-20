@@ -320,6 +320,23 @@
         }
       }
     },
+    "%lld of %lld min" : {
+      "comment" : "Stepper label in the past-day edit popover for timer habits. First arg: current minutes logged. Second arg: target minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld sur %2$lld min"
+          }
+        }
+      }
+    },
     "%lld of %lld done today" : {
       "comment" : "Inline lock widget summary. Arg 1 completed, arg 2 total.",
       "extractionState" : "stale",
@@ -645,6 +662,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vérification iCloud…"
+          }
+        }
+      }
+    },
+    "Clear" : {
+      "comment" : "Destructive action in the past-day edit popover that clears the logged value for counter and timer habits (deletes the completion).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer"
           }
         }
       }
@@ -1648,6 +1682,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Marquer comme non fait"
+          }
+        }
+      }
+    },
+    "Mark as not slipped" : {
+      "comment" : "Primary button in the past-day edit popover for a negative habit when a slip is already recorded for the selected day. Activating it removes the slip.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as not slipped"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer comme non raté"
+          }
+        }
+      }
+    },
+    "Mark as slipped" : {
+      "comment" : "Primary button in the past-day edit popover for a negative habit when no slip is recorded for the selected day. Activating it records a slip on that day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as slipped"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer comme raté"
           }
         }
       }
