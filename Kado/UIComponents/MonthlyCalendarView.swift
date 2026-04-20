@@ -9,6 +9,7 @@ struct MonthlyCalendarView: View {
     let habit: Habit
     let completions: [Completion]
     var month: Date = .now
+    var onTapDay: ((Date) -> Void)? = nil
     @Environment(\.calendar) private var calendar
 
     var body: some View {
@@ -83,8 +84,9 @@ struct MonthlyCalendarView: View {
         let state = state(for: day)
         let isToday = calendar.isDateInToday(day)
         let dayNumber = calendar.component(.day, from: day)
+        let isInteractive = state != .future
 
-        ZStack {
+        let visual = ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(fill(for: state))
                 .overlay(
@@ -98,8 +100,17 @@ struct MonthlyCalendarView: View {
                 .font(.caption.weight(state == .completed ? .bold : .regular))
                 .foregroundStyle(foreground(for: state))
         }
+        .contentShape(Rectangle())
         .accessibilityElement()
         .accessibilityLabel(accessibilityLabel(for: day, state: state, isToday: isToday))
+
+        if isInteractive {
+            visual
+                .accessibilityHint(Text("Double-tap to edit this day."))
+                .onTapGesture { onTapDay?(day) }
+        } else {
+            visual
+        }
     }
 
     private enum CellState {

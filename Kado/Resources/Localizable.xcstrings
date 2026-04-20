@@ -925,6 +925,23 @@
         }
       }
     },
+    "Double-tap to edit this day." : {
+      "comment" : "VoiceOver hint on past/today cells in the habit detail calendar; announces that activating the cell opens an editor for that day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-tap to edit this day."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appuyer deux fois pour modifier ce jour."
+          }
+        }
+      }
+    },
     "Edit" : {
       "comment" : "Primary toolbar button on habit detail that opens the edit form.",
       "localizations" : {
