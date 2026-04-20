@@ -79,6 +79,39 @@ struct CompletionTogglerTests {
         #expect(habit.completions?.isEmpty ?? true)
     }
 
+    @Test("Toggle on a past day inserts a record on that day, not today")
+    func pastDayInsertsOnThatDay() throws {
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        container.mainContext.insert(habit)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.toggleToday(for: habit, on: TestCalendar.day(-3), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        let stored = try #require(habit.completions?.first)
+        #expect(TestCalendar.utc.isDate(stored.date, inSameDayAs: TestCalendar.day(-3)))
+        #expect(!TestCalendar.utc.isDate(stored.date, inSameDayAs: TestCalendar.day(0)))
+    }
+
+    @Test("Toggle on a past day twice leaves today's record intact")
+    func pastDayRoundTripPreservesToday() throws {
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        container.mainContext.insert(habit)
+        let todayRecord = CompletionRecord(date: TestCalendar.day(0), value: 1, habit: habit)
+        container.mainContext.insert(todayRecord)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.toggleToday(for: habit, on: TestCalendar.day(-3), in: container.mainContext)
+        toggler.toggleToday(for: habit, on: TestCalendar.day(-3), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.id == todayRecord.id)
+    }
+
     @Test("Toggle uses the injected calendar for day comparison across timezones")
     func calendarIsolation() throws {
         // Paris calendar: a completion at 23:30 UTC is already "tomorrow"
