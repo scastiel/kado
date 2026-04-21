@@ -9,7 +9,7 @@ weeks for a production app by an experienced dev, etc.).
 
 ---
 
-## Current status (2026-04-19)
+## Current status (2026-04-20)
 
 - **v0.1 MVP**: shipped — all scope items and exit criteria complete.
 - **v0.2 "Visible iOS-native"**: largely shipped — widgets,
@@ -21,8 +21,12 @@ weeks for a production app by an experienced dev, etc.).
   translations.
 - **App Store**: first public build submitted, currently in App
   Store review. TestFlight external beta also live.
-- **Next**: v0.3 (App Intents, HealthKit, Live Activities, native
-  Apple Watch).
+- **v0.3 App Intents track**: shipped — three Siri-exposed
+  intents (Complete / Log Value / Get Stats) plus
+  `AppShortcutsProvider` registration and full FR localization.
+  See `docs/plans/2026-04/app-intents-siri/`.
+- **Next**: v0.3 remaining tracks — HealthKit, Live Activities,
+  native Apple Watch.
 
 ---
 
@@ -139,12 +143,14 @@ app becoming a reason to install Kadō on its own.
 
 **Estimate**: 3-4 weeks.
 
-### App Intents and Siri
-- [ ] `CompleteHabitIntent`: "Hey Siri, mark [habit] as done"
-- [ ] `LogHabitValueIntent`: for counters/timers ("I drank 2 glasses
+### App Intents and Siri ✅ shipped
+- [x] `CompleteHabitIntent`: "Hey Siri, mark [habit] as done"
+- [x] `LogHabitValueIntent`: for counters/timers ("I drank 2 glasses
       of water")
-- [ ] `GetHabitStatsIntent`: "What's my meditation streak?"
-- [ ] Contextual Shortcuts suggestions (morning, evening)
+- [x] `GetHabitStatsIntent`: "What's my meditation streak?"
+- [x] Contextual Shortcuts suggestions (`suggestedInvocationPhrase`
+      via `AppShortcutsProvider`; morning/evening predicates via
+      `ShortcutTile` deferred)
 
 ### HealthKit
 - [ ] Read-only HealthKit permission, granular
