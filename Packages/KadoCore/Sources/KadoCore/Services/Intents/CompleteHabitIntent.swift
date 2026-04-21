@@ -12,7 +12,9 @@ import WidgetKit
 /// tapping a widget `Button(intent:)` opens the app, which then
 /// performs the toggle against SwiftData. This trades silent
 /// completion for the simpler single-container story the widget
-/// snapshot architecture requires.
+/// snapshot architecture requires. Siri hears a spoken dialog via
+/// `ProvidesDialog`; on iOS 18+ the app-open is backgrounded when
+/// `perform()` doesn't present UI, so Siri feels snappy.
 public struct CompleteHabitIntent: AppIntent {
     public static let title: LocalizedStringResource = "Complete Habit"
     public static let description = IntentDescription(
@@ -34,13 +36,13 @@ public struct CompleteHabitIntent: AppIntent {
     }
 
     @MainActor
-    public func perform() async throws -> some IntentResult {
+    public func perform() async throws -> some IntentResult & ProvidesDialog {
         // Reuse the app's live container — opening a fresh one in
         // the same process would fight for CloudKit ownership and
         // trap. `openAppWhenRun = true` guarantees the app primes
         // `ActiveContainer.shared` before this method runs.
         let container = try ActiveContainer.shared.get()
-        _ = try Self.apply(
+        let outcome = try Self.apply(
             habitID: habit.id,
             in: container.mainContext,
             calendar: .current,
@@ -48,13 +50,14 @@ public struct CompleteHabitIntent: AppIntent {
         )
         WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
         WidgetCenter.shared.reloadAllTimelines()
-        return .result()
+        return .result(dialog: Self.dialog(for: outcome, habitName: habit.name))
     }
 
     /// Testable core of the intent. Fetches the habit, toggles
     /// today's completion via `CompletionToggler` when the type
     /// supports single-tap logging, and returns what happened so
-    /// the caller can decide whether to hop to the app.
+    /// the caller can decide what to speak or whether to hop to
+    /// the app.
     @MainActor
     public static func apply(
         habitID: UUID,
@@ -73,17 +76,35 @@ public struct CompleteHabitIntent: AppIntent {
         }
         switch record.type {
         case .binary, .negative:
-            CompletionToggler(calendar: calendar)
+            let result = CompletionToggler(calendar: calendar)
                 .toggleToday(for: record, on: now, in: context)
             try context.save()
-            return .toggled
+            switch result {
+            case .completed: return .toggledOn
+            case .uncompleted: return .toggledOff
+            }
         case .counter, .timer:
             return .opensApp
         }
     }
 
+    /// Picks the spoken Siri dialog for a given outcome. Separated
+    /// so tests can assert dialog content without booting an intent
+    /// host.
+    public static func dialog(for outcome: Outcome, habitName: String) -> IntentDialog {
+        switch outcome {
+        case .toggledOn:
+            return IntentDialog("Marked \(habitName) as done.")
+        case .toggledOff:
+            return IntentDialog("Unmarked \(habitName).")
+        case .opensApp:
+            return IntentDialog("\(habitName) needs a value — opening Kadō.")
+        }
+    }
+
     public enum Outcome: Equatable {
-        case toggled
+        case toggledOn
+        case toggledOff
         case opensApp
     }
 

@@ -18,18 +18,29 @@ public struct CompletionToggler {
     /// Inserts a unit completion for `habit` on `date`'s day if none
     /// exists; otherwise deletes the existing one. Day comparison uses
     /// the injected calendar so DST and timezone boundaries behave.
+    /// Returns which direction the toggle went so callers that need
+    /// to react (e.g. spoken Siri dialog) can branch without a second
+    /// round-trip to the store.
+    @discardableResult
     public func toggleToday(
         for habit: HabitRecord,
         on date: Date = .now,
         in context: ModelContext
-    ) {
+    ) -> ToggleResult {
         if let existing = habit.completions?.first(where: {
             calendar.isDate($0.date, inSameDayAs: date)
         }) {
             context.delete(existing)
+            return .uncompleted
         } else {
             let completion = CompletionRecord(date: date, value: 1, habit: habit)
             context.insert(completion)
+            return .completed
         }
+    }
+
+    public enum ToggleResult: Equatable, Sendable {
+        case completed
+        case uncompleted
     }
 }
