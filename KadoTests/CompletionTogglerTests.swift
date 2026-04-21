@@ -147,4 +147,71 @@ struct CompletionTogglerTests {
         #expect(habit.completions?.count == 2)
         #expect(habit.completions?.contains { $0.id == existingOnParisApril14.id } ?? false)
     }
+
+    // MARK: - setValueToday (counter / timer overwrite primitive)
+
+    @Test("setValueToday writes a new completion when none exists")
+    func setValueInsertsWhenAbsent() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(3, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        let completion = try #require(habit.completions?.first)
+        #expect(completion.value == 3.0)
+        #expect(TestCalendar.utc.isDate(completion.date, inSameDayAs: TestCalendar.day(0)))
+    }
+
+    @Test("setValueToday overwrites an existing same-day completion")
+    func setValueOverwrites() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 2, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(5, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 5.0)
+    }
+
+    @Test("setValueToday with zero removes today's completion")
+    func setValueZeroRemoves() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 4, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(0, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
+    @Test("setValueToday respects the injected calendar for day boundary")
+    func setValueRespectsCalendar() throws {
+        // Yesterday's completion (UTC) is left untouched when we set
+        // today's value via UTC calendar.
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let yesterday = CompletionRecord(date: TestCalendar.day(-1), value: 4, habit: habit)
+        container.mainContext.insert(yesterday)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(7, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 2)
+        #expect(habit.completions?.contains { $0.id == yesterday.id } ?? false)
+    }
 }

@@ -40,7 +40,7 @@ struct CompleteHabitIntentTests {
             now: .now
         )
 
-        #expect(outcome == .toggled)
+        #expect(outcome == .toggledOn)
         let completions = try container.mainContext.fetch(
             FetchDescriptor<CompletionRecord>()
         )
@@ -54,19 +54,21 @@ struct CompleteHabitIntentTests {
         let habit = HabitRecord(name: "Stretch", frequency: .daily, type: .binary)
         try insert(habit, into: container)
 
-        _ = try CompleteHabitIntent.apply(
+        let first = try CompleteHabitIntent.apply(
             habitID: habit.id,
             in: container.mainContext,
             calendar: .current,
             now: .now
         )
-        _ = try CompleteHabitIntent.apply(
+        let second = try CompleteHabitIntent.apply(
             habitID: habit.id,
             in: container.mainContext,
             calendar: .current,
             now: .now
         )
 
+        #expect(first == .toggledOn)
+        #expect(second == .toggledOff)
         let completions = try container.mainContext.fetch(
             FetchDescriptor<CompletionRecord>()
         )
@@ -130,7 +132,30 @@ struct CompleteHabitIntentTests {
             now: .now
         )
 
-        #expect(outcome == .toggled)
+        #expect(outcome == .toggledOn)
+    }
+
+    // MARK: - Dialog content
+
+    @Test("Dialog after toggle-on reads 'Marked X as done'")
+    func dialogToggleOn() {
+        let dialog = CompleteHabitIntent.dialog(for: .toggledOn, habitName: "Meditate")
+        #expect(String(describing: dialog).contains("Meditate"))
+        #expect(String(describing: dialog).contains("done"))
+    }
+
+    @Test("Dialog after toggle-off reads 'Unmarked X'")
+    func dialogToggleOff() {
+        let dialog = CompleteHabitIntent.dialog(for: .toggledOff, habitName: "Meditate")
+        #expect(String(describing: dialog).contains("Unmarked"))
+        #expect(String(describing: dialog).contains("Meditate"))
+    }
+
+    @Test("Dialog for opensApp mentions the habit and the app name")
+    func dialogOpensApp() {
+        let dialog = CompleteHabitIntent.dialog(for: .opensApp, habitName: "Water")
+        #expect(String(describing: dialog).contains("Water"))
+        #expect(String(describing: dialog).contains("Kadō"))
     }
 
     @Test("Unknown habit ID throws habitNotFound")

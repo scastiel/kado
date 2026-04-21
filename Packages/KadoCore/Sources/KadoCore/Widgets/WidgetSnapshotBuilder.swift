@@ -23,16 +23,52 @@ public enum WidgetSnapshotBuilder {
         let records = (try? context.fetch(descriptor)) ?? []
         let active = records.filter { $0.archivedAt == nil }
 
-        let widgetHabits = active.map { record in
-            WidgetHabit(
+        // Compute per-habit stats once. Reused across the three
+        // WidgetHabit construction sites (top-level, today rows,
+        // matrix rows) so consumers see consistent values.
+        struct HabitStats { let current: Int; let best: Int; let score: Double }
+        var statsByID: [UUID: HabitStats] = [:]
+        for record in active {
+            let snap = record.snapshot
+            let comps = (record.completions ?? []).map(\.snapshot)
+            statsByID[snap.id] = HabitStats(
+                current: streakCalculator.current(for: snap, completions: comps, asOf: reference),
+                best: streakCalculator.best(for: snap, completions: comps, asOf: reference),
+                score: scoreCalculator.currentScore(for: snap, completions: comps, asOf: reference)
+            )
+        }
+
+        func makeWidgetHabit(from record: HabitRecord) -> WidgetHabit {
+            let stats = statsByID[record.id]
+            return WidgetHabit(
                 id: record.id,
                 name: record.name,
                 color: record.color,
                 icon: record.icon,
                 typeKind: mapTypeKind(record.type),
-                target: mapTarget(record.type)
+                target: mapTarget(record.type),
+                currentStreak: stats?.current ?? 0,
+                bestStreak: stats?.best ?? 0,
+                currentScore: stats?.score ?? 0
             )
         }
+
+        func makeWidgetHabit(from snap: Habit) -> WidgetHabit {
+            let stats = statsByID[snap.id]
+            return WidgetHabit(
+                id: snap.id,
+                name: snap.name,
+                color: snap.color,
+                icon: snap.icon,
+                typeKind: mapTypeKind(snap.type),
+                target: mapTarget(snap.type),
+                currentStreak: stats?.current ?? 0,
+                bestStreak: stats?.best ?? 0,
+                currentScore: stats?.score ?? 0
+            )
+        }
+
+        let widgetHabits = active.map(makeWidgetHabit(from:))
 
         var todayRows: [WidgetTodayRow] = []
         var completed = 0
@@ -48,24 +84,16 @@ public enum WidgetSnapshotBuilder {
                 calendar: calendar,
                 asOf: reference
             )
-            let streak = streakCalculator.current(for: snap, completions: comps, asOf: reference)
-            let score = scoreCalculator.currentScore(for: snap, completions: comps, asOf: reference)
-            let widgetHabit = WidgetHabit(
-                id: snap.id,
-                name: snap.name,
-                color: snap.color,
-                icon: snap.icon,
-                typeKind: mapTypeKind(snap.type),
-                target: mapTarget(snap.type)
-            )
+            let stats = statsByID[snap.id]
+            let widgetHabit = makeWidgetHabit(from: snap)
             todayRows.append(
                 WidgetTodayRow(
                     habit: widgetHabit,
                     status: mapStatus(state.status),
                     progress: state.progress,
                     valueToday: state.valueToday,
-                    streak: streak,
-                    scorePercent: Int((score * 100).rounded())
+                    streak: stats?.current ?? 0,
+                    scorePercent: Int(((stats?.score ?? 0) * 100).rounded())
                 )
             )
             if state.status == .complete { completed += 1 }
@@ -87,16 +115,8 @@ public enum WidgetSnapshotBuilder {
             frequencyEvaluator: frequencyEvaluator
         )
         let widgetMatrix = matrix.map { row in
-            let wh = WidgetHabit(
-                id: row.habit.id,
-                name: row.habit.name,
-                color: row.habit.color,
-                icon: row.habit.icon,
-                typeKind: mapTypeKind(row.habit.type),
-                target: mapTarget(row.habit.type)
-            )
-            return WidgetMatrixRow(
-                habit: wh,
+            WidgetMatrixRow(
+                habit: makeWidgetHabit(from: row.habit),
                 cells: row.days.map(mapDayCell)
             )
         }
