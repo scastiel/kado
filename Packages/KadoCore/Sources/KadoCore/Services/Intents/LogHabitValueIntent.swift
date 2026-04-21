@@ -26,15 +26,19 @@ public struct LogHabitValueIntent: AppIntent {
     @Parameter(title: "Habit")
     public var habit: HabitEntity
 
+    /// Optional so `perform()` can pre-flight the habit type and
+    /// refuse binary / negative habits before iOS prompts the user
+    /// for a value they shouldn't be entering. Counter / timer
+    /// habits get the value requested on demand inside `perform()`.
     @Parameter(
         title: "Value",
         description: "Counter habits: the count. Timer habits: minutes."
     )
-    public var value: Double
+    public var value: Double?
 
     public init() {}
 
-    public init(habit: HabitEntity, value: Double) {
+    public init(habit: HabitEntity, value: Double? = nil) {
         self.habit = habit
         self.value = value
     }
@@ -42,9 +46,36 @@ public struct LogHabitValueIntent: AppIntent {
     @MainActor
     public func perform() async throws -> some IntentResult & ProvidesDialog {
         let container = try ActiveContainer.shared.get()
+
+        // Pre-flight: refuse binary / negative habits BEFORE iOS asks
+        // the user for a value. The default parameter-resolution flow
+        // would prompt for value first and only error on a wrong type
+        // after the user typed a number — confusing UX.
+        let kind = try Self.preflightHabit(
+            habitID: habit.id,
+            in: container.mainContext
+        )
+        if kind == .binary || kind == .negative {
+            return .result(dialog: Self.dialog(
+                for: .wrongType(kind: kind),
+                habitName: habit.name
+            ))
+        }
+
+        // Counter / timer: now we can ask for a value if Siri didn't
+        // capture one in the original phrase.
+        let resolvedValue: Double
+        if let v = value {
+            resolvedValue = v
+        } else {
+            resolvedValue = try await $value.requestValue(
+                IntentDialog("What value for \(habit.name)?")
+            )
+        }
+
         let outcome = try Self.apply(
             habitID: habit.id,
-            value: value,
+            value: resolvedValue,
             in: container.mainContext,
             calendar: .current,
             now: .now
@@ -54,6 +85,29 @@ public struct LogHabitValueIntent: AppIntent {
             WidgetCenter.shared.reloadAllTimelines()
         }
         return .result(dialog: Self.dialog(for: outcome, habitName: habit.name))
+    }
+
+    /// Looks up a habit's kind without applying any state change.
+    /// Used by `perform()` to short-circuit value prompting on
+    /// habit types that don't accept manual values.
+    @MainActor
+    public static func preflightHabit(
+        habitID: UUID,
+        in context: ModelContext
+    ) throws -> HabitKind {
+        let descriptor = FetchDescriptor<HabitRecord>()
+        guard let record = try context.fetch(descriptor).first(where: { $0.id == habitID }) else {
+            throw IntentError.habitNotFound
+        }
+        guard record.archivedAt == nil else {
+            throw IntentError.habitArchived
+        }
+        switch record.type {
+        case .binary: return .binary
+        case .negative: return .negative
+        case .counter: return .counter
+        case .timer: return .timer
+        }
     }
 
     /// Testable core. Fetches the habit, dispatches on type, and

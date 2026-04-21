@@ -6,8 +6,6 @@ import KadoCore
 /// live in the main app target — iOS reads the provider from the
 /// app's bundle, not from a linked framework.
 ///
-/// Additional intents (`LogHabitValueIntent`, `GetHabitStatsIntent`)
-/// will be appended as they're built.
 struct KadoAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -21,8 +19,13 @@ struct KadoAppShortcuts: AppShortcutsProvider {
         )
         AppShortcut(
             intent: LogHabitValueIntent(),
+            // `value` is optional on the intent so we can refuse
+            // binary / negative habits before prompting; the NLU
+            // training pipeline rejects optional-param interpolation
+            // in phrases. Keep phrases parameter-only on `habit`;
+            // Siri prompts for the value at run-time.
             phrases: [
-                "Log \(\.$value) for \(\.$habit) in \(.applicationName)",
+                "Log a value for \(\.$habit) in \(.applicationName)",
                 "Log habit value in \(.applicationName)"
             ],
             shortTitle: "Log Habit Value",

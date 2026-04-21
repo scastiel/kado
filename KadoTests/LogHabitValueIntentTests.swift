@@ -185,6 +185,99 @@ struct LogHabitValueIntentTests {
         }
     }
 
+    // MARK: - Preflight (refuse before prompting for value)
+
+    @Test("preflightHabit returns .binary for a binary habit")
+    func preflightBinary() throws {
+        let container = try makeContainer()
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        try insert(habit, into: container)
+
+        let kind = try LogHabitValueIntent.preflightHabit(
+            habitID: habit.id,
+            in: container.mainContext
+        )
+        #expect(kind == .binary)
+    }
+
+    @Test("preflightHabit returns .negative for a negative habit")
+    func preflightNegative() throws {
+        let container = try makeContainer()
+        let habit = HabitRecord(name: "No snack", frequency: .daily, type: .negative)
+        try insert(habit, into: container)
+
+        let kind = try LogHabitValueIntent.preflightHabit(
+            habitID: habit.id,
+            in: container.mainContext
+        )
+        #expect(kind == .negative)
+    }
+
+    @Test("preflightHabit returns .counter for a counter habit")
+    func preflightCounter() throws {
+        let container = try makeContainer()
+        let habit = HabitRecord(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8)
+        )
+        try insert(habit, into: container)
+
+        let kind = try LogHabitValueIntent.preflightHabit(
+            habitID: habit.id,
+            in: container.mainContext
+        )
+        #expect(kind == .counter)
+    }
+
+    @Test("preflightHabit returns .timer for a timer habit")
+    func preflightTimer() throws {
+        let container = try makeContainer()
+        let habit = HabitRecord(
+            name: "Read",
+            frequency: .daily,
+            type: .timer(targetSeconds: 25 * 60)
+        )
+        try insert(habit, into: container)
+
+        let kind = try LogHabitValueIntent.preflightHabit(
+            habitID: habit.id,
+            in: container.mainContext
+        )
+        #expect(kind == .timer)
+    }
+
+    @Test("preflightHabit throws habitArchived for archived")
+    func preflightArchived() throws {
+        let container = try makeContainer()
+        let habit = HabitRecord(
+            name: "Old",
+            frequency: .daily,
+            type: .counter(target: 8),
+            archivedAt: .now
+        )
+        try insert(habit, into: container)
+
+        #expect(throws: LogHabitValueIntent.IntentError.self) {
+            _ = try LogHabitValueIntent.preflightHabit(
+                habitID: habit.id,
+                in: container.mainContext
+            )
+        }
+    }
+
+    @Test("preflightHabit throws habitNotFound for unknown id")
+    func preflightUnknown() throws {
+        let container = try makeContainer()
+
+        #expect(throws: LogHabitValueIntent.IntentError.self) {
+            _ = try LogHabitValueIntent.preflightHabit(
+                habitID: UUID(),
+                in: container.mainContext
+            )
+        }
+    }
+
     // MARK: - Dialog content
 
     @Test("Dialog for logged counter mentions value and habit name")

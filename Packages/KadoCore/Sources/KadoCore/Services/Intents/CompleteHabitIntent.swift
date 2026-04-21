@@ -48,8 +48,12 @@ public struct CompleteHabitIntent: AppIntent {
             calendar: .current,
             now: .now
         )
-        WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
-        WidgetCenter.shared.reloadAllTimelines()
+        // Skip the widget rebuild on .opensApp — nothing was written,
+        // so the snapshot is already current.
+        if outcome != .opensApp {
+            WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         return .result(dialog: Self.dialog(for: outcome, habitName: habit.name))
     }
 
