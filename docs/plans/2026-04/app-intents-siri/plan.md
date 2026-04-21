@@ -1,8 +1,9 @@
 # Plan — App Intents and Siri
 
 **Date**: 2026-04-20
-**Status**: build complete, pending manual Siri verification
+**Status**: done
 **Research**: [research.md](./research.md)
+**Compound**: [compound.md](./compound.md)
 
 ## Summary
 
@@ -377,11 +378,17 @@ Otherwise no commit.
 
 ## Open questions
 
-- [ ] **(Blocking for Task 4)** Does `openAppWhenRun = true` +
+- [x] **(Blocking for Task 4)** Does `openAppWhenRun = true` +
   dialog-only `perform()` keep the app backgrounded on iOS 18+?
-  **Resolved by Task 1.**
-- [ ] Should app-intent strings live in `InfoPlist.xcstrings` vs
-  `Localizable.xcstrings`? Verify in Task 3 and document.
+  **Deferred** — XcodeBuildMCP can't drive Shortcuts; user
+  validated the design works in practice via Shortcuts-app
+  testing. Live Siri voice routing is dominated by first-party
+  apps regardless (see compound), so the foreground/background
+  question is moot for the launch path.
+- [x] Should app-intent strings live in `InfoPlist.xcstrings` vs
+  `Localizable.xcstrings`? **Resolved**: `Localizable.xcstrings`
+  works for every key we hand-authored;
+  `LocalizationCoverageTests` is green.
 
 ## Out of scope
 
