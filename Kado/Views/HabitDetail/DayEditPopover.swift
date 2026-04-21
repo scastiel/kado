@@ -124,7 +124,7 @@ struct DayEditPopover: View {
                     .monospacedDigit()
                     .foregroundStyle(counterValue >= target ? Color.accentColor : Color.primary)
             }
-            actionRow(canClear: isRecorded)
+            clearButton(shown: counterValue > 0)
         }
     }
 
@@ -146,34 +146,24 @@ struct DayEditPopover: View {
                     .monospacedDigit()
                     .foregroundStyle(timerMinutes >= targetMinutes ? Color.accentColor : Color.primary)
             }
-            actionRow(canClear: isRecorded)
+            clearButton(shown: timerMinutes > 0)
         }
     }
 
-    private func actionRow(canClear: Bool) -> some View {
-        HStack(spacing: 10) {
-            if canClear {
-                Button(role: .destructive) {
-                    onClear()
-                    dismiss()
-                } label: {
-                    Text("Clear")
-                        .font(.body.weight(.medium))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                }
-                .buttonStyle(.bordered)
-                .tint(.red)
-            }
-            Button {
+    @ViewBuilder
+    private func clearButton(shown: Bool) -> some View {
+        if shown {
+            Button(role: .destructive) {
+                onClear()
                 dismiss()
             } label: {
-                Text("Done")
-                    .font(.body.weight(.semibold))
+                Text("Clear")
+                    .font(.body.weight(.medium))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.bordered)
+            .tint(.red)
         }
     }
 
@@ -189,12 +179,10 @@ struct DayEditPopover: View {
         switch habit.type {
         case .counter:
             counterValue = Int(currentValue.rounded())
-        case .timer(let seconds):
-            if currentValue > 0 {
-                timerMinutes = max(1, Int((currentValue / 60).rounded()))
-            } else {
-                timerMinutes = max(1, Int((seconds / 60).rounded()))
-            }
+        case .timer:
+            timerMinutes = currentValue > 0
+                ? max(1, Int((currentValue / 60).rounded()))
+                : 0
         case .binary, .negative:
             break
         }
