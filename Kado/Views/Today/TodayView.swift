@@ -12,6 +12,7 @@ struct TodayView: View {
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
 
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -191,16 +192,14 @@ struct TodayView: View {
     }
 
     private var habitsDueToday: [HabitRecord] {
-        let now = Date.now
-        return activeHabits.filter { record in
-            isDueTodayOrCompletedToday(record, on: now)
+        activeHabits.filter { record in
+            isDueTodayOrCompletedToday(record, on: today)
         }
     }
 
     private var habitsNotDueToday: [HabitRecord] {
-        let now = Date.now
-        return activeHabits.filter { record in
-            !isDueTodayOrCompletedToday(record, on: now)
+        activeHabits.filter { record in
+            !isDueTodayOrCompletedToday(record, on: today)
         }
     }
 

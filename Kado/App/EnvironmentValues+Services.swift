@@ -64,4 +64,12 @@ extension EnvironmentValues {
     /// Parses a `BackupDocument` and merges it into the live store for
     /// the Settings → Import flow.
     @Entry var backupImporter: any BackupImporting = DefaultBackupImporter()
+
+    /// Day-granular "now" driven by the scene lifecycle. `KadoApp` bumps
+    /// this on every `scenePhase → .active` transition where the calendar
+    /// day has changed, so views that read it re-evaluate their body on
+    /// the new day without needing a relaunch. Views should read this
+    /// instead of `.now` for any day-boundary decision (what's due today,
+    /// where the overview's trailing edge lands).
+    @Entry var today: Date = .now
 }
