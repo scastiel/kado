@@ -7,7 +7,7 @@ type: project
 # Plan — Past-completion editing
 
 **Date**: 2026-04-20
-**Status**: in progress (manual visual verification pending)
+**Status**: done (visual verification passed; ready for compound)
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -32,15 +32,25 @@ API change; purely UI wiring + a new popover view.
 - Future cells: non-interactive. No popover.
 - Binary / negative flow: tap the action, popover auto-dismisses.
 - Counter / timer flow: popover stays open while the user adjusts
-  the value; dismiss on tap-outside or explicit "Done."
-- "Clear" in counter / timer popovers sets value to 0, which deletes
-  the `CompletionRecord` via the existing logger contract.
+  the value. Every stepper tick writes through immediately, so
+  there is **no "Done" button** — the user dismisses by tapping
+  outside or with a destructive `Clear` action.
+- `Clear` appears only when the **live** stepper value is > 0 (not
+  the saved-at-open snapshot). That way, stepping up from 0 reveals
+  Clear immediately; stepping back to 0 hides it.
+- Counter/timer defaults: when the tapped day has no record, the
+  stepper seeds to **0** — not to the target. Users explicitly enter
+  a value.
+- Popover anchoring: **per-cell** via `.popover(isPresented:)` owned
+  by each cell inside `MonthlyCalendarView`. The calendar view
+  takes a generic `PopoverContent: View` + a `@Binding var
+  selectedDay: Date?` + a `@ViewBuilder popoverContent: (Date) ->
+  PopoverContent`. Mirrors the Overview pattern. A convenience init
+  (`where PopoverContent == EmptyView`) keeps all existing read-only
+  previews working.
 - Popover presentation: `.presentationCompactAdaptation(.popover)`
-  so iPhone gets the anchored popover look. Adapt to a sheet only
-  under accessibility Dynamic Type (XXXL and above) where the
-  popover body can't fit — flag as a task 4 decision once measured.
-- Use an `Identifiable` wrapper (`EditingDay`) for `.popover(item:)`
-  since `Date` isn't `Identifiable`.
+  on iPhone so it stays a floating anchored popover rather than
+  adapting to a sheet.
 - Mutations go through existing services with `@Environment(\.calendar)`
   injected — same calendar drives cell classification and write
   path, avoiding day-boundary drift.
@@ -53,6 +63,8 @@ API change; purely UI wiring + a new popover view.
 - [x] Task 2 — Tappable past / today cells in `MonthlyCalendarView` (56a35b4)
 - [x] Task 3 — `DayEditPopover` view + localization (d2693ec)
 - [x] Task 4 — Wire popover into `HabitDetailView` (41463b2)
+- [x] Follow-up A — Per-cell popover anchoring (d073fe0)
+- [x] Follow-up B — UX fixes: seed timer to 0, drop Done, live Clear (1af83d3)
 
 ### Task 1: Regression tests for past-day service mutations
 
@@ -243,8 +255,12 @@ existing services. Archived habits stay non-interactive.
   for today's value. **Mitigation**: both call the same services;
   `@Query`-driven `HabitRecord.completions` re-renders both
   affordances in step. Verify during task 4 manual.
-- **`.popover(item:)` requires `Identifiable`** — `Date` isn't.
-  **Mitigation**: private `EditingDay` wrapper in the detail view.
+- **Popover anchoring precision** — `.popover(item:)` attached at the
+  whole-calendar level visibly mis-anchored in manual testing (points
+  to the top of the grid regardless of which cell was tapped).
+  **Resolution**: switched to per-cell `.popover(isPresented:)` with
+  a `calendar.isDate(selected, inSameDayAs: day)` comparison —
+  mirrors the Overview pattern. No `Identifiable` wrapper needed.
 
 ## Open questions
 
@@ -264,25 +280,32 @@ existing services. Archived habits stay non-interactive.
   **not** delete — it inserts a zero-value record. Routing the
   "stepped timer down to 0" path through `clear()` (which calls
   `logger.delete(existing)` after looking up the record) avoids
-  leaving phantom records. Consider normalizing `logTimerSession`'s
-  0-seconds behavior in a follow-up so the service API is consistent
-  with `setCounter`'s delete-on-zero contract.
-- **Popover anchoring**: Attached to `MonthlyCalendarView` as a whole
-  (not per-cell) because routing popover content down into the view
-  would require a generic type parameter. The popover's header shows
-  the formatted date so there's no ambiguity, but the anchor point is
-  the calendar's center, not the tapped cell. If that feels wrong in
-  manual testing, two options: (a) lift the `@State` selection into
-  `MonthlyCalendarView` and attach `.popover(isPresented:)` per cell
-  with a generic `popoverContent: (Date) -> some View` closure (mirrors
-  the Overview pattern); (b) adopt `.popoverAttachmentAnchor` with a
-  `PopoverAttachmentAnchor.rect(…)` computed from the tapped cell's
-  frame.
+  leaving phantom records. Follow-up: normalize `logTimerSession`'s
+  0-seconds behavior so the service API is consistent with
+  `setCounter`'s delete-on-zero contract; the view-side workaround
+  can then go away.
+- **Follow-up A (popover anchoring)**: First pass attached the
+  popover at the whole-calendar level. Manual run on the sim showed
+  the popover arrow pointing to the top of the grid regardless of
+  which cell was tapped. Lifted the selection + content down into
+  `MonthlyCalendarView` (generic `PopoverContent`, `@Binding
+  selectedDay`), attached `.popover(isPresented:)` per cell. A
+  convenience init preserves read-only callers.
+- **Follow-up B (popover UX)**: First pass (a) seeded the timer
+  stepper to the habit's target when the day had no record, so the
+  popover opened looking already-complete at "30 of 30 min"; (b)
+  gated `Clear` on the saved-at-open `currentValue`, so stepping up
+  from 0 never revealed it; (c) offered a `Done` button that did
+  nothing more than dismiss. Fixed: seed to 0 when no record, track
+  the live `counterValue` / `timerMinutes` for Clear visibility,
+  removed `Done` entirely (tap-outside dismisses; every step already
+  writes through).
 - **UI-automation limitation**: Tap primitives aren't available in the
   default XcodeBuildMCP install (`CLAUDE.md` flags this), so the
-  simulator run only exercises the Today view — the popover itself
-  needs a human visual pass. The SwiftUI previews compile successfully
-  across all four habit types plus dark mode.
+  iterative visual pass depended on the user driving the sim and
+  sharing screenshots. That loop worked well — two rounds of
+  screenshots surfaced both the anchoring and UX regressions that
+  neither tests nor previews caught.
 
 ## Out of scope
 
