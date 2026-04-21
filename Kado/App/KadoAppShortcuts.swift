@@ -19,5 +19,14 @@ struct KadoAppShortcuts: AppShortcutsProvider {
             shortTitle: "Complete Habit",
             systemImageName: "checkmark.circle"
         )
+        AppShortcut(
+            intent: LogHabitValueIntent(),
+            phrases: [
+                "Log \(\.$value) for \(\.$habit) in \(.applicationName)",
+                "Log habit value in \(.applicationName)"
+            ],
+            shortTitle: "Log Habit Value",
+            systemImageName: "number.circle"
+        )
     }
 }
