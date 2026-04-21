@@ -19,8 +19,15 @@ struct HabitDetailView: View {
     @State private var showingArchiveConfirmation = false
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
+    @State private var editingDay: EditingDay? = nil
 
     private var isArchived: Bool { habit.archivedAt != nil }
+
+    /// `.popover(item:)` needs `Identifiable`; `Date` isn't.
+    private struct EditingDay: Identifiable, Equatable {
+        let id: Date
+        var date: Date { id }
+    }
 
     var body: some View {
         ScrollView {
@@ -30,8 +37,23 @@ struct HabitDetailView: View {
                 quickLogSection
                 MonthlyCalendarView(
                     habit: habit.snapshot,
-                    completions: (habit.completions ?? []).map(\.snapshot)
+                    completions: (habit.completions ?? []).map(\.snapshot),
+                    onTapDay: isArchived ? nil : { day in
+                        editingDay = EditingDay(id: day)
+                    }
                 )
+                .popover(item: $editingDay) { editing in
+                    DayEditPopover(
+                        habit: habit.snapshot,
+                        date: editing.date,
+                        currentValue: currentValue(on: editing.date),
+                        onToggle: { toggle(on: editing.date) },
+                        onSetCounter: { value in setCounter(value, on: editing.date) },
+                        onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: editing.date) },
+                        onClear: { clear(on: editing.date) }
+                    )
+                    .presentationCompactAdaptation(.popover)
+                }
                 CompletionHistoryList(habit: habit)
             }
             .padding()
@@ -132,6 +154,52 @@ struct HabitDetailView: View {
 
     private func decrementCounter() {
         CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    // MARK: - Past-day popover mutations
+
+    private func currentValue(on day: Date) -> Double {
+        habit.completions?
+            .first { calendar.isDate($0.date, inSameDayAs: day) }?
+            .value ?? 0
+    }
+
+    private func toggle(on day: Date) {
+        CompletionToggler(calendar: calendar).toggleToday(for: habit, on: day, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func setCounter(_ value: Double, on day: Date) {
+        CompletionLogger(calendar: calendar).setCounter(for: habit, on: day, to: value, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func setTimerSeconds(_ seconds: TimeInterval, on day: Date) {
+        // logTimerSession would create a zero-value record for 0 seconds;
+        // route "stepped to 0" through clear() so the day returns to missed.
+        if seconds <= 0 {
+            clear(on: day)
+            return
+        }
+        CompletionLogger(calendar: calendar).logTimerSession(
+            for: habit,
+            seconds: seconds,
+            on: day,
+            in: modelContext
+        )
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func clear(on day: Date) {
+        guard let existing = habit.completions?.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) else { return }
+        CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
