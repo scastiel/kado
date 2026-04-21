@@ -7,7 +7,7 @@ type: project
 # Plan — Past-completion editing
 
 **Date**: 2026-04-20
-**Status**: done (visual verification passed; ready for compound)
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -264,9 +264,10 @@ existing services. Archived habits stay non-interactive.
 
 ## Open questions
 
-- [ ] Month navigation is out of scope — if users reach for it once
-      past-day editing exists, prioritize it in a follow-up. No
-      action for this plan.
+- [x] Month navigation — deferred. Out of scope for this feature;
+      the grid still shows only the current month, so past-day
+      editing is limited to that window. Revisit if user feedback
+      asks for it.
 
 ## Notes during build
 
