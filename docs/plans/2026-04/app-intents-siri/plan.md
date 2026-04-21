@@ -104,6 +104,17 @@ while Siri speaks?
 **Commit**: No code commit. A plan update commit if the finding
 shifts design.
 
+**Build notes (2026-04-20)**: XcodeBuildMCP in the current install
+doesn't expose tap primitives to drive the Shortcuts app (see
+CLAUDE.md known-limitation "Tap / type / gesture primitives are
+not enabled"). Can't automate this smoke test in the build loop.
+**Handed off to user for manual verification pre-merge** (run
+Shortcuts app → add Complete Habit shortcut → trigger it → observe
+whether app foregrounds). Design proceeds assuming Apple's
+documented behavior: `openAppWhenRun = true` + no UI in `perform()`
+keeps the app backgrounded. If verification contradicts that,
+follow-up PR adjusts Copy sheet only — no structural rework.
+
 ---
 
 ### Task 2: Extend `WidgetHabit` with streak + score fields

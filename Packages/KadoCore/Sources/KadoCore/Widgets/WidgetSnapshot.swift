@@ -48,6 +48,12 @@ public struct WidgetSnapshot: Codable, Sendable {
 /// Minimum representation of a habit the widgets need. Carries
 /// type + target so the widget cell can render counter/timer
 /// progress without round-tripping through `HabitType`.
+///
+/// `currentStreak`, `bestStreak`, and `currentScore` are populated
+/// for the top-level `WidgetSnapshot.habits` array so
+/// `GetHabitStatsIntent` can read per-habit stats without touching
+/// SwiftData. The same values are replicated into the nested
+/// habits inside `today` and `matrix` rows for consistency.
 public struct WidgetHabit: Codable, Sendable, Identifiable, Hashable {
     public let id: UUID
     public let name: String
@@ -55,6 +61,9 @@ public struct WidgetHabit: Codable, Sendable, Identifiable, Hashable {
     public let icon: String
     public let typeKind: WidgetHabitTypeKind
     public let target: Double?
+    public let currentStreak: Int
+    public let bestStreak: Int
+    public let currentScore: Double
 
     public init(
         id: UUID,
@@ -62,7 +71,10 @@ public struct WidgetHabit: Codable, Sendable, Identifiable, Hashable {
         color: HabitColor,
         icon: String,
         typeKind: WidgetHabitTypeKind,
-        target: Double?
+        target: Double?,
+        currentStreak: Int = 0,
+        bestStreak: Int = 0,
+        currentScore: Double = 0.0
     ) {
         self.id = id
         self.name = name
@@ -70,6 +82,29 @@ public struct WidgetHabit: Codable, Sendable, Identifiable, Hashable {
         self.icon = icon
         self.typeKind = typeKind
         self.target = target
+        self.currentStreak = currentStreak
+        self.bestStreak = bestStreak
+        self.currentScore = currentScore
+    }
+
+    // Backward-compatible decoding: pre-upgrade snapshot files on
+    // disk don't carry the stats fields; default them to zero.
+    private enum CodingKeys: String, CodingKey {
+        case id, name, color, icon, typeKind, target
+        case currentStreak, bestStreak, currentScore
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try c.decode(UUID.self, forKey: .id)
+        self.name = try c.decode(String.self, forKey: .name)
+        self.color = try c.decode(HabitColor.self, forKey: .color)
+        self.icon = try c.decode(String.self, forKey: .icon)
+        self.typeKind = try c.decode(WidgetHabitTypeKind.self, forKey: .typeKind)
+        self.target = try c.decodeIfPresent(Double.self, forKey: .target)
+        self.currentStreak = (try? c.decode(Int.self, forKey: .currentStreak)) ?? 0
+        self.bestStreak = (try? c.decode(Int.self, forKey: .bestStreak)) ?? 0
+        self.currentScore = (try? c.decode(Double.self, forKey: .currentScore)) ?? 0.0
     }
 }
 
