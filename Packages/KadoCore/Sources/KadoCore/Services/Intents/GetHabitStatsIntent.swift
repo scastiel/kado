@@ -37,22 +37,18 @@ public struct GetHabitStatsIntent: AppIntent {
 
     /// Main dialog factory. `todayRow` is nil when the habit isn't
     /// due today (its presence in `snapshot.today` implies due).
+    /// Kept to three sentence variants — one per done-today state —
+    /// so each is a single localizable key with clean interpolations.
     public static func dialog(habit: WidgetHabit, todayRow: WidgetTodayRow?) -> IntentDialog {
         let percent = Int((habit.currentScore * 100).rounded())
-        if habit.currentStreak == 0 {
+        let streak = habit.currentStreak
+        if streak == 0 {
             return IntentDialog("\(habit.name): no active streak. Score \(percent)%.")
         }
-        let streakPart: String = {
-            if habit.currentStreak == 1 {
-                return "1-day streak"
-            } else {
-                return "\(habit.currentStreak)-day streak"
-            }
-        }()
         if let row = todayRow, row.status == .complete {
-            return IntentDialog("\(habit.name): \(streakPart), score \(percent)%. Today is done.")
+            return IntentDialog("\(habit.name): \(streak)-day streak, score \(percent)%. Today is done.")
         } else {
-            return IntentDialog("\(habit.name): \(streakPart), score \(percent)%. Not done today yet.")
+            return IntentDialog("\(habit.name): \(streak)-day streak, score \(percent)%. Not done today yet.")
         }
     }
 

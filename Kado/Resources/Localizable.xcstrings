@@ -3134,6 +3134,248 @@
           }
         }
       }
+    },
+    "Complete Habit" : {
+      "comment" : "Title of the CompleteHabitIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valider une habitude"
+          }
+        }
+      }
+    },
+    "Counter habits: the count. Timer habits: minutes." : {
+      "comment" : "Help text for the LogHabitValueIntent's value parameter.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes compteur : le nombre. Habitudes minuteur : les minutes."
+          }
+        }
+      }
+    },
+    "Get Habit Stats" : {
+      "comment" : "Title of the GetHabitStatsIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiques d'habitude"
+          }
+        }
+      }
+    },
+    "Habit" : {
+      "comment" : "Title of the `habit` parameter on Kadō's AppIntents.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitude"
+          }
+        }
+      }
+    },
+    "Log a numeric value for a counter or timer habit." : {
+      "comment" : "Description of the LogHabitValueIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistre une valeur numérique pour une habitude compteur ou minuteur."
+          }
+        }
+      }
+    },
+    "Log Habit Value" : {
+      "comment" : "Title of the LogHabitValueIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer une valeur"
+          }
+        }
+      }
+    },
+    "Logged %lld minutes for %@." : {
+      "comment" : "Siri dialog after logging minutes for a timer habit. Arg 1: minutes. Arg 2: habit name.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld minutes enregistrées pour %2$@."
+          }
+        }
+      }
+    },
+    "Logged %@ for %@." : {
+      "comment" : "Siri dialog after logging a value for a counter habit. Arg 1: value. Arg 2: habit name.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ enregistré pour %2$@."
+          }
+        }
+      }
+    },
+    "Mark a habit as done for today, or undo if it's already done." : {
+      "comment" : "Description of the CompleteHabitIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marque une habitude comme faite aujourd'hui, ou annule si elle est déjà faite."
+          }
+        }
+      }
+    },
+    "Marked %@ as done." : {
+      "comment" : "Siri dialog after completing a binary or negative habit.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, c'est fait !"
+          }
+        }
+      }
+    },
+    "Speak the current streak, score, and today's status for a habit." : {
+      "comment" : "Description of the GetHabitStatsIntent shown in the Shortcuts app.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lit la série en cours, le score et le statut du jour pour une habitude."
+          }
+        }
+      }
+    },
+    "This habit is archived." : {
+      "comment" : "Error shown when an AppIntent is invoked on an archived habit.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette habitude est archivée."
+          }
+        }
+      }
+    },
+    "This habit no longer exists." : {
+      "comment" : "Error shown when an AppIntent is invoked on a deleted habit.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette habitude n'existe plus."
+          }
+        }
+      }
+    },
+    "Unmarked %@." : {
+      "comment" : "Siri dialog after un-completing a binary or negative habit.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : décoché."
+          }
+        }
+      }
+    },
+    "Value" : {
+      "comment" : "Title of the `value` parameter on LogHabitValueIntent.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valeur"
+          }
+        }
+      }
+    },
+    "%@ doesn't accept that kind of value." : {
+      "comment" : "Defensive Siri dialog when LogHabitValueIntent is invoked on an unexpected habit kind.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ n'accepte pas ce type de valeur."
+          }
+        }
+      }
+    },
+    "%@ is a yes/no habit — say \"Complete %@\" instead." : {
+      "comment" : "Siri dialog when LogHabitValueIntent is invoked on a binary or negative habit. Arg 1 and Arg 2 are the same habit name.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ est une habitude oui/non — dis plutôt « Valide %2$@ »."
+          }
+        }
+      }
+    },
+    "%@ isn't in Kadō — open the app to set it up first." : {
+      "comment" : "Siri dialog when GetHabitStatsIntent can't find the habit in the snapshot.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ n'est pas dans Kadō — ouvre l'app pour la configurer."
+          }
+        }
+      }
+    },
+    "%@ needs a value — opening Kadō." : {
+      "comment" : "Siri dialog when CompleteHabitIntent is invoked on a counter or timer habit (opens the app).",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a besoin d'une valeur — j'ouvre Kadō."
+          }
+        }
+      }
+    },
+    "%@: %lld-day streak, score %lld%%. Not done today yet." : {
+      "comment" : "Siri dialog reporting a habit's streak, score, and that today isn't done yet. Arg 1: habit name. Arg 2: streak in days. Arg 3: score 0-100.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ : série de %2$lld jours, score %3$lld %%. Pas encore fait aujourd'hui."
+          }
+        }
+      }
+    },
+    "%@: %lld-day streak, score %lld%%. Today is done." : {
+      "comment" : "Siri dialog reporting a habit's streak, score, and that today is already done. Arg 1: habit name. Arg 2: streak in days. Arg 3: score 0-100.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ : série de %2$lld jours, score %3$lld %%. Fait aujourd'hui."
+          }
+        }
+      }
+    },
+    "%@: no active streak. Score %lld%%." : {
+      "comment" : "Siri dialog reporting a habit has no active streak. Arg 1: habit name. Arg 2: score 0-100.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ : pas de série en cours. Score %2$lld %%."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
