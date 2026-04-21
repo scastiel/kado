@@ -28,5 +28,14 @@ struct KadoAppShortcuts: AppShortcutsProvider {
             shortTitle: "Log Habit Value",
             systemImageName: "number.circle"
         )
+        AppShortcut(
+            intent: GetHabitStatsIntent(),
+            phrases: [
+                "Stats for \(\.$habit) in \(.applicationName)",
+                "\(.applicationName) stats for \(\.$habit)"
+            ],
+            shortTitle: "Get Habit Stats",
+            systemImageName: "chart.bar"
+        )
     }
 }
