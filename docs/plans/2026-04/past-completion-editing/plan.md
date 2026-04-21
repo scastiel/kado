@@ -7,7 +7,7 @@ type: project
 # Plan — Past-completion editing
 
 **Date**: 2026-04-20
-**Status**: ready to build
+**Status**: in progress (manual visual verification pending)
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -48,6 +48,11 @@ API change; purely UI wiring + a new popover view.
   after every mutation, mirroring the today quick-log pattern.
 
 ## Task list
+
+- [x] Task 1 — Regression tests for past-day service mutations (bbd4baa)
+- [x] Task 2 — Tappable past / today cells in `MonthlyCalendarView` (56a35b4)
+- [x] Task 3 — `DayEditPopover` view + localization (d2693ec)
+- [x] Task 4 — Wire popover into `HabitDetailView` (41463b2)
 
 ### Task 1: Regression tests for past-day service mutations
 
@@ -246,6 +251,38 @@ existing services. Archived habits stay non-interactive.
 - [ ] Month navigation is out of scope — if users reach for it once
       past-day editing exists, prioritize it in a follow-up. No
       action for this plan.
+
+## Notes during build
+
+- **Task 1**: The existing tests already passed with the new cases (no
+  red first). Intentional — the services' date API is already correct;
+  these are regressions against a hypothetical future "simplification."
+- **Task 3**: SwiftUI `Text("\(Int) of \(Int) min")` interpolation
+  needed a new catalog key `%lld of %lld min`; the counter control
+  reuses the existing `%lld of %lld` key.
+- **Task 4**: `CompletionLogger.logTimerSession(seconds: 0, …)` does
+  **not** delete — it inserts a zero-value record. Routing the
+  "stepped timer down to 0" path through `clear()` (which calls
+  `logger.delete(existing)` after looking up the record) avoids
+  leaving phantom records. Consider normalizing `logTimerSession`'s
+  0-seconds behavior in a follow-up so the service API is consistent
+  with `setCounter`'s delete-on-zero contract.
+- **Popover anchoring**: Attached to `MonthlyCalendarView` as a whole
+  (not per-cell) because routing popover content down into the view
+  would require a generic type parameter. The popover's header shows
+  the formatted date so there's no ambiguity, but the anchor point is
+  the calendar's center, not the tapped cell. If that feels wrong in
+  manual testing, two options: (a) lift the `@State` selection into
+  `MonthlyCalendarView` and attach `.popover(isPresented:)` per cell
+  with a generic `popoverContent: (Date) -> some View` closure (mirrors
+  the Overview pattern); (b) adopt `.popoverAttachmentAnchor` with a
+  `PopoverAttachmentAnchor.rect(…)` computed from the tapped cell's
+  frame.
+- **UI-automation limitation**: Tap primitives aren't available in the
+  default XcodeBuildMCP install (`CLAUDE.md` flags this), so the
+  simulator run only exercises the Today view — the popover itself
+  needs a human visual pass. The SwiftUI previews compile successfully
+  across all four habit types plus dark mode.
 
 ## Out of scope
 
