@@ -19,15 +19,9 @@ struct HabitDetailView: View {
     @State private var showingArchiveConfirmation = false
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
-    @State private var editingDay: EditingDay? = nil
+    @State private var editingDay: Date? = nil
 
     private var isArchived: Bool { habit.archivedAt != nil }
-
-    /// `.popover(item:)` needs `Identifiable`; `Date` isn't.
-    private struct EditingDay: Identifiable, Equatable {
-        let id: Date
-        var date: Date { id }
-    }
 
     var body: some View {
         ScrollView {
@@ -38,22 +32,20 @@ struct HabitDetailView: View {
                 MonthlyCalendarView(
                     habit: habit.snapshot,
                     completions: (habit.completions ?? []).map(\.snapshot),
-                    onTapDay: isArchived ? nil : { day in
-                        editingDay = EditingDay(id: day)
+                    selectedDay: isArchived ? .constant(nil) : $editingDay,
+                    popoverContent: { day in
+                        DayEditPopover(
+                            habit: habit.snapshot,
+                            date: day,
+                            currentValue: currentValue(on: day),
+                            onToggle: { toggle(on: day) },
+                            onSetCounter: { value in setCounter(value, on: day) },
+                            onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: day) },
+                            onClear: { clear(on: day) }
+                        )
+                        .presentationCompactAdaptation(.popover)
                     }
                 )
-                .popover(item: $editingDay) { editing in
-                    DayEditPopover(
-                        habit: habit.snapshot,
-                        date: editing.date,
-                        currentValue: currentValue(on: editing.date),
-                        onToggle: { toggle(on: editing.date) },
-                        onSetCounter: { value in setCounter(value, on: editing.date) },
-                        onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: editing.date) },
-                        onClear: { clear(on: editing.date) }
-                    )
-                    .presentationCompactAdaptation(.popover)
-                }
                 CompletionHistoryList(habit: habit)
             }
             .padding()

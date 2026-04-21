@@ -5,11 +5,12 @@ import KadoCore
 /// Renders as a 7-column `LazyVGrid` with weekday headers and
 /// leading blanks that align the first day of the month to its
 /// weekday column.
-struct MonthlyCalendarView: View {
+struct MonthlyCalendarView<PopoverContent: View>: View {
     let habit: Habit
     let completions: [Completion]
     var month: Date = .now
-    var onTapDay: ((Date) -> Void)? = nil
+    @Binding var selectedDay: Date?
+    @ViewBuilder var popoverContent: (Date) -> PopoverContent
     @Environment(\.calendar) private var calendar
 
     var body: some View {
@@ -107,10 +108,29 @@ struct MonthlyCalendarView: View {
         if isInteractive {
             visual
                 .accessibilityHint(Text("Double-tap to edit this day."))
-                .onTapGesture { onTapDay?(day) }
+                .onTapGesture { selectedDay = day }
+                .popover(isPresented: popoverBinding(for: day)) {
+                    popoverContent(day)
+                }
         } else {
             visual
         }
+    }
+
+    private func popoverBinding(for day: Date) -> Binding<Bool> {
+        Binding(
+            get: {
+                guard let selectedDay else { return false }
+                return calendar.isDate(selectedDay, inSameDayAs: day)
+            },
+            set: { newValue in
+                if newValue {
+                    selectedDay = day
+                } else {
+                    selectedDay = nil
+                }
+            }
+        )
     }
 
     private enum CellState {
@@ -191,6 +211,26 @@ struct MonthlyCalendarView: View {
             return "\(dateString), today, \(stateString)"
         }
         return "\(dateString), \(stateString)"
+    }
+}
+
+extension MonthlyCalendarView where PopoverContent == EmptyView {
+    /// Convenience init for read-only callers (previews, any future
+    /// surface that shows the grid without edit affordances). Cells
+    /// remain tappable but selection goes to a discarded binding, so
+    /// no popover is attached.
+    init(
+        habit: Habit,
+        completions: [Completion],
+        month: Date = .now
+    ) {
+        self.init(
+            habit: habit,
+            completions: completions,
+            month: month,
+            selectedDay: .constant(nil),
+            popoverContent: { _ in EmptyView() }
+        )
     }
 }
 
