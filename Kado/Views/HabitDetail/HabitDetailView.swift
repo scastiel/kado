@@ -19,6 +19,7 @@ struct HabitDetailView: View {
     @State private var showingArchiveConfirmation = false
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
+    @State private var editingDay: Date? = nil
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -30,7 +31,20 @@ struct HabitDetailView: View {
                 quickLogSection
                 MonthlyCalendarView(
                     habit: habit.snapshot,
-                    completions: (habit.completions ?? []).map(\.snapshot)
+                    completions: (habit.completions ?? []).map(\.snapshot),
+                    selectedDay: isArchived ? .constant(nil) : $editingDay,
+                    popoverContent: { day in
+                        DayEditPopover(
+                            habit: habit.snapshot,
+                            date: day,
+                            currentValue: currentValue(on: day),
+                            onToggle: { toggle(on: day) },
+                            onSetCounter: { value in setCounter(value, on: day) },
+                            onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: day) },
+                            onClear: { clear(on: day) }
+                        )
+                        .presentationCompactAdaptation(.popover)
+                    }
                 )
                 CompletionHistoryList(habit: habit)
             }
@@ -132,6 +146,52 @@ struct HabitDetailView: View {
 
     private func decrementCounter() {
         CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    // MARK: - Past-day popover mutations
+
+    private func currentValue(on day: Date) -> Double {
+        habit.completions?
+            .first { calendar.isDate($0.date, inSameDayAs: day) }?
+            .value ?? 0
+    }
+
+    private func toggle(on day: Date) {
+        CompletionToggler(calendar: calendar).toggleToday(for: habit, on: day, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func setCounter(_ value: Double, on day: Date) {
+        CompletionLogger(calendar: calendar).setCounter(for: habit, on: day, to: value, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func setTimerSeconds(_ seconds: TimeInterval, on day: Date) {
+        // logTimerSession would create a zero-value record for 0 seconds;
+        // route "stepped to 0" through clear() so the day returns to missed.
+        if seconds <= 0 {
+            clear(on: day)
+            return
+        }
+        CompletionLogger(calendar: calendar).logTimerSession(
+            for: habit,
+            seconds: seconds,
+            on: day,
+            in: modelContext
+        )
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func clear(on day: Date) {
+        guard let existing = habit.completions?.first(where: {
+            calendar.isDate($0.date, inSameDayAs: day)
+        }) else { return }
+        CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

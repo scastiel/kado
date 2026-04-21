@@ -192,6 +192,67 @@ struct CompletionLoggerTests {
         #expect(habit.completions?.first?.id == c2.id)
     }
 
+    @Test("setCounter on a past day preserves other days' values")
+    func setCounterPastDayPreservesOthers() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let d3 = CompletionRecord(date: TestCalendar.day(-3), value: 2, habit: habit)
+        let d1 = CompletionRecord(date: TestCalendar.day(-1), value: 4, habit: habit)
+        container.mainContext.insert(d3)
+        container.mainContext.insert(d1)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(-2), to: 6, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 3)
+        let newRecord = habit.completions?.first {
+            TestCalendar.utc.isDate($0.date, inSameDayAs: TestCalendar.day(-2))
+        }
+        #expect(newRecord?.value == 6)
+        #expect(habit.completions?.first { $0.id == d3.id }?.value == 2)
+        #expect(habit.completions?.first { $0.id == d1.id }?.value == 4)
+    }
+
+    @Test("logTimerSession on a past day targets the correct day")
+    func timerPastDayTargetsCorrectDay() throws {
+        let habit = HabitRecord(type: .timer(targetSeconds: 30 * 60))
+        container.mainContext.insert(habit)
+        let todaySession = CompletionRecord(date: TestCalendar.day(0), value: 10 * 60, habit: habit)
+        container.mainContext.insert(todaySession)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.logTimerSession(for: habit, seconds: 25 * 60, on: TestCalendar.day(-2), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 2)
+        let past = habit.completions?.first {
+            TestCalendar.utc.isDate($0.date, inSameDayAs: TestCalendar.day(-2))
+        }
+        #expect(past?.value == Double(25 * 60))
+        #expect(habit.completions?.first { $0.id == todaySession.id }?.value == Double(10 * 60))
+    }
+
+    @Test("setCounter to 0 on a past day deletes only that day's record")
+    func setCounterPastDayZeroDeletesOnlyThatDay() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let todayValue = CompletionRecord(date: TestCalendar.day(0), value: 3, habit: habit)
+        let pastValue = CompletionRecord(date: TestCalendar.day(-3), value: 2, habit: habit)
+        container.mainContext.insert(todayValue)
+        container.mainContext.insert(pastValue)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(-3), to: 0, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.id == todayValue.id)
+    }
+
     @Test("Incrementing on two consecutive days creates two records")
     func incrementSpanningDays() throws {
         let habit = HabitRecord(type: .counter(target: 8))
