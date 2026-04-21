@@ -23,6 +23,7 @@ struct OverviewView: View {
     private var records: [HabitRecord]
 
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var now
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.habitScoreCalculator) private var scoreCalculator
@@ -83,7 +84,7 @@ struct OverviewView: View {
     }
 
     private var matrix: some View {
-        let today = calendar.startOfDay(for: .now)
+        let today = calendar.startOfDay(for: now)
         let days = dayRange(endingAt: today)
         let snapshots = records.map { record -> (Habit, [Completion]) in
             (record.snapshot, (record.completions ?? []).map(\.snapshot))

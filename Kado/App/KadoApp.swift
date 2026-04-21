@@ -11,6 +11,7 @@ struct KadoApp: App {
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
+    @State private var today: Date = .now
 
     init() {
         DevModeDefaults.migrateFromStandardIfNeeded()
@@ -49,6 +50,7 @@ struct KadoApp: App {
         .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
+        .environment(\.today, today)
         .onChange(of: scenePhase) { _, newPhase in
             // Reconciles the pending set every time the app comes
             // to the foreground — handles clock-drift, day-rollover,
@@ -56,6 +58,10 @@ struct KadoApp: App {
             // the app was suspended.
             if newPhase == .active {
                 RemindersSync.rescheduleAll(using: container.mainContext)
+                let calendar = Calendar.current
+                if !calendar.isDate(today, inSameDayAs: .now) {
+                    today = .now
+                }
             }
         }
         .onChange(of: isDevMode) { oldValue, newValue in
