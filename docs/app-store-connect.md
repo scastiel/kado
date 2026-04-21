@@ -128,9 +128,8 @@ needed for a free, open-source app.
 > Kadō is a privacy-first habit tracker for iPhone and iPad.
 >
 > Instead of a binary streak that resets the moment you miss a day,
-> Kadō uses a non-binary habit score (inspired by Loop Habit Tracker
-> on Android) — so your progress reflects real, long-term
-> consistency without the all-or-nothing pressure.
+> Kadō uses a non-binary habit score — so your progress reflects
+> real, long-term consistency without the all-or-nothing pressure.
 >
 > Offline-first, open source (MIT), no account required. Your data
 > lives on your device and optionally syncs through your personal
@@ -143,10 +142,9 @@ needed for a free, open-source app.
 > Kadō est un suivi d'habitudes privé pour iPhone et iPad.
 >
 > Plutôt qu'une série classique qui se remet à zéro dès que tu
-> manques un jour, Kadō utilise un score d'habitude non-binaire
-> (inspiré de Loop Habit Tracker sur Android) — ton progrès reflète
-> la régularité réelle sur la durée, sans la pression du
-> tout-ou-rien.
+> manques un jour, Kadō utilise un score d'habitude non-binaire —
+> ton progrès reflète la régularité réelle sur la durée, sans la
+> pression du tout-ou-rien.
 >
 > Hors-ligne d'abord, open source (MIT), aucun compte requis. Tes
 > données restent sur ton appareil et peuvent se synchroniser via
@@ -276,11 +274,9 @@ added. Use:
 > A HABIT SCORE, NOT JUST A STREAK
 > ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 >
-> Inspired by Loop Habit Tracker (the open-source reference on
-> Android), Kadō's core algorithm rewards long-term consistency.
-> One missed day doesn't wipe your progress. A strong stretch
-> matters more than a perfect one. You see the trend, not a fragile
-> chain.
+> Kadō's core algorithm rewards long-term consistency. One missed
+> day doesn't wipe your progress. A strong stretch matters more
+> than a perfect one. You see the trend, not a fragile chain.
 >
 > ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 > PRIVATE BY DESIGN
@@ -342,11 +338,10 @@ added. Use:
 > UN SCORE, PAS SEULEMENT UNE SÉRIE
 > ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 >
-> Inspiré de Loop Habit Tracker (la référence open source sur
-> Android), l'algorithme de Kadō récompense la régularité sur la
-> durée. Un jour manqué n'efface pas ton progrès. Une longue phase
-> solide compte davantage qu'une phase parfaite. Tu vois la
-> tendance, pas une chaîne fragile.
+> L'algorithme de Kadō récompense la régularité sur la durée. Un
+> jour manqué n'efface pas ton progrès. Une longue phase solide
+> compte davantage qu'une phase parfaite. Tu vois la tendance, pas
+> une chaîne fragile.
 >
 > ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 > PRIVÉ PAR DESIGN
