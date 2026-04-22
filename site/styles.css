@@ -239,24 +239,19 @@ code {
   border-color: var(--hairline);
 }
 .btn-secondary:hover { background: var(--accent-soft); color: var(--ink); border-color: var(--accent-border); }
-.btn--soon {
-  background: var(--surface);
-  color: var(--ink-soft);
-  border-color: var(--hairline);
-  cursor: default;
-  pointer-events: none;
-}
-.btn--soon .badge {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: var(--accent);
-  color: var(--bg);
-  padding: 2px 8px;
-  border-radius: 999px;
-}
 .btn svg { width: 18px; height: 18px; }
+
+.app-store-badge {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.app-store-badge:hover { text-decoration: none; transform: translateY(-1px); opacity: 0.88; }
+.app-store-badge img {
+  height: 48px;
+  width: auto;
+  display: block;
+}
 
 /* Screenshot rail */
 .screenshots {
