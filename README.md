@@ -8,7 +8,9 @@
   </p>
 
   <p>
-    <a href="https://apps.apple.com/app/id6762570244">Download on the App Store</a> ·
+    <a href="https://apps.apple.com/app/id6762570244"><img src="branding/app-store-en-black.svg#gh-light-mode-only" alt="Download on the App Store" height="48" /><img src="branding/app-store-en-white.svg#gh-dark-mode-only" alt="Download on the App Store" height="48" /></a>
+  </p>
+  <p>
     <a href="https://getkado.app/">getkado.app</a>
   </p>
 
@@ -16,7 +18,6 @@
     <a href="https://github.com/scastiel/kado/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
     <a href="https://developer.apple.com/swift/"><img alt="Swift 5.10" src="https://img.shields.io/badge/Swift-5.10-orange.svg" /></a>
     <img alt="Platforms" src="https://img.shields.io/badge/platforms-iOS%2018%20%7C%20iPadOS%2018-lightgrey.svg" />
-    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store" src="https://img.shields.io/badge/App%20Store-live-brightgreen.svg" /></a>
   </p>
 </div>
 
