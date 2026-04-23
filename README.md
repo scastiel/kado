@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="branding/kado-wordmark.svg" alt="Kadō" width="320" />
+  <a href="https://getkado.app/"><img src="branding/kado-wordmark.svg" alt="Kadō" width="320" /></a>
 
   <p><strong>A privacy-first habit tracker for iPhone and iPad.</strong></p>
   <p>
@@ -8,10 +8,15 @@
   </p>
 
   <p>
+    <a href="https://apps.apple.com/app/id6762570244">Download on the App Store</a> ·
+    <a href="https://getkado.app/">getkado.app</a>
+  </p>
+
+  <p>
     <a href="https://github.com/scastiel/kado/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
     <a href="https://developer.apple.com/swift/"><img alt="Swift 5.10" src="https://img.shields.io/badge/Swift-5.10-orange.svg" /></a>
     <img alt="Platforms" src="https://img.shields.io/badge/platforms-iOS%2018%20%7C%20iPadOS%2018-lightgrey.svg" />
-    <img alt="Status" src="https://img.shields.io/badge/App%20Store-in%20review-yellow.svg" />
+    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store" src="https://img.shields.io/badge/App%20Store-live-brightgreen.svg" /></a>
   </p>
 </div>
 
