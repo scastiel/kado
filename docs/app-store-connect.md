@@ -438,6 +438,37 @@ stemming.
 > • Mode sombre complet, Dynamic Type, VoiceOver
 > • Anglais et français natif
 
+### What's New — 1.1 (EN)
+
+> Version 1.1 — Siri, Shortcuts, and editable past days.
+>
+> • Siri and Shortcuts: complete a habit, log a value, or ask for
+>   your score and streak — hands-free. Also available as Home
+>   Screen actions and Shortcuts automations.
+> • Edit past days straight from the calendar: tap any past or
+>   today cell in the habit detail calendar to adjust that day's
+>   completion — works for all habit types (check, counter, timer,
+>   partial).
+> • Fix: the Today view now refreshes correctly when you reopen
+>   Kadō after midnight, so the right day is always shown.
+
+### What's New — 1.1 (FR)
+
+> Version 1.1 — Siri, Raccourcis et édition des jours passés.
+>
+> • Siri et Raccourcis : complète une habitude, saisis une valeur
+>   ou demande ton score et ta série — mains libres. Disponible
+>   aussi comme actions d'écran d'accueil et automatisations
+>   Raccourcis.
+> • Édite les jours passés directement depuis le calendrier :
+>   touche n'importe quelle cellule passée ou du jour dans le
+>   calendrier du détail d'une habitude pour ajuster sa
+>   complétion — pour tous les types d'habitudes (case, compteur,
+>   minuteur, partielle).
+> • Correctif : la vue Aujourd'hui se met désormais correctement à
+>   jour quand tu rouvres Kadō après minuit, et affiche toujours le
+>   bon jour.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
