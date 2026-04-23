@@ -8,7 +8,7 @@
   </p>
 
   <p>
-    <a href="https://apps.apple.com/app/id6762570244"><img src="https://getkado.app/assets/branding/app-store-en-black.svg#gh-light-mode-only" alt="Download on the App Store" height="48" /><img src="https://getkado.app/assets/branding/app-store-en-white.svg#gh-dark-mode-only" alt="Download on the App Store" height="48" /></a>
+    <a href="https://apps.apple.com/app/id6762570244"><picture><source media="(prefers-color-scheme: dark)" srcset="https://getkado.app/assets/branding/app-store-en-white.svg" /><img src="https://getkado.app/assets/branding/app-store-en-black.svg" alt="Download on the App Store" height="48" /></picture></a>
   </p>
   <p>
     <a href="https://getkado.app/">getkado.app</a>
