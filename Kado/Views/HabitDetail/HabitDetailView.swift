@@ -205,7 +205,11 @@ struct HabitDetailView: View {
         guard let existing = habit.completions?.first(where: {
             calendar.isDate($0.date, inSameDayAs: day)
         }) else { return }
-        CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
+        if existing.note != nil {
+            existing.value = 0
+        } else {
+            CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
+        }
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

@@ -204,7 +204,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         completions.contains { c in
             c.habitID == habit.id
                 && calendar.isDate(c.date, inSameDayAs: day)
-                && c.note != nil && !(c.note?.isEmpty ?? true)
+                && c.note.map { !$0.isEmpty } ?? false
         }
     }
 

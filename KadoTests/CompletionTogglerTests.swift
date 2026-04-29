@@ -267,4 +267,36 @@ struct CompletionTogglerTests {
 
         #expect(habit.completions?.isEmpty ?? true)
     }
+
+    @Test("setValueToday to zero preserves record if it has a note")
+    func setValueZeroPreservesNote() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 5, note: "With lunch", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(0, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "With lunch")
+    }
+
+    @Test("setValueToday to zero deletes record if no note")
+    func setValueZeroDeletesWithoutNote() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 4, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(0, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
 }
