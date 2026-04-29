@@ -194,6 +194,7 @@ struct DayEditPopover: View {
                 .lineLimit(1...4)
                 .font(.callout)
                 .focused($isNoteFocused)
+                .accessibilityLabel(String(localized: "Note"))
                 .onChange(of: noteText) { _, newValue in
                     if newValue.count > noteCharLimit {
                         noteText = String(newValue.prefix(noteCharLimit))

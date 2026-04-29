@@ -64,6 +64,7 @@ struct CompletionHistoryList: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                         .padding(.top, 2)
+                        .accessibilityLabel(String(localized: "Note: \(note)"))
                 }
             }
             Spacer()

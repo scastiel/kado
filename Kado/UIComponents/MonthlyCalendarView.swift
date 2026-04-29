@@ -87,12 +87,6 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         let dayNumber = calendar.component(.day, from: day)
         let isInteractive = state != .future
 
-        let hasNote = completions.contains { c in
-            c.habitID == habit.id
-                && calendar.isDate(c.date, inSameDayAs: day)
-                && c.note != nil && !(c.note?.isEmpty ?? true)
-        }
-
         let visual = ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(fill(for: state))
@@ -110,7 +104,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                 Circle()
                     .fill(Color.secondary)
                     .frame(width: 4, height: 4)
-                    .opacity(hasNote ? 1 : 0)
+                    .opacity(hasNote(on: day) ? 1 : 0)
             }
         }
         .contentShape(Rectangle())
@@ -206,6 +200,14 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         }
     }
 
+    private func hasNote(on day: Date) -> Bool {
+        completions.contains { c in
+            c.habitID == habit.id
+                && calendar.isDate(c.date, inSameDayAs: day)
+                && c.note != nil && !(c.note?.isEmpty ?? true)
+        }
+    }
+
     private func accessibilityLabel(for day: Date, state: CellState, isToday: Bool) -> String {
         let formatter = DateFormatter()
         formatter.calendar = calendar
@@ -219,10 +221,11 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         case .nonDue: stateString = String(localized: "not scheduled")
         case .future: stateString = String(localized: "upcoming")
         }
+        let noteString = hasNote(on: day) ? String(localized: ", has note") : ""
         if isToday {
-            return "\(dateString), today, \(stateString)"
+            return "\(dateString), today, \(stateString)\(noteString)"
         }
-        return "\(dateString), \(stateString)"
+        return "\(dateString), \(stateString)\(noteString)"
     }
 }
 

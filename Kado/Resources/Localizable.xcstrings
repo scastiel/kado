@@ -3337,6 +3337,57 @@
           }
         }
       }
+    },
+    ", has note": {
+      "comment": "Appended to the calendar cell accessibility label when the day has a note attached.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", has note"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", a une note"
+          }
+        }
+      }
+    },
+    "Note": {
+      "comment": "Accessibility label for the note text field in the day-edit popover.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
+    "Note: %@": {
+      "comment": "Accessibility label for a note displayed in the completion history list.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note : %@"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
