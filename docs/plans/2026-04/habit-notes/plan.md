@@ -1,7 +1,7 @@
 # Plan — Habit Notes
 
 **Date**: 2026-04-29
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -180,6 +180,20 @@ Dynamic Type.
 ## Open questions
 
 - (All resolved during planning — none remaining.)
+
+## Notes during build
+
+- **Task 1**: Discovered that `DailyValue.compute` and
+  `DefaultStreakCalculator` are presence-based — any existing
+  `CompletionRecord` counts as "done" regardless of value. Zero-value
+  standalone notes would incorrectly inflate scores and streaks.
+  Fixed by filtering `value > 0` in both calculators. Also updated
+  `CompletionToggler` to upgrade note-only records on toggle-on and
+  preserve them on toggle-off, and `CompletionLogger` to preserve
+  notes across timer session replace and counter decrement-to-zero.
+  This was more involved than planned but was safety-critical.
+- **Tasks 2+3**: Combined into a single commit since the popover
+  changes require the wiring in HabitDetailView to compile.
 
 ## Out of scope
 
