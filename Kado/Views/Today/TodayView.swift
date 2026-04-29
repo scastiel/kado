@@ -213,7 +213,7 @@ struct TodayView: View {
             return true
         }
         return completions.contains { completion in
-            calendar.isDate(completion.date, inSameDayAs: now)
+            completion.value > 0 && calendar.isDate(completion.date, inSameDayAs: now)
         }
     }
 

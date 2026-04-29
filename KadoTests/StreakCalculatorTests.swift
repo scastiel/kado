@@ -229,4 +229,31 @@ struct StreakCalculatorTests {
         // Days -5, -6, ..., -14 all completed → streak 10.
         #expect(calc.current(for: h, completions: completions, asOf: asOf) == 10)
     }
+
+    // MARK: - Zero-value (note-only) records
+
+    @Test("Zero-value completion does not count toward streak")
+    func zeroValueDoesNotCountAsCompleted() {
+        let h = habit(createdAtOffset: -5)
+        let completions = [
+            completion(for: h, dayOffset: -1),
+            Completion(habitID: h.id, date: TestCalendar.day(-2), value: 0),
+            completion(for: h, dayOffset: -3),
+        ]
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 1)
+    }
+
+    @Test("Zero-value completion does not count toward best streak")
+    func zeroValueDoesNotCountAsBest() {
+        let h = habit(createdAtOffset: -10)
+        let completions = (-5 ... -1).map { offset -> Completion in
+            if offset == -3 {
+                return Completion(habitID: h.id, date: TestCalendar.day(offset), value: 0)
+            }
+            return completion(for: h, dayOffset: offset)
+        }
+        let calc = calculator()
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 2)
+    }
 }

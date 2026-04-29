@@ -10,19 +10,20 @@ import Foundation
 /// - Counter and timer habits: `achieved / target`, capped at 1.
 public enum DailyValue {
     public static func compute(for habit: Habit, completionsOnDay: [Completion]) -> Double {
+        let withValue = completionsOnDay.filter { $0.value > 0 }
         switch habit.type {
         case .binary:
-            return completionsOnDay.isEmpty ? 0.0 : 1.0
+            return withValue.isEmpty ? 0.0 : 1.0
         case .counter(let target):
             guard target > 0 else { return 0.0 }
-            let achieved = completionsOnDay.reduce(0.0) { $0 + $1.value }
+            let achieved = withValue.reduce(0.0) { $0 + $1.value }
             return min(1.0, achieved / target)
         case .timer(let targetSeconds):
             guard targetSeconds > 0 else { return 0.0 }
-            let achievedSeconds = completionsOnDay.reduce(0.0) { $0 + $1.value }
+            let achievedSeconds = withValue.reduce(0.0) { $0 + $1.value }
             return min(1.0, achievedSeconds / targetSeconds)
         case .negative:
-            return completionsOnDay.isEmpty ? 1.0 : 0.0
+            return withValue.isEmpty ? 1.0 : 0.0
         }
     }
 }

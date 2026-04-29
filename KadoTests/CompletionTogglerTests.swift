@@ -214,4 +214,89 @@ struct CompletionTogglerTests {
         #expect(habit.completions?.count == 2)
         #expect(habit.completions?.contains { $0.id == yesterday.id } ?? false)
     }
+
+    // MARK: - Note-only record handling
+
+    @Test("Toggling on a day with a note-only record upgrades value to 1 and keeps note")
+    func toggleUpgradesNoteOnlyRecord() throws {
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        container.mainContext.insert(habit)
+        let noteOnly = CompletionRecord(date: TestCalendar.day(0), value: 0, note: "Skipped — sick", habit: habit)
+        container.mainContext.insert(noteOnly)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        let result = toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(result == .completed)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 1)
+        #expect(habit.completions?.first?.note == "Skipped — sick")
+    }
+
+    @Test("Toggling off a completed record with a note keeps the record as note-only")
+    func toggleOffWithNoteKeepsRecord() throws {
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        container.mainContext.insert(habit)
+        let withNote = CompletionRecord(date: TestCalendar.day(0), value: 1, note: "Morning session", habit: habit)
+        container.mainContext.insert(withNote)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        let result = toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(result == .uncompleted)
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "Morning session")
+    }
+
+    @Test("Toggling off a completed record without a note deletes it")
+    func toggleOffWithoutNoteDeletes() throws {
+        let habit = HabitRecord(name: "Meditate", frequency: .daily, type: .binary)
+        container.mainContext.insert(habit)
+        let noNote = CompletionRecord(date: TestCalendar.day(0), value: 1, habit: habit)
+        container.mainContext.insert(noNote)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.toggleToday(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
+    @Test("setValueToday to zero preserves record if it has a note")
+    func setValueZeroPreservesNote() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 5, note: "With lunch", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(0, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "With lunch")
+    }
+
+    @Test("setValueToday to zero deletes record if no note")
+    func setValueZeroDeletesWithoutNote() throws {
+        let habit = HabitRecord(name: "Water", frequency: .daily, type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 4, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let toggler = CompletionToggler(calendar: TestCalendar.utc)
+        toggler.setValueToday(0, for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
 }

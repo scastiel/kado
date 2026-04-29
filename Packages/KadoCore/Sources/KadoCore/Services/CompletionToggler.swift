@@ -30,8 +30,16 @@ public struct CompletionToggler {
         if let existing = habit.completions?.first(where: {
             calendar.isDate($0.date, inSameDayAs: date)
         }) {
-            context.delete(existing)
-            return .uncompleted
+            if existing.value == 0 {
+                existing.value = 1
+                return .completed
+            } else if existing.note != nil {
+                existing.value = 0
+                return .uncompleted
+            } else {
+                context.delete(existing)
+                return .uncompleted
+            }
         } else {
             let completion = CompletionRecord(date: date, value: 1, habit: habit)
             context.insert(completion)
@@ -46,10 +54,9 @@ public struct CompletionToggler {
 
     /// Sets `value` as the completion record for `habit` on `date`'s
     /// day, overwriting any existing same-day completion. A zero
-    /// value removes the day's completion entirely so counter /
-    /// timer intents can "clear" a day's log via Siri without a
-    /// separate primitive. Day comparison goes through the injected
-    /// calendar.
+    /// value removes the day's completion — unless it carries a note,
+    /// in which case the value is zeroed to preserve the note. Day
+    /// comparison goes through the injected calendar.
     public func setValueToday(
         _ value: Double,
         for habit: HabitRecord,
@@ -60,7 +67,11 @@ public struct CompletionToggler {
             calendar.isDate($0.date, inSameDayAs: date)
         }) {
             if value == 0 {
-                context.delete(existing)
+                if existing.note != nil {
+                    existing.value = 0
+                } else {
+                    context.delete(existing)
+                }
             } else {
                 existing.value = value
                 existing.date = date
