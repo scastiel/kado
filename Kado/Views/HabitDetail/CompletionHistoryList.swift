@@ -58,11 +58,20 @@ struct CompletionHistoryList: View {
                 Text(absoluteDate(for: completion.date))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if let note = completion.note, !note.isEmpty {
+                    Label(note, systemImage: "note.text")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .padding(.top, 2)
+                }
             }
             Spacer()
-            Text(valueLabel(for: completion))
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(.secondary)
+            if completion.value > 0 {
+                Text(valueLabel(for: completion))
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
