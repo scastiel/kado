@@ -151,7 +151,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
             return .future
         }
         let completedOnDay = completions.contains { c in
-            c.habitID == habit.id && calendar.isDate(c.date, inSameDayAs: day)
+            c.habitID == habit.id && c.value > 0 && calendar.isDate(c.date, inSameDayAs: day)
         }
         // For negative habits, "completed" inverts: presence = failure.
         switch habit.type {

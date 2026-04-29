@@ -32,7 +32,7 @@ nonisolated public struct HabitRowState: Equatable, Sendable {
         asOf reference: Date
     ) -> HabitRowState {
         let todays = completions.first {
-            calendar.isDate($0.date, inSameDayAs: reference)
+            $0.value > 0 && calendar.isDate($0.date, inSameDayAs: reference)
         }
 
         guard let todays else {
