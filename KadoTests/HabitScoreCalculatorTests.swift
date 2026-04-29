@@ -551,6 +551,30 @@ struct HabitScoreCalculatorTests {
         #expect(uniqueDays.count == 7)
     }
 
+    // MARK: - Zero-value (note-only) records
+
+    @Test("Binary: zero-value completion (note-only) does not count as done")
+    func binaryZeroValueIgnored() {
+        let habit = makeHabit(createdOffset: 0)
+        let noteOnly = [Completion(habitID: habit.id, date: TestCalendar.day(0), value: 0)]
+        let score = calculator.currentScore(for: habit, completions: noteOnly, asOf: TestCalendar.day(0))
+        #expect(score == 0)
+    }
+
+    @Test("Negative: zero-value completion (note-only) does not count as a slip")
+    func negativeZeroValueIgnored() {
+        let neg = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let noteOnly = [Completion(habitID: neg.id, date: TestCalendar.day(0), value: 0)]
+        let scoreWithNote = calculator.currentScore(for: neg, completions: noteOnly, asOf: TestCalendar.day(0))
+        let scoreEmpty = calculator.currentScore(for: neg, completions: [], asOf: TestCalendar.day(0))
+        #expect(scoreWithNote == scoreEmpty)
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {

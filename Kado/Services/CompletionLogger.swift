@@ -30,8 +30,8 @@ struct CompletionLogger {
     }
 
     /// Subtracts 1 from today's completion value. When the value
-    /// drops below 1, the record is deleted so "no completion" ↔
-    /// "not done today" stays a bijection.
+    /// drops below 1, the record is deleted — unless it carries a
+    /// note, in which case the value is zeroed to preserve the note.
     func decrementCounter(
         for habit: HabitRecord,
         on date: Date = .now,
@@ -39,7 +39,11 @@ struct CompletionLogger {
     ) {
         guard let existing = todayCompletion(for: habit, on: date) else { return }
         if existing.value <= 1 {
-            context.delete(existing)
+            if existing.note != nil {
+                existing.value = 0
+            } else {
+                context.delete(existing)
+            }
         } else {
             existing.value -= 1
         }
@@ -59,7 +63,13 @@ struct CompletionLogger {
     ) {
         let existing = todayCompletion(for: habit, on: date)
         if value <= 0 {
-            if let existing { context.delete(existing) }
+            if let existing {
+                if existing.note != nil {
+                    existing.value = 0
+                } else {
+                    context.delete(existing)
+                }
+            }
             return
         }
         if let existing {
@@ -72,6 +82,7 @@ struct CompletionLogger {
 
     /// Replaces today's completion with one recording the given
     /// session duration. Single-record-per-day invariant holds.
+    /// Preserves any existing note on the record.
     func logTimerSession(
         for habit: HabitRecord,
         seconds: TimeInterval,
@@ -79,10 +90,34 @@ struct CompletionLogger {
         in context: ModelContext
     ) {
         if let existing = todayCompletion(for: habit, on: date) {
-            context.delete(existing)
+            existing.value = seconds
+        } else {
+            let completion = CompletionRecord(date: date, value: seconds, habit: habit)
+            context.insert(completion)
         }
-        let completion = CompletionRecord(date: date, value: seconds, habit: habit)
-        context.insert(completion)
+    }
+
+    /// Sets or clears the note on the day's completion. When no record
+    /// exists and `note` is non-empty, creates a zero-value record to
+    /// hold the standalone note. Clearing the note on a zero-value
+    /// record deletes it (no value + no note = no reason to exist).
+    func setNote(
+        for habit: HabitRecord,
+        on date: Date = .now,
+        to note: String?,
+        in context: ModelContext
+    ) {
+        let normalized = note.flatMap { $0.isEmpty ? nil : $0 }
+        if let existing = todayCompletion(for: habit, on: date) {
+            if normalized == nil && existing.value == 0 {
+                context.delete(existing)
+            } else {
+                existing.note = normalized
+            }
+        } else if let normalized {
+            let completion = CompletionRecord(date: date, value: 0, note: normalized, habit: habit)
+            context.insert(completion)
+        }
     }
 
     /// Removes a specific completion (used by history-list swipes).

@@ -205,7 +205,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
     private func completedDaySet(habit: Habit, completions: [Completion]) -> Set<Date> {
         Set(
             completions
-                .filter { $0.habitID == habit.id }
+                .filter { $0.habitID == habit.id && $0.value > 0 }
                 .map { calendar.startOfDay(for: $0.date) }
         )
     }
@@ -223,7 +223,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
     private func completionsInRange(_ completions: [Completion], from start: Date, through end: Date) -> Int {
         completions.reduce(into: 0) { count, completion in
             let day = calendar.startOfDay(for: completion.date)
-            if day >= start && day <= end {
+            if day >= start && day <= end && completion.value > 0 {
                 count += 1
             }
         }

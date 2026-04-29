@@ -266,4 +266,169 @@ struct CompletionLoggerTests {
 
         #expect(habit.completions?.count == 2)
     }
+
+    // MARK: - Note mutations
+
+    @Test("setNote on existing completion sets the note without changing value")
+    func setNoteOnExistingCompletion() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 5, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: "Felt great", in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.note == "Felt great")
+        #expect(habit.completions?.first?.value == 5)
+    }
+
+    @Test("setNote with no existing completion creates a zero-value record")
+    func setNoteStandaloneCreatesRecord() throws {
+        let habit = HabitRecord(type: .binary)
+        container.mainContext.insert(habit)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: "Skipped — was sick", in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        let record = try #require(habit.completions?.first)
+        #expect(record.note == "Skipped — was sick")
+        #expect(record.value == 0)
+    }
+
+    @Test("setNote to nil clears the note on existing completion")
+    func setNoteNilClearsNote() throws {
+        let habit = HabitRecord(type: .binary)
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 1, note: "Old note", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: nil, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.note == nil)
+        #expect(habit.completions?.first?.value == 1)
+    }
+
+    @Test("setNote to nil on a zero-value record deletes the record")
+    func setNoteNilOnStandaloneDeletesRecord() throws {
+        let habit = HabitRecord(type: .binary)
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 0, note: "Note only", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: nil, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
+    @Test("setNote to empty string clears the note like nil")
+    func setNoteEmptyStringClearsNote() throws {
+        let habit = HabitRecord(type: .binary)
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 1, note: "Old note", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: "", in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.first?.note == nil)
+    }
+
+    @Test("setNote updates an existing note")
+    func setNoteUpdatesExisting() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 5, note: "First note", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setNote(for: habit, on: TestCalendar.day(0), to: "Updated note", in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.first?.note == "Updated note")
+        #expect(habit.completions?.first?.value == 5)
+    }
+
+    @Test("logTimerSession preserves existing note")
+    func timerSessionPreservesNote() throws {
+        let habit = HabitRecord(type: .timer(targetSeconds: 30 * 60))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 10 * 60, note: "Morning run", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.logTimerSession(for: habit, seconds: 25 * 60, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == Double(25 * 60))
+        #expect(habit.completions?.first?.note == "Morning run")
+    }
+
+    @Test("decrementCounter preserves note when value stays above zero")
+    func decrementPreservesNote() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 3, note: "Some note", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.decrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.first?.value == 2)
+        #expect(habit.completions?.first?.note == "Some note")
+    }
+
+    @Test("decrementCounter to zero keeps record if note exists")
+    func decrementToZeroKeepsNoteRecord() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 1, note: "Keep me", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.decrementCounter(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "Keep me")
+    }
+
+    @Test("setCounter to zero keeps record if note exists")
+    func setCounterZeroKeepsNoteRecord() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 5, note: "Important", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.setCounter(for: habit, on: TestCalendar.day(0), to: 0, in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "Important")
+    }
 }

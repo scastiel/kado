@@ -30,8 +30,16 @@ public struct CompletionToggler {
         if let existing = habit.completions?.first(where: {
             calendar.isDate($0.date, inSameDayAs: date)
         }) {
-            context.delete(existing)
-            return .uncompleted
+            if existing.value == 0 {
+                existing.value = 1
+                return .completed
+            } else if existing.note != nil {
+                existing.value = 0
+                return .uncompleted
+            } else {
+                context.delete(existing)
+                return .uncompleted
+            }
         } else {
             let completion = CompletionRecord(date: date, value: 1, habit: habit)
             context.insert(completion)
