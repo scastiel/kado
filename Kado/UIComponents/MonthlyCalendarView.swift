@@ -87,6 +87,12 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         let dayNumber = calendar.component(.day, from: day)
         let isInteractive = state != .future
 
+        let hasNote = completions.contains { c in
+            c.habitID == habit.id
+                && calendar.isDate(c.date, inSameDayAs: day)
+                && c.note != nil && !(c.note?.isEmpty ?? true)
+        }
+
         let visual = ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(fill(for: state))
@@ -97,9 +103,15 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                             lineWidth: 2
                         )
                 )
-            Text("\(dayNumber)")
-                .font(.caption.weight(state == .completed ? .bold : .regular))
-                .foregroundStyle(foreground(for: state))
+            VStack(spacing: 1) {
+                Text("\(dayNumber)")
+                    .font(.caption.weight(state == .completed ? .bold : .regular))
+                    .foregroundStyle(foreground(for: state))
+                Circle()
+                    .fill(Color.secondary)
+                    .frame(width: 4, height: 4)
+                    .opacity(hasNote ? 1 : 0)
+            }
         }
         .contentShape(Rectangle())
         .accessibilityElement()
