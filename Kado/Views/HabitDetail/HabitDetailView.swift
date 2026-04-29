@@ -38,10 +38,12 @@ struct HabitDetailView: View {
                             habit: habit.snapshot,
                             date: day,
                             currentValue: currentValue(on: day),
+                            currentNote: currentNote(on: day),
                             onToggle: { toggle(on: day) },
                             onSetCounter: { value in setCounter(value, on: day) },
                             onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: day) },
-                            onClear: { clear(on: day) }
+                            onClear: { clear(on: day) },
+                            onNoteChanged: { note in setNote(note, on: day) }
                         )
                         .presentationCompactAdaptation(.popover)
                     }
@@ -158,6 +160,12 @@ struct HabitDetailView: View {
             .value ?? 0
     }
 
+    private func currentNote(on day: Date) -> String? {
+        habit.completions?
+            .first { calendar.isDate($0.date, inSameDayAs: day) }?
+            .note
+    }
+
     private func toggle(on day: Date) {
         CompletionToggler(calendar: calendar).toggleToday(for: habit, on: day, in: modelContext)
         try? modelContext.save()
@@ -183,6 +191,12 @@ struct HabitDetailView: View {
             on: day,
             in: modelContext
         )
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    private func setNote(_ note: String?, on day: Date) {
+        CompletionLogger(calendar: calendar).setNote(for: habit, on: day, to: note, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
