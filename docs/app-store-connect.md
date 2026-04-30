@@ -469,6 +469,35 @@ stemming.
 >   jour quand tu rouvres Kadō après minuit, et affiche toujours le
 >   bon jour.
 
+### What's New — 1.2 (EN)
+
+> Version 1.2 — Notes, backdate, and month navigation.
+>
+> • Per-day notes: add a short note to any day's completion — tap a
+>   day in the habit detail calendar and type in the note field.
+>   Notes are included in JSON exports.
+> • Backdate completions: log completions for days before the habit
+>   was created. Your score, streak, and calendar adjust
+>   automatically.
+> • Month navigation: browse past months in the habit detail
+>   calendar with the new ‹ / › arrows. Tap the month title to
+>   jump back to today.
+
+### What's New — 1.2 (FR)
+
+> Version 1.2 — Notes, antidatage et navigation mensuelle.
+>
+> • Notes par jour : ajoute une courte note à la complétion de
+>   n'importe quel jour — touche un jour dans le calendrier du
+>   détail d'une habitude et saisis ta note. Les notes sont
+>   incluses dans les exports JSON.
+> • Antidater les complétions : enregistre des complétions pour des
+>   jours antérieurs à la création de l'habitude. Ton score, ta
+>   série et ton calendrier s'ajustent automatiquement.
+> • Navigation mensuelle : parcours les mois passés dans le
+>   calendrier du détail d'une habitude grâce aux nouvelles flèches
+>   ‹ / ›. Touche le titre du mois pour revenir à aujourd'hui.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
