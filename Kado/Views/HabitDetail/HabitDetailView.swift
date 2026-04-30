@@ -20,6 +20,7 @@ struct HabitDetailView: View {
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
     @State private var editingDay: Date? = nil
+    @State private var displayedMonth: Date = .now
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -45,7 +46,9 @@ struct HabitDetailView: View {
                 MonthlyCalendarView(
                     habit: habit.snapshot,
                     completions: (habit.completions ?? []).map(\.snapshot),
+                    month: $displayedMonth,
                     selectedDay: isArchived ? .constant(nil) : $editingDay,
+                    navigable: true,
                     popoverContent: { day in
                         DayEditPopover(
                             habit: habit.snapshot,
