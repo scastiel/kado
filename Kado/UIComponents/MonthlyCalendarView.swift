@@ -65,7 +65,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                     .font(.body.weight(.semibold))
                     .contentShape(Rectangle())
             }
-            .accessibilityLabel(Text(String(localized: "Previous month")))
+            .accessibilityLabel(Text("Previous month"))
 
             Spacer()
 
@@ -92,7 +92,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                     .contentShape(Rectangle())
             }
             .disabled(!canGoForward)
-            .accessibilityLabel(Text(String(localized: "Next month")))
+            .accessibilityLabel(Text("Next month"))
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)

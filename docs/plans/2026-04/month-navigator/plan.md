@@ -9,13 +9,13 @@
 Add month navigation to the habit detail calendar so users can browse
 past months. Chevron buttons flank the month title; tapping the title
 resets to the current month. Month changes animate with a directional
-slide. Navigation is bounded: can't go before `effectiveStart`, can't
-go past the current month.
+slide. Backward navigation is unlimited; forward navigation stops at
+the current month.
 
 ## Decisions locked in
 
-- Navigation lives inside `MonthlyCalendarView` — any consumer that passes `lowerBound` gets it for free.
-- `month` becomes `@Binding var month: Date`; presence of `lowerBound: Date?` toggles navigation visibility.
+- Navigation lives inside `MonthlyCalendarView` — any consumer that sets `navigable: true` gets it for free.
+- `month` becomes `@Binding var month: Date`; `navigable: Bool` toggles navigation visibility.
 - Tap month title → reset to current month.
 - Slide animation matching chevron direction on month change.
 - Dismiss any open day-edit popover on month change.
