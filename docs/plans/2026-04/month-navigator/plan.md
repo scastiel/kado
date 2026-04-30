@@ -1,7 +1,7 @@
 # Plan — Month navigator
 
 **Date**: 2026-04-29
-**Status**: ready to build
+**Status**: in progress
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -23,7 +23,7 @@ go past the current month.
 
 ## Task list
 
-### Task 1: Add month navigation to MonthlyCalendarView
+### ~~Task 1: Add month navigation to MonthlyCalendarView~~ ✅
 
 **Goal**: Turn the static month header into a navigable one with
 chevron buttons, bounds, animation, and tap-to-reset.
@@ -56,7 +56,7 @@ chevron buttons, bounds, animation, and tap-to-reset.
 
 ---
 
-### Task 2: Wire month navigation in HabitDetailView
+### ~~Task 2: Wire month navigation in HabitDetailView~~ ✅
 
 **Goal**: Connect the new navigation to the habit detail screen.
 
@@ -80,7 +80,7 @@ chevron buttons, bounds, animation, and tap-to-reset.
 
 ---
 
-### Task 3: Localization (EN + FR)
+### ~~Task 3: Localization (EN + FR)~~ ✅
 
 **Goal**: Add catalog entries for the new accessibility labels and any
 visible strings.
@@ -129,6 +129,19 @@ visible strings.
 ## Open questions
 
 None — all resolved during research.
+
+## Notes during build
+
+- **Tasks 1–3** shipped in a single commit — the feature is small
+  enough that splitting would have been artificial. All three files
+  (`MonthlyCalendarView`, `HabitDetailView`, `Localizable.xcstrings`)
+  are tightly coupled.
+- No surprises; the `@Binding` change was clean and the convenience
+  init wrapped in `.constant()` with no call-site breakage.
+- Visual verification limited: XcodeBuildMCP tap primitives are not
+  enabled, so the habit detail screen could not be reached in the
+  simulator. Build + 318 tests pass. Manual verification by the user
+  is needed.
 
 ## Out of scope
 
