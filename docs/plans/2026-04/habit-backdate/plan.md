@@ -1,7 +1,7 @@
 # Plan — Habit Backdate
 
 **Date**: 2026-04-29
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
