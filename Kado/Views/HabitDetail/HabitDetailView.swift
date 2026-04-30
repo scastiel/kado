@@ -23,6 +23,19 @@ struct HabitDetailView: View {
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
+    private var trackingSinceLabel: String? {
+        let comps = (habit.completions ?? []).map(\.snapshot)
+        let effective = habit.snapshot.effectiveStart(completions: comps, calendar: calendar)
+        let createdDay = calendar.startOfDay(for: habit.createdAt)
+        let effectiveDay = calendar.startOfDay(for: effective)
+        guard effectiveDay != createdDay else { return nil }
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = calendar.locale ?? .current
+        formatter.dateStyle = .medium
+        return String(localized: "Tracking since \(formatter.string(from: effective))")
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -224,6 +237,13 @@ struct HabitDetailView: View {
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
+
+            if let trackingSince = trackingSinceLabel {
+                Label(trackingSince, systemImage: "calendar")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 2)
+            }
 
             if habit.archivedAt != nil {
                 Text("Archived")

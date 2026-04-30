@@ -150,10 +150,15 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         if day > calendar.startOfDay(for: .now) {
             return .future
         }
+        let effectiveStartDay = calendar.startOfDay(
+            for: habit.effectiveStart(completions: completions, calendar: calendar)
+        )
+        if day < effectiveStartDay {
+            return .nonDue
+        }
         let completedOnDay = completions.contains { c in
             c.habitID == habit.id && c.value > 0 && calendar.isDate(c.date, inSameDayAs: day)
         }
-        // For negative habits, "completed" inverts: presence = failure.
         switch habit.type {
         case .negative:
             return completedOnDay ? .missed : .completed
@@ -175,7 +180,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
             guard n > 0 else { return false }
             let createdDay = calendar.startOfDay(for: habit.createdAt)
             let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return delta >= 0 && delta % n == 0
+            return ((delta % n) + n) % n == 0
         case .daysPerWeek:
             // Every day is potentially due; no "non-due" distinction on grid.
             return true

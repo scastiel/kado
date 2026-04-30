@@ -256,4 +256,30 @@ struct StreakCalculatorTests {
         let calc = calculator()
         #expect(calc.best(for: h, completions: completions, asOf: asOf) == 2)
     }
+
+    // MARK: - Backdate
+
+    @Test("Backdated completions extend current streak past createdAt")
+    func backdatedExtendsCurrent() {
+        let h = habit(createdAtOffset: -3)
+        let completions = (0...5).map { completion(for: h, dayOffset: -$0) }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 6)
+    }
+
+    @Test("Backdated completions count in best streak")
+    func backdatedCountsInBest() {
+        let h = habit(createdAtOffset: -3)
+        let completions = (3...7).map { completion(for: h, dayOffset: -$0) }
+        let calc = calculator()
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 5)
+    }
+
+    @Test("First completion after createdAt: early days don't break streak")
+    func firstCompletionAfterCreation() {
+        let h = habit(createdAtOffset: -10)
+        let completions = (0...3).map { completion(for: h, dayOffset: -$0) }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 4)
+    }
 }

@@ -575,6 +575,43 @@ struct HabitScoreCalculatorTests {
         #expect(scoreWithNote == scoreEmpty)
     }
 
+    // MARK: - Backdate
+
+    @Test("Backdated completion: score starts at first completion, not createdAt")
+    func backdatedCompletionAnchorsScore() {
+        let habit = makeHabit(createdOffset: 0)
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(-3)),
+        ]
+        let score = calculator.currentScore(for: habit, completions: completions, asOf: TestCalendar.day(-3))
+        #expect(abs(score - 0.05) < 1e-9, "single day should equal alpha, got \(score)")
+    }
+
+    @Test("First completion after createdAt: early missed days don't penalize")
+    func firstCompletionAfterCreation() {
+        let habit = makeHabit(createdOffset: 0)
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(5)),
+        ]
+        let score = calculator.currentScore(for: habit, completions: completions, asOf: TestCalendar.day(5))
+        #expect(abs(score - 0.05) < 1e-9, "should equal alpha — no penalty for days 0-4, got \(score)")
+    }
+
+    @Test("Negative habit: score starts at createdAt regardless of completion timing")
+    func negativeScoreStartsAtCreatedAt() {
+        let neg = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let scoreNoCompletions = calculator.currentScore(for: neg, completions: [], asOf: TestCalendar.day(5))
+        let withSlip = [Completion(habitID: neg.id, date: TestCalendar.day(3))]
+        let scoreWithSlip = calculator.currentScore(for: neg, completions: withSlip, asOf: TestCalendar.day(5))
+        #expect(scoreNoCompletions > scoreWithSlip)
+        #expect(scoreNoCompletions > 0, "clean days from creation should build score")
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {

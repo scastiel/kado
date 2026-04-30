@@ -46,6 +46,15 @@ public struct Habit: Identifiable, Hashable, Sendable {
         self.reminderMinute = reminderMinute
     }
 
+    public func effectiveStart(completions: [Completion], calendar: Calendar) -> Date {
+        if case .negative = type { return createdAt }
+        let earliest = completions
+            .filter { $0.habitID == id && $0.value > 0 }
+            .map(\.date)
+            .min()
+        return earliest ?? createdAt
+    }
+
     public static func == (lhs: Habit, rhs: Habit) -> Bool {
         lhs.id == rhs.id
     }

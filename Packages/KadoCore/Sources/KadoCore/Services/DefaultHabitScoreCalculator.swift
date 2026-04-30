@@ -21,10 +21,11 @@ public struct DefaultHabitScoreCalculator: HabitScoreCalculating {
         completions: [Completion],
         asOf date: Date
     ) -> Double {
+        let start = habit.effectiveStart(completions: completions, calendar: calendar)
         let history = scoreHistory(
             for: habit,
             completions: completions,
-            from: habit.createdAt,
+            from: start,
             to: date
         )
         return history.last?.score ?? 0.0
@@ -36,8 +37,10 @@ public struct DefaultHabitScoreCalculator: HabitScoreCalculating {
         from startDate: Date,
         to endDate: Date
     ) -> [DailyScore] {
-        let createdDay = calendar.startOfDay(for: habit.createdAt)
-        let firstDay = max(calendar.startOfDay(for: startDate), createdDay)
+        let effectiveStartDay = calendar.startOfDay(
+            for: habit.effectiveStart(completions: completions, calendar: calendar)
+        )
+        let firstDay = max(calendar.startOfDay(for: startDate), effectiveStartDay)
         let lastDay = calendar.startOfDay(for: endDate)
         guard firstDay <= lastDay else { return [] }
 
