@@ -64,11 +64,13 @@ public enum OverviewMatrix {
             let completionsByDay = Dictionary(grouping: habitCompletions) {
                 calendar.startOfDay(for: $0.date)
             }
-            let habitCreatedStart = calendar.startOfDay(for: habit.createdAt)
+            let effectiveStartDay = calendar.startOfDay(
+                for: habit.effectiveStart(completions: habitCompletions, calendar: calendar)
+            )
 
             let cells = days.map { day -> DayCell in
                 if day > todayStart { return .future }
-                if day < habitCreatedStart { return .notDue }
+                if day < effectiveStartDay { return .notDue }
                 if !frequencyEvaluator.isDue(
                     habit: habit,
                     on: day,

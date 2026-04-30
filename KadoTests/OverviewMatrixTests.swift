@@ -160,13 +160,13 @@ struct OverviewMatrixTests {
         )
         let row = try #require(result.first)
 
-        // Only the day with the completion should be scored 1.0; every
-        // other due day should be 0.0. This is the core contract: the
-        // matrix surfaces per-day completion, not smoothed history.
+        // The effective start is day -2 (the first completion), so
+        // days -4 and -3 are .notDue. Day -2 is scored 1.0; days -1
+        // and 0 are scored 0.0 (due but not completed).
         let values: [Double] = row.days.map { cell in
             if case .scored(let v) = cell { v } else { -1 }
         }
-        #expect(values == [0.0, 0.0, 1.0, 0.0, 0.0])
+        #expect(values == [-1.0, -1.0, 1.0, 0.0, 0.0])
     }
 
     @Test("Counter habit scored cells use achieved/target fraction")
@@ -225,6 +225,37 @@ struct OverviewMatrixTests {
         #expect(postCreation.allSatisfy {
             if case .scored = $0 { return true } else { return false }
         })
+    }
+
+    @Test("Pre-creation day with a backdated completion renders as .scored")
+    func preCreationWithCompletionIsScored() throws {
+        let habit = Habit(
+            name: "Habit",
+            frequency: .daily,
+            type: .binary,
+            createdAt: TestCalendar.day(-2)
+        )
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(-4)),
+        ]
+        let dayRange = days(offset: -5, count: 6)
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: completions,
+            days: dayRange,
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        let preEffective = row.days[0] // day -5: before effective start (-4)
+        let atEffective = row.days[1]  // day -4: effective start, completed
+        #expect(preEffective == .notDue)
+        if case .scored(let v) = atEffective {
+            #expect(v == 1.0)
+        } else {
+            Issue.record("Expected .scored at effective start, got \(atEffective)")
+        }
     }
 
     // MARK: - colorOpacity
