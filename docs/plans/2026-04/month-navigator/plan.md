@@ -1,7 +1,7 @@
 # Plan — Month navigator
 
 **Date**: 2026-04-29
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
