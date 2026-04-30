@@ -9,8 +9,10 @@ public struct DefaultFrequencyEvaluator: FrequencyEvaluating {
 
     public func isDue(habit: Habit, on date: Date, completions: [Completion]) -> Bool {
         let day = calendar.startOfDay(for: date)
-        let createdDay = calendar.startOfDay(for: habit.createdAt)
-        guard day >= createdDay else { return false }
+        let effectiveStartDay = calendar.startOfDay(
+            for: habit.effectiveStart(completions: completions, calendar: calendar)
+        )
+        guard day >= effectiveStartDay else { return false }
         if let archivedAt = habit.archivedAt {
             let archivedDay = calendar.startOfDay(for: archivedAt)
             guard day <= archivedDay else { return false }
@@ -27,8 +29,9 @@ public struct DefaultFrequencyEvaluator: FrequencyEvaluating {
 
         case .everyNDays(let n):
             guard n > 0 else { return false }
+            let createdDay = calendar.startOfDay(for: habit.createdAt)
             let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return delta % n == 0
+            return ((delta % n) + n) % n == 0
 
         case .daysPerWeek(let target):
             guard target > 0 else { return false }

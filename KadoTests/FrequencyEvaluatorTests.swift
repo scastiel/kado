@@ -9,10 +9,24 @@ struct FrequencyEvaluatorTests {
 
     // MARK: Lifecycle bounds
 
-    @Test("Day before createdAt is never due")
-    func notDueBeforeCreated() {
+    @Test("Day before createdAt with no completions is not due")
+    func notDueBeforeCreatedNoCompletions() {
         let habit = makeHabit(.daily, createdOffset: 0)
         #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-1), completions: []))
+    }
+
+    @Test("Day before createdAt with a completion on that day is due")
+    func dueBeforeCreatedWithCompletion() {
+        let habit = makeHabit(.daily, createdOffset: 0)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-1))]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(-1), completions: completions))
+    }
+
+    @Test("Day before effective start is not due")
+    func notDueBeforeEffectiveStart() {
+        let habit = makeHabit(.daily, createdOffset: 0)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-3))]
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-5), completions: completions))
     }
 
     @Test("Day after archivedAt is never due")
@@ -108,6 +122,34 @@ struct FrequencyEvaluatorTests {
             Completion(habitID: otherID, date: TestCalendar.day($0))
         }
         #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(5), completions: completions))
+    }
+
+    // MARK: Backdate — everyNDays with negative deltas
+
+    @Test("everyNDays: 6 days before creation (cycle-aligned) is due when backdated")
+    func everyNDaysBackdateAligned() {
+        let habit = makeHabit(.everyNDays(3), createdOffset: 0)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-6))]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(-6), completions: completions))
+    }
+
+    @Test("everyNDays: 5 days before creation (not aligned) is not due")
+    func everyNDaysBackdateNotAligned() {
+        let habit = makeHabit(.everyNDays(3), createdOffset: 0)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-6))]
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-5), completions: completions))
+    }
+
+    @Test("Negative habit: day before createdAt is never due even with completion")
+    func negativeNotDueBeforeCreation() {
+        let habit = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-2))]
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-2), completions: completions))
     }
 
     // MARK: Helpers
