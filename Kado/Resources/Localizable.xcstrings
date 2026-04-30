@@ -3405,6 +3405,40 @@
           }
         }
       }
+    },
+    "Next month": {
+      "comment": "Accessibility label for the forward chevron in the month navigator.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next month"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois suivant"
+          }
+        }
+      }
+    },
+    "Previous month": {
+      "comment": "Accessibility label for the backward chevron in the month navigator.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous month"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mois précédent"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

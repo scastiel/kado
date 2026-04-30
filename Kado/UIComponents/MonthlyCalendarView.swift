@@ -8,10 +8,17 @@ import KadoCore
 struct MonthlyCalendarView<PopoverContent: View>: View {
     let habit: Habit
     let completions: [Completion]
-    var month: Date = .now
+    @Binding var month: Date
     @Binding var selectedDay: Date?
+    var lowerBound: Date? = nil
     @ViewBuilder var popoverContent: (Date) -> PopoverContent
     @Environment(\.calendar) private var calendar
+
+    @State private var slideDirection: SlideDirection = .forward
+
+    private enum SlideDirection {
+        case forward, backward
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -26,6 +33,11 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                         .frame(height: 32)
                 }
             }
+            .id(monthStart)
+            .transition(.asymmetric(
+                insertion: .move(edge: slideDirection == .forward ? .trailing : .leading),
+                removal: .move(edge: slideDirection == .forward ? .leading : .trailing)
+            ))
         }
     }
 
@@ -33,10 +45,82 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
     }
 
+    @ViewBuilder
     private var monthHeader: some View {
-        Text(monthTitle)
-            .font(.headline)
+        if lowerBound != nil {
+            navigableMonthHeader
+        } else {
+            Text(monthTitle)
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+        }
+    }
+
+    private var navigableMonthHeader: some View {
+        HStack {
+            Button {
+                navigateMonth(by: -1)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.semibold))
+                    .contentShape(Rectangle())
+            }
+            .disabled(!canGoBackward)
+            .accessibilityLabel(Text(String(localized: "Previous month")))
+
+            Spacer()
+
+            Button {
+                selectedDay = nil
+                slideDirection = .forward
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    month = .now
+                }
+            } label: {
+                Text(monthTitle)
+                    .font(.headline)
+            }
+            .disabled(isShowingCurrentMonth)
             .accessibilityAddTraits(.isHeader)
+
+            Spacer()
+
+            Button {
+                navigateMonth(by: 1)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.body.weight(.semibold))
+                    .contentShape(Rectangle())
+            }
+            .disabled(!canGoForward)
+            .accessibilityLabel(Text(String(localized: "Next month")))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
+    }
+
+    private func navigateMonth(by value: Int) {
+        guard let newMonth = calendar.date(byAdding: .month, value: value, to: month) else { return }
+        selectedDay = nil
+        slideDirection = value > 0 ? .forward : .backward
+        withAnimation(.easeInOut(duration: 0.25)) {
+            month = newMonth
+        }
+    }
+
+    private var canGoBackward: Bool {
+        guard let lowerBound else { return false }
+        let lowerMonth = calendar.dateInterval(of: .month, for: lowerBound)?.start
+        return monthStart != lowerMonth
+    }
+
+    private var canGoForward: Bool {
+        !isShowingCurrentMonth
+    }
+
+    private var isShowingCurrentMonth: Bool {
+        let currentMonth = calendar.dateInterval(of: .month, for: .now)?.start
+        return monthStart == currentMonth
     }
 
     private var weekdayHeader: some View {
@@ -238,7 +322,7 @@ extension MonthlyCalendarView where PopoverContent == EmptyView {
     /// Convenience init for read-only callers (previews, any future
     /// surface that shows the grid without edit affordances). Cells
     /// remain tappable but selection goes to a discarded binding, so
-    /// no popover is attached.
+    /// no popover is attached. No month navigation is shown.
     init(
         habit: Habit,
         completions: [Completion],
@@ -247,7 +331,7 @@ extension MonthlyCalendarView where PopoverContent == EmptyView {
         self.init(
             habit: habit,
             completions: completions,
-            month: month,
+            month: .constant(month),
             selectedDay: .constant(nil),
             popoverContent: { _ in EmptyView() }
         )
