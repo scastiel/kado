@@ -48,10 +48,7 @@ struct HabitDetailView: View {
                     completions: (habit.completions ?? []).map(\.snapshot),
                     month: $displayedMonth,
                     selectedDay: isArchived ? .constant(nil) : $editingDay,
-                    lowerBound: habit.snapshot.effectiveStart(
-                        completions: (habit.completions ?? []).map(\.snapshot),
-                        calendar: calendar
-                    ),
+                    navigable: true,
                     popoverContent: { day in
                         DayEditPopover(
                             habit: habit.snapshot,

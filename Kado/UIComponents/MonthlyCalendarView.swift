@@ -10,7 +10,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     let completions: [Completion]
     @Binding var month: Date
     @Binding var selectedDay: Date?
-    var lowerBound: Date? = nil
+    var navigable: Bool = false
     @ViewBuilder var popoverContent: (Date) -> PopoverContent
     @Environment(\.calendar) private var calendar
 
@@ -47,7 +47,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
 
     @ViewBuilder
     private var monthHeader: some View {
-        if lowerBound != nil {
+        if navigable {
             navigableMonthHeader
         } else {
             Text(monthTitle)
@@ -65,7 +65,6 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                     .font(.body.weight(.semibold))
                     .contentShape(Rectangle())
             }
-            .disabled(!canGoBackward)
             .accessibilityLabel(Text(String(localized: "Previous month")))
 
             Spacer()
@@ -80,7 +79,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                 Text(monthTitle)
                     .font(.headline)
             }
-            .disabled(isShowingCurrentMonth)
+            .disabled(!canGoForward)
             .accessibilityAddTraits(.isHeader)
 
             Spacer()
@@ -108,19 +107,9 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         }
     }
 
-    private var canGoBackward: Bool {
-        guard let lowerBound else { return false }
-        let lowerMonth = calendar.dateInterval(of: .month, for: lowerBound)?.start
-        return monthStart != lowerMonth
-    }
-
     private var canGoForward: Bool {
-        !isShowingCurrentMonth
-    }
-
-    private var isShowingCurrentMonth: Bool {
         let currentMonth = calendar.dateInterval(of: .month, for: .now)?.start
-        return monthStart == currentMonth
+        return monthStart != currentMonth
     }
 
     private var weekdayHeader: some View {
