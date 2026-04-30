@@ -10,28 +10,32 @@ public struct DefaultStreakCalculator: StreakCalculating {
     public func current(for habit: Habit, completions: [Completion], asOf date: Date) -> Int {
         let endDate = habit.archivedAt ?? date
         let end = calendar.startOfDay(for: endDate)
-        let createdDay = calendar.startOfDay(for: habit.createdAt)
-        guard end >= createdDay else { return 0 }
+        let startDay = calendar.startOfDay(
+            for: habit.effectiveStart(completions: completions, calendar: calendar)
+        )
+        guard end >= startDay else { return 0 }
 
         switch habit.frequency {
         case .daysPerWeek(let target):
-            return currentDaysPerWeek(target: target, habit: habit, completions: completions, end: end, createdDay: createdDay)
+            return currentDaysPerWeek(target: target, habit: habit, completions: completions, end: end, startDay: startDay)
         default:
-            return currentByDay(habit: habit, completions: completions, end: end, createdDay: createdDay)
+            return currentByDay(habit: habit, completions: completions, end: end, startDay: startDay)
         }
     }
 
     public func best(for habit: Habit, completions: [Completion], asOf date: Date) -> Int {
         let endDate = habit.archivedAt ?? date
         let end = calendar.startOfDay(for: endDate)
-        let createdDay = calendar.startOfDay(for: habit.createdAt)
-        guard end >= createdDay else { return 0 }
+        let startDay = calendar.startOfDay(
+            for: habit.effectiveStart(completions: completions, calendar: calendar)
+        )
+        guard end >= startDay else { return 0 }
 
         switch habit.frequency {
         case .daysPerWeek(let target):
-            return bestDaysPerWeek(target: target, habit: habit, completions: completions, end: end, createdDay: createdDay)
+            return bestDaysPerWeek(target: target, habit: habit, completions: completions, end: end, startDay: startDay)
         default:
-            return bestByDay(habit: habit, completions: completions, end: end, createdDay: createdDay)
+            return bestByDay(habit: habit, completions: completions, end: end, startDay: startDay)
         }
     }
 
@@ -41,14 +45,14 @@ public struct DefaultStreakCalculator: StreakCalculating {
         habit: Habit,
         completions: [Completion],
         end: Date,
-        createdDay: Date
+        startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
         var streak = 0
         var day = end
         var isEndDay = true
 
-        while day >= createdDay {
+        while day >= startDay {
             let due = isDueByDay(habit: habit, on: day)
             if !due {
                 day = previousDay(day)
@@ -74,12 +78,12 @@ public struct DefaultStreakCalculator: StreakCalculating {
         habit: Habit,
         completions: [Completion],
         end: Date,
-        createdDay: Date
+        startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
         var best = 0
         var run = 0
-        var day = createdDay
+        var day = startDay
 
         while day <= end {
             let due = isDueByDay(habit: habit, on: day)
@@ -110,7 +114,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
         habit: Habit,
         completions: [Completion],
         end: Date,
-        createdDay: Date
+        startDay: Date
     ) -> Int {
         guard target > 0 else { return 0 }
         let filtered = completions.filter { $0.habitID == habit.id }
@@ -124,8 +128,8 @@ public struct DefaultStreakCalculator: StreakCalculating {
 
         var weekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: endWeek.start)!
 
-        while weekStart >= createdDay ||
-              calendar.dateInterval(of: .weekOfYear, for: createdDay)!.start == weekStart {
+        while weekStart >= startDay ||
+              calendar.dateInterval(of: .weekOfYear, for: startDay)!.start == weekStart {
             let weekEnd = calendar.date(byAdding: .day, value: 6, to: weekStart)!
             let count = completionsInRange(filtered, from: weekStart, through: weekEnd)
             if count >= target {
@@ -143,23 +147,23 @@ public struct DefaultStreakCalculator: StreakCalculating {
         habit: Habit,
         completions: [Completion],
         end: Date,
-        createdDay: Date
+        startDay: Date
     ) -> Int {
         guard target > 0 else { return 0 }
         let filtered = completions.filter { $0.habitID == habit.id }
-        guard let createdWeek = calendar.dateInterval(of: .weekOfYear, for: createdDay),
+        guard let startWeek = calendar.dateInterval(of: .weekOfYear, for: startDay),
               let endWeek = calendar.dateInterval(of: .weekOfYear, for: end) else { return 0 }
 
         var best = 0
         var run = 0
-        var weekStart = createdWeek.start
+        var weekStart = startWeek.start
 
         while weekStart <= endWeek.start {
             let weekEnd = calendar.date(byAdding: .day, value: 6, to: weekStart)!
             let isEndWeek = calendar.isDate(weekStart, inSameDayAs: endWeek.start)
             let count = completionsInRange(filtered, from: weekStart, through: weekEnd)
             let qualifies = count >= target
-            let graceCarries = isEndWeek && !qualifies  // don't reset for current week
+            let graceCarries = isEndWeek && !qualifies
             if qualifies {
                 run += 1
                 best = max(best, run)
@@ -195,9 +199,8 @@ public struct DefaultStreakCalculator: StreakCalculating {
             guard n > 0 else { return false }
             let createdDay = calendar.startOfDay(for: habit.createdAt)
             let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return delta >= 0 && delta % n == 0
+            return ((delta % n) + n) % n == 0
         case .daysPerWeek:
-            // Not used — daysPerWeek branches before reaching here.
             return false
         }
     }
