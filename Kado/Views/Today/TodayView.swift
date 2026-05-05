@@ -16,7 +16,7 @@ struct TodayView: View {
 
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
-        sort: \HabitRecord.createdAt
+        sort: \HabitRecord.sortOrder
     )
     private var activeHabits: [HabitRecord]
 
@@ -116,6 +116,7 @@ struct TodayView: View {
                 if !due.isEmpty {
                     Section {
                         ForEach(due) { row($0) }
+                            .onMove { moveHabits(due, from: $0, to: $1) }
                     } header: {
                         Text("Scheduled")
                     }
@@ -123,14 +124,10 @@ struct TodayView: View {
                 if !other.isEmpty {
                     Section {
                         ForEach(other) { row($0) }
+                            .onMove { moveHabits(other, from: $0, to: $1) }
                     } header: {
                         Text("Not scheduled today")
                     } footer: {
-                        // Reason the second section exists — every
-                        // active habit is reachable for edit or
-                        // archive from here even if it's not due
-                        // today. Detail view (via tap) is still the
-                        // only place to log a past day.
                         Text("Tap to open detail, or long-press to edit or archive.")
                     }
                 }
@@ -138,10 +135,6 @@ struct TodayView: View {
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
             .refreshable {
-                // SwiftData has no public API to force a CloudKit
-                // pull; the brief delay lets any in-flight push
-                // settle so the @Query rebind shows the latest
-                // remote state when the spinner retracts.
                 try? await Task.sleep(for: .seconds(1))
             }
         }
@@ -264,6 +257,28 @@ struct TodayView: View {
     }
 
     // MARK: - Actions
+
+    private func moveHabits(_ section: [HabitRecord], from source: IndexSet, to destination: Int) {
+        var reordered = section
+        reordered.move(fromOffsets: source, toOffset: destination)
+
+        let due = habitsDueToday
+        let other = habitsNotDueToday
+        let isDueSection = section.first.map({ due.contains($0) }) == true
+
+        let finalOrder: [HabitRecord]
+        if isDueSection {
+            finalOrder = reordered + other
+        } else {
+            finalOrder = due + reordered
+        }
+
+        for (index, record) in finalOrder.enumerated() {
+            record.sortOrder = index
+        }
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
 
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
