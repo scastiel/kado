@@ -72,4 +72,6 @@ extension EnvironmentValues {
     /// instead of `.now` for any day-boundary decision (what's due today,
     /// where the overview's trailing edge lands).
     @Entry var today: Date = .now
+
+    @Entry var reviewPromptService: any ReviewPrompting = DefaultReviewPromptService()
 }
