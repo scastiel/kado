@@ -15,6 +15,7 @@ struct SettingsView: View {
                 SyncStatusSection()
                 NotificationsSection()
                 BackupSection()
+                SupportSection()
                 DevModeSection()
                 wordmarkFooter
             }
