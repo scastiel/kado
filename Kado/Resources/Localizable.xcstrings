@@ -3439,6 +3439,40 @@
           }
         }
       }
+    },
+    "Rate Kado on the App Store": {
+      "comment": "Settings row label: link to write an App Store review.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate Kado on the App Store"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noter Kadō sur l’App Store"
+          }
+        }
+      }
+    },
+    "Send Feedback": {
+      "comment": "Settings row label: mailto link to send feedback to the developer.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Feedback"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer un commentaire"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
