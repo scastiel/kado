@@ -498,6 +498,30 @@ stemming.
 >   calendrier du détail d'une habitude grâce aux nouvelles flèches
 >   ‹ / ›. Touche le titre du mois pour revenir à aujourd'hui.
 
+### What's New — 1.3 (EN)
+
+> Version 1.3 — Reorder habits and gentle review prompt.
+>
+> • Drag to reorder: long-press and drag habits on the Today view to
+>   arrange them in the order that works for you. Your custom order
+>   syncs across devices via iCloud.
+> • Gentle review prompt: after a week of use, Kadō may ask once if
+>   you'd like to rate it. No interruptions, no dark patterns — just
+>   a respectful ask you can dismiss forever.
+
+### What's New — 1.3 (FR)
+
+> Version 1.3 — Réorganisation des habitudes et demande d'avis.
+>
+> • Glisser pour réorganiser : appui long puis glisse tes habitudes
+>   dans la vue Aujourd'hui pour les placer dans l'ordre qui te
+>   convient. Ton ordre personnalisé se synchronise entre tes
+>   appareils via iCloud.
+> • Demande d'avis respectueuse : après une semaine d'utilisation,
+>   Kadō peut te demander une seule fois si tu souhaites laisser un
+>   avis. Pas d'interruption, pas de dark patterns — juste une
+>   question que tu peux ignorer définitivement.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
