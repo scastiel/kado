@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SupportSection: View {
     var body: some View {
-        Section {
+        Section("Feedback") {
             Link(destination: Self.appStoreReviewURL) {
                 Label("Rate Kado on the App Store", systemImage: "star.bubble")
             }

@@ -3473,6 +3473,17 @@
           }
         }
       }
+    },
+    "Feedback": {
+      "comment": "Settings section header for the review and feedback links.",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commentaires"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
