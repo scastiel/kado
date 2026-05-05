@@ -18,7 +18,7 @@ public enum WidgetSnapshotBuilder {
         frequencyEvaluator: any FrequencyEvaluating = DefaultFrequencyEvaluator()
     ) -> WidgetSnapshot {
         let descriptor = FetchDescriptor<HabitRecord>(
-            sortBy: [SortDescriptor(\.createdAt)]
+            sortBy: [SortDescriptor(\.sortOrder)]
         )
         let records = (try? context.fetch(descriptor)) ?? []
         let active = records.filter { $0.archivedAt == nil }
