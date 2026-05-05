@@ -22,15 +22,20 @@ struct KadoSchemaTests {
         #expect(KadoSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
     }
 
-    @Test("Migration plan declares V1→V2 and V2→V3 lightweight stages")
-    func migrationPlanShape() {
-        #expect(KadoMigrationPlan.schemas.count == 3)
-        #expect(KadoMigrationPlan.stages.count == 2)
+    @Test("V4 version identifier is 4.0.0")
+    func v4Version() {
+        #expect(KadoSchemaV4.versionIdentifier == Schema.Version(4, 0, 0))
     }
 
-    @Test("In-memory ModelContainer constructs from the current (V3) schema")
+    @Test("Migration plan declares V1→V2, V2→V3, and V3→V4 lightweight stages")
+    func migrationPlanShape() {
+        #expect(KadoMigrationPlan.schemas.count == 4)
+        #expect(KadoMigrationPlan.stages.count == 3)
+    }
+
+    @Test("In-memory ModelContainer constructs from the current (V4) schema")
     func containerBuildsFromPlan() throws {
-        let schema = Schema(versionedSchema: KadoSchemaV3.self)
+        let schema = Schema(versionedSchema: KadoSchemaV4.self)
         let container = try ModelContainer(
             for: schema,
             migrationPlan: KadoMigrationPlan.self,
@@ -115,5 +120,41 @@ struct KadoSchemaTests {
         #expect(habit.remindersEnabled == false)
         #expect(habit.reminderHour == 9)
         #expect(habit.reminderMinute == 0)
+    }
+
+    @Test("Lightweight migration from V3 populates default sortOrder")
+    func v3ToV4Migration() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("migration-test-\(UUID().uuidString).store")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        // Step 1: seed a V3 store.
+        do {
+            let schema = Schema(versionedSchema: KadoSchemaV3.self)
+            let config = ModelConfiguration(schema: schema, url: url)
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: nil,
+                configurations: config
+            )
+            let habit = KadoSchemaV3.HabitRecord(name: "V3 habit", color: .green)
+            container.mainContext.insert(habit)
+            try container.mainContext.save()
+        }
+
+        // Step 2: reopen as V4; lightweight stage fills sortOrder default.
+        let schema = Schema(versionedSchema: KadoSchemaV4.self)
+        let config = ModelConfiguration(schema: schema, url: url)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: KadoMigrationPlan.self,
+            configurations: config
+        )
+        let habits = try container.mainContext.fetch(FetchDescriptor<HabitRecord>())
+        #expect(habits.count == 1)
+        let habit = try #require(habits.first)
+        #expect(habit.name == "V3 habit")
+        #expect(habit.color == .green)
+        #expect(habit.sortOrder == 0)
     }
 }
