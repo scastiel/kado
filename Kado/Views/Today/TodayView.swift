@@ -11,6 +11,7 @@ struct TodayView: View {
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.habitScoreCalculator) private var scoreCalculator
+    @Environment(\.reviewPromptService) private var reviewPromptService
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
 
@@ -270,6 +271,7 @@ struct TodayView: View {
             .toggleToday(for: record, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
+        checkMilestones(for: record)
     }
 
     private func incrementCounter(_ record: HabitRecord) {
@@ -277,6 +279,7 @@ struct TodayView: View {
             .incrementCounter(for: record, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
+        checkMilestones(for: record)
     }
 
     private func decrementCounter(_ record: HabitRecord) {
@@ -287,13 +290,29 @@ struct TodayView: View {
     }
 
     private func addFiveMinutes(_ record: HabitRecord) {
-        // CompletionRecord.value carries seconds for timer habits, so a
-        // five-minute bump is just delta = 300 through the same
-        // increment path the counter uses.
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, by: 300, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
+        checkMilestones(for: record)
+    }
+
+    private func checkMilestones(for record: HabitRecord) {
+        let snap = record.snapshot
+        let comps = (record.completions ?? []).map(\.snapshot)
+        let streak = streakCalculator.current(for: snap, completions: comps, asOf: .now)
+        if streak == 7 || streak == 30 {
+            reviewPromptService.recordMilestone(.streak(days: streak))
+        }
+
+        let allComplete = habitsDueToday.allSatisfy { habit in
+            let s = habit.snapshot
+            let c = (habit.completions ?? []).map(\.snapshot)
+            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: .now).status == .complete
+        }
+        if allComplete {
+            reviewPromptService.recordMilestone(.allHabitsComplete)
+        }
     }
 
     private func archive(_ record: HabitRecord) {
