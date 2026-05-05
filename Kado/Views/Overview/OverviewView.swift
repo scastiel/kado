@@ -18,7 +18,7 @@ import KadoCore
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
-        sort: \HabitRecord.createdAt
+        sort: \HabitRecord.sortOrder
     )
     private var records: [HabitRecord]
 
