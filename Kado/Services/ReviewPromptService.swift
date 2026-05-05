@@ -16,19 +16,22 @@ struct DefaultReviewPromptService: ReviewPrompting, Sendable {
     private let minimumDaysSinceInstall: Int
     private let minimumSessions: Int
     private let appVersion: String
+    private let now: @Sendable () -> Date
 
     init(
         defaults: UserDefaults = .standard,
         calendar: Calendar = .current,
         minimumDaysSinceInstall: Int = 14,
         minimumSessions: Int = 7,
-        appVersion: String? = nil
+        appVersion: String? = nil,
+        now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.defaults = defaults
         self.calendar = calendar
         self.minimumDaysSinceInstall = minimumDaysSinceInstall
         self.minimumSessions = minimumSessions
         self.appVersion = appVersion ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        self.now = now
         seedInstallDateIfNeeded()
     }
 
@@ -55,7 +58,7 @@ struct DefaultReviewPromptService: ReviewPrompting, Sendable {
 
     private func isEligible() -> Bool {
         guard let installDate = defaults.object(forKey: Keys.installDate) as? Date else { return false }
-        let daysSince = calendar.dateComponents([.day], from: installDate, to: .now).day ?? 0
+        let daysSince = calendar.dateComponents([.day], from: installDate, to: now()).day ?? 0
         guard daysSince >= minimumDaysSinceInstall else { return false }
 
         let sessions = defaults.integer(forKey: Keys.sessionCount)
@@ -69,7 +72,7 @@ struct DefaultReviewPromptService: ReviewPrompting, Sendable {
 
     private func seedInstallDateIfNeeded() {
         if defaults.object(forKey: Keys.installDate) == nil {
-            defaults.set(Date.now, forKey: Keys.installDate)
+            defaults.set(now(), forKey: Keys.installDate)
         }
     }
 

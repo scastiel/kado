@@ -5,8 +5,9 @@ import Foundation
 @Suite("ReviewPromptService")
 struct ReviewPromptServiceTests {
     private func makeDefaults() -> UserDefaults {
-        let suite = UserDefaults(suiteName: "review-test-\(UUID().uuidString)")!
-        suite.removePersistentDomain(forName: suite.description)
+        let name = "review-test-\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: name)!
+        suite.removePersistentDomain(forName: name)
         return suite
     }
 
