@@ -57,7 +57,7 @@ public enum OverviewMatrix {
         let todayStart = calendar.startOfDay(for: today)
         let activeHabits = habits
             .filter { $0.archivedAt == nil }
-            .sorted { $0.createdAt < $1.createdAt }
+            .sorted { $0.sortOrder < $1.sortOrder }
 
         return activeHabits.map { habit in
             let habitCompletions = completions.filter { $0.habitID == habit.id }

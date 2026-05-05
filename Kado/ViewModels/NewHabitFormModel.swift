@@ -182,6 +182,7 @@ final class NewHabitFormModel {
             return record
         } else {
             let record = build()
+            record.sortOrder = HabitSortOrder.nextSortOrder(in: context)
             context.insert(record)
             try? context.save()
             return record

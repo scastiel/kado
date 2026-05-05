@@ -33,30 +33,32 @@ struct OverviewMatrixTests {
         #expect(result.isEmpty)
     }
 
-    @Test("Matrix emits one row per non-archived habit, sorted by createdAt")
+    @Test("Matrix emits one row per non-archived habit, sorted by sortOrder")
     func rowOrder() {
-        let older = Habit(
-            name: "Older",
+        let first = Habit(
+            name: "First",
             frequency: .daily,
             type: .binary,
-            createdAt: TestCalendar.day(-10)
+            createdAt: TestCalendar.day(-5),
+            sortOrder: 0
         )
-        let newer = Habit(
-            name: "Newer",
+        let second = Habit(
+            name: "Second",
             frequency: .daily,
             type: .binary,
-            createdAt: TestCalendar.day(-5)
+            createdAt: TestCalendar.day(-10),
+            sortOrder: 1
         )
-        // Pass newer first to verify the matrix re-sorts by createdAt.
+        // Pass second first to verify the matrix re-sorts by sortOrder.
         let result = OverviewMatrix.compute(
-            habits: [newer, older],
+            habits: [second, first],
             completions: [],
             days: days(offset: -6, count: 7),
             today: today,
             calendar: calendar,
             frequencyEvaluator: frequencyEvaluator
         )
-        #expect(result.map { $0.habit.id } == [older.id, newer.id])
+        #expect(result.map { $0.habit.id } == [first.id, second.id])
     }
 
     @Test("Archived habits are excluded")

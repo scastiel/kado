@@ -1,28 +1,18 @@
 import Foundation
 import SwiftData
 
-/// Version 3 of Kadō's persistent schema. Adds per-habit reminder
-/// fields (`remindersEnabled`, `reminderHour`, `reminderMinute`),
-/// migrated from V2 via a lightweight stage. V2 stays frozen — never
-/// modify a shipped schema in place.
-public enum KadoSchemaV3: VersionedSchema {
-    public static let versionIdentifier = Schema.Version(3, 0, 0)
+/// Version 4 of Kadō's persistent schema. Adds a `sortOrder` field to
+/// `HabitRecord` so users can drag-to-reorder habits in the Today view.
+/// Migrated from V3 via a lightweight stage (new field has a default of 0).
+public enum KadoSchemaV4: VersionedSchema {
+    public static let versionIdentifier = Schema.Version(4, 0, 0)
 
     public static var models: [any PersistentModel.Type] {
         [HabitRecord.self, CompletionRecord.self]
     }
 }
 
-public extension KadoSchemaV3 {
-    /// Persistent representation of a habit. Mirrors V2 plus the three
-    /// reminder fields, each default-valued so CloudKit /
-    /// lightweight-migration can fill existing rows.
-    ///
-    /// Reminder time is stored as two primitive `Int`s (hour 0–23,
-    /// minute 0–59) rather than a `Date` to sidestep CloudKit's
-    /// timezone-stamping and to match the "fires at 9:00 wherever the
-    /// device is" semantics. Primitives don't hit the SwiftData
-    /// custom-enum storage bug.
+public extension KadoSchemaV4 {
     @Model
     public final class HabitRecord {
         public var id: UUID = UUID()
@@ -36,6 +26,7 @@ public extension KadoSchemaV3 {
         public var remindersEnabled: Bool = false
         public var reminderHour: Int = 9
         public var reminderMinute: Int = 0
+        public var sortOrder: Int = 0
 
         @Relationship(deleteRule: .cascade, inverse: \CompletionRecord.habit)
         public var completions: [CompletionRecord]? = []
@@ -52,6 +43,7 @@ public extension KadoSchemaV3 {
             remindersEnabled: Bool = false,
             reminderHour: Int = 9,
             reminderMinute: Int = 0,
+            sortOrder: Int = 0,
             completions: [CompletionRecord]? = []
         ) {
             self.id = id
@@ -65,6 +57,7 @@ public extension KadoSchemaV3 {
             self.remindersEnabled = remindersEnabled
             self.reminderHour = reminderHour
             self.reminderMinute = reminderMinute
+            self.sortOrder = sortOrder
             self.completions = completions
         }
 
@@ -95,7 +88,8 @@ public extension KadoSchemaV3 {
                 icon: icon,
                 remindersEnabled: remindersEnabled,
                 reminderHour: reminderHour,
-                reminderMinute: reminderMinute
+                reminderMinute: reminderMinute,
+                sortOrder: sortOrder
             )
         }
 
@@ -108,8 +102,6 @@ public extension KadoSchemaV3 {
         }
     }
 
-    /// Persistent completion event. Identical shape to V2 — copied so
-    /// V3 is a complete, self-contained schema.
     @Model
     public final class CompletionRecord {
         public var id: UUID = UUID()
@@ -144,3 +136,5 @@ public extension KadoSchemaV3 {
     }
 }
 
+public typealias HabitRecord = KadoSchemaV4.HabitRecord
+public typealias CompletionRecord = KadoSchemaV4.CompletionRecord

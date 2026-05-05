@@ -19,6 +19,7 @@ public struct Habit: Identifiable, Hashable, Sendable {
     public var remindersEnabled: Bool
     public var reminderHour: Int
     public var reminderMinute: Int
+    public var sortOrder: Int
 
     public init(
         id: UUID = UUID(),
@@ -31,7 +32,8 @@ public struct Habit: Identifiable, Hashable, Sendable {
         icon: String = HabitIcon.default,
         remindersEnabled: Bool = false,
         reminderHour: Int = 9,
-        reminderMinute: Int = 0
+        reminderMinute: Int = 0,
+        sortOrder: Int = 0
     ) {
         self.id = id
         self.name = name
@@ -44,6 +46,7 @@ public struct Habit: Identifiable, Hashable, Sendable {
         self.remindersEnabled = remindersEnabled
         self.reminderHour = reminderHour
         self.reminderMinute = reminderMinute
+        self.sortOrder = sortOrder
     }
 
     public func effectiveStart(completions: [Completion], calendar: Calendar) -> Date {
