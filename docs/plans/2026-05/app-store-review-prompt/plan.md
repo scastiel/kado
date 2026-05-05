@@ -1,7 +1,7 @@
 # Plan — App Store Review Prompt
 
 **Date**: 2026-05-04
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -168,8 +168,8 @@ links.
 
 ## Open questions
 
-- [ ] App Store numeric ID (fill once `kado` is approved and visible
-      in App Store Connect).
+- [x] App Store numeric ID — resolved: `6762570244` (found in
+      existing README badge).
 
 ## Out of scope
 
