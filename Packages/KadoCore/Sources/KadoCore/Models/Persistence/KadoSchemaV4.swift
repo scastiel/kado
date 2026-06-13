@@ -124,10 +124,17 @@ public extension KadoSchemaV4 {
             self.habit = habit
         }
 
-        public var snapshot: Completion {
-            Completion(
+        /// Projects to a value-type `Completion`, or `nil` when the
+        /// `habit` inverse isn't set. The relationship is optional
+        /// because CloudKit forbids required ones — and during a
+        /// CloudKit import the inverse is transiently nil while records
+        /// arrive out of order, so callers must tolerate that rather
+        /// than force-unwrap (issue #54). Map with `compactMap(\.snapshot)`.
+        public var snapshot: Completion? {
+            guard let habitID = habit?.id else { return nil }
+            return Completion(
                 id: id,
-                habitID: habit!.id,
+                habitID: habitID,
                 date: date,
                 value: value,
                 note: note

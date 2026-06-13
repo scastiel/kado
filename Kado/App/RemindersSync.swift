@@ -15,7 +15,7 @@ enum RemindersSync {
         let habits = (try? context.fetch(FetchDescriptor<HabitRecord>())) ?? []
         let completions = (try? context.fetch(FetchDescriptor<CompletionRecord>())) ?? []
         let habitSnapshots = habits.map(\.snapshot)
-        let completionSnapshots = completions.map(\.snapshot)
+        let completionSnapshots = completions.compactMap(\.snapshot)
         Task.detached { [habitSnapshots, completionSnapshots] in
             await scheduler.rescheduleAll(
                 habits: habitSnapshots,

@@ -132,10 +132,11 @@ public extension KadoSchemaV3 {
             self.habit = habit
         }
 
-        public var snapshot: Completion {
-            Completion(
+        public var snapshot: Completion? {
+            guard let habitID = habit?.id else { return nil }
+            return Completion(
                 id: id,
-                habitID: habit!.id,
+                habitID: habitID,
                 date: date,
                 value: value,
                 note: note

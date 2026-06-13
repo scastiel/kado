@@ -30,7 +30,7 @@ public enum WidgetSnapshotBuilder {
         var statsByID: [UUID: HabitStats] = [:]
         for record in active {
             let snap = record.snapshot
-            let comps = (record.completions ?? []).map(\.snapshot)
+            let comps = (record.completions ?? []).compactMap(\.snapshot)
             statsByID[snap.id] = HabitStats(
                 current: streakCalculator.current(for: snap, completions: comps, asOf: reference),
                 best: streakCalculator.best(for: snap, completions: comps, asOf: reference),
@@ -74,7 +74,7 @@ public enum WidgetSnapshotBuilder {
         var completed = 0
         for record in active {
             let snap = record.snapshot
-            let comps = (record.completions ?? []).map(\.snapshot)
+            let comps = (record.completions ?? []).compactMap(\.snapshot)
             guard frequencyEvaluator.isDue(habit: snap, on: reference, completions: comps) else {
                 continue
             }
@@ -105,7 +105,7 @@ public enum WidgetSnapshotBuilder {
             calendar.date(byAdding: .day, value: -offset, to: today)
         }
         let habits = active.map(\.snapshot)
-        let allCompletions = active.flatMap { ($0.completions ?? []).map(\.snapshot) }
+        let allCompletions = active.flatMap { ($0.completions ?? []).compactMap(\.snapshot) }
         let matrix = OverviewMatrix.compute(
             habits: habits,
             completions: allCompletions,

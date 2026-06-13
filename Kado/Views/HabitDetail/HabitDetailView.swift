@@ -25,7 +25,7 @@ struct HabitDetailView: View {
     private var isArchived: Bool { habit.archivedAt != nil }
 
     private var trackingSinceLabel: String? {
-        let comps = (habit.completions ?? []).map(\.snapshot)
+        let comps = (habit.completions ?? []).compactMap(\.snapshot)
         let effective = habit.snapshot.effectiveStart(completions: comps, calendar: calendar)
         let createdDay = calendar.startOfDay(for: habit.createdAt)
         let effectiveDay = calendar.startOfDay(for: effective)
@@ -45,7 +45,7 @@ struct HabitDetailView: View {
                 quickLogSection
                 MonthlyCalendarView(
                     habit: habit.snapshot,
-                    completions: (habit.completions ?? []).map(\.snapshot),
+                    completions: (habit.completions ?? []).compactMap(\.snapshot),
                     month: $displayedMonth,
                     selectedDay: isArchived ? .constant(nil) : $editingDay,
                     navigable: true,
@@ -329,7 +329,7 @@ struct HabitDetailView: View {
     private var scorePercent: String {
         let score = scoreCalculator.currentScore(
             for: habit.snapshot,
-            completions: (habit.completions ?? []).map(\.snapshot),
+            completions: (habit.completions ?? []).compactMap(\.snapshot),
             asOf: .now
         )
         return "\(Int((score * 100).rounded()))%"
@@ -338,7 +338,7 @@ struct HabitDetailView: View {
     private var currentStreak: Int {
         streakCalculator.current(
             for: habit.snapshot,
-            completions: (habit.completions ?? []).map(\.snapshot),
+            completions: (habit.completions ?? []).compactMap(\.snapshot),
             asOf: .now
         )
     }
@@ -346,7 +346,7 @@ struct HabitDetailView: View {
     private var bestStreak: Int {
         streakCalculator.best(
             for: habit.snapshot,
-            completions: (habit.completions ?? []).map(\.snapshot),
+            completions: (habit.completions ?? []).compactMap(\.snapshot),
             asOf: .now
         )
     }

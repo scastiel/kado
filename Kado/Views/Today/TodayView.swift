@@ -144,7 +144,7 @@ struct TodayView: View {
     @ViewBuilder
     private func row(_ record: HabitRecord) -> some View {
         let snap = record.snapshot
-        let comps = (record.completions ?? []).map(\.snapshot)
+        let comps = (record.completions ?? []).compactMap(\.snapshot)
         let state = HabitRowState.resolve(
             habit: snap,
             completions: comps,
@@ -202,7 +202,7 @@ struct TodayView: View {
     /// the row should stay visible with its tick even once the
     /// daysPerWeek rolling quota saturates).
     private func isDueTodayOrCompletedToday(_ record: HabitRecord, on now: Date) -> Bool {
-        let completions = (record.completions ?? []).map(\.snapshot)
+        let completions = (record.completions ?? []).compactMap(\.snapshot)
         if frequencyEvaluator.isDue(habit: record.snapshot, on: now, completions: completions) {
             return true
         }
@@ -314,7 +314,7 @@ struct TodayView: View {
 
     private func checkMilestones(for record: HabitRecord) {
         let snap = record.snapshot
-        let comps = (record.completions ?? []).map(\.snapshot)
+        let comps = (record.completions ?? []).compactMap(\.snapshot)
         let streak = streakCalculator.current(for: snap, completions: comps, asOf: .now)
         if streak == 7 || streak == 30 {
             reviewPromptService.recordMilestone(.streak(days: streak))
@@ -322,7 +322,7 @@ struct TodayView: View {
 
         let allComplete = habitsDueToday.allSatisfy { habit in
             let s = habit.snapshot
-            let c = (habit.completions ?? []).map(\.snapshot)
+            let c = (habit.completions ?? []).compactMap(\.snapshot)
             return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: .now).status == .complete
         }
         if allComplete {
