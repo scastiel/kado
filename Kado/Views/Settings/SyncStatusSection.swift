@@ -16,6 +16,8 @@ struct SyncStatusSection: View {
         Section("iCloud") {
             if isDevMode {
                 devModePausedRow
+            } else if observer.status == .available && observer.syncHealth == .failing {
+                syncFailingRow
             } else {
                 row(for: observer.status)
                 if showsSettingsLink(for: observer.status) {
@@ -30,6 +32,27 @@ struct SyncStatusSection: View {
             }
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
+    }
+
+    private var syncFailingRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.icloud.fill")
+                .font(.title3)
+                .foregroundStyle(.orange)
+                .frame(width: 28)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("iCloud sync isn’t working")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                Text("Your habits are safe on this device, but recent changes aren’t reaching iCloud.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 
     private var devModePausedRow: some View {
@@ -152,8 +175,18 @@ struct SyncStatusSection: View {
     SyncStatusPreview(status: .couldNotDetermine)
 }
 
+#Preview("Sync failing") {
+    SyncStatusPreview(status: .available, syncHealth: .failing)
+}
+
+#Preview("Sync failing — Dark") {
+    SyncStatusPreview(status: .available, syncHealth: .failing)
+        .preferredColorScheme(.dark)
+}
+
 private struct SyncStatusPreview: View {
     let status: CloudAccountStatus
+    var syncHealth: CloudSyncHealth = .unknown
 
     var body: some View {
         NavigationStack {
@@ -162,6 +195,9 @@ private struct SyncStatusPreview: View {
             }
             .navigationTitle("Settings")
         }
-        .environment(\.cloudAccountStatus, MockCloudAccountStatusObserver(status: status))
+        .environment(
+            \.cloudAccountStatus,
+            MockCloudAccountStatusObserver(status: status, syncHealth: syncHealth)
+        )
     }
 }

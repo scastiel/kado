@@ -10,9 +10,14 @@ import KadoCore
 @Observable
 final class MockCloudAccountStatusObserver: CloudAccountStatusObserving {
     var status: CloudAccountStatus
+    var syncHealth: CloudSyncHealth
 
-    init(status: CloudAccountStatus = .couldNotDetermine) {
+    init(
+        status: CloudAccountStatus = .couldNotDetermine,
+        syncHealth: CloudSyncHealth = .unknown
+    ) {
         self.status = status
+        self.syncHealth = syncHealth
     }
 
     func refresh() async {

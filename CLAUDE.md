@@ -333,6 +333,17 @@ repo. Guard against that with an explicit
   6. Domain `Habit` struct (`Packages/KadoCore/Sources/KadoCore/Models/Habit.swift`)
      — add the new fields with defaults so existing call sites keep
      compiling. The `@Model`'s `snapshot` must map them through.
+  7. **Deploy the schema to CloudKit Production before the next
+     TestFlight / App Store build ships.** Run a dev build once so
+     the new record fields materialize in the Development
+     environment, then *Deploy Schema Changes* in
+     [CloudKit Console](https://icloud.developer.apple.com/dashboard)
+     for `iCloud.dev.scastiel.kado`. Dev builds talk to Development,
+     App Store builds talk to Production — skipping this step makes
+     sync silently fail for every production user while working
+     perfectly in development (issue #52, two App Store reviews).
+     This is a manual console step; flag it in the PR's "Next steps"
+     whenever a schema version bumps.
 - Queries: prefer `@Query` in simple views, explicit descriptor + fetch
   in services for complex logic.
 - CloudKit-shape from day one: every property has a default value or
