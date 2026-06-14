@@ -522,6 +522,28 @@ stemming.
 >   avis. Pas d'interruption, pas de dark patterns — juste une
 >   question que tu peux ignorer définitivement.
 
+### What's New — 1.4 (EN)
+
+> Version 1.4 — iCloud sync reliability.
+>
+> • Fixed a crash that could occur on iPad shortly after iCloud sync
+>   was enabled. Your habits were always safe — the app just needed
+>   to handle data still arriving from iCloud.
+> • Settings now clearly shows when iCloud sync isn't working, instead
+>   of always reporting it as active.
+
+### What's New — 1.4 (FR)
+
+> Version 1.4 — Fiabilité de la synchronisation iCloud.
+>
+> • Correction d'un plantage qui pouvait survenir sur iPad peu après
+>   l'activation de la synchronisation iCloud. Tes habitudes étaient
+>   toujours en sécurité — l'app devait simplement mieux gérer les
+>   données encore en cours d'arrivée depuis iCloud.
+> • Les réglages indiquent désormais clairement quand la
+>   synchronisation iCloud ne fonctionne pas, au lieu de toujours la
+>   signaler comme active.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
