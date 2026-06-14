@@ -500,6 +500,12 @@
             "state" : "new",
             "value" : "%1$lld/%2$lld"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
         }
       }
     },
@@ -1572,6 +1578,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iCloud est temporairement indisponible"
+          }
+        }
+      }
+    },
+    "iCloud sync isn’t working" : {
+      "comment" : "Settings iCloud row title shown when CloudKit sync events fail despite the account being signed in.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La synchronisation iCloud ne fonctionne pas"
           }
         }
       }
@@ -3478,6 +3495,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ta grille d'habitudes sur les sept derniers jours."
+          }
+        }
+      }
+    },
+    "Your habits are safe on this device, but recent changes aren’t reaching iCloud." : {
+      "comment" : "Settings iCloud row subtitle shown when CloudKit sync events fail; reassures that data is safe locally.",
+      "localizations" : {
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes habitudes sont en sécurité sur cet appareil, mais les modifications récentes n'atteignent pas iCloud."
           }
         }
       }

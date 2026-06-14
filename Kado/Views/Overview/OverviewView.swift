@@ -87,7 +87,7 @@ struct OverviewView: View {
         let today = calendar.startOfDay(for: now)
         let days = dayRange(endingAt: today)
         let snapshots = records.map { record -> (Habit, [Completion]) in
-            (record.snapshot, (record.completions ?? []).map(\.snapshot))
+            (record.snapshot, (record.completions ?? []).compactMap(\.snapshot))
         }
         let habits = snapshots.map(\.0)
         let completions = snapshots.flatMap(\.1)

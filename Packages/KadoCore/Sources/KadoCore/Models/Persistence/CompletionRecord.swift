@@ -4,9 +4,9 @@ import SwiftData
 public extension KadoSchemaV1 {
     /// Persistent representation of a single completion event.
     /// `habit` is optional because CloudKit forbids required
-    /// relationships — but a completion without a parent is a bug
-    /// (cascade delete should remove orphans), so `snapshot`
-    /// force-unwraps `habit?.id`.
+    /// relationships, and during a CloudKit import the inverse is
+    /// transiently nil while records arrive out of order, so
+    /// `snapshot` returns nil rather than force-unwrapping (issue #54).
     @Model
     public final class CompletionRecord {
         public var id: UUID = UUID()
@@ -29,13 +29,14 @@ public extension KadoSchemaV1 {
             self.habit = habit
         }
 
-        /// Pure value-type projection. Traps if the completion has no
-        /// parent habit — that state should not exist outside
-        /// transient CloudKit sync windows the app does not project from.
-        public var snapshot: Completion {
-            Completion(
+        /// Pure value-type projection, or nil when the parent `habit`
+        /// inverse isn't set (e.g. mid CloudKit import). Map with
+        /// `compactMap(\.snapshot)`.
+        public var snapshot: Completion? {
+            guard let habitID = habit?.id else { return nil }
+            return Completion(
                 id: id,
-                habitID: habit!.id,
+                habitID: habitID,
                 date: date,
                 value: value,
                 note: note

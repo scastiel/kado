@@ -14,6 +14,12 @@ import KadoCore
 protocol CloudAccountStatusObserving: AnyObject, Observable {
     var status: CloudAccountStatus { get }
 
+    /// Whether sync is actually working, derived from
+    /// `NSPersistentCloudKitContainer`'s finished sync events. An
+    /// `.available` account with `.failing` health means data is NOT
+    /// reaching iCloud — the UI must not claim "Syncing with iCloud".
+    var syncHealth: CloudSyncHealth { get }
+
     /// Re-query the backing provider. The default observer also
     /// refreshes automatically on `.CKAccountChanged` notifications;
     /// this method is the manual hook for tests and first-launch

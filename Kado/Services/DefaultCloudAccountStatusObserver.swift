@@ -1,4 +1,5 @@
 import CloudKit
+import CoreData
 import Foundation
 import Observation
 import KadoCore
@@ -40,9 +41,11 @@ nonisolated final class DefaultCKAccountStatusProvider: CKAccountStatusProviding
 @Observable
 final class DefaultCloudAccountStatusObserver: CloudAccountStatusObserving {
     private(set) var status: CloudAccountStatus = .couldNotDetermine
+    private(set) var syncHealth: CloudSyncHealth = .unknown
 
     @ObservationIgnored private let provider: any CKAccountStatusProviding
     @ObservationIgnored private var observerTask: Task<Void, Never>?
+    @ObservationIgnored private var syncEventTask: Task<Void, Never>?
 
     init(provider: any CKAccountStatusProviding = DefaultCKAccountStatusProvider()) {
         self.provider = provider
@@ -52,10 +55,34 @@ final class DefaultCloudAccountStatusObserver: CloudAccountStatusObserving {
                 await self.refresh()
             }
         }
+        // SwiftData's CloudKit mirroring is NSPersistentCloudKitContainer
+        // under the hood, so its sync events flow through the same
+        // notification. Only finished events (endDate set) carry a
+        // success/failure verdict.
+        self.syncEventTask = Task { [weak self] in
+            let eventNotifications = NotificationCenter.default.notifications(
+                named: NSPersistentCloudKitContainer.eventChangedNotification
+            )
+            for await notification in eventNotifications {
+                guard let self else { break }
+                guard
+                    let event = notification.userInfo?[
+                        NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                    ] as? NSPersistentCloudKitContainer.Event,
+                    event.endDate != nil
+                else { continue }
+                self.syncHealth = CloudSyncEventAssessor.health(
+                    after: self.syncHealth,
+                    succeeded: event.succeeded,
+                    error: event.error
+                )
+            }
+        }
     }
 
     deinit {
         observerTask?.cancel()
+        syncEventTask?.cancel()
     }
 
     func refresh() async {
