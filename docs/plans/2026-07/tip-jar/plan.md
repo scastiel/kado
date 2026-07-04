@@ -126,7 +126,7 @@ can be built and previewed before any StoreKit wiring exists.
 
 ---
 
-### Task 4: `Tips.storekit` config + scheme wiring
+### Task 4: `Tips.storekit` config + scheme wiring ✅ (wiring → manual)
 
 **Goal**: Let the purchase flow run in the simulator with no ASC dependency.
 
@@ -248,6 +248,19 @@ can be built and previewed before any StoreKit wiring exists.
   `nonisolated` and `MockTipJarStore.sampleTiers` marked
   `nonisolated static` — the static is a default-argument expression
   evaluated outside MainActor (CLAUDE.md concurrency rule).
+- **Task 3**: Added a `Transaction.updates` listener (not in the original
+  plan) so a deferred/interrupted tip (e.g. Ask-to-Buy) still gets
+  `finish()`ed on a later launch. Standard StoreKit hygiene even though
+  tips unlock nothing.
+- **Task 4**: The project has **no persisted scheme** (Xcode autocreates
+  it), so there's nothing to edit to attach the StoreKit config, and
+  hand-authoring a full shared scheme just for a config reference is
+  fragile. Created + committed `Tips.storekit`; **wiring it into the
+  scheme is now a manual Xcode step** (Edit Scheme → Run/Test → Options →
+  StoreKit Configuration → `Tips.storekit`), grouped with the other
+  human-only Xcode step (adding the In-App Purchase capability). Moved to
+  Task 7's manual-steps list. The `SKTestSession` integration test the
+  plan floated is therefore also deferred to manual sandbox verification.
 
 ## Open questions
 
