@@ -94,7 +94,7 @@ can be built and previewed before any StoreKit wiring exists.
 
 ---
 
-### Task 3: `DefaultTipJarStore` (StoreKit 2)
+### Task 3: `DefaultTipJarStore` (StoreKit 2) ✅
 
 **Goal**: Real StoreKit 2 implementation.
 
