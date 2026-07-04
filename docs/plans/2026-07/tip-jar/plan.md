@@ -44,7 +44,7 @@ Tips.storekit                    — local StoreKit config for sim testing
 
 ## Task list
 
-### Task 1: `TipProduct` domain enum + tests
+### Task 1: `TipProduct` domain enum + tests ✅
 
 **Goal**: Define the three tiers as a pure, testable enum in KadoCore.
 
