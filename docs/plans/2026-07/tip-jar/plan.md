@@ -66,7 +66,7 @@ Tips.storekit                    — local StoreKit config for sim testing
 
 ---
 
-### Task 2: Store protocol + view-model types + Mock
+### Task 2: Store protocol + view-model types + Mock ✅
 
 **Goal**: Establish the injected boundary and the Debug mock, so the view
 can be built and previewed before any StoreKit wiring exists.
@@ -234,6 +234,20 @@ can be built and previewed before any StoreKit wiring exists.
   this before submit.
 - **No schema/CloudKit/widget surface touched** — this feature is isolated
   from persistence and sync, which keeps risk low.
+
+## Notes during build
+
+- **Task 2**: Placed `TipJarStoring` + `TipJarState`/`TipTier`/
+  `TipPurchaseOutcome` in the **app target** (`Kado/Monetization/`), not
+  KadoCore. The plan's KadoCore rationale ("share one type") only matters
+  for `@Model` types; these are plain value types with no cross-target
+  consumer, so they follow the `CloudAccountStatusObserving` precedent
+  (app-target protocol + Preview Content mock as the `@Entry` default).
+  `TipProduct` stays in KadoCore (reusable pure domain enum).
+- **Task 2**: `TipTier`/`TipJarState`/`TipPurchaseOutcome` marked
+  `nonisolated` and `MockTipJarStore.sampleTiers` marked
+  `nonisolated static` — the static is a default-argument expression
+  evaluated outside MainActor (CLAUDE.md concurrency rule).
 
 ## Open questions
 
