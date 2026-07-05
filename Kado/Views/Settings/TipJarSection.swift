@@ -11,6 +11,9 @@ struct TipJarSection: View {
                 TipJarView()
             } label: {
                 Label("Leave a tip", systemImage: "heart")
+                    // Match the accent tint the Link rows get; a plain
+                    // NavigationLink label would render primary/black.
+                    .foregroundStyle(Color.kadoAccent)
             }
             .listRowBackground(Color.kadoBackgroundSecondary)
         }
