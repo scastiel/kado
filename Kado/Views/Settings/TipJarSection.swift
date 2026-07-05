@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Settings entry point for the Tip Jar. A single row that pushes
 /// ``TipJarView``. Kept in its own "Support Kadō" section — separate from
@@ -11,6 +12,7 @@ struct TipJarSection: View {
             } label: {
                 Label("Leave a tip", systemImage: "heart")
             }
+            .listRowBackground(Color.kadoBackgroundSecondary)
         }
     }
 }
