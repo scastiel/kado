@@ -146,7 +146,7 @@ can be built and previewed before any StoreKit wiring exists.
 
 ---
 
-### Task 5: `TipJarView`
+### Task 5: `TipJarView` ✅
 
 **Goal**: The dedicated screen with all states and the thank-you.
 
@@ -174,7 +174,7 @@ can be built and previewed before any StoreKit wiring exists.
 
 ---
 
-### Task 6: `TipJarSection` + Settings wiring + localization
+### Task 6: `TipJarSection` + Settings wiring + localization ✅
 
 **Goal**: Surface the entry point and localize all new copy.
 
@@ -261,6 +261,20 @@ can be built and previewed before any StoreKit wiring exists.
   human-only Xcode step (adding the In-App Purchase capability). Moved to
   Task 7's manual-steps list. The `SKTestSession` integration test the
   plan floated is therefore also deferred to manual sandbox verification.
+
+- **Task 5/6**: Injected the real `DefaultTipJarStore` in `KadoApp`
+  (`.environment(\.tipJarStore, …)`) — the `@Entry` default is only the
+  mock, mirroring `notificationScheduler`. Without this the shipping app
+  would use the fake store.
+- **Task 5**: Price pill uses `Color.kadoBackground` (not `Color.white`)
+  as its text on the `kadoAccent` fill. `kadoAccent` is a *light* sage in
+  dark mode, so white-on-accent would fail AA; `kadoBackground` flips
+  inversely and keeps contrast strong in both modes. Verified via
+  light + dark simulator screenshots.
+- **Task 5**: Visual verification done by temporarily pointing the app
+  root at `TipJarView` (reverted) — captured loaded (light + dark) and
+  the thank-you state. In-sim navigation to Settings → Support Kadō
+  isn't automatable (no `idb`; documented CLAUDE.md limitation).
 
 ## Open questions
 

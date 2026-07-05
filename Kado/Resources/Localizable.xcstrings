@@ -1,6 +1,312 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "SUPPORT" : {
+      "comment" : "Eyebrow label above the Tip Jar screen title. Displayed uppercased.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SUPPORT"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOUTIEN"
+          }
+        }
+      }
+    },
+    "If Kadō earns a place in your day" : {
+      "comment" : "Tip Jar screen title (large serif). Warm, no-pressure tone.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If Kadō earns a place in your day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si Kadō a trouvé sa place dans ta journée"
+          }
+        }
+      }
+    },
+    "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip." : {
+      "comment" : "Tip Jar intro paragraph explaining why tips exist.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō est gratuite, open source, sans publicité, sans abonnement et sans suivi. Si tu veux aider à ce que ça reste ainsi, tu peux laisser un pourboire."
+          }
+        }
+      }
+    },
+    "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here." : {
+      "comment" : "Tip Jar footnote clarifying tips unlock no features.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les pourboires sont facultatifs et ne débloquent rien — tu as déjà toute l'application. Ils soutiennent simplement le temps consacré à Kadō. Merci d'être là."
+          }
+        }
+      }
+    },
+    "Tips aren't available right now. Check your connection and try again." : {
+      "comment" : "Tip Jar error message when the products fail to load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips aren't available right now. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les pourboires ne sont pas disponibles pour le moment. Vérifie ta connexion et réessaie."
+          }
+        }
+      }
+    },
+    "Try again" : {
+      "comment" : "Button to retry loading the tip products after a failure.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        }
+      }
+    },
+    "Thank you — truly." : {
+      "comment" : "Tip Jar thank-you headline shown after a successful tip.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you — truly."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci — vraiment."
+          }
+        }
+      }
+    },
+    "Your support keeps Kadō free and independent. It means a lot." : {
+      "comment" : "Tip Jar thank-you body shown after a successful tip.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your support keeps Kadō free and independent. It means a lot."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton soutien permet à Kadō de rester gratuite et indépendante. Ça compte beaucoup."
+          }
+        }
+      }
+    },
+    "Leave another tip" : {
+      "comment" : "Button returning from the thank-you to the tip tiers so the user can tip again.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave another tip"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un autre pourboire"
+          }
+        }
+      }
+    },
+    "Tip pending" : {
+      "comment" : "Alert title when a tip purchase is pending approval (e.g. Ask to Buy).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip pending"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourboire en attente"
+          }
+        }
+      }
+    },
+    "Your tip is pending approval. Thank you!" : {
+      "comment" : "Alert message when a tip purchase is pending approval.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your tip is pending approval. Thank you!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton pourboire est en attente d'approbation. Merci !"
+          }
+        }
+      }
+    },
+    "Purchase failed" : {
+      "comment" : "Alert title when a tip purchase fails.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat échoué"
+          }
+        }
+      }
+    },
+    "The purchase didn't go through. No charge was made." : {
+      "comment" : "Alert message when a tip purchase fails.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The purchase didn't go through. No charge was made."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'achat n'a pas abouti. Aucun montant n'a été débité."
+          }
+        }
+      }
+    },
+    "Support Kadō" : {
+      "comment" : "Tip Jar navigation title and the Settings section header for tipping.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support Kadō"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soutenir Kadō"
+          }
+        }
+      }
+    },
+    "Leave a %@ tip, %@" : {
+      "comment" : "VoiceOver label for a tip tier button. %@ is the tier name, then the price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a %@ tip, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un pourboire %@, %@"
+          }
+        }
+      }
+    },
+    "Thank you" : {
+      "comment" : "VoiceOver label for the ありがとう thank-you mark on the Tip Jar screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci"
+          }
+        }
+      }
+    },
+    "Loading tips" : {
+      "comment" : "VoiceOver label for the Tip Jar tiers while they load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading tips"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des pourboires"
+          }
+        }
+      }
+    },
+    "Leave a tip" : {
+      "comment" : "Settings row label that opens the Tip Jar.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a tip"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un pourboire"
+          }
+        }
+      }
+    },
     "" : {
 
     },

@@ -11,6 +11,7 @@ struct KadoApp: App {
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
+    @State private var tipJarStore = DefaultTipJarStore()
     @State private var today: Date = .now
 
     init() {
@@ -50,6 +51,7 @@ struct KadoApp: App {
         .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
+        .environment(\.tipJarStore, tipJarStore)
         .environment(\.today, today)
         .onChange(of: scenePhase) { _, newPhase in
             // Reconciles the pending set every time the app comes
