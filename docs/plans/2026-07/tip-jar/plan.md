@@ -1,7 +1,7 @@
 # Plan — Tip Jar (IAP)
 
 **Date**: 2026-07-04
-**Status**: ready to build
+**Status**: build complete — see [manual-steps.md](./manual-steps.md)
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -198,7 +198,7 @@ can be built and previewed before any StoreKit wiring exists.
 
 ---
 
-### Task 7: Verify, document manual steps, finalize
+### Task 7: Verify, document manual steps, finalize ✅
 
 **Goal**: End-to-end verification + honest handoff of the human-only steps.
 
