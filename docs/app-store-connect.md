@@ -544,6 +544,25 @@ stemming.
 >   synchronisation iCloud ne fonctionne pas, au lieu de toujours la
 >   signaler comme active.
 
+### What's New — 1.5 (EN)
+
+> Version 1.5 — Support Kadō.
+>
+> • A new Tip Jar, if you'd like to support Kadō's development.
+>   Find it in Settings → Support Kadō. It's entirely optional and
+>   unlocks nothing — the whole app stays free, with no ads, no
+>   subscription, and no tracking. Thank you for being here.
+
+### What's New — 1.5 (FR)
+
+> Version 1.5 — Soutenir Kadō.
+>
+> • Une nouvelle cagnotte de pourboires, si tu souhaites soutenir le
+>   développement de Kadō. Tu la trouveras dans Réglages → Soutenir
+>   Kadō. Elle est entièrement facultative et ne débloque rien —
+>   l'application reste entièrement gratuite, sans publicité, sans
+>   abonnement et sans suivi. Merci d'être là.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
