@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 struct SupportSection: View {
     var body: some View {
@@ -10,6 +11,7 @@ struct SupportSection: View {
                 Label("Send Feedback", systemImage: "envelope")
             }
         }
+        .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private static let appStoreReviewURL = URL(

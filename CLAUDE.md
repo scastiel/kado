@@ -300,6 +300,25 @@ repo. Guard against that with an explicit
   `.id(flag)` as a defensive swap-trigger (as the Dev mode work
   initially did) quietly resets all of that. Trust the swap; don't
   rebuild the tree unless you've reproduced a real staleness bug.
+- **`ProgressView`'s indeterminate indicator takes its color from
+  `.tint`, not `.foregroundStyle` / `.foregroundColor`.** A spinner
+  placed on a tinted fill (e.g. a `Color.kadoAccent` capsule) needs an
+  explicit `.tint(...)` or it renders in the inherited accent and can
+  be invisible against a same-hued background. Setting `.foregroundStyle`
+  on the enclosing container colors the surrounding text but silently
+  does nothing to the circular indicator. First hit in `TipJarView`'s
+  purchase button (a `.tint(Color.kadoBackground)` spinner on the
+  accent price pill).
+- **When a control's `.disabled` guard depends on state set inside an
+  async action, set that state synchronously in the action before
+  spawning the `Task`.** `Button { Task { await work() } }` where
+  `work()`'s first line flips the disabling flag is racy: both the
+  button action and the `Task` body run on MainActor, but the flag is
+  only set after the `Task` is scheduled, so two taps in one runloop
+  tick both pass `.disabled(flag)` and fire twice. Write
+  `Button { guard !flag else { return }; flag = true; Task { await work() } }`.
+  Pattern: `TipJarView.tierButton` sets `purchasingTier` in the action,
+  not inside `tip(_:)`, to block a double-tap double-purchase.
 
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with
@@ -751,6 +770,19 @@ where you still open Xcode:
      occasionally helps.
   No source-level change is needed — the code is fine, the
   runtime state is not.
+- **A first scheme edit can persist a shared scheme with an empty
+  `<TestAction>`, breaking `test_sim`.** This project relied on Xcode's
+  *autocreated* scheme (nothing under `xcshareddata/xcschemes/`). The
+  moment someone edits the scheme in Xcode — e.g. attaching a
+  `.storekit` StoreKit configuration to the Run action — Xcode
+  materializes a real shared `Kado.xcscheme`, and it can land with an
+  **empty `<TestAction>`**. `test_sim` / `xcodebuild test` then fails
+  with `Scheme Kado is not currently configured for the test action`
+  even though the tests compile. Fix: add a `<Testables>` entry to the
+  scheme's `<TestAction>` pointing at the `KadoTests` target (blueprint
+  id from `project.pbxproj`), then commit the shared scheme so the
+  config is reproducible. First hit wiring `Tips.storekit` into the
+  scheme (tip-jar feature).
 
 ---
 

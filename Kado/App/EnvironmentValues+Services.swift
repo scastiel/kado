@@ -74,4 +74,9 @@ extension EnvironmentValues {
     @Entry var today: Date = .now
 
     @Entry var reviewPromptService: any ReviewPrompting = DefaultReviewPromptService()
+
+    /// Loads the tip products and runs purchases for the Tip Jar. Default
+    /// is a mock so previews and unit tests never touch StoreKit; the
+    /// main app injects `DefaultTipJarStore()` at scene build.
+    @Entry var tipJarStore: any TipJarStoring = MockTipJarStore()
 }

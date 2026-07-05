@@ -16,6 +16,7 @@ struct SettingsView: View {
                 NotificationsSection()
                 BackupSection()
                 SupportSection()
+                TipJarSection()
                 DevModeSection()
                 wordmarkFooter
             }
