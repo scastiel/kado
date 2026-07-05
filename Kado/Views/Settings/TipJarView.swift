@@ -16,10 +16,32 @@ struct TipJarView: View {
     @State private var purchasingTier: TipProduct?
     /// Whether the calm thank-you is showing after a successful tip.
     @State private var didThankYou = false
-    /// Transient title + message for a failed or pending purchase.
-    @State private var noticeTitle: LocalizedStringKey = ""
-    @State private var noticeMessage: LocalizedStringKey = ""
-    @State private var showingNotice = false
+    /// The transient alert to show for a non-success purchase outcome.
+    @State private var notice: PurchaseNotice?
+
+    /// A pending or failed purchase surfaced as an alert. One enum rather
+    /// than parallel title/message/flag fields (CLAUDE.md: prefer enums
+    /// over multiple booleans).
+    private enum PurchaseNotice: Identifiable {
+        case pending
+        case failed
+
+        var id: Self { self }
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .pending: "Tip pending"
+            case .failed: "Purchase failed"
+            }
+        }
+
+        var message: LocalizedStringKey {
+            switch self {
+            case .pending: "Your tip is pending approval. Thank you!"
+            case .failed: "The purchase didn't go through. No charge was made."
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -38,11 +60,21 @@ struct TipJarView: View {
         .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle(Text("Support Kadō"))
         .navigationBarTitleDisplayMode(.inline)
-        .task { await store.load() }
-        .alert(noticeTitle, isPresented: $showingNotice) {
+        .task {
+            // The store is app-lifetime, so skip the reload (and its
+            // .loading skeleton flash) when products are already cached.
+            // "Try again" remains the explicit forced-reload path.
+            if case .loaded = store.state { return }
+            await store.load()
+        }
+        .alert(
+            notice?.title ?? "",
+            isPresented: Binding(get: { notice != nil }, set: { if !$0 { notice = nil } }),
+            presenting: notice
+        ) { _ in
             Button("OK", role: .cancel) {}
-        } message: {
-            Text(noticeMessage)
+        } message: { notice in
+            Text(notice.message)
         }
     }
 
@@ -90,6 +122,12 @@ struct TipJarView: View {
 
     private func tierButton(_ tier: TipTier) -> some View {
         Button {
+            // Set purchasingTier synchronously in the action (not inside
+            // the async tip()) so a fast second tap is rejected before
+            // .disabled can lag — otherwise two taps in one runloop tick
+            // both spawn a purchase.
+            guard purchasingTier == nil else { return }
+            purchasingTier = tier.product
             Task { await tip(tier) }
         } label: {
             HStack(spacing: KadoSpace.s4) {
@@ -118,7 +156,10 @@ struct TipJarView: View {
                 .font(.subheadline.weight(.semibold))
                 .opacity(purchasingTier == tier.product ? 0 : 1)
             if purchasingTier == tier.product {
-                ProgressView()
+                // .tint, not .foregroundStyle, colors the circular
+                // indicator — otherwise it renders in the inherited sage
+                // tint and vanishes against the sage capsule.
+                ProgressView().tint(Color.kadoBackground)
             }
         }
         // Paper-on-accent rather than white-on-accent: kadoBackground
@@ -131,21 +172,25 @@ struct TipJarView: View {
     }
 
     private var loading: some View {
+        // Render the real tier rows redacted, so the skeleton stays
+        // pixel-accurate with `tierButton` instead of duplicating its
+        // card chrome.
         VStack(alignment: .leading, spacing: KadoSpace.s3) {
-            ForEach(TipProduct.orderedTiers, id: \.self) { _ in
-                HStack {
-                    // Verbatim: redacted placeholders, never read — the
-                    // container carries the "Loading tips" a11y label.
-                    Text(verbatim: "Coffee").font(.headline)
-                    Spacer()
-                    Text(verbatim: "$0.00").font(.subheadline.weight(.semibold))
-                }
-                .padding(KadoSpace.s4)
-                .background(Color.kadoBackgroundSecondary, in: RoundedRectangle(cornerRadius: KadoRadius.card))
+            ForEach(Self.placeholderTiers) { tier in
+                tierButton(tier)
             }
         }
         .redacted(reason: .placeholder)
+        .allowsHitTesting(false)
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Loading tips"))
+    }
+
+    /// Placeholder tiers for the redacted loading skeleton. Defined here
+    /// (not via the Debug-only `MockTipJarStore`) so it ships in release.
+    /// The strings are masked by `.redacted`, so their content is inert.
+    private static let placeholderTiers: [TipTier] = TipProduct.orderedTiers.map {
+        TipTier(product: $0, displayName: "Coffee", displayPrice: "$0.00")
     }
 
     private var failed: some View {
@@ -191,8 +236,9 @@ struct TipJarView: View {
 
     // MARK: - Actions
 
+    /// `purchasingTier` is set synchronously by the button action before
+    /// this runs; here we only await the outcome and reset it.
     private func tip(_ tier: TipTier) async {
-        purchasingTier = tier.product
         let outcome = await store.purchase(tier.product)
         purchasingTier = nil
 
@@ -204,13 +250,9 @@ struct TipJarView: View {
         case .cancelled:
             break
         case .pending:
-            noticeTitle = "Tip pending"
-            noticeMessage = "Your tip is pending approval. Thank you!"
-            showingNotice = true
+            notice = .pending
         case .failed:
-            noticeTitle = "Purchase failed"
-            noticeMessage = "The purchase didn't go through. No charge was made."
-            showingNotice = true
+            notice = .failed
         }
     }
 }

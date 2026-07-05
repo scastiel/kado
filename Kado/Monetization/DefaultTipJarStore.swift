@@ -25,7 +25,7 @@ final class DefaultTipJarStore: TipJarStoring {
         // so a deferred/interrupted tip never gets stuck unfinished.
         updatesTask = Task { [weak self] in
             for await update in Transaction.updates {
-                await self?.finishIfVerified(update)
+                await self?.finishTipTransaction(update)
             }
         }
     }
@@ -49,6 +49,9 @@ final class DefaultTipJarStore: TipJarStoring {
             let tiers = Self.tiers(from: resolved)
             state = tiers.isEmpty ? .failed : .loaded(tiers)
         } catch {
+            // A cancelled load (user navigated away mid-fetch) isn't a
+            // real failure — leave state as-is so the next entry retries.
+            if Task.isCancelled { return }
             state = .failed
         }
     }
@@ -65,7 +68,11 @@ final class DefaultTipJarStore: TipJarStoring {
                     // re-delivers and re-prompts on next launch.
                     await transaction.finish()
                     return .success
-                case .unverified:
+                case .unverified(let transaction, _):
+                    // A tip unlocks nothing, so we don't grant anything —
+                    // but still finish it, or StoreKit re-delivers this
+                    // unfinished consumable on every launch.
+                    await transaction.finish()
                     return .failed
                 }
             case .userCancelled:
@@ -80,10 +87,18 @@ final class DefaultTipJarStore: TipJarStoring {
         }
     }
 
-    private func finishIfVerified(_ result: VerificationResult<Transaction>) async {
-        if case .verified(let transaction) = result {
-            await transaction.finish()
+    /// Finish a transaction arriving via `Transaction.updates`, whether
+    /// verified or not — but only if it's one of our tip products, so a
+    /// future feature's transaction isn't cleared before its owner can
+    /// grant the entitlement.
+    private func finishTipTransaction(_ result: VerificationResult<Transaction>) async {
+        let transaction: Transaction
+        switch result {
+        case .verified(let value): transaction = value
+        case .unverified(let value, _): transaction = value
         }
+        guard TipProduct(productID: transaction.productID) != nil else { return }
+        await transaction.finish()
     }
 
     /// Assemble the loaded products into ordered ``TipTier`` values,
