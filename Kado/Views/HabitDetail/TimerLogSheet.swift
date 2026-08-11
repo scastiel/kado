@@ -78,7 +78,7 @@ struct TimerLogSheet: View {
         CompletionLogger(calendar: calendar).logTimerSession(
             for: habit,
             seconds: TimeInterval(m) * 60,
-            on: dayBoundary.loggingInstant(for: .now),
+            on: dayBoundary.loggingInstant(for: .now, on: today),
             in: modelContext
         )
         try? modelContext.save()

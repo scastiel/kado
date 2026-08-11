@@ -80,7 +80,7 @@ struct CounterLogSheet: View {
         let v = value ?? todayValue()
         CompletionLogger(calendar: calendar).setCounter(
             for: habit,
-            on: dayBoundary.loggingInstant(for: .now),
+            on: dayBoundary.loggingInstant(for: .now, on: today),
             to: Double(v),
             in: modelContext
         )

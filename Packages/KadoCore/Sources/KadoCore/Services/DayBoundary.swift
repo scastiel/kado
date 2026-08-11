@@ -62,7 +62,16 @@ nonisolated public struct DayBoundary: Equatable, Sendable {
         guard startHour > 0 else { return midnight }
         guard let rollover = rolloverInstant(onDayStartingAt: midnight) else { return midnight }
         guard date < rollover else { return midnight }
-        return calendar.date(byAdding: .day, value: -1, to: midnight) ?? midnight
+        guard let previous = calendar.date(byAdding: .day, value: -1, to: midnight) else {
+            return midnight
+        }
+        // Re-anchored, because subtracting a day does not always land on
+        // a midnight. In zones whose DST transition happens *at* 00:00
+        // (America/Havana, America/Santiago) the day's first instant is
+        // 01:00, and stepping back a calendar day preserves that 01:00.
+        // Callers compare this against `calendar.startOfDay` values by
+        // equality, so it has to be a true midnight.
+        return calendar.startOfDay(for: previous)
     }
 
     /// Whether two instants fall in the same logical day.
@@ -84,6 +93,28 @@ nonisolated public struct DayBoundary: Equatable, Sendable {
         let logicalDay = startOfDay(for: date)
         guard logicalDay != calendar.startOfDay(for: date) else { return date }
         return calendar.date(byAdding: .day, value: -1, to: date) ?? logicalDay
+    }
+
+    /// The instant to stamp on a record being logged at `date`, pinned
+    /// to the logical day the caller is currently *showing*.
+    ///
+    /// Views resolve what to render from `\.today` but log at `.now`,
+    /// and those two can name different days across the rollover
+    /// instant. That gap is small but its failure is not: a row
+    /// rendered as "done yesterday" whose Undo executes a moment after
+    /// 04:00 would find no same-day record and *insert* a completion
+    /// for the new day — the opposite of what the button said.
+    ///
+    /// Pinning the write to the displayed day makes the tap do what the
+    /// user saw, which is the property that matters here.
+    public func loggingInstant(for date: Date, on logicalDay: Date) -> Date {
+        let dayStart = calendar.startOfDay(for: logicalDay)
+        let time = calendar.dateComponents([.hour, .minute, .second], from: date)
+        var components = calendar.dateComponents([.year, .month, .day], from: dayStart)
+        components.hour = time.hour
+        components.minute = time.minute
+        components.second = time.second
+        return calendar.date(from: components) ?? dayStart
     }
 
     /// When the logical day containing `date` ends and the next one

@@ -163,6 +163,55 @@ struct LogicalDayWriteTests {
         #expect(state.status == .none)
     }
 
+    // MARK: - Writes are pinned to the displayed day
+
+    /// The rollover race: the rows were rendered for the previous
+    /// logical day, and the tap executes a moment after the boundary.
+    /// Pinning the write to the displayed day keeps Undo doing what the
+    /// button said — deleting yesterday's record rather than inserting
+    /// a new one for today.
+    @Test("A tap rendered before the rollover still edits the displayed day")
+    func writePinnedToTheDisplayedDay() throws {
+        let habit = try makeHabit()
+        let boundary = DayBoundary(calendar: calendar, startHour: 4)
+
+        // Rendered at 03:59:59 — the row shows the previous day.
+        let renderedAt = TestCalendar.instant(calendar, 2026, 8, 11, 3, 59, 59)
+        let displayedDay = boundary.startOfDay(for: renderedAt)
+        let toggler = CompletionToggler(calendar: calendar)
+        toggler.toggleToday(
+            for: habit,
+            on: boundary.loggingInstant(for: renderedAt, on: displayedDay),
+            in: container.mainContext
+        )
+        try container.mainContext.save()
+        #expect(habit.completions?.count == 1)
+
+        // The tap lands a second later, after the boundary has passed.
+        let tappedAt = TestCalendar.instant(calendar, 2026, 8, 11, 4, 0, 0)
+        toggler.toggleToday(
+            for: habit,
+            on: boundary.loggingInstant(for: tappedAt, on: displayedDay),
+            in: container.mainContext
+        )
+        try container.mainContext.save()
+
+        // Undone, not duplicated onto the new day.
+        #expect(habit.completions?.isEmpty == true)
+    }
+
+    @Test("A pinned write always buckets to the day it was pinned to")
+    func pinnedWriteBucketsToThePinnedDay() {
+        let boundary = DayBoundary(calendar: calendar, startHour: 4)
+        let displayedDay = TestCalendar.instant(calendar, 2026, 8, 10)
+
+        for hour in 0..<24 {
+            let clock = TestCalendar.instant(calendar, 2026, 8, 11, hour, 45)
+            let stored = boundary.loggingInstant(for: clock, on: displayedDay)
+            #expect(calendar.startOfDay(for: stored) == displayedDay)
+        }
+    }
+
     // MARK: - Habit creation
 
     @Test("A habit created at 02:00 is anchored to the logical day")

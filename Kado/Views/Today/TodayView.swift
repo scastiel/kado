@@ -115,8 +115,12 @@ struct TodayView: View {
             let due = habitsDueToday
             let other = habitsNotDueToday
             List {
-                if TodayDayCaption.isBeforeRollover(dayBoundary) {
-                    TodayDayCaption(boundary: dayBoundary)
+                // Sampled once and passed down: letting the guard and
+                // the view each read `.now` lets them straddle the
+                // rollover and leave an empty, space-taking row.
+                let now = Date.now
+                if TodayDayCaption.isBeforeRollover(dayBoundary, now: now) {
+                    TodayDayCaption(boundary: dayBoundary, now: now)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 6, trailing: 20))
@@ -266,12 +270,11 @@ struct TodayView: View {
 
     // MARK: - Actions
 
-    /// The instant to stamp on anything logged right now. Reads the
-    /// live clock rather than `\.today` so a write always lands in the
-    /// day it actually happened in, even if the view's day marker
-    /// hasn't ticked over yet.
+    /// The instant to stamp on anything logged right now, pinned to
+    /// the day these rows were rendered for. Keeps a tap consistent
+    /// with what the user was looking at when they made it.
     private var loggingInstant: Date {
-        dayBoundary.loggingInstant(for: .now)
+        dayBoundary.loggingInstant(for: .now, on: today)
     }
 
     private func moveHabits(_ section: [HabitRecord], from source: IndexSet, to destination: Int) {

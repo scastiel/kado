@@ -41,6 +41,18 @@ enum TestCalendar {
         return cal
     }()
 
+    /// America/Havana — a zone whose DST transition happens **at
+    /// midnight** (2026-03-08: 00:00 → 01:00), so the day's first
+    /// instant is 01:00 and `startOfDay` arithmetic that assumes
+    /// midnight exists silently drifts by an hour. Paris can't catch
+    /// this class: its transitions are at 02:00/03:00.
+    static let havana: Calendar = {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "America/Havana")!
+        cal.firstWeekday = 2
+        return cal
+    }()
+
     /// Builds an exact wall-clock instant in `calendar`'s time zone.
     /// Traps on a time that doesn't exist (e.g. 02:30 on a
     /// spring-forward day) — that's a test-authoring mistake, and a

@@ -61,8 +61,8 @@ struct KadoApp: App {
                     // app still gets today's reminder.
                     RemindersSync.rescheduleAll(using: container.mainContext)
                 }
-                .task(id: RolloverTick(day: boundary.startOfDay(for: clockMark), hour: boundary.startHour)) {
-                    await advanceAtRollover(boundary, in: container)
+                .task(id: RolloverTick(mark: clockMark, hour: boundary.startHour)) {
+                    await advanceAtNextDayEdge(boundary)
                 }
         }
         .modelContainer(container)
@@ -83,6 +83,13 @@ struct KadoApp: App {
                 }
             }
         }
+        .onChange(of: dayStartHour) { _, _ in
+            // `\.today` re-derives itself from the new boundary, but the
+            // widget renders a snapshot the app wrote under the old one.
+            // Without this the home screen keeps yesterday's (or
+            // tomorrow's) day until the next habit mutation.
+            WidgetReloader.reloadAll(using: container.mainContext)
+        }
         .onChange(of: isDevMode) { oldValue, newValue in
             if newValue && !oldValue {
                 devModeController.activateDevMode()
@@ -99,35 +106,59 @@ struct KadoApp: App {
         }
     }
 
-    /// Identity for the rollover task: restarting it whenever either
-    /// the current logical day or the chosen hour changes is what
-    /// reschedules the next tick.
+    /// Identity for the day-edge task. Keyed on `clockMark` itself
+    /// rather than the derived logical day, because one of the two
+    /// edges — wall-clock midnight — deliberately leaves the logical
+    /// day unchanged, and a task keyed on the logical day would finish
+    /// without ever rescheduling itself.
     private struct RolloverTick: Equatable {
-        let day: Date
+        let mark: Date
         let hour: Int
     }
 
-    /// Advances the app's notion of "today" the moment the day rolls
-    /// over, without waiting for a backgrounding round-trip.
+    /// The next instant at which something the UI renders changes:
+    /// either the day rolls over, or the wall clock passes midnight and
+    /// Today's "still yesterday" caption becomes due.
     ///
-    /// Needed rather than nice-to-have: Today's pre-rollover caption
-    /// promises "rolls over at 04:00", so leaving it on screen at 04:01
-    /// would make the app contradict itself. Bumping `clockMark`
-    /// re-derives `\.today`, which changes this task's id and schedules
-    /// the following day's tick.
+    /// Under the default midnight hour the two coincide, so this is
+    /// just the next midnight.
+    private func nextDayEdge(_ boundary: DayBoundary, after now: Date) -> Date {
+        let calendar = boundary.calendar
+        let rollover = boundary.nextRollover(after: now)
+        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) else {
+            return rollover
+        }
+        return min(rollover, calendar.startOfDay(for: tomorrow))
+    }
+
+    /// Advances the app's notion of "today" at the next day edge,
+    /// without waiting for a backgrounding round-trip.
+    ///
+    /// Needed rather than nice-to-have in both directions: Today's
+    /// caption promises "rolls over at 04:00", so leaving it up at
+    /// 04:01 makes the app contradict itself — and the caption also has
+    /// to *appear* at midnight, which is otherwise an instant when
+    /// nothing in the view's inputs changes and SwiftUI has no reason
+    /// to re-render. Bumping `clockMark` restarts this task, which
+    /// schedules the following edge.
     @MainActor
-    private func advanceAtRollover(_ boundary: DayBoundary, in container: ModelContainer) async {
-        let delay = boundary.nextRollover(after: .now).timeIntervalSinceNow
+    private func advanceAtNextDayEdge(_ boundary: DayBoundary) async {
+        let delay = nextDayEdge(boundary, after: .now).timeIntervalSinceNow
         if delay > 0 {
             // Throws on cancellation — which is exactly what happens
             // when the hour setting changes and the task restarts.
             guard (try? await Task.sleep(for: .seconds(delay))) != nil else { return }
         }
         clockMark = .now
-        // The widget snapshot and the reminder window are both anchored
-        // to a day that has just changed; leaving them until the next
-        // mutation would let the widget disagree with the app.
-        WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
-        RemindersSync.rescheduleAll(using: container.mainContext)
+        // Read the container from the process-scoped cache rather than
+        // capturing it: a dev-mode swap replaces the container without
+        // changing this task's id, so a captured one would go stale and
+        // write production data over the dev snapshot.
+        guard let container = try? ActiveContainer.shared.get() else { return }
+        // Full reload, not just `rebuildAndWrite` — the snapshot is
+        // anchored to a day that just changed, and without the timeline
+        // reload WidgetKit keeps rendering the old JSON for up to an
+        // hour, which is precisely the disagreement this exists to stop.
+        WidgetReloader.reloadAll(using: container.mainContext)
     }
 }

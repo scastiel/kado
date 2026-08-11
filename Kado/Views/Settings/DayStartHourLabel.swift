@@ -24,11 +24,27 @@ enum DayStartHourLabel {
         components.hour = hour
         guard let date = calendar.date(from: components) else { return "\(hour)" }
 
+        return formatter(for: calendar).string(from: date)
+    }
+
+    /// `DateFormatter` is the most expensive Foundation object to build,
+    /// and `setLocalizedDateFormatFromTemplate` runs ICU pattern
+    /// negotiation on top. The Settings picker asks for seven labels per
+    /// body evaluation, so the formatter is cached and only rebuilt when
+    /// the locale or time zone actually changes.
+    private static var cached: (key: String, formatter: DateFormatter)?
+
+    private static func formatter(for calendar: Calendar) -> DateFormatter {
+        let locale = calendar.locale ?? .current
+        let key = "\(locale.identifier)|\(calendar.timeZone.identifier)"
+        if let cached, cached.key == key { return cached.formatter }
+
         let formatter = DateFormatter()
         formatter.calendar = calendar
         formatter.timeZone = calendar.timeZone
-        formatter.locale = calendar.locale ?? .current
+        formatter.locale = locale
         formatter.setLocalizedDateFormatFromTemplate("jmm")
-        return formatter.string(from: date)
+        cached = (key, formatter)
+        return formatter
     }
 }

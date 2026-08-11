@@ -22,7 +22,11 @@ struct HabitDetailView: View {
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
     @State private var editingDay: Date? = nil
-    @State private var displayedMonth: Date = .now
+    /// Seeded in `.onAppear` rather than defaulted to `.now`: `@State`
+    /// is initialised before the environment is injected, so a wall-clock
+    /// default would leak in ahead of `\.today` and open the grid on the
+    /// wrong month before the rollover on the 1st.
+    @State private var displayedMonth: Date?
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -48,7 +52,10 @@ struct HabitDetailView: View {
                 MonthlyCalendarView(
                     habit: habit.snapshot,
                     completions: (habit.completions ?? []).compactMap(\.snapshot),
-                    month: $displayedMonth,
+                    month: Binding(
+                        get: { displayedMonth ?? today },
+                        set: { displayedMonth = $0 }
+                    ),
                     selectedDay: isArchived ? .constant(nil) : $editingDay,
                     navigable: true,
                     popoverContent: { day in
@@ -72,6 +79,7 @@ struct HabitDetailView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
+        .onAppear { if displayedMonth == nil { displayedMonth = today } }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -114,7 +122,7 @@ struct HabitDetailView: View {
     /// The instant to stamp on anything logged right now — see the
     /// matching helper on `TodayView`.
     private var loggingInstant: Date {
-        dayBoundary.loggingInstant(for: .now)
+        dayBoundary.loggingInstant(for: .now, on: today)
     }
 
     private func archive() {

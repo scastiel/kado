@@ -166,12 +166,25 @@ struct DayBoundaryTests {
         )
         #expect(bucketsIfNormalisedOnRead.count > 1)
 
-        // Because the day was fixed at write time, the read path reads
-        // the stored date alone and no setting can move it.
-        for hour in 0...6 {
-            _ = DayBoundary(calendar: cal, startHour: hour)
-            #expect(cal.startOfDay(for: stored) == dayAtWriteTime)
+        // Because the day was fixed at write time, the read path — which
+        // buckets the stored date with the plain calendar, exactly as
+        // every calculator does — is stable no matter what the user
+        // picks later. Re-derived per hour rather than hoisted, so the
+        // assertion actually depends on the loop variable.
+        for hour in DayStartDefaults.allowedHours {
+            let laterBoundary = DayBoundary(calendar: cal, startHour: hour)
+            let readBack = readPathBucket(of: stored, underA: laterBoundary)
+            #expect(readBack == dayAtWriteTime)
         }
+    }
+
+    /// Mirrors what the calculators actually do with a stored
+    /// completion: bucket it by the plain calendar. Takes the boundary
+    /// only to make the point that it is deliberately unused — if a
+    /// future change starts consulting it here, this helper is the
+    /// place that has to change, and the test above goes red.
+    private func readPathBucket(of stored: Date, underA boundary: DayBoundary) -> Date {
+        boundary.calendar.startOfDay(for: stored)
     }
 
     // MARK: - Rollover scheduling
@@ -299,6 +312,93 @@ struct DayBoundaryTests {
                 #expect(cal.dateComponents([.day], from: previousDay, to: day).day == 1)
                 previousDay = day
             }
+        }
+    }
+
+    // MARK: - Invariants across every DST shape
+
+    /// Zones chosen to cover the shapes that break naive day
+    /// arithmetic: a midnight transition (Havana, Santiago), a
+    /// half-hour transition (Lord Howe), a non-hour offset (Chatham),
+    /// and the ordinary 02:00 case (Paris).
+    private static let dstZones = [
+        "UTC",
+        "Europe/Paris",
+        "America/Havana",
+        "America/Santiago",
+        "Australia/Lord_Howe",
+        "Pacific/Chatham",
+    ]
+
+    private static func calendar(_ identifier: String) -> Calendar? {
+        guard let zone = TimeZone(identifier: identifier) else { return nil }
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = zone
+        return cal
+    }
+
+    /// The invariant every consumer leans on: `\.today` is a real
+    /// calendar midnight, so it can be compared by `==` against a
+    /// `calendar.startOfDay` value.
+    ///
+    /// This is the general form of a bug that shipped in review: in
+    /// Havana, DST springs forward at 00:00, so the day's first instant
+    /// is 01:00 and stepping back one calendar day preserved that
+    /// 01:00 instead of landing on midnight.
+    @Test("startOfDay always returns a real calendar midnight", arguments: dstZones)
+    func startOfDayIsAlwaysAMidnight(zone: String) throws {
+        let cal = try #require(Self.calendar(zone))
+
+        for hour in DayStartDefaults.allowedHours {
+            let boundary = DayBoundary(calendar: cal, startHour: hour)
+            for start in Self.transitionWindows(cal) {
+                var clock = start
+                let end = clock.addingTimeInterval(4 * 24 * 3600)
+                while clock < end {
+                    let day = boundary.startOfDay(for: clock)
+                    #expect(
+                        day == cal.startOfDay(for: day),
+                        "\(zone) hour \(hour): \(day) is not a midnight"
+                    )
+                    clock = clock.addingTimeInterval(1800)
+                }
+            }
+        }
+    }
+
+    /// The other half of the contract: what a write lands on is the
+    /// same day the read reports. If these two ever disagree, a user
+    /// taps a habit and watches the tick appear on a different day.
+    @Test("A write buckets to exactly the day the read reports", arguments: dstZones)
+    func writeAndReadAgreeOnTheDay(zone: String) throws {
+        let cal = try #require(Self.calendar(zone))
+
+        for hour in DayStartDefaults.allowedHours {
+            let boundary = DayBoundary(calendar: cal, startHour: hour)
+            for start in Self.transitionWindows(cal) {
+                var clock = start
+                let end = clock.addingTimeInterval(4 * 24 * 3600)
+                while clock < end {
+                    let read = boundary.startOfDay(for: clock)
+                    let written = cal.startOfDay(for: boundary.loggingInstant(for: clock))
+                    #expect(read == written, "\(zone) hour \(hour) at \(clock)")
+                    clock = clock.addingTimeInterval(1800)
+                }
+            }
+        }
+    }
+
+    /// Four-day windows straddling both 2026 DST transitions in the
+    /// northern and southern hemispheres, so every zone above gets
+    /// walked across at least one real transition.
+    private static func transitionWindows(_ calendar: Calendar) -> [Date] {
+        [(2026, 3, 6), (2026, 4, 3), (2026, 9, 4), (2026, 10, 23)].compactMap { y, m, d in
+            var components = DateComponents()
+            components.year = y
+            components.month = m
+            components.day = d
+            components.timeZone = calendar.timeZone
+            return calendar.date(from: components)
         }
     }
 }

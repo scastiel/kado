@@ -99,8 +99,11 @@ struct CompletionHistoryList: View {
     /// the very screen that just recorded it as today.
     private func relativeDate(for date: Date) -> String {
         let day = calendar.startOfDay(for: date)
-        if day == today { return String(localized: "Today") }
-        let days = calendar.dateComponents([.day], from: day, to: today).day ?? 0
+        // `isDate(inSameDayAs:)` rather than `day == today`: exact
+        // equality assumes `today` is a true midnight, which is a
+        // stronger promise than this view needs to depend on.
+        if calendar.isDate(day, inSameDayAs: today) { return String(localized: "Today") }
+        let days = calendar.dateComponents([.day], from: day, to: calendar.startOfDay(for: today)).day ?? 0
         if days == 1 { return String(localized: "Yesterday") }
         if days > 0 && days < 7 {
             return String(localized: "\(days) days ago")
