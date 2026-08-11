@@ -5,6 +5,8 @@ import KadoCore
 @main
 struct KadoApp: App {
     @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
+    @AppStorage(DayStartDefaults.key, store: DayStartDefaults.sharedDefaults)
+    private var dayStartHour = DayStartDefaults.defaultHour
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
@@ -12,7 +14,18 @@ struct KadoApp: App {
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore()
-    @State private var today: Date = .now
+
+    /// Raw wall-clock marker, bumped whenever the logical day may have
+    /// changed. `\.today` is *derived* from it rather than stored, so
+    /// changing the "Day starts at" hour re-resolves the current day
+    /// immediately without needing its own invalidation path.
+    @State private var clockMark: Date = .now
+
+    /// Rebuilt on every `body` evaluation, so it always reflects the
+    /// live `dayStartHour`.
+    private var dayBoundary: DayBoundary {
+        DayBoundary(calendar: .current, startHour: DayStartDefaults.clamp(dayStartHour))
+    }
 
     init() {
         DevModeDefaults.migrateFromStandardIfNeeded()
@@ -23,6 +36,7 @@ struct KadoApp: App {
     }
 
     var body: some Scene {
+        let boundary = dayBoundary
         let container = devModeController.container(forDevMode: isDevMode)
         // Publish the active container to the process-scoped cache
         // so `CompleteHabitIntent` (running in-app via
@@ -52,7 +66,8 @@ struct KadoApp: App {
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
-        .environment(\.today, today)
+        .environment(\.today, boundary.startOfDay(for: clockMark))
+        .environment(\.dayBoundary, boundary)
         .onChange(of: scenePhase) { _, newPhase in
             // Reconciles the pending set every time the app comes
             // to the foreground — handles clock-drift, day-rollover,
@@ -60,9 +75,8 @@ struct KadoApp: App {
             // the app was suspended.
             if newPhase == .active {
                 RemindersSync.rescheduleAll(using: container.mainContext)
-                let calendar = Calendar.current
-                if !calendar.isDate(today, inSameDayAs: .now) {
-                    today = .now
+                if !boundary.isDate(clockMark, inSameDayAs: .now) {
+                    clockMark = .now
                 }
             }
         }
