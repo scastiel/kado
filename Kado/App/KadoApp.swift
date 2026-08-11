@@ -61,6 +61,9 @@ struct KadoApp: App {
                     // app still gets today's reminder.
                     RemindersSync.rescheduleAll(using: container.mainContext)
                 }
+                .task(id: RolloverTick(day: boundary.startOfDay(for: clockMark), hour: boundary.startHour)) {
+                    await advanceAtRollover(boundary, in: container)
+                }
         }
         .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
@@ -94,5 +97,37 @@ struct KadoApp: App {
             // habit mutation triggers `WidgetReloader.reloadAll`.
             WidgetReloader.reloadAll(using: swapped.mainContext)
         }
+    }
+
+    /// Identity for the rollover task: restarting it whenever either
+    /// the current logical day or the chosen hour changes is what
+    /// reschedules the next tick.
+    private struct RolloverTick: Equatable {
+        let day: Date
+        let hour: Int
+    }
+
+    /// Advances the app's notion of "today" the moment the day rolls
+    /// over, without waiting for a backgrounding round-trip.
+    ///
+    /// Needed rather than nice-to-have: Today's pre-rollover caption
+    /// promises "rolls over at 04:00", so leaving it on screen at 04:01
+    /// would make the app contradict itself. Bumping `clockMark`
+    /// re-derives `\.today`, which changes this task's id and schedules
+    /// the following day's tick.
+    @MainActor
+    private func advanceAtRollover(_ boundary: DayBoundary, in container: ModelContainer) async {
+        let delay = boundary.nextRollover(after: .now).timeIntervalSinceNow
+        if delay > 0 {
+            // Throws on cancellation — which is exactly what happens
+            // when the hour setting changes and the task restarts.
+            guard (try? await Task.sleep(for: .seconds(delay))) != nil else { return }
+        }
+        clockMark = .now
+        // The widget snapshot and the reminder window are both anchored
+        // to a day that has just changed; leaving them until the next
+        // mutation would let the widget disagree with the app.
+        WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
+        RemindersSync.rescheduleAll(using: container.mainContext)
     }
 }
