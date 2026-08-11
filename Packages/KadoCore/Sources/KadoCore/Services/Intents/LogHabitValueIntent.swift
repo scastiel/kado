@@ -78,7 +78,7 @@ public struct LogHabitValueIntent: AppIntent {
             value: resolvedValue,
             in: container.mainContext,
             calendar: .current,
-            now: .now
+            now: DayStartDefaults.boundary().loggingInstant(for: .now)
         )
         if case .logged = outcome {
             WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)

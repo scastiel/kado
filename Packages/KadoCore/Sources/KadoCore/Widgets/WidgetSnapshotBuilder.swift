@@ -122,7 +122,10 @@ public enum WidgetSnapshotBuilder {
         }
 
         return WidgetSnapshot(
-            generatedAt: reference,
+            // The true build time, not `reference` — under a non-zero
+            // day-start hour `reference` is the logical day's midnight,
+            // which would make this field quietly untrue.
+            generatedAt: .now,
             habits: widgetHabits,
             today: todayRows,
             totalDueToday: todayRows.count,
@@ -136,7 +139,9 @@ public enum WidgetSnapshotBuilder {
     /// to the App Group JSON in one shot. Safe to call from any
     /// mutation site.
     public static func rebuildAndWrite(using context: ModelContext) {
-        let snapshot = build(from: context)
+        // Widgets render a pre-computed snapshot and never ask what day
+        // it is, so the day boundary has to be resolved here, once.
+        let snapshot = build(from: context, asOf: DayStartDefaults.boundary().startOfDay(for: .now))
         WidgetSnapshotStore.write(snapshot)
     }
 

@@ -51,4 +51,18 @@ nonisolated public enum DayStartDefaults {
     public static func clamp(_ hour: Int) -> Int {
         min(max(hour, allowedHours.lowerBound), allowedHours.upperBound)
     }
+
+    /// The user's current day boundary, for code that has no SwiftUI
+    /// `Environment` to read `\.dayBoundary` from — App Intents, the
+    /// notification-action handler, and the widget snapshot builder.
+    ///
+    /// Views should use `@Environment(\.dayBoundary)` instead: it
+    /// re-evaluates the body when the setting changes, which reading
+    /// `UserDefaults` directly does not.
+    public static func boundary(
+        calendar: Calendar = .current,
+        in defaults: UserDefaults = sharedDefaults
+    ) -> DayBoundary {
+        DayBoundary(calendar: calendar, startHour: hour(in: defaults))
+    }
 }
