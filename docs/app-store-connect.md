@@ -563,6 +563,39 @@ stemming.
 >   l'application reste entièrement gratuite, sans publicité, sans
 >   abonnement et sans suivi. Merci d'être là.
 
+### What's New — 1.6 (EN)
+
+> Version 1.6 — Late nights and fairer scores.
+>
+> • New "Day starts at" setting. If you often log habits after
+>   midnight, you can push the day rollover to as late as 6 AM —
+>   one tap still lands on the day you mean, with no more
+>   back-filling through the calendar. Reminders keep their own
+>   times, and changing this never moves a completion you've
+>   already logged.
+> • Habits with a "days per week" goal now score correctly. Meeting
+>   your weekly target every single week could previously leave the
+>   score stuck far below where it belonged.
+> • The Overview grid now shows completions logged on days the
+>   schedule didn't ask for, instead of hiding them as rest days.
+
+### What's New — 1.6 (FR)
+
+> Version 1.6 — Nuits tardives et scores plus justes.
+>
+> • Nouveau réglage « La journée commence à ». Si tu notes souvent
+>   tes habitudes après minuit, tu peux décaler le changement de
+>   journée jusqu'à 6 h du matin — un seul appui suffit toujours,
+>   sans passer par le calendrier. Les rappels gardent leurs propres
+>   horaires, et modifier ce réglage ne déplace jamais une
+>   complétion déjà enregistrée.
+> • Les habitudes avec un objectif « jours par semaine » ont enfin
+>   un score correct. Atteindre ton objectif chaque semaine pouvait
+>   auparavant laisser le score bloqué bien en dessous de sa vraie
+>   valeur.
+> • La vue d'ensemble affiche désormais les complétions notées un
+>   jour non prévu, au lieu de les masquer comme des jours de repos.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
