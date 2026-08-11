@@ -355,9 +355,47 @@ Kept for the compound stage.
   foreground. FR strings are covered by `LocalizationCoverageTests`; the
   wording needs a native-speaker pass regardless.
 
+- **Review round — the DST coverage was the wrong shape.** A code
+  review found `startOfDay` returning a non-midnight instant in zones
+  whose DST transition happens *at* 00:00 (America/Havana 2026-03-08,
+  America/Santiago 2026-09-06): the day's first instant is 01:00, and
+  `date(byAdding: .day, value: -1, to: midnight)` preserves that 01:00.
+  `\.today` therefore stopped being a calendar midnight, and
+  `CompletionHistoryList`'s exact-equality check stopped recognising a
+  completion the user had just made.
+
+  The lesson is about the *test*, not the fix. `Europe/Paris` is the
+  DST zone CLAUDE.md names, and it structurally cannot catch this class
+  — its transitions are at 02:00/03:00, so midnight always exists.
+  Example-based DST tests only cover the shapes you thought of.
+  Replaced with two property sweeps over six zones (midnight
+  transitions, half-hour transitions, non-hour offsets): `startOfDay`
+  always returns a real midnight, and a write always buckets to exactly
+  the day the read reports. Worth considering `America/Havana` as a
+  standing second DST fixture in `TestCalendar` for any future date
+  work.
+
+- **Review round — the vacuous test.** The anti-re-bucketing test's
+  final loop discarded the boundary it constructed and asserted a
+  loop-invariant constant, so the feature's headline guarantee had no
+  real coverage. It was written that way knowingly ("somewhat
+  tautological") and shipped anyway. A test whose assertion doesn't
+  mention its loop variable is the tell.
+
+- **Review round — five smaller ones**, all real: the rollover tick
+  dropped `WidgetCenter.reloadAllTimelines()` and captured a
+  `ModelContainer` that goes stale on a dev-mode swap; there was no
+  tick at wall-clock midnight, so the caption never appeared when its
+  window *opened*; changing the hour didn't rebuild the widget
+  snapshot; writes recomputed the day from `.now` while rows rendered
+  from `\.today`; and `displayedMonth` defaulted to `.now` ahead of the
+  injected environment. The rollover tick had re-implemented two thirds
+  of `WidgetReloader.reloadAll` by hand — reaching for the existing
+  helper would have avoided the whole class.
+
 ## Verification
 
-- `test_sim`: **412 passing**, up from a 362 baseline. No pre-existing
+- `test_sim`: **416 passing**, up from a 362 baseline. No pre-existing
   test was modified.
 - `build_sim`: clean for `Kado` and `KadoWidgetsExtension`, and for
   iPad Air 13-inch (M4) — no new warnings.
