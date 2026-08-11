@@ -198,6 +198,24 @@ in UTC for determinism, and to `Europe/Paris` (or another DST-crossing
 zone) when DST behavior is under test. The `TestCalendar` helper in
 `KadoTests/Helpers/` is the canonical pattern.
 
+**Pick DST test zones by shape, not by habit.** `Europe/Paris`
+transitions at 02:00/03:00, so **midnight always exists there** — it
+structurally cannot catch a bug in code that assumes
+`startOfDay` returns 00:00. `America/Havana` (2026-03-08, 00:00 →
+01:00) is the necessary second fixture: its day begins at 01:00, and
+`calendar.date(byAdding: .day, value: -1, to: midnight)` preserves that
+01:00 rather than landing on a midnight. `TestCalendar.havana` exists
+for this. Other shapes worth reaching for when relevant:
+`Australia/Lord_Howe` (30-minute shift) and `Pacific/Chatham`
+(non-hour UTC offset).
+
+Prefer asserting the **invariant across a sweep of zones** over
+asserting examples in one — e.g. "`startOfDay` always returns a real
+midnight" walked over several zones × several transition windows.
+Example-based DST tests only cover the shapes you already thought of;
+the midnight-transition bug above shipped past a full suite of them.
+Canonical: `DayBoundaryTests.startOfDayIsAlwaysAMidnight`.
+
 ---
 
 ## Code conventions
