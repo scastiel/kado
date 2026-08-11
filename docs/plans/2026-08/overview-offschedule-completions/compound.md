@@ -131,6 +131,57 @@ compiler extracts. Grepping the *built* `Kado.app/en.lproj/Localizable.strings`
 for the key confirms the guess in one command, and the `fr.lproj` copy
 confirms the translation shipped. Both new keys resolved correctly.
 
+## What the review round caught
+
+`/code-review` found six things worth acting on. Three are worth remembering.
+
+### A new visual state needs its own opacity floor, not the old one
+
+`.offSchedule` reused `colorOpacity` for its border. That property's 0.2 floor
+exists so a *missed* day stays visible against grey — a floor tuned for a
+**fill**. Reused for a 2pt **border**, 0.2 alpha is nearly invisible, so
+`.offSchedule(0.0)` — a negative habit's slip, which this PR's own test
+asserts into existence — rendered *quieter* than the empty `.notDue` cell
+beside it. The fix shipped the exact bug it was written to prevent, in the
+one code path nobody looked at because the screenshots only ever showed
+value-1 bonus days.
+
+Lesson: when a new case borrows an existing derived property, check the
+**extremes** of that property against the new rendering, not the typical
+value. Screenshots show typical values by construction.
+
+### Deduplication has a cost when the shared version is slower
+
+Collapsing `DefaultStreakCalculator.isDueByDay` into the shared evaluator felt
+like an unambiguous win — one source of truth, and every test stayed green.
+But `DefaultFrequencyEvaluator` recomputes `habit.effectiveStart` (filter +
+map + min over all completions) on every call, while the streak loops walk one
+day at a time across a habit's whole lifetime. O(1) per day became
+O(completions) per day: ~440k element visits per `best()` for a two-year
+habit, on the main thread, from a SwiftUI computed property.
+
+Tests can't see this. Reverted, and the explicit `.daysPerWeek → false` case
+came back with it — it kept the "week-bucket path owns this frequency"
+invariant enforced *at the point of use* rather than depending on both callers
+switching first. The calendar dedup, which is what actually caused #57, stayed.
+
+Lesson: "one source of truth" is a means, not the goal. Where the duplicate is
+a cheap pure function and the shared version carries setup cost, keeping it —
+with a comment saying why — beats the abstraction.
+
+### Fixing a duplication by writing it a third time
+
+The widget's "or logged today" arm was added by copy-pasting `TodayView`'s
+workaround, in a PR whose own comments blame duplicated schedule rules for
+#57. The copy also inherited a bug the original had: for a `.negative` habit a
+record means the user *broke* it, and `HabitRowState` resolves that to
+`.complete` — so a slip on an unscheduled day added a phantom row to the
+widget and credited it. Hoisting the rule to `FrequencyEvaluating
+.isDueOrLogged` fixed the bug once instead of twice.
+
+Lesson: if a fix starts with "mirrors X", that comment is the signal to put it
+next to X instead.
+
 ## Deliberate non-goals
 
 - **Week-bucket scoring for `.daysPerWeek`.** Probably the right long-term
@@ -146,11 +197,27 @@ confirms the translation shipped. Both new keys resolved correctly.
   Increase Contrast. Worth its own issue.
 - **Same-day reminder suppression for completed habits of any frequency.**
   Real, but a behavior change unrelated to #57.
+- **Solid-vs-hollow is order-dependent for `.daysPerWeek`.** Back-filling an
+  earlier day can flip a later day from solid to hollow, because the rolling
+  window that decides "was this day asked for" shifts. Inherent to the
+  rolling-quota model rather than to this change — the same instability
+  already governed which days scored at all. Would disappear under
+  week-bucket scoring.
+- **`completionPhrase` now exists three times** (`OverviewView`,
+  `CellPopoverContent`, and inline in `MonthlyCalendarView`), differing only
+  in capitalization. Consolidating means one helper in KadoCore plus two
+  catalog key sets; left alone rather than widening this PR.
+- **Composed VoiceOver labels are raw interpolations.**
+  `"\(habit.name), \(dateString), \(state)"` never reaches the catalog, against
+  CLAUDE.md's rule. Pre-existing in both `OverviewView` and
+  `MonthlyCalendarView`; the fragments themselves are localized, only the
+  comma-joining isn't.
 
 ## Verification
 
-- 375 tests pass (`test_sim`), including new regressions for the matrix, the
-  evaluator split, the score, and the widget snapshot.
+- 380 tests pass (`test_sim`), including new regressions for the matrix, the
+  evaluator split, the score, the widget snapshot, the shared
+  `isDueOrLogged` rule, and the off-schedule border floor.
 - `build_sim` clean on iPhone 17 Pro and iPad Air 13-inch (M4).
 - Overview captured before/after in light mode, plus dark mode and
   Dynamic Type XXXL with Increase Contrast.

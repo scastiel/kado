@@ -1,8 +1,8 @@
 # Plan — Off-schedule completions & the two meanings of `isDue`
 
 **Date**: 2026-08-10
-**Status**: ready to build
-**Research**: [research.md](./research.md)
+**Status**: done — all seven tasks shipped, plus a review round
+**Research**: [research.md](./research.md) · **Compound**: [compound.md](./compound.md)
 
 ## Summary
 
@@ -162,8 +162,25 @@ passes unchanged.
 
 ## Open questions
 
-- [ ] D1 and D2 are implemented as decided and flagged in the PR for review.
-- [ ] Week-bucket scoring for `.daysPerWeek` — separate PR.
+Both intentionally remain open at merge time — neither blocks the fix.
+
+- [ ] **D1 and D2 await the author's verdict.** Implemented as decided and
+      argued in full in the PR description rather than blocking on an answer.
+      Both are cheap to reverse: D1 is one `DayCell` case, D2 is one window
+      boundary.
+- [ ] **Week-bucket scoring for `.daysPerWeek`** — deferred to its own PR
+      (research alternative C). Reshapes the EMA; needs `docs/habit-score.md`
+      updated alongside.
+
+## Task status
+
+All seven tasks shipped. Task 5 was **partially reverted** during the review
+round: `MonthlyCalendarView` still delegates to the shared evaluator (that
+duplication is what caused #57), but `DefaultStreakCalculator` keeps its
+private per-day switch — going through the evaluator made it recompute
+`effectiveStart` on every day of a habit's lifetime, and the explicit
+`.daysPerWeek` case is a guard worth keeping. Rationale recorded in
+[compound.md](./compound.md).
 
 ## Out of scope
 

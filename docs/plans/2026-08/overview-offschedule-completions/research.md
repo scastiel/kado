@@ -1,7 +1,7 @@
 # Research — Off-schedule completions & the two meanings of `isDue`
 
 **Date**: 2026-08-10
-**Status**: ready for plan
+**Status**: shipped — see [plan.md](./plan.md) and [compound.md](./compound.md)
 **Related**: [issue #57](https://github.com/scastiel/kado/issues/57)
 
 ## Problem
