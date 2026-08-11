@@ -8,15 +8,37 @@ import SwiftData
 public enum WidgetSnapshotBuilder {
     /// Gather everything the widgets need from `context` and
     /// serialize to a single `WidgetSnapshot` value.
+    ///
+    /// The three services default to implementations built on the
+    /// `calendar` passed in. They are resolved in the body rather
+    /// than as default arguments because a default argument cannot
+    /// reference another parameter — spelling them
+    /// `= DefaultFrequencyEvaluator()` silently pinned them to
+    /// `Calendar.current` while the rest of the build honoured the
+    /// caller's calendar, which makes any non-UTC machine disagree
+    /// with a UTC-pinned test.
     public static func build(
         from context: ModelContext,
         asOf reference: Date = .now,
         calendar: Calendar = .current,
         matrixWindowDays: Int = 7,
-        scoreCalculator: any HabitScoreCalculating = DefaultHabitScoreCalculator(),
-        streakCalculator: any StreakCalculating = DefaultStreakCalculator(),
-        frequencyEvaluator: any FrequencyEvaluating = DefaultFrequencyEvaluator()
+        scoreCalculator: (any HabitScoreCalculating)? = nil,
+        streakCalculator: (any StreakCalculating)? = nil,
+        frequencyEvaluator: (any FrequencyEvaluating)? = nil
     ) -> WidgetSnapshot {
+        let frequencyEvaluator = frequencyEvaluator
+            ?? DefaultFrequencyEvaluator(calendar: calendar)
+        let scoreCalculator = scoreCalculator
+            ?? DefaultHabitScoreCalculator(
+                calendar: calendar,
+                frequencyEvaluator: frequencyEvaluator
+            )
+        let streakCalculator = streakCalculator
+            ?? DefaultStreakCalculator(
+                calendar: calendar,
+                frequencyEvaluator: frequencyEvaluator
+            )
+
         let descriptor = FetchDescriptor<HabitRecord>(
             sortBy: [SortDescriptor(\.sortOrder)]
         )
@@ -75,7 +97,17 @@ public enum WidgetSnapshotBuilder {
         for record in active {
             let snap = record.snapshot
             let comps = (record.completions ?? []).compactMap(\.snapshot)
-            guard frequencyEvaluator.isDue(habit: snap, on: reference, completions: comps) else {
+            // Mirrors `TodayView.isDueTodayOrCompletedToday`: the
+            // schedule asks for it today, or the user logged it today
+            // anyway. Without the second arm a habit vanishes from the
+            // widget the moment it is completed past a weekly quota,
+            // taking its own tick out of `completedToday` with it.
+            let loggedToday = comps.contains { completion in
+                completion.value > 0 && calendar.isDate(completion.date, inSameDayAs: reference)
+            }
+            guard frequencyEvaluator.isDue(habit: snap, on: reference, completions: comps)
+                || loggedToday
+            else {
                 continue
             }
             let state = HabitRowState.resolve(
@@ -172,6 +204,7 @@ public enum WidgetSnapshotBuilder {
         case .future: .future
         case .notDue: .notDue
         case .scored(let v): .scored(v)
+        case .offSchedule(let v): .offSchedule(v)
         }
     }
 }

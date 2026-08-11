@@ -166,6 +166,11 @@ public enum WidgetDayCell: Codable, Sendable, Hashable {
     case future
     case notDue
     case scored(Double)
+    /// Mirrors `DayCell.offSchedule` — logged on a day the schedule
+    /// didn't ask for. Additive case: snapshots written before it
+    /// existed decode unchanged, and the app and its extensions
+    /// always ship together, so there is no version skew.
+    case offSchedule(Double)
 
     /// Same linear remap the main app's `DayCell.colorOpacity`
     /// uses. Copied rather than reused so widgets don't depend on
@@ -174,7 +179,7 @@ public enum WidgetDayCell: Codable, Sendable, Hashable {
         switch self {
         case .future, .notDue:
             return nil
-        case .scored(let s):
+        case .scored(let s), .offSchedule(let s):
             let clamped = max(0.0, min(1.0, s))
             return 0.2 + 0.8 * clamped
         }

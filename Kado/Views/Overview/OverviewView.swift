@@ -261,16 +261,29 @@ struct OverviewView: View {
         case .notDue:
             state = String(localized: "not scheduled")
         case .scored(let s):
-            if s >= 1.0 {
-                state = String(localized: "completed")
-            } else if s <= 0.0 {
-                state = String(localized: "missed")
-            } else {
-                let percent = Int((s * 100).rounded())
-                state = String(localized: "\(percent)% complete")
-            }
+            state = completionPhrase(for: s)
+        case .offSchedule(let s):
+            // The hollow cell is a purely visual distinction, so
+            // VoiceOver has to say it out loud.
+            state = String(
+                localized: "\(completionPhrase(for: s)), off schedule",
+                comment: "Overview cell state for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'."
+            )
         }
         return "\(habit.name), \(dateString), \(state)"
+    }
+
+    /// Shared wording for a day's value, used on its own for
+    /// scheduled days and embedded in the off-schedule phrasing.
+    private static func completionPhrase(for value: Double) -> String {
+        if value >= 1.0 {
+            return String(localized: "completed")
+        } else if value <= 0.0 {
+            return String(localized: "missed")
+        } else {
+            let percent = Int((value * 100).rounded())
+            return String(localized: "\(percent)% complete")
+        }
     }
 }
 

@@ -339,6 +339,40 @@
         }
       }
     },
+    "%@ — not scheduled that day" : {
+      "comment" : "Status label in the Overview cell popover for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'Completed'.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — not scheduled that day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — jour non prévu"
+          }
+        }
+      }
+    },
+    "%@, off schedule" : {
+      "comment" : "VoiceOver state for an Overview cell logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, off schedule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, jour non prévu"
+          }
+        }
+      }
+    },
     "%@ doesn't accept that kind of value." : {
       "comment" : "Defensive Siri dialog when LogHabitValueIntent is invoked on an unexpected habit kind.",
       "extractionState" : "stale",

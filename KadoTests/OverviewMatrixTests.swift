@@ -260,6 +260,125 @@ struct OverviewMatrixTests {
         }
     }
 
+    // MARK: - Off-schedule completions (issue #57)
+
+    @Test("A completion on a non-due day renders .offSchedule, never .notDue")
+    func completionOnNonDueDayIsOffSchedule() throws {
+        // Monday-only habit; day -6 .. day 0 is Tue..Mon. The user
+        // logged the Saturday (day -2) anyway.
+        let habit = Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday]),
+            type: .binary,
+            createdAt: TestCalendar.day(-10)
+        )
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(-2), value: 1)
+        ]
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: completions,
+            days: days(offset: -6, count: 7),
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        #expect(row.days[4] == .offSchedule(1.0))
+        // The untouched non-Mondays stay grey; Monday stays scored.
+        #expect(row.days[0] == .notDue)
+        #expect(row.days[6] == .scored(0.0))
+    }
+
+    @Test("A back-filled daysPerWeek day is visible once the quota is already met")
+    func backFilledDaysPerWeekDayIsVisible() throws {
+        // The reported scenario: five completions inside the trailing
+        // window, then one more back-filled behind them.
+        let habit = Habit(
+            name: "Run",
+            frequency: .daysPerWeek(5),
+            type: .binary,
+            createdAt: TestCalendar.day(-30)
+        )
+        let completions = [-6, -5, -4, -3, -2, -1].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0), value: 1)
+        }
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: completions,
+            days: days(offset: -6, count: 7),
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        // Every logged day reads as done — as `.scored` while the
+        // quota still had room, as `.offSchedule` for the sixth.
+        #expect(row.days[5] == .offSchedule(1.0))
+        #expect(row.days.prefix(5).allSatisfy { $0 == .scored(1.0) })
+        // Today has no completion and the quota is met → grey.
+        #expect(row.days[6] == .notDue)
+    }
+
+    @Test("Off-schedule cells never hide a completion for any frequency")
+    func noCompletionEverRendersNotDue() throws {
+        let frequencies: [Frequency] = [
+            .daily,
+            .specificDays([.monday]),
+            .everyNDays(4),
+            .daysPerWeek(2),
+        ]
+        for frequency in frequencies {
+            let habit = Habit(
+                name: "H",
+                frequency: frequency,
+                type: .binary,
+                createdAt: TestCalendar.day(-20)
+            )
+            let completions = (-6...0).map {
+                Completion(habitID: habit.id, date: TestCalendar.day($0), value: 1)
+            }
+            let result = OverviewMatrix.compute(
+                habits: [habit],
+                completions: completions,
+                days: days(offset: -6, count: 7),
+                today: today,
+                calendar: calendar,
+                frequencyEvaluator: frequencyEvaluator
+            )
+            let row = try #require(result.first)
+            #expect(!row.days.contains(.notDue), "\(frequency) hid a completed day")
+        }
+    }
+
+    @Test("A negative habit's off-schedule slip carries value 0")
+    func negativeOffScheduleSlip() throws {
+        // Monday-only negative habit; a "completion" is a slip. The
+        // slip lands on a Saturday the schedule doesn't cover.
+        let habit = Habit(
+            name: "No smoking",
+            frequency: .specificDays([.monday]),
+            type: .negative,
+            createdAt: TestCalendar.day(-10)
+        )
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(-2), value: 1)
+        ]
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: completions,
+            days: days(offset: -6, count: 7),
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        #expect(row.days[4] == .offSchedule(0.0))
+        // A clean non-scheduled day stays grey rather than claiming
+        // an off-schedule success.
+        #expect(row.days[3] == .notDue)
+    }
+
     // MARK: - colorOpacity
 
     @Test("DayCell.colorOpacity is nil for future and notDue")

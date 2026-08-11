@@ -127,7 +127,15 @@ enum PreviewSnapshots {
             )
             let cells: [WidgetDayCell] = days.enumerated().map { dayIndex, _ in
                 let roll = Double((dayIndex + index) % 5) / 4.0
-                return .scored(roll)
+                // Sprinkle the two non-scored states through the
+                // preview so the hollow off-schedule treatment and
+                // the neutral not-due cell both get eyes on them at
+                // widget scale.
+                switch (dayIndex + index) % 7 {
+                case 3: return .offSchedule(1.0)
+                case 6: return .notDue
+                default: return .scored(roll)
+                }
             }
             return WidgetMatrixRow(habit: habit, cells: cells)
         }
