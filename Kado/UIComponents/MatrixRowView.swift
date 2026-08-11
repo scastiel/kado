@@ -72,13 +72,37 @@ struct HabitRowLabel: View {
         color: .purple,
         icon: "figure.mind.and.body"
     )
+    // Includes `.offSchedule` so the hollow treatment can be judged
+    // against solid neighbours at real row spacing — the isolated
+    // `MatrixCell` previews can't show that.
     let cells: [DayCell] = [
-        .notDue, .scored(0.1), .scored(0.3), .scored(0.6), .scored(0.9),
-        .scored(1.0), .notDue, .scored(0.5), .scored(0.7), .future, .future,
+        .notDue, .scored(0.1), .scored(0.3), .offSchedule(1.0), .scored(0.9),
+        .scored(1.0), .notDue, .offSchedule(0.0), .scored(0.7), .future, .future,
     ]
     return VStack(alignment: .leading, spacing: 8) {
         HabitRowLabel(habit: habit)
         MatrixRowView(habit: habit, cells: cells)
     }
     .padding()
+}
+
+#Preview("Dark") {
+    let habit = Habit(
+        name: "Morning meditation",
+        frequency: .daily,
+        type: .binary,
+        createdAt: Calendar.current.date(byAdding: .day, value: -20, to: .now)!,
+        color: .purple,
+        icon: "figure.mind.and.body"
+    )
+    let cells: [DayCell] = [
+        .notDue, .scored(0.1), .scored(0.3), .offSchedule(1.0), .scored(0.9),
+        .scored(1.0), .notDue, .offSchedule(0.0), .scored(0.7), .future, .future,
+    ]
+    return VStack(alignment: .leading, spacing: 8) {
+        HabitRowLabel(habit: habit)
+        MatrixRowView(habit: habit, cells: cells)
+    }
+    .padding()
+    .preferredColorScheme(.dark)
 }

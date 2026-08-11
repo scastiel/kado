@@ -32,16 +32,25 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
     let calendar: Calendar
     let now: @Sendable () -> Date
 
+    /// The two services default to implementations built on the
+    /// `calendar` passed in, and are resolved in the body rather than
+    /// as default arguments — a default argument cannot reference
+    /// another parameter, so spelling them
+    /// `= DefaultFrequencyEvaluator()` would silently pin them to
+    /// `Calendar.current` while `rescheduleAll` computed its days in
+    /// the caller's calendar. Same footgun as `WidgetSnapshotBuilder`.
     public init(
         center: any UserNotificationCenterProtocol,
-        frequencyEvaluator: any FrequencyEvaluating = DefaultFrequencyEvaluator(),
-        streakCalculator: any StreakCalculating = DefaultStreakCalculator(),
+        frequencyEvaluator: (any FrequencyEvaluating)? = nil,
+        streakCalculator: (any StreakCalculating)? = nil,
         calendar: Calendar = .current,
         now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.center = center
         self.frequencyEvaluator = frequencyEvaluator
+            ?? DefaultFrequencyEvaluator(calendar: calendar)
         self.streakCalculator = streakCalculator
+            ?? DefaultStreakCalculator(calendar: calendar)
         self.calendar = calendar
         self.now = now
     }
@@ -54,7 +63,16 @@ public final class DefaultNotificationScheduler: NotificationScheduling, @unchec
             let streak = streakCalculator.current(for: habit, completions: habitCompletions, asOf: now())
             for offset in 0..<Self.windowDays {
                 guard let day = calendar.date(byAdding: .day, value: offset, to: today) else { continue }
-                guard frequencyEvaluator.isDue(habit: habit, on: day, completions: habitCompletions) else { continue }
+                // `isOutstanding`, not `isDue`: a reminder asks
+                // "does this still need doing?", which is exactly the
+                // question whose answer today's own completions should
+                // change. Future days hold no completions, so the two
+                // only differ for `day == today`.
+                guard frequencyEvaluator.isOutstanding(
+                    habit: habit,
+                    on: day,
+                    completions: habitCompletions
+                ) else { continue }
                 let request = makeRequest(habit: habit, day: day, streak: streak)
                 try? await center.add(request)
             }

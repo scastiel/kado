@@ -147,6 +147,18 @@ struct WidgetMatrixCell: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 4, style: .continuous)
             .fill(fill)
+            .overlay {
+                // Hollow = logged off-schedule. Same language the
+                // main app's `MatrixCell` uses, thinner border for
+                // the smaller cell.
+                if let borderOpacity = cell.borderOpacity {
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .strokeBorder(
+                            color.color.opacity(borderOpacity),
+                            lineWidth: 1.5
+                        )
+                }
+            }
             .frame(height: size)
     }
 
@@ -155,6 +167,7 @@ struct WidgetMatrixCell: View {
         case .future: Color.clear
         case .notDue: Color.kadoHairline
         case .scored: color.color.opacity(cell.colorOpacity ?? 0)
+        case .offSchedule: color.color.opacity(cell.offScheduleFillOpacity ?? 0)
         }
     }
 }

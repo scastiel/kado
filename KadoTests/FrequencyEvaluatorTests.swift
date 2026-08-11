@@ -98,7 +98,7 @@ struct FrequencyEvaluatorTests {
         #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(7), completions: []))
     }
 
-    @Test("3-per-week habit is not due once 3 completions exist in the trailing window")
+    @Test("3-per-week habit is not due once 3 earlier completions fill the trailing window")
     func daysPerWeekRollingQuota() {
         let habit = makeHabit(.daysPerWeek(3), createdOffset: 0)
         let completions = [
@@ -106,11 +106,15 @@ struct FrequencyEvaluatorTests {
             Completion(habitID: habit.id, date: TestCalendar.day(3)),
             Completion(habitID: habit.id, date: TestCalendar.day(5)),
         ]
-        // Day 5: window is days -1...5, three completions present → not due.
-        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(5), completions: completions))
-        // Day 7: window is days 1...7, still three completions → not due.
+        // Day 5: `isDue` looks at days -1...4, which hold two
+        // completions — day 5's own completion is not evidence that
+        // day 5 was unnecessary. `isOutstanding` counts it and sees
+        // the quota met.
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(5), completions: completions))
+        #expect(!evaluator.isOutstanding(habit: habit, on: TestCalendar.day(5), completions: completions))
+        // Day 7: days 1...6 hold all three → not due either way.
         #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(7), completions: completions))
-        // Day 8: window is days 2...8, day 1 falls out → only two completions → due.
+        // Day 8: days 2...7 — day 1 falls out, two remain → due.
         #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(8), completions: completions))
     }
 
@@ -122,6 +126,91 @@ struct FrequencyEvaluatorTests {
             Completion(habitID: otherID, date: TestCalendar.day($0))
         }
         #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(5), completions: completions))
+    }
+
+    // MARK: .daysPerWeek — isDue is monotonic (issue #57)
+
+    @Test("isDue ignores the evaluated day's own completion")
+    func isDueIsMonotonic() {
+        // Four completions in the trailing window, target of five.
+        // Logging the fifth *on* day 6 must not retroactively decide
+        // that day 6 was never required.
+        let habit = makeHabit(.daysPerWeek(5), createdOffset: 0)
+        let priorFour = [2, 3, 4, 5].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let withOwnDay = priorFour + [
+            Completion(habitID: habit.id, date: TestCalendar.day(6))
+        ]
+
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(6), completions: priorFour))
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(6), completions: withOwnDay))
+    }
+
+    @Test("isDue still saturates on completions strictly before the day")
+    func isDueSaturatesOnPriorDays() {
+        // Five completions all strictly before day 6 → the quota is
+        // met without day 6, so day 6 is not required.
+        let habit = makeHabit(.daysPerWeek(5), createdOffset: 0)
+        let completions = [1, 2, 3, 4, 5].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(6), completions: completions))
+    }
+
+    // MARK: .daysPerWeek — isOutstanding counts the day itself
+
+    @Test("isOutstanding counts the evaluated day's own completion")
+    func isOutstandingCountsOwnDay() {
+        let habit = makeHabit(.daysPerWeek(5), createdOffset: 0)
+        let priorFour = [2, 3, 4, 5].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let withOwnDay = priorFour + [
+            Completion(habitID: habit.id, date: TestCalendar.day(6))
+        ]
+
+        // Four logged, one to go → still outstanding.
+        #expect(evaluator.isOutstanding(habit: habit, on: TestCalendar.day(6), completions: priorFour))
+        // Fifth logged today → nothing left to do.
+        #expect(!evaluator.isOutstanding(habit: habit, on: TestCalendar.day(6), completions: withOwnDay))
+    }
+
+    @Test("isDue and isOutstanding agree for every non-daysPerWeek frequency")
+    func fixedSchedulesAgree() {
+        let frequencies: [Frequency] = [
+            .daily,
+            .specificDays([.monday, .wednesday, .friday]),
+            .everyNDays(3),
+        ]
+        for frequency in frequencies {
+            let habit = makeHabit(frequency, createdOffset: 0)
+            for offset in 0...13 {
+                let day = TestCalendar.day(offset)
+                let completions = [Completion(habitID: habit.id, date: day)]
+                #expect(
+                    evaluator.isDue(habit: habit, on: day, completions: completions)
+                        == evaluator.isOutstanding(habit: habit, on: day, completions: completions),
+                    "\(frequency) at offset \(offset)"
+                )
+            }
+        }
+    }
+
+    // MARK: .daysPerWeek — zero-value records don't fill the quota
+
+    @Test("Zero-value completions do not count toward the weekly quota")
+    func zeroValueDoesNotSaturate() {
+        // `CompletionToggler` keeps a record at value 0 when the day
+        // carries a note, so "unchecked but annotated" days exist in
+        // real stores. They are not completions and must not fill the
+        // quota.
+        let habit = makeHabit(.daysPerWeek(3), createdOffset: 0)
+        let zeroed = [1, 2, 3].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0), value: 0, note: "note")
+        }
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(4), completions: zeroed))
+        #expect(evaluator.isOutstanding(habit: habit, on: TestCalendar.day(4), completions: zeroed))
     }
 
     // MARK: Backdate — everyNDays with negative deltas
@@ -150,6 +239,58 @@ struct FrequencyEvaluatorTests {
         )
         let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-2))]
         #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-2), completions: completions))
+    }
+
+    // MARK: isDueOrLogged — the shared "show it in Today" rule
+
+    @Test("isDueOrLogged keeps a habit visible once its weekly quota saturates")
+    func isDueOrLoggedKeepsCompletedHabitVisible() {
+        let habit = makeHabit(.daysPerWeek(3), createdOffset: 0)
+        // Quota already met by three earlier days, then a bonus today.
+        let completions = [1, 2, 3, 4].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let today = TestCalendar.day(4)
+        #expect(!evaluator.isDue(habit: habit, on: today, completions: completions))
+        #expect(
+            evaluator.isDueOrLogged(
+                habit: habit, on: today, completions: completions, calendar: TestCalendar.utc
+            )
+        )
+    }
+
+    @Test("isDueOrLogged does not surface a negative habit's off-schedule slip")
+    func isDueOrLoggedIgnoresNegativeSlip() {
+        // A record on a negative habit means the user broke it. On a
+        // day the schedule never covered that is not a reason to show
+        // the row — `HabitRowState` would resolve it to `.complete`
+        // and credit the slip.
+        let habit = Habit(
+            name: "No alcohol",
+            frequency: .specificDays([.monday]),
+            type: .negative,
+            createdAt: TestCalendar.day(-10)
+        )
+        let saturday = TestCalendar.day(-2)
+        let completions = [Completion(habitID: habit.id, date: saturday)]
+        #expect(!evaluator.isDue(habit: habit, on: saturday, completions: completions))
+        #expect(
+            !evaluator.isDueOrLogged(
+                habit: habit, on: saturday, completions: completions, calendar: TestCalendar.utc
+            )
+        )
+    }
+
+    @Test("isDueOrLogged ignores completions belonging to other habits")
+    func isDueOrLoggedIgnoresOtherHabits() {
+        let habit = makeHabit(.specificDays([.monday]), createdOffset: -10)
+        let saturday = TestCalendar.day(-2)
+        let completions = [Completion(habitID: UUID(), date: saturday)]
+        #expect(
+            !evaluator.isDueOrLogged(
+                habit: habit, on: saturday, completions: completions, calendar: TestCalendar.utc
+            )
+        )
     }
 
     // MARK: Helpers

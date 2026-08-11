@@ -197,18 +197,20 @@ struct TodayView: View {
         }
     }
 
-    /// "Show this habit in the Today section" — evaluator says it's
-    /// due today, OR the user already logged a completion today (so
-    /// the row should stay visible with its tick even once the
-    /// daysPerWeek rolling quota saturates).
+    /// "Show this habit in the Today section" — the schedule asks for
+    /// it today, or the user already logged progress today anyway (so
+    /// the row stays visible with its tick even once the daysPerWeek
+    /// rolling quota saturates).
+    ///
+    /// The rule itself lives on `FrequencyEvaluating` so this view and
+    /// the widget snapshot can't drift apart.
     private func isDueTodayOrCompletedToday(_ record: HabitRecord, on now: Date) -> Bool {
-        let completions = (record.completions ?? []).compactMap(\.snapshot)
-        if frequencyEvaluator.isDue(habit: record.snapshot, on: now, completions: completions) {
-            return true
-        }
-        return completions.contains { completion in
-            completion.value > 0 && calendar.isDate(completion.date, inSameDayAs: now)
-        }
+        frequencyEvaluator.isDueOrLogged(
+            habit: record.snapshot,
+            on: now,
+            completions: (record.completions ?? []).compactMap(\.snapshot),
+            calendar: calendar
+        )
     }
 
     private var archiveDialogBinding: Binding<Bool> {
