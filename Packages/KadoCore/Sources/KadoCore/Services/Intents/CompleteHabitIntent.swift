@@ -42,11 +42,13 @@ public struct CompleteHabitIntent: AppIntent {
         // trap. `openAppWhenRun = true` guarantees the app primes
         // `ActiveContainer.shared` before this method runs.
         let container = try ActiveContainer.shared.get()
+        // Honour "Day starts at": completing at 1am should tick the
+        // day the user is still in, matching what Today shows.
         let outcome = try Self.apply(
             habitID: habit.id,
             in: container.mainContext,
             calendar: .current,
-            now: .now
+            now: DayStartDefaults.boundary().loggingInstant(for: .now)
         )
         // Skip the widget rebuild on .opensApp — nothing was written,
         // so the snapshot is already current.

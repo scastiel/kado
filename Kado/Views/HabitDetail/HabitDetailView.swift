@@ -12,6 +12,8 @@ struct HabitDetailView: View {
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -20,7 +22,11 @@ struct HabitDetailView: View {
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
     @State private var editingDay: Date? = nil
-    @State private var displayedMonth: Date = .now
+    /// Seeded in `.onAppear` rather than defaulted to `.now`: `@State`
+    /// is initialised before the environment is injected, so a wall-clock
+    /// default would leak in ahead of `\.today` and open the grid on the
+    /// wrong month before the rollover on the 1st.
+    @State private var displayedMonth: Date?
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
@@ -46,7 +52,10 @@ struct HabitDetailView: View {
                 MonthlyCalendarView(
                     habit: habit.snapshot,
                     completions: (habit.completions ?? []).compactMap(\.snapshot),
-                    month: $displayedMonth,
+                    month: Binding(
+                        get: { displayedMonth ?? today },
+                        set: { displayedMonth = $0 }
+                    ),
                     selectedDay: isArchived ? .constant(nil) : $editingDay,
                     navigable: true,
                     popoverContent: { day in
@@ -70,6 +79,7 @@ struct HabitDetailView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
+        .onAppear { if displayedMonth == nil { displayedMonth = today } }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -109,8 +119,14 @@ struct HabitDetailView: View {
         }
     }
 
+    /// The instant to stamp on anything logged right now — see the
+    /// matching helper on `TodayView`.
+    private var loggingInstant: Date {
+        dayBoundary.loggingInstant(for: .now, on: today)
+    }
+
     private func archive() {
-        habit.archivedAt = .now
+        habit.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         dismiss()
@@ -152,18 +168,18 @@ struct HabitDetailView: View {
 
     private var todayCounterValue: Double {
         habit.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: .now) }?
+            .first { calendar.isDate($0.date, inSameDayAs: today) }?
             .value ?? 0
     }
 
     private func incrementCounter() {
-        CompletionLogger(calendar: calendar).incrementCounter(for: habit, in: modelContext)
+        CompletionLogger(calendar: calendar).incrementCounter(for: habit, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func decrementCounter() {
-        CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
+        CompletionLogger(calendar: calendar).decrementCounter(for: habit, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
@@ -330,7 +346,7 @@ struct HabitDetailView: View {
         let score = scoreCalculator.currentScore(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
         return "\(Int((score * 100).rounded()))%"
     }
@@ -339,7 +355,7 @@ struct HabitDetailView: View {
         streakCalculator.current(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
     }
 
@@ -347,7 +363,7 @@ struct HabitDetailView: View {
         streakCalculator.best(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
     }
 

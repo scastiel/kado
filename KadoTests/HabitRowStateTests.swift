@@ -250,4 +250,50 @@ struct HabitRowStateTests {
         #expect(state.valueToday != nil)
         #expect(state.status == .partial || state.status == .complete)
     }
+
+    // MARK: - Logical day boundary
+
+    /// The Today row is what the "Day starts at" setting exists for.
+    /// At 02:00 with a 4 AM rollover, the row must still reflect the
+    /// previous day — otherwise the user sees an empty checkbox for a
+    /// habit they already completed a few hours earlier.
+    @Test("At 02:00 under a 4 AM rollover the row reflects the previous day")
+    func resolvesAgainstThePreviousDayBeforeRollover() {
+        let cal = TestCalendar.utc
+        let boundary = DayBoundary(calendar: cal, startHour: 4)
+        let h = habit(.binary)
+        let completedOn = TestCalendar.instant(cal, 2026, 8, 10, 22, 0)
+        let logged = Completion(habitID: h.id, date: completedOn, value: 1)
+
+        let atTwoAM = TestCalendar.instant(cal, 2026, 8, 11, 2, 0)
+        let state = HabitRowState.resolve(
+            habit: h,
+            completions: [logged],
+            calendar: cal,
+            asOf: boundary.startOfDay(for: atTwoAM)
+        )
+
+        #expect(state.status == .complete)
+    }
+
+    /// The same inputs under the midnight default: 02:00 on the 11th
+    /// is a fresh day, so yesterday's completion must not carry over.
+    @Test("The same instant under the midnight default starts a fresh day")
+    func resolvesAgainstTheNewDayWithoutAnOffset() {
+        let cal = TestCalendar.utc
+        let boundary = DayBoundary(calendar: cal, startHour: 0)
+        let h = habit(.binary)
+        let completedOn = TestCalendar.instant(cal, 2026, 8, 10, 22, 0)
+        let logged = Completion(habitID: h.id, date: completedOn, value: 1)
+
+        let atTwoAM = TestCalendar.instant(cal, 2026, 8, 11, 2, 0)
+        let state = HabitRowState.resolve(
+            habit: h,
+            completions: [logged],
+            calendar: cal,
+            asOf: boundary.startOfDay(for: atTwoAM)
+        )
+
+        #expect(state.status == .none)
+    }
 }

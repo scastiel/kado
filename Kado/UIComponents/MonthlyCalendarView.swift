@@ -13,6 +13,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     var navigable: Bool = false
     @ViewBuilder var popoverContent: (Date) -> PopoverContent
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
     @State private var slideDirection: SlideDirection = .forward
@@ -74,7 +75,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                 selectedDay = nil
                 slideDirection = .forward
                 withAnimation(.easeInOut(duration: 0.25)) {
-                    month = .now
+                    month = today
                 }
             } label: {
                 Text(monthTitle)
@@ -109,7 +110,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     }
 
     private var canGoForward: Bool {
-        let currentMonth = calendar.dateInterval(of: .month, for: .now)?.start
+        let currentMonth = calendar.dateInterval(of: .month, for: today)?.start
         return monthStart != currentMonth
     }
 
@@ -157,7 +158,10 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     @ViewBuilder
     private func cell(for day: Date) -> some View {
         let state = state(for: day)
-        let isToday = calendar.isDateInToday(day)
+        // Compared against the logical day, not `isDateInToday` —
+        // between midnight and the rollover hour the ring belongs on
+        // the day Today is still showing.
+        let isToday = calendar.isDate(day, inSameDayAs: today)
         let dayNumber = calendar.component(.day, from: day)
         let isInteractive = state != .future
 
@@ -221,7 +225,8 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     }
 
     private func state(for day: Date) -> CellState {
-        if day > calendar.startOfDay(for: .now) {
+        // `today` is already the logical day's midnight.
+        if day > today {
             return .future
         }
         let effectiveStartDay = calendar.startOfDay(

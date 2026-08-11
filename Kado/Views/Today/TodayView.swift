@@ -14,6 +14,7 @@ struct TodayView: View {
     @Environment(\.reviewPromptService) private var reviewPromptService
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
 
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -114,6 +115,16 @@ struct TodayView: View {
             let due = habitsDueToday
             let other = habitsNotDueToday
             List {
+                // Sampled once and passed down: letting the guard and
+                // the view each read `.now` lets them straddle the
+                // rollover and leave an empty, space-taking row.
+                let now = Date.now
+                if TodayDayCaption.isBeforeRollover(dayBoundary, now: now) {
+                    TodayDayCaption(boundary: dayBoundary, now: now)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 6, trailing: 20))
+                }
                 if !due.isEmpty {
                     Section {
                         ForEach(due) { row($0) }
@@ -149,18 +160,18 @@ struct TodayView: View {
             habit: snap,
             completions: comps,
             calendar: calendar,
-            asOf: .now
+            asOf: today
         )
         NavigationLink(value: record) {
             HabitRowView(
                 habit: snap,
                 state: state,
                 streak: streakCalculator.current(
-                    for: snap, completions: comps, asOf: .now
+                    for: snap, completions: comps, asOf: today
                 ),
                 scorePercent: Int(
                     (scoreCalculator.currentScore(
-                        for: snap, completions: comps, asOf: .now
+                        for: snap, completions: comps, asOf: today
                     ) * 100).rounded()
                 ),
                 onToggle: canToggle(record) ? { toggle(record) } : nil,
@@ -261,6 +272,13 @@ struct TodayView: View {
 
     // MARK: - Actions
 
+    /// The instant to stamp on anything logged right now, pinned to
+    /// the day these rows were rendered for. Keeps a tap consistent
+    /// with what the user was looking at when they made it.
+    private var loggingInstant: Date {
+        dayBoundary.loggingInstant(for: .now, on: today)
+    }
+
     private func moveHabits(_ section: [HabitRecord], from source: IndexSet, to destination: Int) {
         var reordered = section
         reordered.move(fromOffsets: source, toOffset: destination)
@@ -285,7 +303,7 @@ struct TodayView: View {
 
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
-            .toggleToday(for: record, in: modelContext)
+            .toggleToday(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -293,7 +311,7 @@ struct TodayView: View {
 
     private func incrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, in: modelContext)
+            .incrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -301,14 +319,14 @@ struct TodayView: View {
 
     private func decrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .decrementCounter(for: record, in: modelContext)
+            .decrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func addFiveMinutes(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, by: 300, in: modelContext)
+            .incrementCounter(for: record, on: loggingInstant, by: 300, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -317,7 +335,7 @@ struct TodayView: View {
     private func checkMilestones(for record: HabitRecord) {
         let snap = record.snapshot
         let comps = (record.completions ?? []).compactMap(\.snapshot)
-        let streak = streakCalculator.current(for: snap, completions: comps, asOf: .now)
+        let streak = streakCalculator.current(for: snap, completions: comps, asOf: today)
         if streak == 7 || streak == 30 {
             reviewPromptService.recordMilestone(.streak(days: streak))
         }
@@ -325,7 +343,7 @@ struct TodayView: View {
         let allComplete = habitsDueToday.allSatisfy { habit in
             let s = habit.snapshot
             let c = (habit.completions ?? []).compactMap(\.snapshot)
-            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: .now).status == .complete
+            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: today).status == .complete
         }
         if allComplete {
             reviewPromptService.recordMilestone(.allHabitsComplete)
@@ -333,7 +351,7 @@ struct TodayView: View {
     }
 
     private func archive(_ record: HabitRecord) {
-        record.archivedAt = .now
+        record.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

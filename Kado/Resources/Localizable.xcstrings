@@ -307,9 +307,7 @@
         }
       }
     },
-    "" : {
-
-    },
+    "" : {},
     ", has note" : {
       "comment" : "Appended to the calendar cell accessibility label when the day has a note attached.",
       "localizations" : {
@@ -3882,6 +3880,108 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tes vraies habitudes sont en sécurité dans iCloud. Désactive le mode développeur pour reprendre la synchronisation."
+          }
+        }
+      }
+    },
+    "Day" : {
+      "comment" : "Settings section header above the day-rollover hour picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journée"
+          }
+        }
+      }
+    },
+    "Day starts at" : {
+      "comment" : "Settings picker label: the hour at which the app rolls over to the next day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day starts at"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La journée commence à"
+          }
+        }
+      }
+    },
+    "Midnight" : {
+      "comment" : "Day-start picker option for hour 0, and the default value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midnight"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuit"
+          }
+        }
+      }
+    },
+    "The day rolls over at midnight. Set a later hour if you log habits after midnight and still think of it as the same day." : {
+      "comment" : "Settings footer under the day-start picker while it is set to midnight.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The day rolls over at midnight. Set a later hour if you log habits after midnight and still think of it as the same day."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La journée change à minuit. Choisis une heure plus tardive si tu notes tes habitudes après minuit et que c'est encore la même journée pour toi."
+          }
+        }
+      }
+    },
+    "Until this hour, Today still shows the previous day — so a late-night tap lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged." : {
+      "comment" : "Settings footer under the day-start picker once a custom hour is set.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until this hour, Today still shows the previous day — so a late-night tap lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jusqu'à cette heure, Aujourd'hui affiche encore la journée précédente : ce que tu notes tard le soir se range au bon endroit. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée."
+          }
+        }
+      }
+    },
+    "Still %@ · rolls over at %@" : {
+      "comment" : "Today tab caption shown between midnight and the day-start hour. First argument: weekday name of the day still being shown. Second: the rollover time.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still %@ · rolls over at %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours %@ · nouvelle journée à %@"
           }
         }
       }

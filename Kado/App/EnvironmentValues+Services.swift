@@ -66,12 +66,25 @@ extension EnvironmentValues {
     @Entry var backupImporter: any BackupImporting = DefaultBackupImporter()
 
     /// Day-granular "now" driven by the scene lifecycle. `KadoApp` bumps
-    /// this on every `scenePhase → .active` transition where the calendar
-    /// day has changed, so views that read it re-evaluate their body on
+    /// this on every `scenePhase → .active` transition where the logical
+    /// day has changed, and again when the day rolls over while the app
+    /// is foregrounded, so views that read it re-evaluate their body on
     /// the new day without needing a relaunch. Views should read this
     /// instead of `.now` for any day-boundary decision (what's due today,
     /// where the overview's trailing edge lands).
+    ///
+    /// This is the **logical** day's midnight, not wall-clock now — it
+    /// already has the user's "Day starts at" hour applied. Pair it with
+    /// `\.dayBoundary` when you need to compare or write dates.
     @Entry var today: Date = .now
+
+    /// Resolves which logical day an instant belongs to, honouring the
+    /// user's "Day starts at" preference. Read this instead of
+    /// `\.calendar` for any *day* question — `calendar.startOfDay`,
+    /// `isDate(_:inSameDayAs:)` and `isDateInToday` all assume a
+    /// midnight boundary. `\.calendar` is still the right tool for
+    /// formatters and for bucketing an already-stored completion date.
+    @Entry var dayBoundary: DayBoundary = DayBoundary()
 
     @Entry var reviewPromptService: any ReviewPrompting = DefaultReviewPromptService()
 

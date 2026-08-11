@@ -149,11 +149,14 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         // counter/timer semantics stay in lockstep. Counter/timer
         // habits can't be meaningfully toggled from a banner — the
         // user still gets to tap the banner to open the app.
+        // The reminder fires on wall-clock time, but the tick it
+        // applies lands on the logical day — so a 1am banner completes
+        // the day Today is still showing.
         _ = try? CompleteHabitIntent.apply(
             habitID: habitID,
             in: context,
             calendar: calendar,
-            now: .now
+            now: DayStartDefaults.boundary(calendar: calendar).loggingInstant(for: .now)
         )
         // Widgets and reminders both resync via WidgetReloader —
         // the "after habit mutation" postamble is already centralized.

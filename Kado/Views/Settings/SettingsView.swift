@@ -13,6 +13,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 SyncStatusSection()
+                DayStartSection()
                 NotificationsSection()
                 BackupSection()
                 SupportSection()

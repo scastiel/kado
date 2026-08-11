@@ -10,6 +10,8 @@ struct TimerLogSheet: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
     @Environment(\.dismiss) private var dismiss
 
     /// Prefilled lazily in `.onAppear` so the env calendar (not the
@@ -60,7 +62,7 @@ struct TimerLogSheet: View {
 
     private func defaultMinutes() -> Int {
         let existing = habit.completions?.first {
-            calendar.isDate($0.date, inSameDayAs: .now)
+            calendar.isDate($0.date, inSameDayAs: today)
         }
         if let existing {
             return max(1, Int((existing.value / 60).rounded()))
@@ -76,6 +78,7 @@ struct TimerLogSheet: View {
         CompletionLogger(calendar: calendar).logTimerSession(
             for: habit,
             seconds: TimeInterval(m) * 60,
+            on: dayBoundary.loggingInstant(for: .now, on: today),
             in: modelContext
         )
         try? modelContext.save()

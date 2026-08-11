@@ -100,8 +100,8 @@ struct OverviewView: View {
             frequencyEvaluator: frequencyEvaluator
         )
         let metrics = Dictionary(uniqueKeysWithValues: snapshots.map { (habit, comps) in
-            let streak = streakCalculator.current(for: habit, completions: comps, asOf: .now)
-            let score = scoreCalculator.currentScore(for: habit, completions: comps, asOf: .now)
+            let streak = streakCalculator.current(for: habit, completions: comps, asOf: now)
+            let score = scoreCalculator.currentScore(for: habit, completions: comps, asOf: now)
             return (habit.id, (streak: streak, scorePercent: Int((score * 100).rounded())))
         })
 
