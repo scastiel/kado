@@ -387,6 +387,31 @@ struct OverviewMatrixTests {
         #expect(DayCell.notDue.colorOpacity == nil)
     }
 
+    @Test("Off-schedule border is always more visible than a neutral cell")
+    func offScheduleBorderNeverFades() throws {
+        // The border is the only thing saying "you logged this". If it
+        // tracked `colorOpacity`, a negative habit's off-schedule slip
+        // — `.offSchedule(0.0)`, asserted above — would draw at 0.2,
+        // fainter than the `.notDue` fill beside it.
+        let zero = try #require(DayCell.offSchedule(0.0).borderOpacity)
+        let full = try #require(DayCell.offSchedule(1.0).borderOpacity)
+        #expect(zero >= 0.6)
+        #expect(full == 1.0)
+        #expect(zero < full)
+
+        // Interior stays faint so the border carries the signal.
+        let fill = try #require(DayCell.offSchedule(1.0).offScheduleFillOpacity)
+        #expect(fill < zero)
+    }
+
+    @Test("borderOpacity and offScheduleFillOpacity are nil for every other case")
+    func borderOpacityOnlyForOffSchedule() {
+        for cell: DayCell in [.future, .notDue, .scored(0.0), .scored(1.0)] {
+            #expect(cell.borderOpacity == nil)
+            #expect(cell.offScheduleFillOpacity == nil)
+        }
+    }
+
     @Test("DayCell.colorOpacity maps scored linearly to [0.2, 1.0]")
     func opacityMapsScoredLinearly() {
         func approx(_ cell: DayCell, _ expected: Double) -> Bool {

@@ -139,3 +139,19 @@ struct CellPopoverContent: View {
         cell: .offSchedule(1.0)
     )
 }
+
+#Preview("Dark") {
+    CellPopoverContent(
+        habit: Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: .now,
+            color: .orange,
+            icon: "dumbbell.fill"
+        ),
+        date: .now,
+        cell: .offSchedule(1.0)
+    )
+    .preferredColorScheme(.dark)
+}

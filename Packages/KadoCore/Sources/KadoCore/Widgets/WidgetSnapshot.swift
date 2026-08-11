@@ -184,4 +184,19 @@ public enum WidgetDayCell: Codable, Sendable, Hashable {
             return 0.2 + 0.8 * clamped
         }
     }
+
+    /// Mirrors `DayCell.borderOpacity` — floored at 0.6 so a logged
+    /// off-schedule day never renders quieter than the neutral cell
+    /// beside it.
+    public var borderOpacity: Double? {
+        guard case .offSchedule(let s) = self else { return nil }
+        let clamped = max(0.0, min(1.0, s))
+        return 0.6 + 0.4 * clamped
+    }
+
+    /// Mirrors `DayCell.offScheduleFillOpacity`.
+    public var offScheduleFillOpacity: Double? {
+        guard case .offSchedule = self else { return nil }
+        return (colorOpacity ?? 0) * 0.25
+    }
 }

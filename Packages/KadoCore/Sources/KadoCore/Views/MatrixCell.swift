@@ -31,10 +31,10 @@ public struct MatrixCell: View {
         RoundedRectangle(cornerRadius: 6, style: .continuous)
             .fill(fill)
             .overlay {
-                if case .offSchedule = state {
+                if let borderOpacity = state.borderOpacity {
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .strokeBorder(
-                            color.color.opacity(state.colorOpacity ?? 0),
+                            color.color.opacity(borderOpacity),
                             lineWidth: 2
                         )
                 }
@@ -52,7 +52,7 @@ public struct MatrixCell: View {
             color.color.opacity(state.colorOpacity ?? 0)
         case .offSchedule:
             // Pale interior so the border carries the signal.
-            color.color.opacity((state.colorOpacity ?? 0) * 0.25)
+            color.color.opacity(state.offScheduleFillOpacity ?? 0)
         }
     }
 }

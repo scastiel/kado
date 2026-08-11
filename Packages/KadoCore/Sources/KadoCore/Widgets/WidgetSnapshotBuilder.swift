@@ -34,10 +34,7 @@ public enum WidgetSnapshotBuilder {
                 frequencyEvaluator: frequencyEvaluator
             )
         let streakCalculator = streakCalculator
-            ?? DefaultStreakCalculator(
-                calendar: calendar,
-                frequencyEvaluator: frequencyEvaluator
-            )
+            ?? DefaultStreakCalculator(calendar: calendar)
 
         let descriptor = FetchDescriptor<HabitRecord>(
             sortBy: [SortDescriptor(\.sortOrder)]
@@ -97,17 +94,16 @@ public enum WidgetSnapshotBuilder {
         for record in active {
             let snap = record.snapshot
             let comps = (record.completions ?? []).compactMap(\.snapshot)
-            // Mirrors `TodayView.isDueTodayOrCompletedToday`: the
-            // schedule asks for it today, or the user logged it today
-            // anyway. Without the second arm a habit vanishes from the
-            // widget the moment it is completed past a weekly quota,
-            // taking its own tick out of `completedToday` with it.
-            let loggedToday = comps.contains { completion in
-                completion.value > 0 && calendar.isDate(completion.date, inSameDayAs: reference)
-            }
-            guard frequencyEvaluator.isDue(habit: snap, on: reference, completions: comps)
-                || loggedToday
-            else {
+            // Without the "or logged today" arm a habit vanishes from
+            // the widget the moment it is completed past a weekly
+            // quota, taking its own tick out of `completedToday`.
+            // Shared with the Today tab so the two can't drift.
+            guard frequencyEvaluator.isDueOrLogged(
+                habit: snap,
+                on: reference,
+                completions: comps,
+                calendar: calendar
+            ) else {
                 continue
             }
             let state = HabitRowState.resolve(

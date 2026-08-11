@@ -48,6 +48,30 @@ public enum DayCell: Equatable, Sendable {
             return 0.2 + 0.8 * clamped
         }
     }
+
+    /// Opacity for the border that marks an off-schedule cell. `nil`
+    /// for every other case.
+    ///
+    /// Floored at 0.6 rather than reusing `colorOpacity`. The border
+    /// is the *only* thing saying "you logged this", and scaling it
+    /// by the day's value would undo the whole point for low values:
+    /// a negative habit's off-schedule slip is `.offSchedule(0.0)`,
+    /// which at `colorOpacity` would draw at 0.2 — fainter than the
+    /// neutral `.notDue` fill beside it. A logged day must never read
+    /// quieter than an empty one. The pale interior still carries the
+    /// value.
+    public var borderOpacity: Double? {
+        guard case .offSchedule(let s) = self else { return nil }
+        let clamped = max(0.0, min(1.0, s))
+        return 0.6 + 0.4 * clamped
+    }
+
+    /// Interior tint for an off-schedule cell — deliberately faint so
+    /// the border carries the signal.
+    public var offScheduleFillOpacity: Double? {
+        guard case .offSchedule = self else { return nil }
+        return (colorOpacity ?? 0) * 0.25
+    }
 }
 
 /// Turns habits + completions + a day range into matrix rows.
@@ -80,16 +104,14 @@ public enum OverviewMatrix {
                 if day < effectiveStartDay { return .notDue }
 
                 let completionsOnDay = completionsByDay[day] ?? []
-                let value = DailyValue.compute(
-                    for: habit,
-                    completionsOnDay: completionsOnDay
-                )
                 if frequencyEvaluator.isDue(
                     habit: habit,
                     on: day,
                     completions: habitCompletions
                 ) {
-                    return .scored(value)
+                    return .scored(
+                        DailyValue.compute(for: habit, completionsOnDay: completionsOnDay)
+                    )
                 }
                 // Off-schedule, but the user logged something anyway.
                 // Resolving this *after* the schedule check is what
@@ -100,8 +122,12 @@ public enum OverviewMatrix {
                 // for a negative habit a record means a slip, which
                 // maps to a value of 0.
                 if completionsOnDay.contains(where: { $0.value > 0 }) {
-                    return .offSchedule(value)
+                    return .offSchedule(
+                        DailyValue.compute(for: habit, completionsOnDay: completionsOnDay)
+                    )
                 }
+                // The common case for a sparse schedule — no value
+                // computed, since nothing consumes it.
                 return .notDue
             }
             return MatrixRow(habit: habit, days: cells)

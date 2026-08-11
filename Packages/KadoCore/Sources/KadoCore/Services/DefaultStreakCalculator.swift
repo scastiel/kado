@@ -2,15 +2,9 @@ import Foundation
 
 public struct DefaultStreakCalculator: StreakCalculating {
     public let calendar: Calendar
-    public let frequencyEvaluator: any FrequencyEvaluating
 
-    public init(
-        calendar: Calendar = .current,
-        frequencyEvaluator: (any FrequencyEvaluating)? = nil
-    ) {
+    public init(calendar: Calendar = .current) {
         self.calendar = calendar
-        self.frequencyEvaluator = frequencyEvaluator
-            ?? DefaultFrequencyEvaluator(calendar: calendar)
     }
 
     public func current(for habit: Habit, completions: [Completion], asOf date: Date) -> Int {
@@ -59,7 +53,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
         var isEndDay = true
 
         while day >= startDay {
-            let due = isDueByDay(habit: habit, on: day, completions: completions)
+            let due = isDueByDay(habit: habit, on: day)
             if !due {
                 day = previousDay(day)
                 isEndDay = false
@@ -92,7 +86,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
         var day = startDay
 
         while day <= end {
-            let due = isDueByDay(habit: habit, on: day, completions: completions)
+            let due = isDueByDay(habit: habit, on: day)
             if !due {
                 day = nextDay(day)
                 continue
@@ -193,14 +187,40 @@ public struct DefaultStreakCalculator: StreakCalculating {
         calendar.date(byAdding: .day, value: 1, to: day)!
     }
 
-    /// Only ever reached for the fixed frequencies — `.daysPerWeek`
-    /// is routed to the week-bucket path before this runs, and never
-    /// consulted the rolling quota. Delegates to the shared evaluator
-    /// so the frequency rules live in exactly one place (issue #57);
-    /// its `effectiveStart` / `archivedAt` guards are redundant here
-    /// because the callers' loop bounds already enforce them.
-    private func isDueByDay(habit: Habit, on day: Date, completions: [Completion]) -> Bool {
-        frequencyEvaluator.isDue(habit: habit, on: day, completions: completions)
+    /// Deliberately **not** delegated to the shared
+    /// `FrequencyEvaluating`, unlike `MonthlyCalendarView`.
+    ///
+    /// Two reasons. Performance: `DefaultFrequencyEvaluator` recomputes
+    /// `habit.effectiveStart(completions:)` — a filter + map + min over
+    /// every completion — on each call, and the callers below walk one
+    /// day at a time across the habit's whole lifetime. That turns an
+    /// O(1) check into O(completions) per day, on the main thread, for
+    /// a value `HabitDetailView` reads from a computed property and
+    /// `WidgetSnapshotBuilder` recomputes on every mutation.
+    /// Correctness: the explicit `.daysPerWeek` case keeps the
+    /// "week-bucket path handles this frequency" invariant enforced
+    /// where it is used, rather than relying on both callers switching
+    /// first. The rolling-quota answer would silently mix weekly
+    /// semantics into a per-day streak walk.
+    ///
+    /// The lifecycle guards the evaluator applies (`effectiveStart`,
+    /// `archivedAt`) are already enforced by the callers' loop bounds.
+    private func isDueByDay(habit: Habit, on day: Date) -> Bool {
+        switch habit.frequency {
+        case .daily:
+            return true
+        case .specificDays(let weekdays):
+            let weekdayInt = calendar.component(.weekday, from: day)
+            guard let weekday = Weekday(rawValue: weekdayInt) else { return false }
+            return weekdays.contains(weekday)
+        case .everyNDays(let n):
+            guard n > 0 else { return false }
+            let createdDay = calendar.startOfDay(for: habit.createdAt)
+            let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
+            return ((delta % n) + n) % n == 0
+        case .daysPerWeek:
+            return false
+        }
     }
 
     private func completedDaySet(habit: Habit, completions: [Completion]) -> Set<Date> {

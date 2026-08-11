@@ -59,7 +59,6 @@ public struct DefaultFrequencyEvaluator: FrequencyEvaluating {
             let windowEnd = countingOwnDay
                 ? day
                 : calendar.date(byAdding: .day, value: -1, to: day)!
-            guard windowStart <= windowEnd else { return true }
 
             let countInWindow = completions.reduce(into: 0) { count, completion in
                 // `value > 0` matters: `CompletionToggler` leaves a

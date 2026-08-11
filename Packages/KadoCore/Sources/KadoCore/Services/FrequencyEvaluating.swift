@@ -40,3 +40,35 @@ public protocol FrequencyEvaluating: Sendable {
     /// scheduling, "what's left today".
     func isOutstanding(habit: Habit, on date: Date, completions: [Completion]) -> Bool
 }
+
+extension FrequencyEvaluating {
+    /// Should this habit appear in a Today-style list on `date`? The
+    /// schedule asks for it, or the user logged real progress on it
+    /// that day anyway — so a habit doesn't vanish the moment a
+    /// rolling weekly quota saturates.
+    ///
+    /// Lives on the protocol rather than being written out at each
+    /// call site: the Today tab and the widget snapshot both need it,
+    /// and a second copy of a schedule rule is exactly what let the
+    /// grid and the calendar drift apart in issue #57.
+    ///
+    /// `.negative` habits are excluded from the second arm. A record
+    /// on a negative habit means the user *broke* it, so a slip on a
+    /// day the schedule never covered is not a reason to surface the
+    /// row — and `HabitRowState` would resolve that row to
+    /// `.complete`, crediting the user for the day they slipped.
+    public func isDueOrLogged(
+        habit: Habit,
+        on date: Date,
+        completions: [Completion],
+        calendar: Calendar
+    ) -> Bool {
+        if isDue(habit: habit, on: date, completions: completions) { return true }
+        if case .negative = habit.type { return false }
+        return completions.contains { completion in
+            completion.habitID == habit.id
+                && completion.value > 0
+                && calendar.isDate(completion.date, inSameDayAs: date)
+        }
+    }
+}

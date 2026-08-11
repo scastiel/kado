@@ -241,6 +241,58 @@ struct FrequencyEvaluatorTests {
         #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(-2), completions: completions))
     }
 
+    // MARK: isDueOrLogged — the shared "show it in Today" rule
+
+    @Test("isDueOrLogged keeps a habit visible once its weekly quota saturates")
+    func isDueOrLoggedKeepsCompletedHabitVisible() {
+        let habit = makeHabit(.daysPerWeek(3), createdOffset: 0)
+        // Quota already met by three earlier days, then a bonus today.
+        let completions = [1, 2, 3, 4].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let today = TestCalendar.day(4)
+        #expect(!evaluator.isDue(habit: habit, on: today, completions: completions))
+        #expect(
+            evaluator.isDueOrLogged(
+                habit: habit, on: today, completions: completions, calendar: TestCalendar.utc
+            )
+        )
+    }
+
+    @Test("isDueOrLogged does not surface a negative habit's off-schedule slip")
+    func isDueOrLoggedIgnoresNegativeSlip() {
+        // A record on a negative habit means the user broke it. On a
+        // day the schedule never covered that is not a reason to show
+        // the row — `HabitRowState` would resolve it to `.complete`
+        // and credit the slip.
+        let habit = Habit(
+            name: "No alcohol",
+            frequency: .specificDays([.monday]),
+            type: .negative,
+            createdAt: TestCalendar.day(-10)
+        )
+        let saturday = TestCalendar.day(-2)
+        let completions = [Completion(habitID: habit.id, date: saturday)]
+        #expect(!evaluator.isDue(habit: habit, on: saturday, completions: completions))
+        #expect(
+            !evaluator.isDueOrLogged(
+                habit: habit, on: saturday, completions: completions, calendar: TestCalendar.utc
+            )
+        )
+    }
+
+    @Test("isDueOrLogged ignores completions belonging to other habits")
+    func isDueOrLoggedIgnoresOtherHabits() {
+        let habit = makeHabit(.specificDays([.monday]), createdOffset: -10)
+        let saturday = TestCalendar.day(-2)
+        let completions = [Completion(habitID: UUID(), date: saturday)]
+        #expect(
+            !evaluator.isDueOrLogged(
+                habit: habit, on: saturday, completions: completions, calendar: TestCalendar.utc
+            )
+        )
+    }
+
     // MARK: Helpers
 
     private func makeHabit(
