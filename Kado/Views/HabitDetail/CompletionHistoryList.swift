@@ -10,6 +10,7 @@ struct CompletionHistoryList: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
 
     private var sortedCompletions: [CompletionRecord] {
         (habit.completions ?? []).sorted { $0.date > $1.date }
@@ -92,11 +93,15 @@ struct CompletionHistoryList: View {
         WidgetReloader.reloadAll(using: modelContext)
     }
 
+    /// Relative labels are anchored to the **logical** today, not
+    /// `isDateInToday` / `isDateInYesterday` — otherwise a completion
+    /// logged at 1am under a 4 AM rollover would read "Yesterday" on
+    /// the very screen that just recorded it as today.
     private func relativeDate(for date: Date) -> String {
-        let now = Date.now
-        if calendar.isDateInToday(date) { return String(localized: "Today") }
-        if calendar.isDateInYesterday(date) { return String(localized: "Yesterday") }
-        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: now)).day ?? 0
+        let day = calendar.startOfDay(for: date)
+        if day == today { return String(localized: "Today") }
+        let days = calendar.dateComponents([.day], from: day, to: today).day ?? 0
+        if days == 1 { return String(localized: "Yesterday") }
         if days > 0 && days < 7 {
             return String(localized: "\(days) days ago")
         }

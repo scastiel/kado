@@ -12,6 +12,7 @@ struct HabitDetailView: View {
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -152,7 +153,7 @@ struct HabitDetailView: View {
 
     private var todayCounterValue: Double {
         habit.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: .now) }?
+            .first { calendar.isDate($0.date, inSameDayAs: today) }?
             .value ?? 0
     }
 
@@ -330,7 +331,7 @@ struct HabitDetailView: View {
         let score = scoreCalculator.currentScore(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
         return "\(Int((score * 100).rounded()))%"
     }
@@ -339,7 +340,7 @@ struct HabitDetailView: View {
         streakCalculator.current(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
     }
 
@@ -347,7 +348,7 @@ struct HabitDetailView: View {
         streakCalculator.best(
             for: habit.snapshot,
             completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: .now
+            asOf: today
         )
     }
 

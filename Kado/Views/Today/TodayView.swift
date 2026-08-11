@@ -149,18 +149,18 @@ struct TodayView: View {
             habit: snap,
             completions: comps,
             calendar: calendar,
-            asOf: .now
+            asOf: today
         )
         NavigationLink(value: record) {
             HabitRowView(
                 habit: snap,
                 state: state,
                 streak: streakCalculator.current(
-                    for: snap, completions: comps, asOf: .now
+                    for: snap, completions: comps, asOf: today
                 ),
                 scorePercent: Int(
                     (scoreCalculator.currentScore(
-                        for: snap, completions: comps, asOf: .now
+                        for: snap, completions: comps, asOf: today
                     ) * 100).rounded()
                 ),
                 onToggle: canToggle(record) ? { toggle(record) } : nil,
@@ -315,7 +315,7 @@ struct TodayView: View {
     private func checkMilestones(for record: HabitRecord) {
         let snap = record.snapshot
         let comps = (record.completions ?? []).compactMap(\.snapshot)
-        let streak = streakCalculator.current(for: snap, completions: comps, asOf: .now)
+        let streak = streakCalculator.current(for: snap, completions: comps, asOf: today)
         if streak == 7 || streak == 30 {
             reviewPromptService.recordMilestone(.streak(days: streak))
         }
@@ -323,7 +323,7 @@ struct TodayView: View {
         let allComplete = habitsDueToday.allSatisfy { habit in
             let s = habit.snapshot
             let c = (habit.completions ?? []).compactMap(\.snapshot)
-            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: .now).status == .complete
+            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: today).status == .complete
         }
         if allComplete {
             reviewPromptService.recordMilestone(.allHabitsComplete)
