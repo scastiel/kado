@@ -44,14 +44,23 @@ struct CellPopoverContent: View {
         case .notDue:
             return String(localized: "Not scheduled")
         case .scored(let s):
-            if s >= 1.0 {
-                return String(localized: "Completed")
-            } else if s <= 0.0 {
-                return String(localized: "Missed")
-            } else {
-                let percent = Int((s * 100).rounded())
-                return String(localized: "\(percent)% complete")
-            }
+            return Self.completionPhrase(for: s)
+        case .offSchedule(let s):
+            return String(
+                localized: "\(Self.completionPhrase(for: s)) — not scheduled that day",
+                comment: "Overview popover status for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'Completed'."
+            )
+        }
+    }
+
+    private static func completionPhrase(for value: Double) -> String {
+        if value >= 1.0 {
+            return String(localized: "Completed")
+        } else if value <= 0.0 {
+            return String(localized: "Missed")
+        } else {
+            let percent = Int((value * 100).rounded())
+            return String(localized: "\(percent)% complete")
         }
     }
 }
@@ -114,4 +123,35 @@ struct CellPopoverContent: View {
         date: .now,
         cell: .notDue
     )
+}
+
+#Preview("Off schedule") {
+    CellPopoverContent(
+        habit: Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: .now,
+            color: .orange,
+            icon: "dumbbell.fill"
+        ),
+        date: .now,
+        cell: .offSchedule(1.0)
+    )
+}
+
+#Preview("Dark") {
+    CellPopoverContent(
+        habit: Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: .now,
+            color: .orange,
+            icon: "dumbbell.fill"
+        ),
+        date: .now,
+        cell: .offSchedule(1.0)
+    )
+    .preferredColorScheme(.dark)
 }

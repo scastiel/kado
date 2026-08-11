@@ -14,6 +14,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     @ViewBuilder var popoverContent: (Date) -> PopoverContent
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
+    @Environment(\.frequencyEvaluator) private var frequencyEvaluator
 
     @State private var slideDirection: SlideDirection = .forward
 
@@ -246,23 +247,14 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         }
     }
 
+    /// Deliberately the shared evaluator rather than a local copy of
+    /// the frequency rules. The private re-implementation this
+    /// replaces treated `.daysPerWeek` as always due (so rest days
+    /// read as "missed") and ignored `archivedAt` — and having two
+    /// copies is what let this view and the Overview grid drift apart
+    /// in the first place (issue #57).
     private func dayIsDue(_ day: Date) -> Bool {
-        switch habit.frequency {
-        case .daily:
-            return true
-        case .specificDays(let weekdays):
-            let weekdayInt = calendar.component(.weekday, from: day)
-            guard let weekday = Weekday(rawValue: weekdayInt) else { return false }
-            return weekdays.contains(weekday)
-        case .everyNDays(let n):
-            guard n > 0 else { return false }
-            let createdDay = calendar.startOfDay(for: habit.createdAt)
-            let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return ((delta % n) + n) % n == 0
-        case .daysPerWeek:
-            // Every day is potentially due; no "non-due" distinction on grid.
-            return true
-        }
+        frequencyEvaluator.isDue(habit: habit, on: day, completions: completions)
     }
 
     private func fill(for state: CellState) -> Color {

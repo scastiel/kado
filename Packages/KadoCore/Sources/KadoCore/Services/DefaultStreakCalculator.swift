@@ -187,6 +187,24 @@ public struct DefaultStreakCalculator: StreakCalculating {
         calendar.date(byAdding: .day, value: 1, to: day)!
     }
 
+    /// Deliberately **not** delegated to the shared
+    /// `FrequencyEvaluating`, unlike `MonthlyCalendarView`.
+    ///
+    /// Two reasons. Performance: `DefaultFrequencyEvaluator` recomputes
+    /// `habit.effectiveStart(completions:)` — a filter + map + min over
+    /// every completion — on each call, and the callers below walk one
+    /// day at a time across the habit's whole lifetime. That turns an
+    /// O(1) check into O(completions) per day, on the main thread, for
+    /// a value `HabitDetailView` reads from a computed property and
+    /// `WidgetSnapshotBuilder` recomputes on every mutation.
+    /// Correctness: the explicit `.daysPerWeek` case keeps the
+    /// "week-bucket path handles this frequency" invariant enforced
+    /// where it is used, rather than relying on both callers switching
+    /// first. The rolling-quota answer would silently mix weekly
+    /// semantics into a per-day streak walk.
+    ///
+    /// The lifecycle guards the evaluator applies (`effectiveStart`,
+    /// `archivedAt`) are already enforced by the callers' loop bounds.
     private func isDueByDay(habit: Habit, on day: Date) -> Bool {
         switch habit.frequency {
         case .daily:

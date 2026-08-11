@@ -225,4 +225,72 @@ struct WidgetSnapshotBuilderTests {
         #expect(topLevel.currentStreak == matrixNested.currentStreak)
         #expect(topLevel.currentScore == matrixNested.currentScore)
     }
+
+    // MARK: - Off-schedule completions (issue #57)
+
+    @Test("A habit completed today past its weekly quota still appears in today's rows")
+    func bonusCompletionStaysInTodayRows() throws {
+        let container = try makeContainer()
+        let calendar = TestCalendar.utc
+        let today = TestCalendar.day(0)
+        let habit = HabitRecord(
+            name: "Run",
+            frequency: .daysPerWeek(3),
+            type: .binary,
+            createdAt: TestCalendar.day(-30)
+        )
+        container.mainContext.insert(habit)
+        // Quota already met by three earlier days in the window, then
+        // a bonus run today. The habit must not vanish from the widget
+        // the moment it is completed — and its tick must still count.
+        for offset in [-3, -2, -1, 0] {
+            container.mainContext.insert(
+                CompletionRecord(date: TestCalendar.day(offset), value: 1, habit: habit)
+            )
+        }
+        try container.mainContext.save()
+
+        let snapshot = WidgetSnapshotBuilder.build(
+            from: container.mainContext,
+            asOf: today,
+            calendar: calendar
+        )
+        #expect(snapshot.today.count == 1)
+        #expect(snapshot.totalDueToday == 1)
+        #expect(snapshot.completedToday == 1)
+        #expect(snapshot.today.first?.status == .complete)
+    }
+
+    @Test("Matrix maps off-schedule completions through to the widget cell")
+    func matrixCarriesOffScheduleCells() throws {
+        let container = try makeContainer()
+        let calendar = TestCalendar.utc
+        let today = TestCalendar.day(0)
+        // Monday-only habit; day 0 is a Monday, so day -2 (Saturday)
+        // is off schedule but was logged anyway.
+        let habit = HabitRecord(
+            name: "Gym",
+            frequency: .specificDays([.monday]),
+            type: .binary,
+            createdAt: TestCalendar.day(-30)
+        )
+        container.mainContext.insert(habit)
+        container.mainContext.insert(
+            CompletionRecord(date: TestCalendar.day(-2), value: 1, habit: habit)
+        )
+        try container.mainContext.save()
+
+        let snapshot = WidgetSnapshotBuilder.build(
+            from: container.mainContext,
+            asOf: today,
+            calendar: calendar,
+            matrixWindowDays: 7
+        )
+        let cells = try #require(snapshot.matrix.first?.cells)
+        #expect(cells[4] == .offSchedule(1.0))
+        // The schedule is still legible around it: the untouched
+        // Sunday stays neutral and Monday stays a scored miss.
+        #expect(cells[5] == .notDue)
+        #expect(cells[6] == .scored(0.0))
+    }
 }

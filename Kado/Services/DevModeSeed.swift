@@ -2,16 +2,29 @@ import Foundation
 import SwiftData
 import KadoCore
 
-/// Seeds a `ModelContext` with a realistic demo dataset covering each
-/// `Frequency` and `HabitType` variant, plus ~30 days of historical
-/// completions. Used by the in-app dev mode sandbox and by SwiftUI
-/// previews.
+/// Seeds a `ModelContext` with a realistic demo dataset covering every
+/// `HabitType` variant and the `.daily`, `.specificDays` and
+/// `.daysPerWeek` frequencies, plus ~30 days of historical completions.
+/// Used by the in-app dev mode sandbox and by SwiftUI previews.
 @MainActor
 enum DevModeSeed {
     /// Completions per habit in the seed dataset (every other day for
     /// 30 days from today). Kept as a constant so tests can reference
     /// it without duplicating arithmetic.
     static let completionsPerHabit = 15
+
+    /// Day offsets (in days ago) for the `.daysPerWeek` habit. Five of
+    /// every seven days, plus two extra days.
+    ///
+    /// The every-other-day default used by the other habits never fills
+    /// a five-per-week quota, so the interesting states never appear.
+    /// This pattern saturates the rolling window — which is what makes
+    /// rest days read as "not scheduled" rather than "missed", and what
+    /// makes the two bonus days render as off-schedule completions.
+    static let daysPerWeekOffsets: [Int] = {
+        let scheduled = (1...35).filter { $0 % 7 != 0 && $0 % 7 != 6 }
+        return (scheduled + [6, 20]).sorted()
+    }()
 
     static func seed(into context: ModelContext, calendar: Calendar = .current) {
         // Through the boundary so seeded history lines up with what
@@ -63,6 +76,15 @@ enum DevModeSeed {
             ),
         ]
 
+        let run = HabitRecord(
+            name: names.run,
+            frequency: .daysPerWeek(5),
+            type: .binary,
+            createdAt: calendar.date(byAdding: .day, value: -50, to: today)!,
+            color: .green,
+            icon: "figure.run"
+        )
+
         for habit in habits {
             context.insert(habit)
             // 15 completions per habit, every other day going back 29 days.
@@ -78,6 +100,12 @@ enum DevModeSeed {
             }
         }
 
+        context.insert(run)
+        for daysAgo in daysPerWeekOffsets {
+            let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
+            context.insert(CompletionRecord(date: date, value: 1, habit: run))
+        }
+
         try? context.save()
     }
 
@@ -87,6 +115,7 @@ enum DevModeSeed {
         let water: String
         let read: String
         let noSocialMedia: String
+        let run: String
 
         static func forCurrentLocale() -> SeedNames {
             switch Locale.current.language.languageCode?.identifier {
@@ -96,7 +125,8 @@ enum DevModeSeed {
                     gym: "Salle de sport",
                     water: "Boire de l'eau",
                     read: "Lecture",
-                    noSocialMedia: "Pas de réseaux sociaux"
+                    noSocialMedia: "Pas de réseaux sociaux",
+                    run: "Course à pied"
                 )
             default:
                 SeedNames(
@@ -104,7 +134,8 @@ enum DevModeSeed {
                     gym: "Gym",
                     water: "Drink water",
                     read: "Read",
-                    noSocialMedia: "No social media"
+                    noSocialMedia: "No social media",
+                    run: "Running"
                 )
             }
         }

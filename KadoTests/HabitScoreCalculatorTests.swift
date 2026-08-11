@@ -612,6 +612,73 @@ struct HabitScoreCalculatorTests {
         #expect(scoreNoCompletions > 0, "clean days from creation should build score")
     }
 
+    // MARK: .daysPerWeek (issue #57)
+
+    @Test("A perfect days-per-week user scores the same as a perfect daily user")
+    func perfectDaysPerWeekMatchesPerfectDaily() {
+        // Meeting a five-per-week target every week is a perfect
+        // record. Before #57 the rolling quota counted the day's own
+        // completion, so every day after the first four was "not due"
+        // and the EMA never advanced past ~0.185.
+        let flexible = Habit(
+            name: "Run",
+            frequency: .daysPerWeek(5),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        let flexibleCompletions = (0..<6).flatMap { week in
+            (0..<5).map { weekday in
+                Completion(habitID: flexible.id, date: TestCalendar.day(week * 7 + weekday))
+            }
+        }
+        let flexibleScore = calculator.currentScore(
+            for: flexible,
+            completions: flexibleCompletions,
+            asOf: TestCalendar.day(41)
+        )
+
+        let daily = makeHabit(createdOffset: 0)
+        let dailyCompletions = (0...41).map {
+            Completion(habitID: daily.id, date: TestCalendar.day($0))
+        }
+        let dailyScore = calculator.currentScore(
+            for: daily,
+            completions: dailyCompletions,
+            asOf: TestCalendar.day(41)
+        )
+
+        // Rest days are skipped rather than scored, so the flexible
+        // habit folds in fewer days over the same span and trails
+        // slightly — but it must be in the same league, not frozen.
+        #expect(flexibleScore > 0.7, "perfect 5-per-week user got \(flexibleScore)")
+        #expect(flexibleScore <= dailyScore)
+        #expect(dailyScore - flexibleScore < 0.2)
+    }
+
+    @Test("Missing the days-per-week target costs score")
+    func missedDaysPerWeekTargetLowersScore() {
+        let habit = Habit(
+            name: "Run",
+            frequency: .daysPerWeek(5),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        func score(daysPerWeek: Int) -> Double {
+            let completions = (0..<6).flatMap { week in
+                (0..<daysPerWeek).map { weekday in
+                    Completion(habitID: habit.id, date: TestCalendar.day(week * 7 + weekday))
+                }
+            }
+            return calculator.currentScore(
+                for: habit,
+                completions: completions,
+                asOf: TestCalendar.day(41)
+            )
+        }
+        #expect(score(daysPerWeek: 3) < score(daysPerWeek: 5))
+        #expect(score(daysPerWeek: 5) > 0)
+    }
+
     // MARK: Helpers
 
     private func makeHabit(createdOffset: Int) -> Habit {
