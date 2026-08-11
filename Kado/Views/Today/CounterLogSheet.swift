@@ -13,6 +13,7 @@ struct CounterLogSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
     @Environment(\.dismiss) private var dismiss
 
     /// Prefilled lazily in `.onAppear` so the env calendar (not
@@ -79,6 +80,7 @@ struct CounterLogSheet: View {
         let v = value ?? todayValue()
         CompletionLogger(calendar: calendar).setCounter(
             for: habit,
+            on: dayBoundary.loggingInstant(for: .now),
             to: Double(v),
             in: modelContext
         )

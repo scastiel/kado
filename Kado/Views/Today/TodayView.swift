@@ -14,6 +14,7 @@ struct TodayView: View {
     @Environment(\.reviewPromptService) private var reviewPromptService
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
 
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -259,6 +260,14 @@ struct TodayView: View {
 
     // MARK: - Actions
 
+    /// The instant to stamp on anything logged right now. Reads the
+    /// live clock rather than `\.today` so a write always lands in the
+    /// day it actually happened in, even if the view's day marker
+    /// hasn't ticked over yet.
+    private var loggingInstant: Date {
+        dayBoundary.loggingInstant(for: .now)
+    }
+
     private func moveHabits(_ section: [HabitRecord], from source: IndexSet, to destination: Int) {
         var reordered = section
         reordered.move(fromOffsets: source, toOffset: destination)
@@ -283,7 +292,7 @@ struct TodayView: View {
 
     private func toggle(_ record: HabitRecord) {
         CompletionToggler(calendar: calendar)
-            .toggleToday(for: record, in: modelContext)
+            .toggleToday(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -291,7 +300,7 @@ struct TodayView: View {
 
     private func incrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, in: modelContext)
+            .incrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -299,14 +308,14 @@ struct TodayView: View {
 
     private func decrementCounter(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .decrementCounter(for: record, in: modelContext)
+            .decrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func addFiveMinutes(_ record: HabitRecord) {
         CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, by: 300, in: modelContext)
+            .incrementCounter(for: record, on: loggingInstant, by: 300, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -331,7 +340,7 @@ struct TodayView: View {
     }
 
     private func archive(_ record: HabitRecord) {
-        record.archivedAt = .now
+        record.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

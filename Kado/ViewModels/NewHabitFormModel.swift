@@ -149,12 +149,18 @@ final class NewHabitFormModel {
         return true
     }
 
-    func build() -> HabitRecord {
+    /// `createdAt` defaults to the caller's clock, but callers that
+    /// know the user's day boundary should pass the logical instant —
+    /// it anchors the `everyNDays` cycle and bounds the score, so a
+    /// habit created at 2am under a 4 AM rollover belongs to the day
+    /// the user still thinks they're in.
+    func build(createdAt: Date = .now) -> HabitRecord {
         let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         return HabitRecord(
             name: trimmedName,
             frequency: frequency,
             type: type,
+            createdAt: createdAt,
             color: color,
             icon: icon,
             remindersEnabled: remindersEnabled,
@@ -166,7 +172,7 @@ final class NewHabitFormModel {
     /// Inserts a new record or mutates the existing one in place,
     /// then saves. Returns the final record (new or edited).
     @discardableResult
-    func save(in context: ModelContext) -> HabitRecord {
+    func save(in context: ModelContext, createdAt: Date = .now) -> HabitRecord {
         defer { WidgetReloader.reloadAll(using: context) }
         let components = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
         if let record = editingRecord {
@@ -181,7 +187,7 @@ final class NewHabitFormModel {
             try? context.save()
             return record
         } else {
-            let record = build()
+            let record = build(createdAt: createdAt)
             record.sortOrder = HabitSortOrder.nextSortOrder(in: context)
             context.insert(record)
             try? context.save()

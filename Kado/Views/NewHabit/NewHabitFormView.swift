@@ -11,6 +11,7 @@ struct NewHabitFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.notificationScheduler) private var notificationScheduler
+    @Environment(\.dayBoundary) private var dayBoundary
 
     @FocusState private var nameFocused: Bool
     @State private var saveTick: Int = 0
@@ -179,7 +180,7 @@ struct NewHabitFormView: View {
                     return
                 }
             }
-            model.save(in: modelContext)
+            model.save(in: modelContext, createdAt: dayBoundary.loggingInstant(for: .now))
             saveTick += 1
             dismiss()
         }

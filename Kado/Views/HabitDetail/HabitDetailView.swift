@@ -13,6 +13,7 @@ struct HabitDetailView: View {
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
+    @Environment(\.dayBoundary) private var dayBoundary
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
@@ -110,8 +111,14 @@ struct HabitDetailView: View {
         }
     }
 
+    /// The instant to stamp on anything logged right now — see the
+    /// matching helper on `TodayView`.
+    private var loggingInstant: Date {
+        dayBoundary.loggingInstant(for: .now)
+    }
+
     private func archive() {
-        habit.archivedAt = .now
+        habit.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         dismiss()
@@ -158,13 +165,13 @@ struct HabitDetailView: View {
     }
 
     private func incrementCounter() {
-        CompletionLogger(calendar: calendar).incrementCounter(for: habit, in: modelContext)
+        CompletionLogger(calendar: calendar).incrementCounter(for: habit, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func decrementCounter() {
-        CompletionLogger(calendar: calendar).decrementCounter(for: habit, in: modelContext)
+        CompletionLogger(calendar: calendar).decrementCounter(for: habit, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
