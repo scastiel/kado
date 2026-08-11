@@ -115,6 +115,12 @@ struct TodayView: View {
             let due = habitsDueToday
             let other = habitsNotDueToday
             List {
+                if TodayDayCaption.isBeforeRollover(dayBoundary) {
+                    TodayDayCaption(boundary: dayBoundary)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 6, trailing: 20))
+                }
                 if !due.isEmpty {
                     Section {
                         ForEach(due) { row($0) }

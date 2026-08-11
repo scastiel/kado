@@ -28,7 +28,7 @@ private struct DayStartPicker: View {
         Section {
             Picker("Day starts at", selection: $hour) {
                 ForEach(Array(DayStartDefaults.allowedHours), id: \.self) { candidate in
-                    Text(Self.label(for: candidate)).tag(candidate)
+                    Text(DayStartHourLabel.text(for: candidate)).tag(candidate)
                 }
             }
         } header: {
@@ -49,19 +49,6 @@ private struct DayStartPicker: View {
             : "Until this hour, Today still shows the previous day — so a late-night tap lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
     }
 
-    /// Locale-formatted so 24-hour regions read "04:00" rather than
-    /// "4 AM". Midnight gets a word instead of a number: it's the
-    /// default, and "12:00 AM" reads like a configured value.
-    static func label(for hour: Int) -> String {
-        guard hour != 0 else { return String(localized: "Midnight") }
-        var components = DateComponents()
-        components.year = 2000
-        components.month = 1
-        components.day = 1
-        components.hour = hour
-        guard let date = Calendar.current.date(from: components) else { return "\(hour)" }
-        return date.formatted(.dateTime.hour().minute())
-    }
 }
 
 // MARK: - Previews
