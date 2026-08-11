@@ -1,7 +1,7 @@
 # Plan — Day starts at (custom day-rollover hour)
 
 **Date**: 2026-08-10
-**Status**: draft — awaiting approval
+**Status**: done — all tasks complete
 **Research**: [research.md](./research.md)
 **Issue**: [#58](https://github.com/scastiel/kado/issues/58)
 
@@ -55,7 +55,7 @@ CloudKit Production deploy.
 Tasks 1–2 are TDD (business logic). Tasks 3–10 each leave the app
 compiling and green.
 
-### Task 1: `DayBoundary` tests
+### ✅ Task 1: `DayBoundary` tests
 
 **Goal**: Pin the day-resolution semantics before any implementation
 exists.
@@ -87,7 +87,7 @@ exists.
 
 ---
 
-### Task 2: `DayBoundary` implementation
+### ✅ Task 2: `DayBoundary` implementation
 
 **Goal**: Make Task 1 green.
 
@@ -106,7 +106,7 @@ exists.
 
 ---
 
-### Task 3: Persistence + Environment plumbing
+### ✅ Task 3: Persistence + Environment plumbing
 
 **Goal**: Make the setting readable everywhere, with nothing yet
 consuming it.
@@ -129,7 +129,7 @@ reads it yet).
 
 ---
 
-### Task 4: Logical "today" through the app
+### ✅ Task 4: Logical "today" through the app
 
 **Goal**: Every reference-date read asks `DayBoundary`, not the clock.
 This is the task that makes Today, streaks, score and Overview agree.
@@ -160,7 +160,7 @@ day's list.
 
 ---
 
-### Task 5: Logical day on write
+### ✅ Task 5: Logical day on write
 
 **Goal**: A completion logged at 2am lands on the day Today is
 showing.
@@ -189,7 +189,7 @@ showing.
 
 ---
 
-### Task 6: App Intents, notification actions, widget snapshot
+### ✅ Task 6: App Intents, notification actions, widget snapshot
 
 **Goal**: Siri, the notification banner and the widgets agree with
 Today.
@@ -219,7 +219,7 @@ snapshot and inherit the offset for free.
 
 ---
 
-### Task 7: Settings section
+### ✅ Task 7: Settings section
 
 **Goal**: The user can actually set it.
 
@@ -238,7 +238,7 @@ reads the picker and footer.
 
 ---
 
-### Task 8: Pre-rollover caption on Today
+### ✅ Task 8: Pre-rollover caption on Today
 
 **Goal**: The state is never surprising.
 
@@ -257,7 +257,7 @@ absent at 10:00 and absent entirely at `startHour == 0`.
 
 ---
 
-### Task 9: Foreground rollover tick
+### ✅ Task 9: Foreground rollover tick
 
 **Goal**: At 4:00:00 with the app open, Today flips and the caption
 disappears without a relaunch.
@@ -274,7 +274,7 @@ foregrounded, observe the flip.
 
 ---
 
-### Task 10: Localization + docs
+### ✅ Task 10: Localization + docs
 
 **Goal**: Ship-ready.
 
@@ -299,6 +299,72 @@ foregrounded, observe the flip.
 | **App Group** | widget reads a stale snapshot across a rollover | pre-existing (true at midnight today); the offset doesn't worsen it. Separate issue. |
 | **UserNotifications** | reminder scheduling accidentally shifts | Task 6 adds an explicit regression test that it does *not* |
 | **App Intents** | a second container | untouched — both intents keep using `ActiveContainer.shared` |
+
+## Notes during build
+
+Kept for the compound stage.
+
+- **Task 2 — clamping split.** The plan had `DayBoundary` clamp to
+  `0...6`. Implemented as `0...23` on `DayBoundary` (any hour is
+  mathematically valid) with `0...6` owned by `DayStartDefaults`, which
+  is what the picker offers. Widening the range later is now a one-line
+  change with no effect on day resolution.
+
+- **Task 2 — `bySettingHour`, not hour addition.** Adding `startHour`
+  hours to midnight overshoots by the skipped hour on a spring-forward
+  day. `date(bySettingHour:matchingPolicy:.nextTime)` finds the wall
+  clock reading instead, and falls forward when that reading doesn't
+  exist at all (02:00 on 2026-03-29 in Paris). Both cases are pinned by
+  tests.
+
+- **Task 4 — smaller than planned, for a good reason.** Stored
+  completion dates keep plain `calendar.startOfDay` bucketing, and
+  `\.today` is already a plain calendar midnight, so most sites needed
+  only `.now` → `today` rather than a `DayBoundary` call. The rule that
+  fell out: **`dayBoundary` answers "what day is it now"; `calendar`
+  buckets an already-stored date.** Applying the boundary to a stored
+  date is the read-normalisation design we rejected.
+
+- **Task 6 — `generatedAt` was quietly becoming midnight.** The builder
+  set `generatedAt: reference`, and `reference` is now the logical day's
+  midnight. Nothing reads the field today, so it was set to the true
+  `.now` rather than left as a trap for the first consumer.
+
+- **Task 8 — the screenshot caught two bugs the tests could not.**
+  `setLocalizedDateFormatFromTemplate("EEEE")` negotiated down to the
+  abbreviated weekday ("Still Sun"), fixed by using
+  `Weekday.localizedFull` per the project convention. And formatting
+  `nextRollover` rendered the instant in the *device's* time zone, so a
+  UTC boundary at 04:00 displayed as "00:00". Both now have regressions
+  in `DayStartPresentationTests`, and the hour label is shared with the
+  Settings picker via `DayStartHourLabel` so the two can't disagree.
+
+- **The post-sweep grep found three more.** The plan's mitigation earned
+  its place. `DayColumnHeader` (Overview's highlighted column) and
+  `WeeklyGridLargeWidget` both used `isDateInToday`, which matches *no*
+  column between midnight and the rollover. The widget now derives
+  "today" from `snapshot.matrixDays.last` rather than reading the
+  setting — self-consistent with the snapshot it renders. `DevModeSeed`
+  was also seeding against wall-clock days.
+
+- **Not verified on device.** The FR rendering of the two Settings
+  footers and the Today caption. XcodeBuildMCP has no tap primitive on
+  this machine (no `idb` installed), so Settings can't be reached in the
+  simulator; EN was pixel-checked through a temporary render harness,
+  and repeated attempts to launch under an FR locale failed to
+  foreground. FR strings are covered by `LocalizationCoverageTests`; the
+  wording needs a native-speaker pass regardless.
+
+## Verification
+
+- `test_sim`: **412 passing**, up from a 362 baseline. No pre-existing
+  test was modified.
+- `build_sim`: clean for `Kado` and `KadoWidgetsExtension`, and for
+  iPad Air 13-inch (M4) — no new warnings.
+- Pixel-checked on iPhone 17 Pro: the Settings section in its default
+  state, and the 4 AM state (picker value, non-default footer, Today
+  caption) through a temporary render harness.
+
 
 ## Risks and mitigation
 

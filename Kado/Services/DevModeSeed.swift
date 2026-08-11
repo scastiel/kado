@@ -14,7 +14,10 @@ enum DevModeSeed {
     static let completionsPerHabit = 15
 
     static func seed(into context: ModelContext, calendar: Calendar = .current) {
-        let today = calendar.startOfDay(for: .now)
+        // Through the boundary so seeded history lines up with what
+        // Today renders — otherwise dev mode is misleading precisely
+        // when you're using it to exercise the day-start setting.
+        let today = DayStartDefaults.boundary(calendar: calendar).startOfDay(for: .now)
         let names = SeedNames.forCurrentLocale()
 
         let habits: [HabitRecord] = [

@@ -9,6 +9,7 @@ struct DayColumnHeader: View {
     let date: Date
     var width: CGFloat = 32
     @Environment(\.calendar) private var calendar
+    @Environment(\.today) private var today
 
     var body: some View {
         VStack(spacing: 2) {
@@ -29,8 +30,11 @@ struct DayColumnHeader: View {
         return Weekday(rawValue: weekdayInt)?.localizedShort ?? ""
     }
 
+    /// Against the logical day rather than `isDateInToday`: before
+    /// the rollover the matrix's trailing column *is* the day the user
+    /// is still in, and highlighting nothing would read as a bug.
     private var isToday: Bool {
-        calendar.isDateInToday(date)
+        calendar.isDate(date, inSameDayAs: today)
     }
 
     private var accessibilityLabel: String {

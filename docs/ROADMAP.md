@@ -197,6 +197,12 @@ themes, Streaks import) are not in the review build and will ship
 in a follow-up update before the final 1.0 marketing push.
 
 ### Final features
+- [x] **"Day starts at" setting** — a configurable day-rollover hour
+      (midnight…6 AM, default midnight) so late-night logging keeps
+      the one-tap Today flow. One injected `DayBoundary` resolves the
+      logical day for every surface; completions are normalised on
+      write, so changing the setting never re-buckets history. See
+      `docs/plans/2026-08/day-start-hour/`.
 - [ ] Import from Streaks (format to reverse-engineer or document if
       no official export)
 - [ ] Core themes: light, dark, sepia, high contrast

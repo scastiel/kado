@@ -122,8 +122,12 @@ struct WeeklyGridLargeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    /// Taken from the snapshot rather than the clock. The app builds
+    /// `matrixDays` ending on the *logical* day, so under a non-midnight
+    /// "Day starts at" hour `isDateInToday` would match no column at all
+    /// between midnight and the rollover.
     private func isToday(_ day: Date) -> Bool {
-        Calendar.current.isDateInToday(day)
+        day == entry.snapshot.matrixDays.last
     }
 
     private func weekdayLabel(for day: Date) -> String {
