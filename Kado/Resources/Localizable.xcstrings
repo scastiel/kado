@@ -3985,6 +3985,108 @@
           }
         }
       }
+    },
+    "JSON" : {
+      "comment" : "Export format option in the Settings Data menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON"
+          }
+        }
+      }
+    },
+    "CSV" : {
+      "comment" : "Export format option in the Settings Data menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV"
+          }
+        }
+      }
+    },
+    "Not a Kadō CSV export" : {
+      "comment" : "Alert title when an imported CSV isn't a Kadō export.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a Kadō CSV export"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un export CSV Kadō"
+          }
+        }
+      }
+    },
+    "The file couldn't be read as a Kadō CSV export. Check that its header row is intact." : {
+      "comment" : "Alert message when a CSV file fails to parse as a Kadō export.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file couldn't be read as a Kadō CSV export. Check that its header row is intact."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier n'a pas pu être lu comme un export CSV Kadō. Vérifie que sa ligne d'en-tête est intacte."
+          }
+        }
+      }
+    },
+    "Malformed row" : {
+      "comment" : "Alert title when a CSV row has the wrong column count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Malformed row"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ligne mal formée"
+          }
+        }
+      }
+    },
+    "Line %lld doesn't have the expected number of columns." : {
+      "comment" : "Alert message naming the CSV line with a wrong column count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line %lld doesn't have the expected number of columns."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ligne %lld n'a pas le nombre de colonnes attendu."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

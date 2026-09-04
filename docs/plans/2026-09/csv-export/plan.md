@@ -158,7 +158,7 @@ schema deploy.
 
 ---
 
-### Task 8: Format picker and CSV import routing
+### Task 8: Format picker and CSV import routing ✅
 
 **Goal**: Wire CSV into the UI.
 
@@ -175,7 +175,7 @@ schema deploy.
 
 ---
 
-### Task 9: Localization
+### Task 9: Localization ✅
 
 **Goal**: EN + FR entries for every new user-facing string.
 

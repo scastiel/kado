@@ -25,8 +25,17 @@ struct BackupSection: View {
 
     var body: some View {
         Section("Data") {
-            Button {
-                performExport()
+            Menu {
+                Button {
+                    performExport(format: .json)
+                } label: {
+                    Label("JSON", systemImage: "curlybraces")
+                }
+                Button {
+                    performExport(format: .csv)
+                } label: {
+                    Label("CSV", systemImage: "tablecells")
+                }
             } label: {
                 Label("Export Data", systemImage: "square.and.arrow.up")
             }
@@ -46,7 +55,7 @@ struct BackupSection: View {
         .listRowBackground(Color.kadoBackgroundSecondary)
         .fileImporter(
             isPresented: $isShowingImporter,
-            allowedContentTypes: [.json]
+            allowedContentTypes: [.json, .commaSeparatedText]
         ) { result in
             handleFileImport(result)
         }
@@ -87,10 +96,20 @@ struct BackupSection: View {
         return formatter.string(from: date)
     }
 
-    private func performExport() {
+    private func performExport(format: BackupFormat) {
         do {
-            let data = try exporter.exportData(from: modelContext)
-            let filename = "kado-backup-\(Self.filenameDate(from: .now)).json"
+            let document = try exporter.export(from: modelContext)
+            let data: Data
+            switch format {
+            case .json:
+                data = try exporter.encode(document)
+            case .csv:
+                // The coder is a pure value type with no collaborators,
+                // so it's constructed here rather than injected — there
+                // is nothing to stub in a preview.
+                data = CSVBackupCoder().encode(document)
+            }
+            let filename = "kado-backup-\(Self.filenameDate(from: .now)).\(format.fileExtension)"
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
             try data.write(to: url, options: .atomic)
             lastExportAt = Date.now.timeIntervalSince1970
@@ -129,12 +148,27 @@ struct BackupSection: View {
                 return
             }
 
+            // The extension is a hint — some file providers rename on
+            // export — so fall back to sniffing the contents.
+            let format = BackupFormat.detect(pathExtension: url.pathExtension)
+                ?? BackupFormat.sniff(data)
+
             do {
-                let document = try importer.parse(data: data)
+                let document: BackupDocument
+                switch format {
+                case .json:
+                    document = try importer.parse(data: data)
+                case .csv:
+                    document = try CSVBackupCoder().decode(data)
+                }
                 let summary = try importer.summary(for: document, in: modelContext)
                 presentedSheet = .confirmImport(document: document, summary: summary)
             } catch BackupError.invalidJSON {
                 presentedAlert = .importFailed(.invalidJSON)
+            } catch BackupError.invalidCSV {
+                presentedAlert = .importFailed(.invalidCSV)
+            } catch BackupError.malformedRow(let line) {
+                presentedAlert = .importFailed(.malformedRow(line: line))
             } catch BackupError.unsupportedVersion {
                 presentedAlert = .importFailed(.unsupportedVersion)
             } catch {
@@ -263,12 +297,16 @@ private enum PresentedAlert: Identifiable {
 /// Why an import couldn't proceed.
 private enum ImportFailure {
     case invalidJSON
+    case invalidCSV
+    case malformedRow(line: Int)
     case unsupportedVersion
     case readFailed
 
     var id: String {
         switch self {
         case .invalidJSON: return "invalidJSON"
+        case .invalidCSV: return "invalidCSV"
+        case .malformedRow(let line): return "malformedRow-\(line)"
         case .unsupportedVersion: return "unsupportedVersion"
         case .readFailed: return "readFailed"
         }
@@ -277,6 +315,8 @@ private enum ImportFailure {
     var title: LocalizedStringKey {
         switch self {
         case .invalidJSON: return "Not a Kadō backup"
+        case .invalidCSV: return "Not a Kadō CSV export"
+        case .malformedRow: return "Malformed row"
         case .unsupportedVersion: return "Newer Kadō version"
         case .readFailed: return "Couldn't read file"
         }
@@ -286,6 +326,10 @@ private enum ImportFailure {
         switch self {
         case .invalidJSON:
             return "The file couldn't be decoded as a Kadō backup."
+        case .invalidCSV:
+            return "The file couldn't be read as a Kadō CSV export. Check that its header row is intact."
+        case .malformedRow(let line):
+            return "Line \(line) doesn't have the expected number of columns."
         case .unsupportedVersion:
             return "This backup was created by a newer Kadō version. Update Kadō to import."
         case .readFailed:
