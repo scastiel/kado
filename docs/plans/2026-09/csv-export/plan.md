@@ -1,7 +1,7 @@
 # Plan — CSV export (lossless round-trip)
 
 **Date**: 2026-09-04
-**Status**: ready to build
+**Status**: done — build complete, awaiting compound
 **Research**: [research.md](./research.md)
 **Branch / PR**: `feature/csv-export` — [PR #62](https://github.com/scastiel/kado/pull/62)
 
@@ -192,7 +192,7 @@ schema deploy.
 
 ---
 
-### Task 10: Previews, build, and visual verification
+### Task 10: Previews, build, and visual verification ✅
 
 **Goal**: Meet the project's definition of done.
 
@@ -251,8 +251,34 @@ schema deploy.
   byte-identical to the JSON encoder's `.iso8601` strategy, so both
   formats drop sub-second precision the same way.
 
+- **Task 7 turned out to be three alerts and two sheets**, not the
+  four alerts the compound remembered. The consolidation was worth
+  doing regardless — Task 8 adds two more failure cases, which would
+  have made five.
+
+- **Tasks 8–9 landed as one commit.** Task 8 alone introduces EN
+  catalog keys with no FR translations, which fails
+  `LocalizationCoverageTests`. Same reasoning as Tasks 1–2: don't leave
+  a red commit on the branch.
+
+- **`CSVBackupCoder` is constructed at the call site, not injected.**
+  Every other service here is protocol-defined and injected via
+  `@Entry`, but the coder is a pure value type with no collaborators
+  and nothing to stub — a preview or test gains nothing from a mock,
+  and the round-trip tests use the real type already.
+
+- **Task 10: the format picker could not be visually verified.**
+  It's a `Menu`, which a preview cannot open, and this XcodeBuildMCP
+  install has no tap primitives, so Settings → Data is unreachable from
+  the agent (the limitation CLAUDE.md records from PRs #5 and #8). What
+  *was* verified: clean `build_sim` on iPhone 17 Pro and iPad Air
+  11-inch (M4) with no new warnings, a clean launch, and two new
+  previews covering the CSV failure copy. **The export → import cycle
+  still needs one human hand-check.**
+
 - **Test count**: 434 baseline → 455 after Tasks 1–2 → 461 after
-  Task 3 → 479 after Tasks 4–5.
+  Task 3 → 479 after Tasks 4–5 → 484 after Task 6, holding through
+  Tasks 7–10.
 
 ## Risks and mitigation
 

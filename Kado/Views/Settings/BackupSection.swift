@@ -367,6 +367,35 @@ private struct ShareSheet: UIViewControllerRepresentable {
         .preferredColorScheme(.dark)
 }
 
+/// The export format picker is a `Menu`, which a preview can't open,
+/// and the import alerts are driven by private `@State`. These two
+/// previews at least make the new CSV failure copy reviewable without
+/// running the app — the tap-driven simulator path is unavailable on
+/// this XcodeBuildMCP install (see CLAUDE.md).
+#Preview("CSV parse failure alert") {
+    Color.clear
+        .alert(
+            ImportFailure.invalidCSV.title,
+            isPresented: .constant(true)
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(ImportFailure.invalidCSV.message)
+        }
+}
+
+#Preview("Malformed row alert") {
+    Color.clear
+        .alert(
+            ImportFailure.malformedRow(line: 42).title,
+            isPresented: .constant(true)
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(ImportFailure.malformedRow(line: 42).message)
+        }
+}
+
 #Preview("Confirmation sheet") {
     Color.clear.sheet(isPresented: .constant(true)) {
         ImportConfirmSheet(
