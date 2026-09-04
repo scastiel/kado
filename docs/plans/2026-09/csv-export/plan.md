@@ -88,7 +88,7 @@ schema deploy.
 
 ---
 
-### Task 4: CSV backup coder — tests
+### Task 4: CSV backup coder — tests ✅
 
 **Goal**: Pin the column contract and every field-encoding rule before implementing.
 
@@ -112,7 +112,7 @@ schema deploy.
 
 ---
 
-### Task 5: CSV backup coder — implementation
+### Task 5: CSV backup coder — implementation ✅
 
 **Goal**: `encode(BackupDocument) -> Data` and `decode(Data) throws -> BackupDocument`.
 
@@ -237,7 +237,22 @@ schema deploy.
   nothing about backups. The coder in Task 5 maps `CSVParseError` onto
   `BackupError.invalidCSV`.
 
-- **Test count**: 434 baseline → 455 after Tasks 1–2.
+- **Task 5: the golden canonical-shape test passed on the first run.**
+  The PR #16 lesson says to generate the expected string rather than
+  compute it. A cheaper variant worked here: write the fixture
+  timestamps, then verify them with `date -u -r 1700000000` before
+  running anything. Two seconds of shell beats a two-minute
+  `test_sim` cycle, and it generalizes to any test asserting a
+  serialized timestamp.
+
+- **`Date.ISO8601FormatStyle` over `ISO8601DateFormatter`.** The value-
+  type format style needs no shared formatter instance, which keeps
+  `CSVBackupCoder` `Sendable` with no static mutable state. Output is
+  byte-identical to the JSON encoder's `.iso8601` strategy, so both
+  formats drop sub-second precision the same way.
+
+- **Test count**: 434 baseline → 455 after Tasks 1–2 → 461 after
+  Task 3 → 479 after Tasks 4–5.
 
 ## Risks and mitigation
 
