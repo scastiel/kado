@@ -34,7 +34,7 @@ schema deploy.
 
 ## Task list
 
-### Task 1: RFC 4180 primitives — tests
+### Task 1: RFC 4180 primitives — tests ✅
 
 **Goal**: Pin the quoting and parsing contract before any implementation exists.
 
@@ -57,7 +57,7 @@ schema deploy.
 
 ---
 
-### Task 2: RFC 4180 primitives — implementation
+### Task 2: RFC 4180 primitives — implementation ✅
 
 **Goal**: Make Task 1 green with a hand-written reader/writer (no third-party deps).
 
@@ -206,6 +206,38 @@ schema deploy.
 - XcodeBuildMCP tap primitives are not enabled on this install, so the picker cannot be driven from the agent — cover the states with previews and ask for one hand-check of an actual CSV export → import cycle on device.
 
 **Commit message (suggested)**: `feat(csv): add previews and verify on iPhone and iPad`
+
+## Notes during build
+
+- **Tasks 1–2 landed as one commit, not two.** The plan proposed a red
+  test commit followed by an implementation commit, but tests
+  referencing types that don't exist yet don't *compile*, so the
+  intermediate commit would have left the branch unbuildable and
+  unbisectable. Ran the red/green loop exactly as planned (`test_sim`
+  confirmed 22 compile failures, then 455/455 green) — only the commit
+  boundary moved. Later tasks with the same shape will do the same.
+
+- **Task 2: Swift clusters `\r\n` into a single `Character`.** It
+  equals neither `"\r"` nor `"\n"`, which broke both primitives at
+  once: `CSVWriter.escape` didn't quote a field containing a CRLF pair,
+  and `CSVReader` fell through to `default` and appended the pair as
+  field content instead of ending the row. The two bugs cancelled out
+  in the writer/reader round-trip test, which passed for the wrong
+  reason — only the reader's standalone CRLF test caught it. Fixed by
+  checking line breaks over `unicodeScalars` in the writer and matching
+  an explicit `case "\r\n"` in the reader. Added
+  `carriageReturnLineFeedIsQuoted` as a regression test.
+
+  This is worth carrying to compound: it's a Swift-specific trap that
+  any hand-written text parser in this codebase can hit, and the
+  round-trip test masking it is the more interesting half.
+
+- **`CSVParseError` is separate from `BackupError`** (a refinement to
+  Task 3's scope): the RFC 4180 layer stays dependency-free and knows
+  nothing about backups. The coder in Task 5 maps `CSVParseError` onto
+  `BackupError.invalidCSV`.
+
+- **Test count**: 434 baseline → 455 after Tasks 1–2.
 
 ## Risks and mitigation
 
