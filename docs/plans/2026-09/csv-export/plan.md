@@ -73,7 +73,7 @@ schema deploy.
 
 ---
 
-### Task 3: Format and error scaffolding
+### Task 3: Format and error scaffolding ✅
 
 **Goal**: Introduce the two small types the coder and UI both depend on.
 

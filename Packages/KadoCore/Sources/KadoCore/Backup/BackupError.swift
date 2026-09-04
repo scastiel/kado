@@ -8,4 +8,12 @@ public enum BackupError: Error, Equatable, Sendable {
     /// to read. Associated value carries the offending version for the
     /// error message.
     case unsupportedVersion(Int)
+    /// The bytes aren't parseable as Kadō's CSV backup — unreadable as
+    /// CSV at all, a missing or unrecognized header, or a field whose
+    /// contents don't decode.
+    case invalidCSV
+    /// A CSV row didn't carry the expected number of columns. The
+    /// associated value is the 1-based line number, so the message can
+    /// point the user at the row they broke.
+    case malformedRow(line: Int)
 }
