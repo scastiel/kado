@@ -143,7 +143,7 @@ schema deploy.
 
 ---
 
-### Task 7: Consolidate BackupSection's presentation stack
+### Task 7: Consolidate BackupSection's presentation stack ✅
 
 **Goal**: Pure refactor, no behavior change — collapse four `.alert` and two `.sheet(item:)` modifiers into single `PresentedAlert` / `PresentedSheet` enums.
 
