@@ -127,7 +127,7 @@ schema deploy.
 
 ---
 
-### Task 6: Round-trip integration tests
+### Task 6: Round-trip integration tests ✅
 
 **Goal**: Prove "lossless" at document *and* store level, not just per-field.
 
