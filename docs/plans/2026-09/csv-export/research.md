@@ -244,14 +244,18 @@ Current suite: 434 `@Test` cases across 47 files.
 
 ## Open questions
 
-- [ ] CSV injection: confirm we accept unescaped `=`-leading fields as
-      the cost of losslessness. (Recommendation: yes, document it.)
-- [ ] Should the FR export use `;` as delimiter and `,` as decimal
-      separator, as French Excel expects? Lossless argues for one fixed
-      machine format; French users opening the file in Excel argue the
-      other way. (Recommendation: fixed `,` + `.`, revisit on feedback.)
-- [ ] Does the export filename stay `kado-backup-<date>.csv`, or become
-      `kado-export-<date>.csv` now that two formats exist?
+All resolved with the user before the plan stage — carried into
+[plan.md](./plan.md) as locked decisions.
+
+- [x] CSV injection: **accept unescaped `=`-leading fields** as the cost
+      of losslessness, and document the behavior.
+- [x] FR delimiter: **fixed `,` with `.` decimals**, not localized to
+      `;` for French Excel. Revisit on user feedback.
+- [x] Export filename: **stays `kado-backup-<date>.<ext>`** for both
+      formats — no change to the shipped JSON path.
+- [x] Empty vs nil `note`: empty field decodes to `nil`; the `""`
+      distinction is not preserved, since Excel and Numbers destroy it
+      on re-save.
 
 ## References
 
