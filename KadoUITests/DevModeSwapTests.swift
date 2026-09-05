@@ -65,22 +65,22 @@ final class DevModeSwapTests: KadoUITestCase {
     /// toggle, back to Today, and the detail screen is still on the
     /// stack with a dead object in it.
     ///
-    /// **This test currently fails, and the failure is real.** PR #64
-    /// fixes the list half above but not this one: `HabitDetailLoader`
-    /// re-resolves the id on every render, yet `HabitDetailView` is
-    /// built on `@Bindable var habit: HabitRecord` and retains the
-    /// object it was handed, so SwiftUI re-evaluates that retained
-    /// struct's body against the previous store's record and traps in
-    /// `HabitRecord.name.getter`. Keying the loader's child on
-    /// `record.persistentModelID` was tried and does not help — the
-    /// retained body runs before the replacement reaches it.
+    /// Worth holding separately from the list tests, because it is a
+    /// different shape and took a second fix. Re-resolving the id in
+    /// `HabitDetailLoader` is not on its own enough: while
+    /// `HabitDetailView` took `@Bindable var habit: HabitRecord` it
+    /// retained the object it was handed, and SwiftUI re-evaluated that
+    /// retained struct's body against the previous store's record —
+    /// trapping in `HabitRecord.name.getter` — before the loader's
+    /// re-resolution reached it. This test caught that while the list
+    /// tests above were already passing.
     ///
-    /// The fix is for `HabitDetailView` to render from a value-type
-    /// snapshot and resolve the record only inside mutations, which is
-    /// the rule #64 itself added to `CLAUDE.md`. Left failing on
-    /// purpose rather than muted: a suite that reported green while the
-    /// app died would be the exact failure mode this target exists to
-    /// end.
+    /// Giving the loader's child a `.id(record.persistentModelID)`, so
+    /// the swap would discard the screen rather than update it, does
+    /// **not** fix it — the retained body still runs first. Don't spend
+    /// a cycle re-deriving that. What does fix it is rendering from a
+    /// value-type snapshot and resolving the record only inside
+    /// mutations, down through `CompletionHistoryList` too.
     @MainActor
     func testTogglingDevModeWithADetailScreenPushedDoesNotCrash() {
         let app = launchApp(devMode: true, seedProduction: true)
