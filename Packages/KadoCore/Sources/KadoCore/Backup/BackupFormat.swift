@@ -34,7 +34,13 @@ nonisolated public enum BackupFormat: String, CaseIterable, Hashable, Sendable {
     /// resolve. A JSON backup always starts with `{` once whitespace is
     /// skipped; anything else is treated as CSV.
     public static func sniff(_ data: Data) -> BackupFormat {
-        let leading = data.prefix(64)
+        var leading = data.prefix(64)
+        // Excel's "CSV UTF-8" and some JSON writers prepend a byte order
+        // mark. `String(data:encoding:.utf8)` strips it on the decode
+        // path, but this one reads raw bytes and has to skip it itself.
+        if leading.starts(with: [0xEF, 0xBB, 0xBF]) {
+            leading = leading.dropFirst(3)
+        }
         for byte in leading {
             // Skip ASCII whitespace: space, tab, LF, CR.
             if byte == 0x20 || byte == 0x09 || byte == 0x0A || byte == 0x0D { continue }

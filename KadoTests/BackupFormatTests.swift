@@ -37,6 +37,15 @@ struct BackupFormatTests {
         #expect(BackupFormat.sniff(Data("\n  {\"a\":1}".utf8)) == .json)
     }
 
+    /// A JSON backup saved by a tool that writes a byte order mark still
+    /// starts with `{` once the BOM is skipped.
+    @Test("Sniffing sees past a UTF-8 BOM")
+    func sniffSkipsByteOrderMark() {
+        var data = Data([0xEF, 0xBB, 0xBF])
+        data.append(Data(#"{"formatVersion":1}"#.utf8))
+        #expect(BackupFormat.sniff(data) == .json)
+    }
+
     @Test("Sniffing treats anything else, including empty input, as CSV")
     func sniffCSV() {
         #expect(BackupFormat.sniff(Data("format_version,habit_id\n".utf8)) == .csv)

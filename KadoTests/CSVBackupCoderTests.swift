@@ -150,8 +150,10 @@ struct CSVBackupCoderTests {
 
         // Rewrite the habit name on the *second* data row only. Safe to
         // split on newlines here: no field in this fixture is quoted.
+        // #require, not #expect: a non-fatal check here would let the
+        // next line index out of bounds and trap the whole test runner.
         var lines = csv.split(separator: "\n").map(String.init)
-        #expect(lines.count == 3, "fixture should be a header plus two rows")
+        try #require(lines.count == 3, "fixture should be a header plus two rows")
         lines[2] = lines[2].replacingOccurrences(of: "Meditate", with: "Renamed")
         let edited = lines.joined(separator: "\n") + "\n"
 
@@ -214,6 +216,50 @@ struct CSVBackupCoderTests {
         #expect(throws: BackupError.invalidCSV) {
             try coder.decode(Data("\"unclosed".utf8))
         }
+    }
+
+    // MARK: - Spreadsheet round-trip
+
+    /// Excel's "Save As → CSV UTF-8" prepends a byte order mark. Without
+    /// tolerance for it the strict header match fails and the user is
+    /// told their header row is damaged, which it isn't.
+    @Test("Leading UTF-8 BOM is tolerated")
+    func byteOrderMarkTolerated() throws {
+        var bomPrefixed = Data([0xEF, 0xBB, 0xBF])
+        bomPrefixed.append(coder.encode(document([habit()])))
+
+        let restored = try coder.decode(bomPrefixed).habits
+        #expect(restored.first?.id == habitID)
+    }
+
+    /// Spreadsheets normalize a boolean column to TRUE / FALSE on save.
+    @Test("Boolean columns accept spreadsheet TRUE and FALSE")
+    func spreadsheetBooleans() throws {
+        let csv = String(decoding: coder.encode(document([habit()])), as: UTF8.self)
+        let shouted = csv.replacingOccurrences(of: ",true,", with: ",TRUE,")
+        try #require(shouted != csv, "fixture should contain a lowercase boolean to rewrite")
+
+        let restored = try coder.decode(Data(shouted.utf8)).habits
+        #expect(restored.first?.remindersEnabled == true)
+    }
+
+    /// Copy-pasting a row in Numbers is the advertised workflow, and two
+    /// rows carrying the same completion_id must not become two
+    /// CompletionRecords sharing a UUID — CloudKit forbids
+    /// `@Attribute(.unique)`, so nothing downstream would catch it.
+    @Test("Duplicate completion rows collapse to a single completion")
+    func duplicateCompletionRows() throws {
+        let completion = CompletionBackup(id: completionID, date: completedAt, value: 1, note: nil)
+        let csv = String(decoding: coder.encode(document([habit(completions: [completion])])), as: UTF8.self)
+
+        var lines = csv.split(separator: "\n").map(String.init)
+        try #require(lines.count == 2, "fixture should be a header plus one row")
+        lines.append(lines[1])
+
+        let restored = try coder.decode(Data((lines.joined(separator: "\n") + "\n").utf8)).habits
+        #expect(restored.count == 1)
+        #expect(restored.first?.completions.count == 1)
+        #expect(restored.first?.completions.first?.id == completionID)
     }
 
     // MARK: - Canonical shape

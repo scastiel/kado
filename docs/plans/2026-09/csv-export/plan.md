@@ -276,9 +276,34 @@ schema deploy.
   previews covering the CSV failure copy. **The export → import cycle
   still needs one human hand-check.**
 
+- **Post-build code review found three real bugs, all on the
+  spreadsheet path** — the one the feature exists for. Fixed with
+  tests first (all three reproduced red before the fix):
+  - **Duplicate `completion_id` rows inserted two `CompletionRecord`s
+    sharing a UUID.** `decode` appended every row, and
+    `DefaultBackupImporter.apply` snapshots `existingCompletions` once
+    *before* its loop, so neither insert saw the other. CloudKit
+    forbids `@Attribute(.unique)`, so nothing downstream would have
+    caught it — the day would just be double-counted in the score.
+    Reachable by copy-pasting a row in Numbers, which is the
+    advertised workflow. Now first-row-wins, matching the habit
+    metadata rule.
+  - **`decodeBool` rejected `TRUE` / `FALSE`.** Spreadsheets normalize
+    boolean columns on save, so a file that had been through Excel
+    failed to import — with a message blaming the header row, which
+    was intact.
+  - **`BackupFormat.sniff` misclassified BOM-prefixed JSON as CSV.**
+
+- **One review finding was wrong, and the test caught it.** The review
+  claimed a UTF-8 BOM also breaks `decode`'s strict header match.
+  Written as a test, it passed immediately: Foundation's
+  `String(data:encoding:.utf8)` already strips a leading BOM. Only
+  `sniff`, which reads raw bytes, needed the fix. Worth writing the
+  failing test before accepting a reported bug.
+
 - **Test count**: 434 baseline → 455 after Tasks 1–2 → 461 after
   Task 3 → 479 after Tasks 4–5 → 484 after Task 6, holding through
-  Tasks 7–10.
+  Tasks 7–10 → 488 after the review fixes.
 
 ## Risks and mitigation
 

@@ -106,6 +106,7 @@ nonisolated public struct CSVBackupCoder: Sendable {
 
         var order: [UUID] = []
         var habits: [UUID: HabitBackup] = [:]
+        var seenCompletionIDs: Set<UUID> = []
         var formatVersion = BackupDocument.currentFormatVersion
 
         for (offset, row) in rows.dropFirst().enumerated() {
@@ -155,6 +156,17 @@ nonisolated public struct CSVBackupCoder: Sendable {
             guard let completionID = UUID(uuidString: row[12]) else {
                 throw BackupError.invalidCSV
             }
+
+            // First row for a completion id wins, matching the habit
+            // metadata rule above. Duplicates are reachable by
+            // copy-pasting a row in a spreadsheet, and letting both
+            // through would insert two CompletionRecords sharing a
+            // UUID: CloudKit forbids `@Attribute(.unique)`, and
+            // `DefaultBackupImporter.apply` snapshots the existing
+            // completions once before its loop, so neither insert sees
+            // the other.
+            guard seenCompletionIDs.insert(completionID).inserted else { continue }
+
             guard let value = Double(row[14]) else { throw BackupError.invalidCSV }
 
             habits[habitID]?.completions.append(
@@ -283,8 +295,11 @@ nonisolated public struct CSVBackupCoder: Sendable {
         return color
     }
 
+    /// Lowercased before parsing: spreadsheets normalize a boolean
+    /// column to `TRUE` / `FALSE` on save, and rejecting those would
+    /// break the round-trip that motivates shipping CSV at all.
     static func decodeBool(_ field: String) throws -> Bool {
-        guard let value = Bool(field) else { throw BackupError.invalidCSV }
+        guard let value = Bool(field.lowercased()) else { throw BackupError.invalidCSV }
         return value
     }
 
