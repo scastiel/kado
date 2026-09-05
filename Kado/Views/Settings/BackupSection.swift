@@ -14,18 +14,28 @@ struct BackupSection: View {
 
     @AppStorage("lastExportAt") private var lastExportAt: Double = 0
 
-    @State private var shareItem: ShareItem?
-    @State private var exportError: String?
-
     @State private var isShowingImporter = false
-    @State private var pendingImport: PendingImport?
-    @State private var importAlert: ImportAlert?
-    @State private var importSuccessSummary: ImportSummary?
+
+    // One slot each for the presented sheet and alert. The states are
+    // mutually exclusive, and stacking a modifier per case (this view
+    // was up to two sheets and three alerts) is how presentation stacks
+    // start dropping presentations — see the PR #16 compound.
+    @State private var presentedSheet: PresentedSheet?
+    @State private var presentedAlert: PresentedAlert?
 
     var body: some View {
         Section("Data") {
-            Button {
-                performExport()
+            Menu {
+                Button {
+                    performExport(format: .json)
+                } label: {
+                    Label("JSON", systemImage: "curlybraces")
+                }
+                Button {
+                    performExport(format: .csv)
+                } label: {
+                    Label("CSV", systemImage: "tablecells")
+                }
             } label: {
                 Label("Export Data", systemImage: "square.and.arrow.up")
             }
@@ -43,56 +53,36 @@ struct BackupSection: View {
             }
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
-        .sheet(item: $shareItem) { item in
-            ShareSheet(activityItems: [item.url])
-                .ignoresSafeArea()
-        }
-        .alert("Export failed", isPresented: Binding(
-            get: { exportError != nil },
-            set: { if !$0 { exportError = nil } }
-        )) {
-            Button("OK", role: .cancel) { exportError = nil }
-        } message: {
-            if let exportError {
-                Text(exportError)
-            }
-        }
         .fileImporter(
             isPresented: $isShowingImporter,
-            allowedContentTypes: [.json]
+            allowedContentTypes: [.json, .commaSeparatedText]
         ) { result in
             handleFileImport(result)
         }
-        .sheet(item: $pendingImport) { pending in
-            ImportConfirmSheet(
-                summary: pending.summary,
-                onCancel: { pendingImport = nil },
-                onConfirm: { commitImport(pending.document) }
-            )
+        .sheet(item: $presentedSheet) { sheet in
+            switch sheet {
+            case .share(let url):
+                ShareSheet(activityItems: [url])
+                    .ignoresSafeArea()
+            case .confirmImport(let document, let summary):
+                ImportConfirmSheet(
+                    summary: summary,
+                    onCancel: { presentedSheet = nil },
+                    onConfirm: { commitImport(document) }
+                )
+            }
         }
         .alert(
-            importAlert?.title ?? "",
+            presentedAlert?.title ?? "",
             isPresented: Binding(
-                get: { importAlert != nil },
-                set: { if !$0 { importAlert = nil } }
+                get: { presentedAlert != nil },
+                set: { if !$0 { presentedAlert = nil } }
             ),
-            presenting: importAlert
+            presenting: presentedAlert
         ) { _ in
-            Button("OK", role: .cancel) { importAlert = nil }
+            Button("OK", role: .cancel) { presentedAlert = nil }
         } message: { alert in
-            Text(alert.message)
-        }
-        .alert(
-            "Import complete",
-            isPresented: Binding(
-                get: { importSuccessSummary != nil },
-                set: { if !$0 { importSuccessSummary = nil } }
-            ),
-            presenting: importSuccessSummary
-        ) { _ in
-            Button("OK", role: .cancel) { importSuccessSummary = nil }
-        } message: { summary in
-            Text("Habits: \(summary.totalHabits) (\(summary.newHabits) new, \(summary.updatedHabits) updated)\nCompletions: \(summary.totalCompletions) (\(summary.newCompletions) new, \(summary.updatedCompletions) updated)")
+            alert.message
         }
     }
 
@@ -106,16 +96,26 @@ struct BackupSection: View {
         return formatter.string(from: date)
     }
 
-    private func performExport() {
+    private func performExport(format: BackupFormat) {
         do {
-            let data = try exporter.exportData(from: modelContext)
-            let filename = "kado-backup-\(Self.filenameDate(from: .now)).json"
+            let document = try exporter.export(from: modelContext)
+            let data: Data
+            switch format {
+            case .json:
+                data = try exporter.encode(document)
+            case .csv:
+                // The coder is a pure value type with no collaborators,
+                // so it's constructed here rather than injected — there
+                // is nothing to stub in a preview.
+                data = CSVBackupCoder().encode(document)
+            }
+            let filename = "kado-backup-\(Self.filenameDate(from: .now)).\(format.fileExtension)"
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
             try data.write(to: url, options: .atomic)
             lastExportAt = Date.now.timeIntervalSince1970
-            shareItem = ShareItem(url: url)
+            presentedSheet = .share(url)
         } catch {
-            exportError = error.localizedDescription
+            presentedAlert = .exportFailed(error.localizedDescription)
         }
     }
 
@@ -135,7 +135,7 @@ struct BackupSection: View {
     private func handleFileImport(_ result: Result<URL, Error>) {
         switch result {
         case .failure:
-            importAlert = .readFailed
+            presentedAlert = .importFailed(.readFailed)
         case .success(let url):
             let didStartAccess = url.startAccessingSecurityScopedResource()
             defer { if didStartAccess { url.stopAccessingSecurityScopedResource() } }
@@ -144,20 +144,35 @@ struct BackupSection: View {
             do {
                 data = try Data(contentsOf: url)
             } catch {
-                importAlert = .readFailed
+                presentedAlert = .importFailed(.readFailed)
                 return
             }
 
+            // The extension is a hint — some file providers rename on
+            // export — so fall back to sniffing the contents.
+            let format = BackupFormat.detect(pathExtension: url.pathExtension)
+                ?? BackupFormat.sniff(data)
+
             do {
-                let document = try importer.parse(data: data)
+                let document: BackupDocument
+                switch format {
+                case .json:
+                    document = try importer.parse(data: data)
+                case .csv:
+                    document = try CSVBackupCoder().decode(data)
+                }
                 let summary = try importer.summary(for: document, in: modelContext)
-                pendingImport = PendingImport(document: document, summary: summary)
+                presentedSheet = .confirmImport(document: document, summary: summary)
             } catch BackupError.invalidJSON {
-                importAlert = .invalidJSON
+                presentedAlert = .importFailed(.invalidJSON)
+            } catch BackupError.invalidCSV {
+                presentedAlert = .importFailed(.invalidCSV)
+            } catch BackupError.malformedRow(let line) {
+                presentedAlert = .importFailed(.malformedRow(line: line))
             } catch BackupError.unsupportedVersion {
-                importAlert = .unsupportedVersion
+                presentedAlert = .importFailed(.unsupportedVersion)
             } catch {
-                importAlert = .readFailed
+                presentedAlert = .importFailed(.readFailed)
             }
         }
     }
@@ -165,12 +180,12 @@ struct BackupSection: View {
     private func commitImport(_ document: BackupDocument) {
         do {
             let summary = try importer.apply(document, to: modelContext)
-            pendingImport = nil
+            presentedSheet = nil
             WidgetReloader.reloadAll(using: modelContext)
-            importSuccessSummary = summary
+            presentedAlert = .importSucceeded(summary)
         } catch {
-            pendingImport = nil
-            importAlert = .readFailed
+            presentedSheet = nil
+            presentedAlert = .importFailed(.readFailed)
         }
     }
 }
@@ -227,24 +242,81 @@ private struct ImportConfirmSheet: View {
     }
 }
 
-// MARK: - Alert
+// MARK: - Presentation state
 
-private enum ImportAlert: Identifiable {
+/// Every sheet this section can present, in one slot.
+private enum PresentedSheet: Identifiable {
+    case share(URL)
+    case confirmImport(document: BackupDocument, summary: ImportSummary)
+
+    var id: String {
+        switch self {
+        case .share(let url): return "share-\(url.absoluteString)"
+        case .confirmImport: return "confirmImport"
+        }
+    }
+}
+
+/// Every alert this section can present, in one slot.
+private enum PresentedAlert: Identifiable {
+    case exportFailed(String)
+    case importFailed(ImportFailure)
+    case importSucceeded(ImportSummary)
+
+    var id: String {
+        switch self {
+        case .exportFailed: return "exportFailed"
+        case .importFailed(let failure): return "importFailed-\(failure.id)"
+        case .importSucceeded: return "importSucceeded"
+        }
+    }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .exportFailed: return "Export failed"
+        case .importFailed(let failure): return failure.title
+        case .importSucceeded: return "Import complete"
+        }
+    }
+
+    /// Returns `Text` rather than `LocalizedStringKey` so the dynamic
+    /// export-error description reaches the non-localizing initializer
+    /// while the fixed strings stay on the localized path.
+    var message: Text {
+        switch self {
+        case .exportFailed(let description):
+            return Text(description)
+        case .importFailed(let failure):
+            return Text(failure.message)
+        case .importSucceeded(let summary):
+            return Text("Habits: \(summary.totalHabits) (\(summary.newHabits) new, \(summary.updatedHabits) updated)\nCompletions: \(summary.totalCompletions) (\(summary.newCompletions) new, \(summary.updatedCompletions) updated)")
+        }
+    }
+}
+
+/// Why an import couldn't proceed.
+private enum ImportFailure {
     case invalidJSON
+    case invalidCSV
+    case malformedRow(line: Int)
     case unsupportedVersion
     case readFailed
 
-    var id: Int {
+    var id: String {
         switch self {
-        case .invalidJSON: return 0
-        case .unsupportedVersion: return 1
-        case .readFailed: return 2
+        case .invalidJSON: return "invalidJSON"
+        case .invalidCSV: return "invalidCSV"
+        case .malformedRow(let line): return "malformedRow-\(line)"
+        case .unsupportedVersion: return "unsupportedVersion"
+        case .readFailed: return "readFailed"
         }
     }
 
     var title: LocalizedStringKey {
         switch self {
         case .invalidJSON: return "Not a Kadō backup"
+        case .invalidCSV: return "Not a Kadō CSV export"
+        case .malformedRow: return "Malformed row"
         case .unsupportedVersion: return "Newer Kadō version"
         case .readFailed: return "Couldn't read file"
         }
@@ -254,29 +326,16 @@ private enum ImportAlert: Identifiable {
         switch self {
         case .invalidJSON:
             return "The file couldn't be decoded as a Kadō backup."
+        case .invalidCSV:
+            return "The file couldn't be read as a Kadō CSV export. Check that its header row is intact."
+        case .malformedRow(let line):
+            return "Line \(line) doesn't have the expected number of columns."
         case .unsupportedVersion:
             return "This backup was created by a newer Kadō version. Update Kadō to import."
         case .readFailed:
             return "The file couldn't be read. Try a different file."
         }
     }
-}
-
-// MARK: - Pending import
-
-private struct PendingImport: Identifiable {
-    let id = UUID()
-    let document: BackupDocument
-    let summary: ImportSummary
-}
-
-// MARK: - Share item
-
-/// Wraps a temp file URL in an `Identifiable` so SwiftUI's
-/// `.sheet(item:)` can present it as a one-shot share sheet.
-private struct ShareItem: Identifiable {
-    let id = UUID()
-    let url: URL
 }
 
 // MARK: - UIActivityViewController bridge
@@ -306,6 +365,35 @@ private struct ShareSheet: UIViewControllerRepresentable {
     Form { BackupSection() }
         .defaultAppStorage(.preview(lastExportAt: Date.now.timeIntervalSince1970 - 3600))
         .preferredColorScheme(.dark)
+}
+
+/// The export format picker is a `Menu`, which a preview can't open,
+/// and the import alerts are driven by private `@State`. These two
+/// previews at least make the new CSV failure copy reviewable without
+/// running the app — the tap-driven simulator path is unavailable on
+/// this XcodeBuildMCP install (see CLAUDE.md).
+#Preview("CSV parse failure alert") {
+    Color.clear
+        .alert(
+            ImportFailure.invalidCSV.title,
+            isPresented: .constant(true)
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(ImportFailure.invalidCSV.message)
+        }
+}
+
+#Preview("Malformed row alert") {
+    Color.clear
+        .alert(
+            ImportFailure.malformedRow(line: 42).title,
+            isPresented: .constant(true)
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(ImportFailure.malformedRow(line: 42).message)
+        }
 }
 
 #Preview("Confirmation sheet") {
