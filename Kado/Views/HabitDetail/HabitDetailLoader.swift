@@ -22,7 +22,17 @@ struct HabitDetailLoader: View {
 
     var body: some View {
         if let record = allHabits.first(where: { $0.id == habitID }) {
-            HabitDetailView(habit: record)
+            // Snapshotted here, at the boundary. Re-resolving the id is
+            // necessary but not sufficient on its own: handing the
+            // record down let SwiftUI re-run the detail screen's
+            // retained body against the previous store's object before
+            // this re-resolution reached it. Only `@Query` is safe to
+            // read a record from, because SwiftUI refreshes it before
+            // evaluating this body.
+            HabitDetailView(
+                habit: record.snapshot,
+                completions: (record.completions ?? []).compactMap(\.snapshot)
+            )
         } else {
             HabitUnavailableView()
         }
