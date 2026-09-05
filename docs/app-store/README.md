@@ -99,6 +99,27 @@ The private key goes in `~/.appstoreconnect/private_keys/AuthKey_<ASC_KEY_ID>.p8
 
 ---
 
+## Uploading a build
+
+```
+make archive      a signed App Store archive
+make ipa          export it
+make testflight   both, then upload
+```
+
+These pass the same API key to `xcodebuild` as `-authenticationKeyPath` / `-authenticationKeyID` / `-authenticationKeyIssuerID`, alongside `-allowProvisioningUpdates`. That is what lets a machine archive without a distribution certificate already in its keychain — Xcode issues the signing assets through the API instead.
+
+**Read this before the first run on a fresh machine.** "Issues the signing assets" means it *creates them on the account*, and two of those actions are not freely reversible:
+
+- **An Apple Distribution certificate.** A team may hold at most two (three counting Xcode-managed ones). The private key exists only on the machine that created it and cannot be downloaded again from Apple, so a certificate created here is not usable from another Mac unless it is exported as a `.p12` first. Revoking one to make room invalidates every build signed with it that has not yet been uploaded.
+- **An App Store provisioning profile** for `dev.scastiel.kado` and for each extension. These are cheap and regenerable; the certificate is the part to think about.
+
+Check what the account already holds before creating anything — the App Store Connect API answers this directly, and `security find-identity -v -p codesigning` says what this machine holds. The two can disagree: a certificate can exist on the account with its private key on a different Mac, which looks identical to "no certificate" from here and is fixed by exporting a `.p12`, not by creating a second one.
+
+The build number must exceed everything App Store Connect has already seen. It rejects a duplicate *after* the upload rather than before it, so bump `CURRENT_PROJECT_VERSION` in the same commit as `MARKETING_VERSION`; the repo convention is `chore: bump version to 1.X (build N)`. Both live in `Kado.xcodeproj/project.pbxproj` in eight places each — every target — and a partial bump builds fine and fails at upload.
+
+---
+
 ## Before submitting
 
 `make listing` writes the listing. It does not submit it, and it does not upload a build — that is `xcrun altool --upload-app`, and it is a separate decision.

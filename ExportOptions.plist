@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  How `make ipa` turns the archive into something App Store Connect will take.
+
+  `destination: upload` is deliberately NOT set: the export and the upload are separate steps
+  so a rejected upload can be retried without rebuilding — an archive is minutes, an upload is
+  seconds.
+
+  `signingStyle: automatic` matches the project, which uses Xcode-managed signing throughout
+  (CODE_SIGN_STYLE = Automatic on every target). The archive step passes
+  `-allowProvisioningUpdates` so the App Store profile can be issued on demand.
+-->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+
+	<key>teamID</key>
+	<string>VKY5EKKU47</string>
+
+	<key>signingStyle</key>
+	<string>automatic</string>
+
+	<!-- Kadō ships no bitcode-eligible code and Apple stopped accepting bitcode in Xcode 14. -->
+	<key>uploadSymbols</key>
+	<true/>
+
+	<!-- No symbol stripping surprises: the widget and Live Activity extensions ship their own
+	     dSYMs, and a crash report without them is unreadable. -->
+	<key>compileBitcode</key>
+	<false/>
+
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+</dict>
+</plist>

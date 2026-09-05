@@ -14,6 +14,10 @@
 #   make listing-info  what App Store Connect currently holds
 #   make listing       upload the copy and the screenshots (needs ASC_ISSUER_ID)
 #
+#   make archive       build a signed App Store archive
+#   make ipa           export that archive as an .ipa
+#   make testflight    archive, export and upload a build
+#
 # XcodeBuildMCP remains the tool of choice from inside Claude Code (see
 # CLAUDE.md). This exists for the cases it can't cover: pinning an OS
 # version when `OS:latest` won't resolve, and giving each worktree a
@@ -68,7 +72,8 @@ ASC_ISSUER_ID ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help build test e2e run shot sim sim-clean clean \
-	screenshots frames site-shots listing-check listing-info listing
+	screenshots frames site-shots listing-check listing-info listing \
+	archive ipa testflight
 
 help:
 	@grep -E '^[a-z0-9-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -180,6 +185,51 @@ asc-credentials:
 		echo "and the key's .p8 belongs in ~/.appstoreconnect/private_keys/."; \
 		echo "Re-run as: make listing ASC_KEY_ID=<id> ASC_ISSUER_ID=<uuid>"; \
 		exit 1; }
+
+# Release. The archive and the .ipa are separate steps so a rejected upload can be retried
+# without rebuilding — an archive is minutes, an upload is seconds.
+ARCHIVE := $(DERIVED)/Kado.xcarchive
+EXPORT  := $(DERIVED)/export
+IPA     := $(EXPORT)/Kado.ipa
+
+# Signing assets are issued on demand through the same API key the listing uses, so a machine
+# without a distribution certificate can still archive. That *creates* account-level assets the
+# first time — see docs/app-store/README.md before running it on a fresh machine.
+AUTH := -allowProvisioningUpdates \
+	-authenticationKeyPath $(HOME)/.appstoreconnect/private_keys/AuthKey_$(ASC_KEY_ID).p8 \
+	-authenticationKeyID $(ASC_KEY_ID) \
+	-authenticationKeyIssuerID $(ASC_ISSUER_ID)
+
+archive: ## Build a signed App Store archive
+	@$(MAKE) --no-print-directory asc-credentials
+	@xcodebuild archive \
+		-project $(PROJECT) -scheme $(SCHEME) \
+		-destination 'generic/platform=iOS' \
+		-archivePath $(ARCHIVE) \
+		$(AUTH) \
+		-quiet
+	@echo "Archived $$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' $(ARCHIVE)/Info.plist)" \
+		"($$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleVersion' $(ARCHIVE)/Info.plist)) to $(ARCHIVE)."
+
+ipa: archive ## Export that archive as an App Store .ipa
+	@rm -rf $(EXPORT)
+	@xcodebuild -exportArchive \
+		-archivePath $(ARCHIVE) \
+		-exportOptionsPlist ExportOptions.plist \
+		-exportPath $(EXPORT) \
+		$(AUTH) \
+		-quiet
+	@echo "$(IPA)"
+
+# The credential check comes before the build rather than after it, so a missing issuer costs
+# a second instead of the minutes an archive takes. The build number must exceed everything
+# App Store Connect has already seen — it rejects a duplicate after the upload, not before.
+testflight: ## Archive, export and upload a build (needs ASC_KEY_ID and ASC_ISSUER_ID)
+	@$(MAKE) --no-print-directory asc-credentials
+	@$(MAKE) ipa
+	@xcrun altool --upload-app --type ios --file "$(IPA)" \
+		--apiKey $(ASC_KEY_ID) --apiIssuer $(ASC_ISSUER_ID)
+	@echo "Uploaded. App Store Connect takes a few minutes to finish processing the build."
 
 clean: ## Remove build output
 	@rm -rf $(DERIVED)
