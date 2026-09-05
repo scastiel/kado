@@ -44,13 +44,31 @@ public struct DefaultHabitScoreCalculator: HabitScoreCalculating {
         let lastDay = calendar.startOfDay(for: endDate)
         guard firstDay <= lastDay else { return [] }
 
-        let completionsByDay = completionsForHabitGrouped(by: habit, completions: completions)
+        // Filtered once, then handed to the evaluator on every day of
+        // the walk. Every frequency it evaluates already discards other
+        // habits' records, so this changes no answer — but the
+        // `.everyNDays` anchor lookup and the `.daysPerWeek` window are
+        // both linear scans, run per day, and `WidgetSnapshotBuilder`
+        // rebuilds every habit's score on MainActor after every
+        // mutation. Handing them the whole store's completions made
+        // that quadratic in the store, not in the habit.
+        let habitCompletions = completions.filter { $0.habitID == habit.id }
+        let completionsByDay = completionsForHabitGrouped(by: habit, completions: habitCompletions)
 
         var score = 0.0
         var result: [DailyScore] = []
         var day = firstDay
         while day <= lastDay {
-            if frequencyEvaluator.isDue(habit: habit, on: day, completions: completions) {
+            // `isCounted`, not `isDue`: an `.everyNDays` cycle
+            // re-anchors on completion, so working ahead removes due
+            // days and a due-days-only measure would score perfect
+            // daily adherence at nearly zero.
+            if frequencyEvaluator.isCounted(
+                habit: habit,
+                on: day,
+                completions: habitCompletions,
+                calendar: calendar
+            ) {
                 let value = DailyValue.compute(
                     for: habit,
                     completionsOnDay: completionsByDay[day] ?? []
