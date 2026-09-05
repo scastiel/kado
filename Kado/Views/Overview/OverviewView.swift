@@ -182,6 +182,12 @@ struct OverviewView: View {
                         .font(.subheadline.weight(.medium))
                         .lineLimit(1)
                         .truncationMode(.tail)
+                        // On the `Text` rather than the enclosing
+                        // `HStack`: an identifier on the row would be
+                        // stamped over the `MetricsChip` beside it.
+                        .accessibilityIdentifier(
+                            AccessibilityID.Overview.habitLabel(row.habit.id)
+                        )
                     Spacer(minLength: 8)
                     if let m = metrics[row.habit.id] {
                         MetricsChip(streak: m.streak, scorePercent: m.scorePercent)

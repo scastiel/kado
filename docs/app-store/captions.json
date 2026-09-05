@@ -1,0 +1,31 @@
+{
+  "_comment": [
+    "The headline written across the top of each App Store screenshot, per locale.",
+    "Scripts/frame-screenshots.swift draws these over the raw captures; the keys are the",
+    "screenshot file names, so a shot added to ScreenshotTests needs a line here in every",
+    "locale or the framing step stops. A newline is a deliberate line break: the wrap is",
+    "part of the typography, and letting it fall where it likes reads as an accident.",
+    "",
+    "French runs about 20% longer than English and the framing shrinks a headline that would",
+    "cross the margin. That is a safety net, not a licence — a line that had to shrink is a",
+    "line worth rewriting shorter, because the set is looked at as a strip and one small",
+    "headline among five large ones is what the eye lands on."
+  ],
+  "_darkFrames": ["06-today-dark"],
+  "en-US": {
+    "01-today": "Your day,\nin one calm list",
+    "02-habit-detail": "A score that reflects\nreal consistency",
+    "03-overview": "Every habit,\nthirty days at a glance",
+    "04-new-habit": "Schedules that fit\nhow you actually live",
+    "05-settings": "No account.\nNo tracking. Ever.",
+    "06-today-dark": "Made for\nthe evening too"
+  },
+  "fr-FR": {
+    "01-today": "Ta journée,\nen une liste calme",
+    "02-habit-detail": "Un score qui reflète\nta vraie régularité",
+    "03-overview": "Toutes tes habitudes,\ntrente jours d'un coup d'œil",
+    "04-new-habit": "Des rythmes qui\ncollent à ta vie",
+    "05-settings": "Aucun compte.\nAucun suivi. Jamais.",
+    "06-today-dark": "Pensé aussi\npour le soir"
+  }
+}

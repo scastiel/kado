@@ -1,0 +1,5 @@
+Version 1.6 — Late nights and fairer scores.
+
+• New "Day starts at" setting. If you often log habits after midnight, you can push the day rollover to as late as 6 AM — one tap still lands on the day you mean, with no more back-filling through the calendar. Reminders keep their own times, and changing this never moves a completion you've already logged.
+• Habits with a "days per week" goal now score correctly. Meeting your weekly target every single week could previously leave the score stuck far below where it belonged.
+• The Overview grid now shows completions logged on days the schedule didn't ask for, instead of hiding them as rest days.

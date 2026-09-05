@@ -67,6 +67,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                     .font(.body.weight(.semibold))
                     .contentShape(Rectangle())
             }
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.previousMonthButton)
             .accessibilityLabel(Text("Previous month"))
 
             Spacer()

@@ -35,6 +35,7 @@ struct NewHabitFormView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .accessibilityIdentifier(AccessibilityID.NewHabit.cancelButton)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
@@ -42,7 +43,11 @@ struct NewHabitFormView: View {
                 }
             }
             .sensoryFeedback(.success, trigger: saveTick)
-            .onAppear { nameFocused = true }
+            // Focused on appear so a real user starts typing straight
+            // away — except under the screenshot run, where the
+            // keyboard would cover the half of the form the shot is
+            // about. See `UITestSupport.suppressesNameAutoFocus`.
+            .onAppear { nameFocused = !UITestSupport.suppressesNameAutoFocus }
             .alert(
                 String(localized: "Notifications are disabled"),
                 isPresented: $showingPermissionDeniedAlert
@@ -62,6 +67,7 @@ struct NewHabitFormView: View {
             TextField(String(localized: "Habit name"), text: $model.name)
                 .focused($nameFocused)
                 .submitLabel(.done)
+                .accessibilityIdentifier(AccessibilityID.NewHabit.nameField)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }

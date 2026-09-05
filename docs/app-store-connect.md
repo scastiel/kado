@@ -637,39 +637,57 @@ Justification (keep a note in case Apple asks):
 
 ---
 
-## Screenshots (required)
+## Screenshots and copy — automated
+
+**This document is the prose half of the listing** — the age-rating
+answers, the App Review notes, the TestFlight copy, the checklists. The
+half a script reads lives in `docs/app-store/`, and it is what actually
+ships. See [`docs/app-store/README.md`](app-store/README.md).
+
+```bash
+make screenshots     # photograph the app, both languages, both sizes, framed
+make frames          # re-wrap the existing captures — new headline, no recapture
+make listing-check   # lengths and image sizes, without the network
+make listing         # send the copy and the screenshots (needs ASC_ISSUER_ID)
+```
+
+Where the two overlap — the description, the keywords, the What's New —
+the files under `docs/app-store/metadata/` are what App Store Connect
+receives, so a change made here belongs in both.
 
 ### Specs
-Apple requires the **6.7" iPhone** set and the **13" iPad** set
-as of 2026. Older sizes auto-scale from the 6.7".
+Apple requires the **6.7" iPhone** set and the **13" iPad** set as of
+2026. Older sizes auto-scale from the 6.7".
 
-- **6.7" iPhone**: 1290 × 2796 px (iPhone 16/17 Pro Max)
+- **6.7" iPhone**: 1290 × 2796 or 1320 × 2868 px. We ship 1320 × 2868
+  (iPhone 17 Pro Max) — Apple folded the 6.9" canvas into the 6.7" set
+  rather than adding a size, so the App Store Connect display type is
+  still `APP_IPHONE_67`.
 - **13" iPad**: 2064 × 2752 px (iPad Pro 13")
 - Minimum **3** screenshots per locale, maximum **10**
 - PNG or JPEG, RGB color space, no transparency
 
-### Suggested shots (order matters — first 3 show in Search)
-1. **Today view** with ~5 habits, a mix of completed / partial /
-   not-yet — shows the score shading
-2. **Habit Detail** with monthly calendar + score info popover
-   open (the "i" button) — our killer differentiator
-3. **Overview** matrix — habits × days, score-shaded cells
-4. **New habit** form — shows the flexible frequency options
-5. **Widgets** on Home Screen (use the 6.7" bezel mockup)
-6. **Dark mode** variant of Today
-7. **Settings → Data** (export / import) — privacy message
+The uploader checks every image against the canvas its set requires
+before it sends anything: a wrong size is rejected days later, by mail.
 
-Capture in both **EN** and **FR**. Reuse the same layouts, change
-the locale.
+### The shots (order matters — first 3 show in Search)
+Captured by `KadoUITests/ScreenshotTests`; headlines in
+`docs/app-store/captions.json`.
 
-### Capture workflow
-```bash
-# From XcodeBuildMCP:
-# 1. Boot the target simulator
-# 2. build_run_sim
-# 3. snapshot_ui (for hierarchy) or screenshot (for image)
-# 4. Repeat with iPhone 17 Pro Max and iPad Pro 13"
-```
+1. `01-today` — the Today list, with a month of seeded history behind
+   the scores
+2. `02-habit-detail` — score, streak, and the monthly calendar; the
+   differentiator
+3. `03-overview` — the habits × days matrix
+4. `04-new-habit` — the New Habit sheet, where the flexible schedules
+   live
+5. `05-settings` — the privacy story: iCloud status, and no account
+   anywhere
+6. `06-today-dark` — Today in dark mode, on a dark frame
+
+Still not captured, and worth adding when there is a way to drive them:
+**widgets on a Home Screen**, which XCUITest cannot photograph from
+inside the app.
 
 ---
 

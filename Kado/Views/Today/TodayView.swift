@@ -69,6 +69,7 @@ struct TodayView: View {
                         } label: {
                             Label("New habit", systemImage: "plus")
                         }
+                        .accessibilityIdentifier(AccessibilityID.Today.newHabitButton)
                     }
                 }
                 .sheet(item: $sheet) { sheet in

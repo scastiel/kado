@@ -1,0 +1,5 @@
+Version 1.6 — Nuits tardives et scores plus justes.
+
+• Nouveau réglage « La journée commence à ». Si tu notes souvent tes habitudes après minuit, tu peux décaler le changement de journée jusqu'à 6 h du matin — un seul appui suffit toujours, sans passer par le calendrier. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée.
+• Les habitudes avec un objectif « jours par semaine » ont enfin un score correct. Atteindre ton objectif chaque semaine pouvait auparavant laisser le score bloqué bien en dessous de sa vraie valeur.
+• La vue d'ensemble affiche désormais les complétions notées un jour non prévu, au lieu de les masquer comme des jours de repos.

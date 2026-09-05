@@ -1,0 +1,56 @@
+Kadō is a mindful habit tracker that gives you a clear, honest picture of how you're building your routines — without the all-or-nothing guilt of a streak counter.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A HABIT SCORE, NOT JUST A STREAK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Kadō's core algorithm rewards long-term consistency. One missed day doesn't wipe your progress. A strong stretch matters more than a perfect one. You see the trend, not a fragile chain.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRIVATE BY DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• No account required
+• No analytics, no telemetry, no advertising SDKs
+• No third-party services — only Apple frameworks
+• Your data lives on your device
+• Optional sync through your own iCloud (never on our servers)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NATIVE TO APPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Universal app — iPhone and iPad
+• Home Screen widgets in three sizes
+• Lock Screen widgets (rectangular, circular, inline)
+• Siri and Shortcuts support
+• Rich monthly calendar with history
+• Full Dark Mode and Dynamic Type support
+• VoiceOver labels on every surface
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOURS TO KEEP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• CSV and JSON export in one tap
+• Import from Kadō backups (round-trip tested)
+• Source code on GitHub under the MIT license
+• No subscription, ever — optional Tip Jar if you want to support development
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FLEXIBLE SCHEDULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Daily habits
+• N days per week (e.g. 4 times a week)
+• Specific weekdays (e.g. Mon / Wed / Fri)
+• Every N days (e.g. every 3 days)
+• Binary, counter, or timer habit types
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUILT IN THE OPEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Kadō is built in public. Browse the roadmap, file issues, or send a pull request — github.com/scastiel/kado.
+
+Localized in English and native French (not machine-translated).

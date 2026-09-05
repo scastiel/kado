@@ -830,7 +830,20 @@ XCUITest's parallel clones are named after the device they came from,
 so even the clones collide.
 
 Everything the app exposes to the suite lives in
-`Kado/Support/UITestSupport.swift`, entirely inside `#if DEBUG`.
+`Kado/Support/UITestSupport.swift`, inside `#if DEBUG` — with a
+release stand-in beside it carrying only the members production code
+reads, so a view can ask `UITestSupport.suppressesNameAutoFocus`
+without a `#if` inside its body.
+
+`ScreenshotTests` sits in the same bundle but is **not a suite**: it
+photographs the app for the App Store listing and asserts nothing a
+suite would miss. `make e2e` skips it
+(`-skip-testing:KadoUITests/ScreenshotTests`); `make screenshots`
+runs it, on devices of its own with a pinned clock, appearance and
+language. Light and dark are separate test methods on purpose —
+nothing inside a test can change the simulator's appearance, and
+`simctl ui <udid> appearance` can, so the script sets it between the
+two passes.
 
 Four findings, each of which cost a cycle:
 
@@ -871,6 +884,45 @@ is a leaf, and is the right place (`HabitRowView`). Identifiers also
 matter more here than in an English-only app: Kadō ships French, and a
 suite matching `app.staticTexts["Dev mode"]` passes on one simulator
 and fails on the other.
+
+---
+
+## The App Store listing
+
+The listing is generated and pushed from the command line — no
+screenshot is taken by hand and no copy is retyped into a web form.
+`docs/app-store/README.md` is the full account; the shape:
+
+```
+make screenshots     photograph the app, both languages, both sizes, framed
+make frames          re-wrap the existing captures — new headline, no recapture
+make listing-check   lengths and image sizes, without the network
+make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
+```
+
+- **The copy is files, not JSON.** `docs/app-store/metadata/<locale>/<field>.txt`,
+  one field per file: a 4000-character description with its own line
+  breaks does not survive being hand-edited inside a JSON string. An
+  **absent file is left alone**, so a field edited by hand in App
+  Store Connect is not clobbered by the next run.
+- **`docs/app-store-connect.md` is the prose half** — age rating,
+  review notes, TestFlight copy, checklists. Where it overlaps with
+  `metadata/`, the files are what ships. Change both.
+- **Framing is a second pass over the raw captures.** Restyling the
+  set is `make frames` and four seconds; re-photographing is a
+  simulator per language per device and half an hour. The raw tree
+  stays committed as the source of truth.
+- **`Scripts/appstore.py` has no dependencies.** The ES256 JWT App
+  Store Connect wants is signed with `openssl` and the DER signature
+  converted to JWS's raw R||S — the one place a package would
+  otherwise have crept into a project that has none.
+- **Every write has `--dry-run`**, which reads and compares exactly as
+  the real run does and sends nothing. Use it: the API has no undo,
+  and this is the copy customers read.
+- **The marketing site is regenerated from the same captures.**
+  `docs/screenshots/iphone-67-appstore/` is resized out of the iPhone
+  set on the way out of `make screenshots`, so `getkado.app` and the
+  listing cannot drift apart.
 
 ---
 
