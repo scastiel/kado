@@ -28,6 +28,7 @@ struct DevModeSection: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+            .accessibilityIdentifier(AccessibilityID.Settings.devModeToggle)
             .onChange(of: isDevMode) { oldValue, newValue in
                 // Intercept the first on-flip: revert, prompt, re-flip on confirm.
                 if newValue && !oldValue && !hasConfirmed {
@@ -47,6 +48,7 @@ struct DevModeSection: View {
                 hasConfirmed = true
                 isDevMode = true
             }
+            .accessibilityIdentifier(AccessibilityID.Settings.devModeConfirmButton)
         } message: {
             Text("Your habits will be replaced by a demo dataset while dev mode is on. Your real habits are safe and will return as soon as you turn it off.")
         }
