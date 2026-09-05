@@ -90,6 +90,109 @@ struct FrequencyEvaluatorTests {
         }
     }
 
+    // MARK: .everyNDays — the cycle re-anchors on completion
+
+    @Test("Completing early restarts the every-2-days cycle")
+    func everyNDaysReanchorsOnEarlyCompletion() {
+        // Created Monday (offset 0), done Mon, Tue, Thu. Tuesday's
+        // completion moves the next due day from Wednesday to
+        // Thursday, so Wednesday is never asked for and none of the
+        // three days reads as a miss.
+        let habit = makeHabit(.everyNDays(2), createdOffset: 0)
+        let completions = [0, 1, 3].map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0))
+        }
+        let expected: [Int: Bool] = [0: true, 1: false, 2: false, 3: true, 4: false, 5: true]
+        for offset in 0...5 {
+            #expect(
+                evaluator.isDue(habit: habit, on: TestCalendar.day(offset), completions: completions)
+                    == expected[offset]!,
+                "offset \(offset) expected due=\(expected[offset]!)"
+            )
+        }
+    }
+
+    @Test("A missed due day does not reschedule the every-N-days cycle")
+    func everyNDaysMissKeepsTheCycle() {
+        // Done on day 0 only. Day 3 is due and goes unmet — the cycle
+        // stays anchored to day 0, so day 6 is due. Skipping must not
+        // buy the user a fresh interval; only doing the work does.
+        let habit = makeHabit(.everyNDays(3), createdOffset: 0)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(0))]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(3), completions: completions))
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(4), completions: completions))
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(5), completions: completions))
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(6), completions: completions))
+    }
+
+    @Test("everyNDays ignores completions belonging to another habit")
+    func everyNDaysIgnoresOtherHabits() {
+        let habit = makeHabit(.everyNDays(2), createdOffset: 0)
+        let completions = [Completion(habitID: UUID(), date: TestCalendar.day(1))]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(2), completions: completions))
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(3), completions: completions))
+    }
+
+    @Test("A note-only day does not restart the every-N-days cycle")
+    func everyNDaysZeroValueDoesNotReanchor() {
+        // `CompletionToggler` leaves a value-0 record behind when an
+        // unchecked day carries a note. Nothing was done that day, so
+        // nothing re-anchors.
+        let habit = makeHabit(.everyNDays(2), createdOffset: 0)
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(1), value: 0, note: "note")
+        ]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(2), completions: completions))
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(3), completions: completions))
+    }
+
+    @Test("A negative habit's slip does not restart the every-N-days cycle")
+    func everyNDaysNegativeSlipDoesNotReanchor() {
+        // On a `.negative` habit a record means the user *broke* it.
+        // Slipping must not push the next check-in day out.
+        let habit = Habit(
+            name: "No soda",
+            frequency: .everyNDays(2),
+            type: .negative,
+            createdAt: TestCalendar.day(0)
+        )
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(1))]
+        #expect(evaluator.isDue(habit: habit, on: TestCalendar.day(2), completions: completions))
+        #expect(!evaluator.isDue(habit: habit, on: TestCalendar.day(3), completions: completions))
+    }
+
+    @Test("The re-anchored cycle holds across DST transitions of every shape")
+    func everyNDaysReanchorSurvivesDST() {
+        // The invariant, not an example: after an early completion the
+        // next due day is two calendar days later, whatever the day's
+        // length. Paris shifts at 02:00/03:00; Havana shifts at
+        // midnight, so its day starts at 01:00 and any arithmetic that
+        // assumes midnight exists drifts by an hour.
+        let fixtures: [(String, Calendar, Date)] = [
+            ("Paris spring-forward", TestCalendar.paris, TestCalendar.instant(TestCalendar.paris, 2026, 3, 27, 12)),
+            ("Paris fall-back", TestCalendar.paris, TestCalendar.instant(TestCalendar.paris, 2026, 10, 23, 12)),
+            ("Havana midnight shift", TestCalendar.havana, TestCalendar.instant(TestCalendar.havana, 2026, 3, 6, 12)),
+        ]
+        for (label, calendar, start) in fixtures {
+            let evaluator = DefaultFrequencyEvaluator(calendar: calendar)
+            let habit = Habit(
+                name: "Run",
+                frequency: .everyNDays(2),
+                type: .binary,
+                createdAt: start
+            )
+            func day(_ offset: Int) -> Date {
+                calendar.date(byAdding: .day, value: offset, to: start)!
+            }
+            // Done on the created day and again the next day: the
+            // early completion moves the next due day from +2 to +3.
+            let completions = [0, 1].map { Completion(habitID: habit.id, date: day($0)) }
+            #expect(evaluator.isDue(habit: habit, on: day(0), completions: completions), "\(label) day 0")
+            #expect(!evaluator.isDue(habit: habit, on: day(2), completions: completions), "\(label) day 2")
+            #expect(evaluator.isDue(habit: habit, on: day(3), completions: completions), "\(label) day 3")
+        }
+    }
+
     // MARK: .daysPerWeek (trailing 7-day rolling window)
 
     @Test("3-per-week habit is due when trailing 7-day window has zero completions")
@@ -187,12 +290,24 @@ struct FrequencyEvaluatorTests {
             let habit = makeHabit(frequency, createdOffset: 0)
             for offset in 0...13 {
                 let day = TestCalendar.day(offset)
-                let completions = [Completion(habitID: habit.id, date: day)]
-                #expect(
-                    evaluator.isDue(habit: habit, on: day, completions: completions)
-                        == evaluator.isOutstanding(habit: habit, on: day, completions: completions),
-                    "\(frequency) at offset \(offset)"
-                )
+                // Both a completion on the day itself and one on a
+                // prior day. The own-day record alone cannot detect an
+                // `.everyNDays` divergence: the anchor lookup skips
+                // records that are not strictly earlier, so both
+                // questions fall through to the createdAt fallback and
+                // agree trivially. A prior-day record is what actually
+                // exercises the re-anchored cycle here.
+                let ownDay = [Completion(habitID: habit.id, date: day)]
+                let withPrior = ownDay + [
+                    Completion(habitID: habit.id, date: TestCalendar.day(offset - 1))
+                ]
+                for completions in [ownDay, withPrior] {
+                    #expect(
+                        evaluator.isDue(habit: habit, on: day, completions: completions)
+                            == evaluator.isOutstanding(habit: habit, on: day, completions: completions),
+                        "\(frequency) at offset \(offset)"
+                    )
+                }
             }
         }
     }

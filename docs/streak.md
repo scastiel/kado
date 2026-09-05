@@ -34,7 +34,9 @@ scheduled:
 
 - `.daily` → every day from `createdAt` to today.
 - `.specificDays(Set<Weekday>)` → only the listed weekdays.
-- `.everyNDays(N)` → every Nth day starting from `createdAt`.
+- `.everyNDays(N)` → every Nth day counted from the last day the
+  habit was done, falling back to `createdAt` before the first
+  completion. Doing it early restarts the clock.
 - `.daysPerWeek(N)` → **every day is potentially due**; the unit
   of streak counting is the *week*, not the day (see below).
 
@@ -115,8 +117,26 @@ against the streak. A Mon/Wed/Fri habit completed every Mon, Wed,
 Fri for three weeks has a current streak of 9.
 
 ### `.everyNDays(N)`
-Due days are `createdAt`, `createdAt + N`, `createdAt + 2N`, …
-Non-due days are skipped. A miss on a due day breaks the streak.
+The cycle is anchored to the **last day the habit was done**, not to
+a fixed grid from `createdAt`. Due days are `anchor + N`,
+`anchor + 2N`, … where the anchor is the most recent completed day
+strictly before the day being judged, or `createdAt` if there is
+none. A miss on a due day breaks the streak.
+
+Only a completion re-anchors, so skipping a due day leaves the cycle
+where it was and the day stays a miss — a skip must not buy a fresh
+interval.
+
+Days that are **not** due but **were** done still count toward the
+streak. Working ahead re-anchors the cycle and therefore removes due
+days, so counting due days alone would give a habit performed every
+single day on an every-2-days cadence a streak of 1. More work must
+never score worse than less. Days that are neither due nor done are
+skipped as before.
+
+An every-2-days habit done Mon, Tue, Thu has a current streak of 3:
+Tuesday moves the next due day to Thursday, so Wednesday is never
+asked for, and Tuesday counts as a day it was done.
 
 ### `.daysPerWeek(N)`
 Counted in **weeks**, not days. A week "counts" if ≥ N

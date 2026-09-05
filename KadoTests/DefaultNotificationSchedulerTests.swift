@@ -73,7 +73,7 @@ struct DefaultNotificationSchedulerTests {
         #expect(center.pending.count == 3)
     }
 
-    @Test("everyNDays(3) anchored to createdAt produces correct offsets")
+    @Test("everyNDays(3) with no completions falls back to the createdAt grid")
     func everyNDaysWindow() async {
         let (scheduler, center) = makeScheduler()
         // createdAt at day(-6). In the 7-day window 0..6, due when
@@ -81,6 +81,20 @@ struct DefaultNotificationSchedulerTests {
         let habit = makeHabit(frequency: .everyNDays(3), createdOffset: -6)
         await scheduler.rescheduleAll(habits: [habit], completions: [])
         #expect(center.pending.count == 3)
+    }
+
+    @Test("everyNDays reminders follow the last completion, not the createdAt grid")
+    func everyNDaysWindowFollowsLastCompletion() async {
+        let (scheduler, center) = makeScheduler()
+        // Same habit, but done yesterday — a day off the createdAt
+        // grid. The cycle re-anchors there, so the window 0...6 is due
+        // on days 2 and 5, not 0, 3 and 6. Without a completion in the
+        // fixture this path is never exercised: the anchor falls back
+        // to createdAt and the test passes against the old rule.
+        let habit = makeHabit(frequency: .everyNDays(3), createdOffset: -6)
+        let completions = [Completion(habitID: habit.id, date: TestCalendar.day(-1))]
+        await scheduler.rescheduleAll(habits: [habit], completions: completions)
+        #expect(center.pending.count == 2)
     }
 
     @Test("daysPerWeek(3) stays silent while the sliding window holds three completions")

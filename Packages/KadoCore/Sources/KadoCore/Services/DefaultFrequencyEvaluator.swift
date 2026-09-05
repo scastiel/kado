@@ -44,10 +44,31 @@ public struct DefaultFrequencyEvaluator: FrequencyEvaluating {
             return weekdays.contains(weekday)
 
         case .everyNDays(let n):
+            // Anchored to the last day the habit was done, not to a
+            // fixed grid from `createdAt` — doing it early restarts
+            // the clock. Only completions strictly before `day` are
+            // read, so this stays monotonic and `isDue` /
+            // `isOutstanding` still agree. See `EveryNDaysCycle`.
+            //
+            // Guarded here rather than left to `EveryNDaysCycle.isDue`:
+            // the anchor is an argument expression, so it would be
+            // computed — an O(completions) scan, per day, per habit —
+            // before the interval was ever checked. A corrupt or
+            // hand-edited backup can decode `.everyNDays(0)`; neither
+            // `Frequency.init(from:)` nor `CSVBackupCoder` range-checks
+            // it.
             guard n > 0 else { return false }
-            let createdDay = calendar.startOfDay(for: habit.createdAt)
-            let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return ((delta % n) + n) % n == 0
+            return EveryNDaysCycle.isDue(
+                interval: n,
+                on: day,
+                anchoredAt: EveryNDaysCycle.anchorDay(
+                    for: habit,
+                    before: day,
+                    completions: completions,
+                    calendar: calendar
+                ),
+                calendar: calendar
+            )
 
         case .daysPerWeek(let target):
             guard target > 0 else { return false }

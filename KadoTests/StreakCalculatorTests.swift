@@ -136,6 +136,54 @@ struct StreakCalculatorTests {
         #expect(calc.best(for: h, completions: completions, asOf: asOf) == 3)
     }
 
+    @Test(".everyNDays counts an early completion instead of breaking on it")
+    func everyNDaysEarlyCompletionKeepsStreak() {
+        // N=2 from day -6. Done -6, then -5 a day early, then -3 and
+        // -1. Each completion restarts the cycle, so the due days are
+        // -6, -3, -1 — all met — and -5 counts as a day it was done.
+        // Under a fixed createdAt grid the due days would be -6, -4,
+        // -2 and the user would read as having missed two of them.
+        let h = habit(frequency: .everyNDays(2), createdAtOffset: -6)
+        let completions = [-6, -5, -3, -1].map { completion(for: h, dayOffset: $0) }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 4)
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 4)
+    }
+
+    @Test(".everyNDays done every single day counts every day")
+    func everyNDaysDailyOverDeliveryCountsEveryDay() {
+        // Working ahead re-anchors the cycle, so an every-2-days habit
+        // done daily is never due after its first day. Counting due
+        // days alone would report a streak of 1 for flawless
+        // adherence — strictly worse than doing half the work.
+        let h = habit(frequency: .everyNDays(2), createdAtOffset: -29)
+        let completions = (-29...0).map { completion(for: h, dayOffset: $0) }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 30)
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 30)
+    }
+
+    @Test(".everyNDays doing more never scores a shorter streak than doing less")
+    func everyNDaysMoreWorkNeverShortensStreak() {
+        // The invariant the over-delivery case exists to protect:
+        // adding completions to a perfect on-cadence history must
+        // never shorten the streak.
+        let h = habit(frequency: .everyNDays(3), createdAtOffset: -30)
+        let onCadence = stride(from: -30, through: 0, by: 3).map {
+            completion(for: h, dayOffset: $0)
+        }
+        let calc = calculator()
+        let baseline = calc.current(for: h, completions: onCadence, asOf: asOf)
+
+        for extraDay in [-29, -25, -14, -2] {
+            let richer = onCadence + [completion(for: h, dayOffset: extraDay)]
+            #expect(
+                calc.current(for: h, completions: richer, asOf: asOf) >= baseline,
+                "adding day \(extraDay) shortened the streak"
+            )
+        }
+    }
+
     // MARK: - .daysPerWeek
 
     @Test(".daysPerWeek(3) counts qualifying weeks, current week is grace")
