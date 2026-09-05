@@ -88,8 +88,14 @@ extension EnvironmentValues {
 
     @Entry var reviewPromptService: any ReviewPrompting = DefaultReviewPromptService()
 
+    /// Gates the tip nudge at the bottom of Today — how long the app
+    /// has been in use, whether the user dismissed it, whether they
+    /// already tipped. The default reads the real `UserDefaults`;
+    /// previews and tests inject a stub to pin the answer.
+    @Entry var tipNudge: any TipNudging = DefaultTipNudgeService()
+
     /// Loads the tip products and runs purchases for the Tip Jar. Default
     /// is a mock so previews and unit tests never touch StoreKit; the
-    /// main app injects `DefaultTipJarStore()` at scene build.
+    /// main app injects `DefaultTipJarStore(tipNudge:)` at scene build.
     @Entry var tipJarStore: any TipJarStoring = MockTipJarStore()
 }

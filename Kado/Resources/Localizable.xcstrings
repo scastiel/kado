@@ -325,7 +325,7 @@
       }
     },
     "Leave a tip" : {
-      "comment" : "Settings row label that opens the Tip Jar.",
+      "comment" : "Settings row and Today tip nudge label that opens the Tip Jar.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2538,8 +2538,14 @@
       }
     },
     "Not now" : {
-      "comment" : "Alert cancel button dismissing the notifications-disabled alert without leaving the app.",
+      "comment" : "Dismiss button on the Today tip nudge, and the notifications-disabled alert's cancel.",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4118,6 +4124,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La ligne %lld n'a pas le nombre de colonnes attendu."
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Button dismissing the Tip Jar sheet opened from the Today tip nudge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer"
+          }
+        }
+      }
+    },
+    "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip." : {
+      "comment" : "Tip nudge shown at the bottom of Today after a few days of use.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō est gratuite, sans publicité ni abonnement. Si elle a trouvé sa place dans ta journée, tu peux laisser un pourboire."
           }
         }
       }

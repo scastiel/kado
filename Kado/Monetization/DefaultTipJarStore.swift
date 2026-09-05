@@ -20,7 +20,22 @@ final class DefaultTipJarStore: TipJarStoring {
     @ObservationIgnored private var products: [String: Product] = [:]
     @ObservationIgnored private var updatesTask: Task<Void, Never>?
 
-    init() {
+    /// Told about every verified tip so Today stops nudging someone who
+    /// has already given. Recorded here rather than in `TipJarView`
+    /// because a tip can also land through `Transaction.updates` — an
+    /// Ask-to-Buy approval, or a purchase interrupted and resolved on a
+    /// later launch — with no view in sight.
+    @ObservationIgnored private let tipNudge: any TipNudging
+
+    /// `tipNudge` has no default on purpose. A default argument is
+    /// evaluated in the *caller's* context rather than this init's, so
+    /// `= DefaultTipNudgeService()` warns that a MainActor-isolated
+    /// initializer is being called from a synchronous nonisolated one
+    /// (CLAUDE.md's concurrency section). Injecting it at the
+    /// composition root costs one line in `KadoApp` and needs no
+    /// isolation annotations at all.
+    init(tipNudge: any TipNudging) {
+        self.tipNudge = tipNudge
         // Finish transactions that arrive outside a `purchase(_:)` call
         // so a deferred/interrupted tip never gets stuck unfinished.
         updatesTask = Task { [weak self] in
@@ -67,6 +82,7 @@ final class DefaultTipJarStore: TipJarStoring {
                     // Mandatory for consumables — otherwise StoreKit
                     // re-delivers and re-prompts on next launch.
                     await transaction.finish()
+                    tipNudge.recordTip()
                     return .success
                 case .unverified(let transaction, _):
                     // A tip unlocks nothing, so we don't grant anything —
@@ -93,12 +109,23 @@ final class DefaultTipJarStore: TipJarStoring {
     /// grant the entitlement.
     private func finishTipTransaction(_ result: VerificationResult<Transaction>) async {
         let transaction: Transaction
+        let isVerified: Bool
         switch result {
-        case .verified(let value): transaction = value
-        case .unverified(let value, _): transaction = value
+        case .verified(let value):
+            transaction = value
+            isVerified = true
+        case .unverified(let value, _):
+            transaction = value
+            isVerified = false
         }
         guard TipProduct(productID: transaction.productID) != nil else { return }
         await transaction.finish()
+        // Only a verified one counts as a tip given; an unverified
+        // transaction is finished to stop the re-delivery loop, not
+        // believed.
+        if isVerified {
+            tipNudge.recordTip()
+        }
     }
 
     /// Assemble the loaded products into ordered ``TipTier`` values,

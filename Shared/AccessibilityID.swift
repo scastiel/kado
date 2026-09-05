@@ -52,6 +52,12 @@ enum AccessibilityID {
         /// `.accessibilityElement(children: .combine)`, so the row is
         /// already a single element and this identifier lands on a leaf.
         static func row(_ habitID: UUID) -> String { "today.row.\(habitID.uuidString)" }
+
+        /// The tip nudge's two actions. Both sit on leaf buttons inside
+        /// `TipNudgeBanner` rather than on the card, which would stamp
+        /// the copy and both buttons with one identifier.
+        static let tipNudgeTipButton = "today.tipNudge.tip"
+        static let tipNudgeHideButton = "today.tipNudge.hide"
     }
 
     enum Settings {
