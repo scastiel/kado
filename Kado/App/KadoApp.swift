@@ -13,7 +13,7 @@ struct KadoApp: App {
     @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
-    @State private var tipJarStore = DefaultTipJarStore()
+    @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
 
     /// Raw wall-clock marker, bumped whenever the logical day may have
     /// changed. `\.today` is *derived* from it rather than stored, so

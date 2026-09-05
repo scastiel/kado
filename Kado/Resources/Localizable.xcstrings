@@ -325,7 +325,7 @@
       }
     },
     "Leave a tip" : {
-      "comment" : "Settings row label that opens the Tip Jar.",
+      "comment" : "Settings row and Today tip nudge label that opens the Tip Jar.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4118,6 +4118,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La ligne %lld n'a pas le nombre de colonnes attendu."
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Button dismissing the Tip Jar sheet opened from the Today tip nudge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer"
+          }
+        }
+      }
+    },
+    "Hide this message" : {
+      "comment" : "Accessibility label for the button dismissing the Today tip nudge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide this message"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer ce message"
+          }
+        }
+      }
+    },
+    "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip." : {
+      "comment" : "Tip nudge shown at the bottom of Today after a few days of use.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō est gratuite, sans publicité ni abonnement. Si elle a trouvé sa place dans ta journée, tu peux laisser un pourboire."
           }
         }
       }
