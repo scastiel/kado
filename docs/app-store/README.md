@@ -116,6 +116,21 @@ These pass the same API key to `xcodebuild` as `-authenticationKeyPath` / `-auth
 
 Check what the account already holds before creating anything — the App Store Connect API answers this directly, and `security find-identity -v -p codesigning` says what this machine holds. The two can disagree: a certificate can exist on the account with its private key on a different Mac, which looks identical to "no certificate" from here and is fixed by exporting a `.p12`, not by creating a second one.
 
+**An App Store Connect API key cannot create a distribution certificate unless it has the Admin role.** Kadō's key is App Manager, which is enough to write the entire listing and not enough to sign. The failure is worth recognising because it arrives late and reads like a missing file rather than a permission:
+
+```
+error: exportArchive Cloud signing permission error
+error: exportArchive No signing certificate "iOS Distribution" found
+```
+
+Worse, `xcodebuild archive` *succeeds* first — it falls back to the Apple Development identity and produces a Release archive signed with it, so the run looks fine right up until the export. Check `SigningIdentity` in the archive's `Info.plist` if in doubt:
+
+```
+/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:SigningIdentity' build/Kado.xcarchive/Info.plist
+```
+
+So the certificate is made once, by a person, in **Xcode → Settings → Accounts → Manage Certificates → + → Apple Distribution**. After that these targets work headlessly, because signing with an existing certificate needs no special role. The archive already on disk stays usable — `-exportArchive` re-signs it — so only `make ipa` has to be re-run, not `make archive`.
+
 The build number must exceed everything App Store Connect has already seen. It rejects a duplicate *after* the upload rather than before it, so bump `CURRENT_PROJECT_VERSION` in the same commit as `MARKETING_VERSION`; the repo convention is `chore: bump version to 1.X (build N)`. Both live in `Kado.xcodeproj/project.pbxproj` in eight places each — every target — and a partial bump builds fine and fails at upload.
 
 ---

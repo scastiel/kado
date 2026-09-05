@@ -211,7 +211,14 @@ archive: ## Build a signed App Store archive
 	@echo "Archived $$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' $(ARCHIVE)/Info.plist)" \
 		"($$(/usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:CFBundleVersion' $(ARCHIVE)/Info.plist)) to $(ARCHIVE)."
 
-ipa: archive ## Export that archive as an App Store .ipa
+# Deliberately *not* `ipa: archive`. Export is where distribution signing is actually
+# exercised, so it is the step that fails on a machine whose certificate isn't sorted — and
+# re-archiving to retry a thirty-second export costs minutes for nothing. The archive is
+# re-signed by `-exportArchive` anyway, so one built with a development identity is still a
+# valid input once a distribution certificate exists.
+ipa: ## Export the existing archive as an App Store .ipa (run `make archive` first)
+	@test -d $(ARCHIVE) || { echo "No archive at $(ARCHIVE) — run make archive first."; exit 1; }
+	@$(MAKE) --no-print-directory asc-credentials
 	@rm -rf $(EXPORT)
 	@xcodebuild -exportArchive \
 		-archivePath $(ARCHIVE) \
@@ -226,6 +233,7 @@ ipa: archive ## Export that archive as an App Store .ipa
 # App Store Connect has already seen — it rejects a duplicate after the upload, not before.
 testflight: ## Archive, export and upload a build (needs ASC_KEY_ID and ASC_ISSUER_ID)
 	@$(MAKE) --no-print-directory asc-credentials
+	@$(MAKE) archive
 	@$(MAKE) ipa
 	@xcrun altool --upload-app --type ios --file "$(IPA)" \
 		--apiKey $(ASC_KEY_ID) --apiIssuer $(ASC_ISSUER_ID)
