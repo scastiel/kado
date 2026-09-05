@@ -52,6 +52,11 @@ fastlane/test_output
 *.env
 .env.local
 secrets.plist
+# App Store Connect API private keys. `Scripts/appstore.py` looks for
+# AuthKey_<id>.p8 in ~/.appstoreconnect/private_keys first, but falls back
+# to the repo root — and a key committed once is a key that has to be
+# revoked. It downloads exactly once, so keep it somewhere backed up.
+*.p8
 
 # Editors
 .idea/
