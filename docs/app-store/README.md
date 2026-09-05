@@ -28,6 +28,16 @@ make listing         send the copy and the screenshots
 
 ---
 
+## Locales — read this before adding one
+
+Kadō's English listing is **`en-CA`**, not `en-US`. That is what App Store Connect actually holds, and it is not something to guess at: writing `en-US` would not update the English listing, it would quietly add a second English localization beside it. The API accepts that without complaint.
+
+`make listing-info` prints the live locales and screenshot sets, and warns about anything in `config.json` that doesn't match them. Run it before changing either.
+
+The same applies to screenshot sets. The 1.6 listing carries its iPhone shots under `APP_IPHONE_65` (the older 6.5" canvas, 1284×2778); these captures are 1320×2868, which belongs to `APP_IPHONE_67` — the size Apple asks for now and scales every smaller device from. The first upload therefore *creates* that set rather than replacing anything, and the old 6.5" one sits there until it is deleted by hand in App Store Connect.
+
+---
+
 ## The copy
 
 Every field is a file. An **absent file is left alone**: a locale with no `marketing_url.txt` keeps whatever App Store Connect already holds, rather than having it cleared. That is what makes it safe to run `make listing` after editing one field by hand in the web UI.

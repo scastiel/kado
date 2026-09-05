@@ -673,30 +673,58 @@ def show_info(client: Client, config: dict):
         editable = "editable" if state in EDITABLE_STATES else ""
         print(f"  {version['attributes']['versionString']:<8} {state:<28} {editable}")
 
-    editable_versions = [
-        v for v in versions if state_of(v) in EDITABLE_STATES
-    ]
-    if not editable_versions:
+    # The version being prepared if there is one, else the newest released one. Falling silent
+    # when nothing is editable would hide the one thing this command is for between releases:
+    # which locales and which screenshot sets the live listing actually has, which is what says
+    # whether `config.json`'s display types still match what Apple expects.
+    version = pick_editable(versions) or (versions[0] if versions else None)
+    if version is None:
         return
-    version = editable_versions[0]
-    print(f"\nLocalizations on {version['attributes']['versionString']}")
+    editable = state_of(version) in EDITABLE_STATES
+    print(
+        f"\nLocalizations on {version['attributes']['versionString']}"
+        f"{'' if editable else ' (live — read only until a new version is created)'}"
+    )
+    live_locales, live_types = set(), set()
     for locale, localization in sorted(
         localizations(
             client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
         ).items()
     ):
+        live_locales.add(locale)
         sets = client.get_all(
             f"/v1/appStoreVersionLocalizations/{localization['id']}/appScreenshotSets"
         )
         counts = []
         for screenshot_set in sets:
+            display_type = screenshot_set["attributes"]["screenshotDisplayType"]
+            live_types.add(display_type)
             shots = client.get_all(
                 f"/v1/appScreenshotSets/{screenshot_set['id']}/appScreenshots"
             )
-            counts.append(
-                f"{screenshot_set['attributes']['screenshotDisplayType']}×{len(shots)}"
-            )
+            counts.append(f"{display_type}×{len(shots)}")
         print(f"  {locale:<8} {', '.join(counts) if counts else 'no screenshots'}")
+
+    # What the listing holds versus what this repo is about to send it. Both mismatches below
+    # are silent failures rather than errors: a locale we don't have would *add* a second
+    # localization rather than update the intended one, and a display type we don't have leaves
+    # the old set sitting beside the new one. Neither is refused by the API, and both were
+    # live here the first time this ran.
+    configured_locales = {
+        language["locale"] for language in config["languages"].values()
+    }
+    configured_types = {device["displayType"] for device in config["devices"].values()}
+
+    for label, configured, live in (
+        ("locale", configured_locales, live_locales),
+        ("screenshot set", configured_types, live_types),
+    ):
+        for value in sorted(configured - live):
+            print(f"\n  ! config.json has {label} {value}, which the listing does not.")
+            print("    Uploading creates a new one rather than replacing anything.")
+        for value in sorted(live - configured):
+            print(f"\n  ! the listing has {label} {value}, which config.json does not.")
+            print("    Nothing here will update it, and it stays as it is.")
 
 
 # MARK: - Entry point

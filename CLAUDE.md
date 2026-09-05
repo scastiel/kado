@@ -916,9 +916,18 @@ make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
   Store Connect wants is signed with `openssl` and the DER signature
   converted to JWS's raw R||S — the one place a package would
   otherwise have crept into a project that has none.
+- **The English listing is `en-CA`, not `en-US`.** Writing the wrong
+  locale is not an error — App Store Connect adds a second English
+  localization beside the real one and says nothing. Likewise the live
+  iPhone screenshots sit under `APP_IPHONE_65` while these captures
+  belong to `APP_IPHONE_67`, so the first upload creates a set rather
+  than replacing one. `make listing-info` prints what the listing
+  actually holds and warns about anything `config.json` disagrees with;
+  run it before changing either.
 - **Every write has `--dry-run`**, which reads and compares exactly as
   the real run does and sends nothing. Use it: the API has no undo,
-  and this is the copy customers read.
+  and this is the copy customers read. It is what caught both of the
+  mismatches above, before anything was sent.
 - **The marketing site is regenerated from the same captures.**
   `docs/screenshots/iphone-67-appstore/` is resized out of the iPhone
   set on the way out of `make screenshots`, so `getkado.app` and the
