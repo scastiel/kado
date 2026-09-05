@@ -2538,8 +2538,14 @@
       }
     },
     "Not now" : {
-      "comment" : "Alert cancel button dismissing the notifications-disabled alert without leaving the app.",
+      "comment" : "Dismiss button on the Today tip nudge, and the notifications-disabled alert's cancel.",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4135,23 +4141,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fermer"
-          }
-        }
-      }
-    },
-    "Hide this message" : {
-      "comment" : "Accessibility label for the button dismissing the Today tip nudge.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide this message"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masquer ce message"
           }
         }
       }

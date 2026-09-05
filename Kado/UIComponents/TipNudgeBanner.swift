@@ -31,48 +31,42 @@ struct TipNudgeBanner: View {
                 // it in the VoiceOver order would only add noise.
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: KadoSpace.s2) {
+            VStack(alignment: .leading, spacing: KadoSpace.s3) {
                 Text("Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip.")
                     .font(.footnote)
                     .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Button(action: onTip) {
-                    Text("Leave a tip")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Color.kadoAccent)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier(AccessibilityID.Today.tipNudgeTipButton)
+                actions
             }
-
-            // Only does anything where the copy doesn't already fill
-            // the row (iPad, landscape): it keeps the dismiss control
-            // pinned to the trailing edge instead of trailing the last
-            // word around.
-            Spacer(minLength: KadoSpace.s3)
-
-            hideButton
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(KadoSpace.s4)
     }
 
-    /// A 44pt hit target, pulled back into the card's own padding so it
-    /// buys the tap area without visibly inflating the card.
-    private var hideButton: some View {
-        Button(action: onHide) {
-            Image(systemName: "xmark")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.kadoForegroundTertiary)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
+    /// Both actions read as words rather than symbols. The dismiss used
+    /// to be an `×` in the corner, which was worse twice over: a glyph
+    /// with no label, in `kadoForegroundTertiary` on this tint, comes to
+    /// 2.8:1 — under the 3:1 a non-text control needs, and it was the
+    /// only way to put the card away.
+    private var actions: some View {
+        HStack(spacing: KadoSpace.s5) {
+            Button(action: onTip) {
+                Text("Leave a tip")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.kadoAccent)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(AccessibilityID.Today.tipNudgeTipButton)
+
+            Button(action: onHide) {
+                Text("Not now")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.kadoForegroundSecondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(AccessibilityID.Today.tipNudgeHideButton)
         }
-        .buttonStyle(.plain)
-        .padding(.top, -KadoSpace.s3)
-        .padding(.trailing, -KadoSpace.s3)
-        .accessibilityLabel(Text("Hide this message"))
-        .accessibilityIdentifier(AccessibilityID.Today.tipNudgeHideButton)
     }
 }
 
