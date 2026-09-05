@@ -124,13 +124,33 @@ final class DevModeController {
         )
     }
 
-    nonisolated static var defaultDevStoreURL: URL { SharedStore.devStoreURL() }
+    nonisolated static var defaultDevStoreURL: URL {
+        #if DEBUG
+        if UITestSupport.isRunningUITests { return UITestSupport.devStoreURL() }
+        #endif
+        return SharedStore.devStoreURL()
+    }
 
     nonisolated static func defaultProductionContainer() -> ModelContainer {
+        #if DEBUG
+        // A UI test gets a local-only stand-in, so a run can never write
+        // demo habits into a real iCloud account. See `UITestSupport`.
+        if let override = UITestSupport.productionContainerOverride() { return override }
+        #endif
         do {
             return try SharedStore.productionContainer()
         } catch {
             fatalError("Failed to construct production ModelContainer: \(error)")
         }
     }
+
+    #if DEBUG
+    /// The production container, built now if it hasn't been yet.
+    ///
+    /// The UI-test seeding hook needs to fill the production store while
+    /// the *dev* store is the one mounted, and it must not open a
+    /// container of its own to do it — going through the same cache the
+    /// app mounts from is what keeps it to one instance per store.
+    func productionContainerForUITests() -> ModelContainer { productionContainer() }
+    #endif
 }

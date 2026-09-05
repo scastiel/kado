@@ -40,6 +40,16 @@
                ReferencedContainer = "container:Kado.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BEC0DE0130000001000000A1"
+               BuildableName = "KadoUITests.xctest"
+               BlueprintName = "KadoUITests"
+               ReferencedContainer = "container:Kado.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

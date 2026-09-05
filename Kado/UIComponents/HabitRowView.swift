@@ -56,6 +56,11 @@ struct HabitRowView: View {
         .contentShape(Rectangle())
         .contextMenu { contextMenuContent }
         .accessibilityElement(children: .combine)
+        // Safe here precisely because `.combine` has already collapsed
+        // the subtree: the row is one element, so this lands on a leaf
+        // rather than stamping over anything. Keyed by id because the
+        // name is both localized and user-editable.
+        .accessibilityIdentifier(AccessibilityID.Today.row(habit.id))
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityValue(accessibilityValueText)
         .accessibilityActions { rowAccessibilityActions }

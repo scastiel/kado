@@ -28,6 +28,11 @@ struct KadoApp: App {
     }
 
     init() {
+        #if DEBUG
+        // Before anything opens a `ModelContainer`: a run that asked for
+        // a clean slate needs the store files gone first.
+        UITestSupport.applyLaunchArguments()
+        #endif
         DevModeDefaults.migrateFromStandardIfNeeded()
         KadoFont.register()
         let scheduler = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
@@ -64,6 +69,17 @@ struct KadoApp: App {
                 .task(id: RolloverTick(mark: clockMark, hour: boundary.startHour)) {
                     await advanceAtNextDayEdge(boundary)
                 }
+                #if DEBUG
+                // Asked of the controller rather than of `container`:
+                // the dev-mode swap tests start in dev mode, so the
+                // mounted container is the *dev* one and the store that
+                // needs rows is the one they will swap to.
+                .task {
+                    UITestSupport.seedProductionIfRequested(
+                        using: devModeController.productionContainerForUITests()
+                    )
+                }
+                #endif
         }
         .modelContainer(container)
         .environment(\.cloudAccountStatus, cloudAccountStatus)
