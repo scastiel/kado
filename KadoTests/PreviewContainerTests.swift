@@ -7,7 +7,7 @@ import KadoCore
 @Suite("DevModeSeed seeding")
 @MainActor
 struct PreviewContainerTests {
-    @Test("Seeds six habits covering each type and the main frequencies")
+    @Test("Seeds seven habits covering each type and every frequency")
     func seededShape() throws {
         let container = try ModelContainer(
             for: HabitRecord.self, CompletionRecord.self,
@@ -16,7 +16,7 @@ struct PreviewContainerTests {
         DevModeSeed.seed(into: container.mainContext)
 
         let habits = try container.mainContext.fetch(FetchDescriptor<HabitRecord>())
-        #expect(habits.count == 6)
+        #expect(habits.count == 7)
 
         let frequencies = Set(habits.map(\.frequency))
         #expect(frequencies.contains(.daily))
@@ -25,6 +25,9 @@ struct PreviewContainerTests {
         })
         #expect(frequencies.contains { freq in
             if case .daysPerWeek = freq { return true } else { return false }
+        })
+        #expect(frequencies.contains { freq in
+            if case .everyNDays = freq { return true } else { return false }
         })
 
         let types = Set(habits.map(\.type))
@@ -40,7 +43,9 @@ struct PreviewContainerTests {
         let completions = try container.mainContext.fetch(FetchDescriptor<CompletionRecord>())
         #expect(
             completions.count
-                == 5 * DevModeSeed.completionsPerHabit + DevModeSeed.daysPerWeekOffsets.count
+                == 5 * DevModeSeed.completionsPerHabit
+                    + DevModeSeed.daysPerWeekOffsets.count
+                    + DevModeSeed.everyNDaysOffsets.count
         )
     }
 }
