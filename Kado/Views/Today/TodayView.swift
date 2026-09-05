@@ -203,8 +203,13 @@ struct TodayView: View {
                         )
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        // Zero horizontally, not 20: the row already
+                        // sits inside the List's own section inset, so
+                        // anything here is added on top of it and the
+                        // card ends up narrower than the habit rows
+                        // above.
                         .listRowInsets(
-                            EdgeInsets(top: KadoSpace.s2, leading: 20, bottom: KadoSpace.s5, trailing: 20)
+                            EdgeInsets(top: KadoSpace.s2, leading: 0, bottom: KadoSpace.s5, trailing: 0)
                         )
                     }
                 }

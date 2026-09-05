@@ -88,7 +88,7 @@ struct TipNudgeBanner: View {
             TipNudgeBanner(onTip: {}, onHide: {})
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: KadoSpace.s2, leading: 20, bottom: KadoSpace.s5, trailing: 20))
+                .listRowInsets(EdgeInsets(top: KadoSpace.s2, leading: 0, bottom: KadoSpace.s5, trailing: 0))
         }
     }
     .scrollContentBackground(.hidden)
