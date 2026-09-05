@@ -9,6 +9,13 @@ import KadoCore
 /// dismissal. Whether it should appear at all is not this view's
 /// decision — `TipNudging` owns that, and Today only renders the card
 /// once the service says yes.
+///
+/// **It draws no background of its own.** The tint and the rounded
+/// corners come from `.listRowBackground` at the call site, exactly as
+/// `HabitRowView`'s do, so the card is the same width and the same
+/// system corner radius as the habit rows above it. Drawing its own
+/// `RoundedRectangle` instead made it visibly narrower and squarer —
+/// `KadoRadius.card` is 10pt against the list's ~30pt.
 struct TipNudgeBanner: View {
     /// Opens the Tip Jar.
     let onTip: () -> Void
@@ -47,14 +54,8 @@ struct TipNudgeBanner: View {
 
             hideButton
         }
-        // Before the padding, so the row expands and carries the hide
-        // button out to the trailing edge. Without it the card shrinks
-        // to fit its text: on iPhone the copy wraps and fills the width
-        // anyway, but on iPad it fits on one line and the card would
-        // stop short of the habit rows above it.
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(KadoSpace.s4)
-        .background(Color.kadoAccentTint, in: RoundedRectangle(cornerRadius: KadoRadius.card))
     }
 
     /// A 44pt hit target, pulled back into the card's own padding so it
@@ -77,40 +78,42 @@ struct TipNudgeBanner: View {
 
 // MARK: - Previews
 
-#Preview("In place") {
-    List {
-        Section {
-            Text(verbatim: "Meditate")
-                .padding(.vertical, KadoSpace.s2)
-                .listRowBackground(Color.kadoBackgroundSecondary)
+/// The only context the banner is ever used in, so every preview shows
+/// it there — including the `.listRowBackground` that gives it its tint
+/// and corners.
+private struct TipNudgePreviewList: View {
+    var body: some View {
+        List {
+            Section {
+                Text(verbatim: "Meditate")
+                    .padding(.vertical, KadoSpace.s2)
+                    .listRowBackground(Color.kadoBackgroundSecondary)
+                Text(verbatim: "Read")
+                    .padding(.vertical, KadoSpace.s2)
+                    .listRowBackground(Color.kadoBackgroundSecondary)
+            }
+            Section {
+                TipNudgeBanner(onTip: {}, onHide: {})
+                    .listRowBackground(Color.kadoAccentTint)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
         }
-        Section {
-            TipNudgeBanner(onTip: {}, onHide: {})
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: KadoSpace.s2, leading: 0, bottom: KadoSpace.s5, trailing: 0))
-        }
+        .scrollContentBackground(.hidden)
+        .background(Color.kadoBackground.ignoresSafeArea())
     }
-    .scrollContentBackground(.hidden)
-    .background(Color.kadoBackground.ignoresSafeArea())
 }
 
-#Preview("On its own") {
-    TipNudgeBanner(onTip: {}, onHide: {})
-        .padding()
-        .background(Color.kadoBackground)
+#Preview("In place") {
+    TipNudgePreviewList()
 }
 
 #Preview("Dark") {
-    TipNudgeBanner(onTip: {}, onHide: {})
-        .padding()
-        .background(Color.kadoBackground)
+    TipNudgePreviewList()
         .preferredColorScheme(.dark)
 }
 
 #Preview("Dynamic Type XXXL") {
-    TipNudgeBanner(onTip: {}, onHide: {})
-        .padding()
-        .background(Color.kadoBackground)
+    TipNudgePreviewList()
         .environment(\.dynamicTypeSize, .accessibility3)
 }

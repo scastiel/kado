@@ -201,16 +201,15 @@ struct TodayView: View {
                             onTip: { sheet = .tipJar },
                             onHide: hideTipNudge
                         )
-                        .listRowBackground(Color.clear)
+                        // The tint and the rounded corners come from
+                        // the row background, the same way the habit
+                        // rows get theirs — so the card matches their
+                        // width and the list's own ~30pt corner radius
+                        // instead of a hand-drawn 10pt one. Zero insets
+                        // because the banner brings its own padding.
+                        .listRowBackground(Color.kadoAccentTint)
                         .listRowSeparator(.hidden)
-                        // Zero horizontally, not 20: the row already
-                        // sits inside the List's own section inset, so
-                        // anything here is added on top of it and the
-                        // card ends up narrower than the habit rows
-                        // above.
-                        .listRowInsets(
-                            EdgeInsets(top: KadoSpace.s2, leading: 0, bottom: KadoSpace.s5, trailing: 0)
-                        )
+                        .listRowInsets(EdgeInsets())
                     }
                 }
             }
