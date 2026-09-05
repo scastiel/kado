@@ -14,6 +14,7 @@
 #   make listing-info  what App Store Connect currently holds
 #   make listing       upload the copy and the screenshots (needs ASC_ISSUER_ID)
 #
+#   make release-check confirm HEAD contains everything on origin/main
 #   make archive       build a signed App Store archive
 #   make ipa           export that archive as an .ipa
 #   make testflight    archive, export and upload a build
@@ -73,7 +74,7 @@ ASC_ISSUER_ID ?=
 .DEFAULT_GOAL := help
 .PHONY: help build test e2e run shot sim sim-clean clean \
 	screenshots frames site-shots listing-check listing-info listing \
-	archive ipa testflight
+	archive ipa testflight release-check
 
 help:
 	@grep -E '^[a-z0-9-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -200,7 +201,23 @@ AUTH := -allowProvisioningUpdates \
 	-authenticationKeyID $(ASC_KEY_ID) \
 	-authenticationKeyIssuerID $(ASC_ISSUER_ID)
 
-archive: ## Build a signed App Store archive
+# Build 12 shipped without the fix its own release notes led on: the notes were written from
+# `git log ..origin/main` while the archive was built from a branch that predated the last
+# commit in that range. Two correct operations over two different ranges, and nothing compared
+# them. This does.
+release-check: ## Check the working tree contains everything origin/main does
+	@git fetch --quiet origin main 2>/dev/null || true
+	@missing="$$(git log --oneline HEAD..origin/main)"; \
+	if [ -n "$$missing" ]; then \
+		echo "HEAD is missing commits that are on origin/main:"; \
+		echo "$$missing" | sed 's/^/  /'; \
+		echo "The release notes are written from that range — a build from here would not"; \
+		echo "contain what they promise. Merge origin/main, or pass SKIP_RELEASE_CHECK=1."; \
+		[ -n "$(SKIP_RELEASE_CHECK)" ] || exit 1; \
+	fi
+	@test -n "$(SKIP_RELEASE_CHECK)" || echo "HEAD contains everything on origin/main."
+
+archive: release-check ## Build a signed App Store archive
 	@$(MAKE) --no-print-directory asc-credentials
 	@xcodebuild archive \
 		-project $(PROJECT) -scheme $(SCHEME) \
