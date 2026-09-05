@@ -318,6 +318,20 @@ repo. Guard against that with an explicit
   `.id(flag)` as a defensive swap-trigger (as the Dev mode work
   initially did) quietly resets all of that. Trust the swap; don't
   rebuild the tree unless you've reproduced a real staleness bug.
+- **…but a swap invalidates every `@Model` object the old container
+  vended, so retained SwiftUI state must never hold one.** `@Query`
+  re-fetching is only half the story: `ForEach` retains the collection
+  it was handed and re-reads `Identifiable.id` during the *list diff*,
+  which runs after the swap. Reading any persisted property on an
+  invalidated object traps inside SwiftData — `EXC_BREAKPOINT`, not a
+  catchable exception. The same applies to a `NavigationPath` entry, a
+  `.sheet(item:)` payload, or any `@State` holding a record. Rule:
+  **views address habits by `UUID` and snapshot to value types for
+  display**; resolve the id back to a live record only inside the
+  mutation, against the current `@Query`. Canonical: `TodayRow` /
+  `HabitRoute` / `HabitDetailLoader` (issue #63). The fix is *not*
+  `.id(devModeFlag)` — that stops the crash by resetting exactly the
+  navigation and scroll state the note above exists to preserve.
 - **`ProgressView`'s indeterminate indicator takes its color from
   `.tint`, not `.foregroundStyle` / `.foregroundColor`.** A spinner
   placed on a tinted fill (e.g. a `Color.kadoAccent` capsule) needs an

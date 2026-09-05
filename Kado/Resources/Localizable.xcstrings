@@ -1,6 +1,40 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Habit unavailable" : {
+      "comment" : "Title of the placeholder shown when a screen's habit no longer exists.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit unavailable"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitude indisponible"
+          }
+        }
+      }
+    },
+    "This habit is no longer available." : {
+      "comment" : "Description under the 'Habit unavailable' placeholder.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This habit is no longer available."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette habitude n'est plus disponible."
+          }
+        }
+      }
+    },
     "SUPPORT" : {
       "comment" : "Eyebrow label above the Tip Jar screen title. Displayed uppercased.",
       "localizations" : {
