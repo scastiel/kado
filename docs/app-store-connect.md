@@ -270,17 +270,17 @@ added. Use:
 > picture of how you're building your routines — without the
 > all-or-nothing guilt of a streak counter.
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > A HABIT SCORE, NOT JUST A STREAK
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > Kadō's core algorithm rewards long-term consistency. One missed
 > day doesn't wipe your progress. A strong stretch matters more
 > than a perfect one. You see the trend, not a fragile chain.
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > PRIVATE BY DESIGN
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • No account required
 > • No analytics, no telemetry, no advertising SDKs
@@ -288,9 +288,9 @@ added. Use:
 > • Your data lives on your device
 > • Optional sync through your own iCloud (never on our servers)
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > NATIVE TO APPLE
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Universal app — iPhone and iPad
 > • Home Screen widgets in three sizes
@@ -299,9 +299,9 @@ added. Use:
 > • Full Dark Mode and Dynamic Type support
 > • VoiceOver labels on every surface
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > YOURS TO KEEP
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • CSV and JSON export in one tap
 > • Import from Kadō backups (round-trip tested)
@@ -309,9 +309,9 @@ added. Use:
 > • No subscription, ever — optional Tip Jar if you want to
 >   support development
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > FLEXIBLE SCHEDULES
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Daily habits
 > • N days per week (e.g. 4 times a week)
@@ -319,9 +319,9 @@ added. Use:
 > • Every N days (e.g. every 3 days)
 > • Binary, counter, or timer habit types
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > BUILT IN THE OPEN
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > Kadō is built in public. Browse the roadmap, file issues, or
 > send a pull request — github.com/scastiel/kado.
@@ -334,18 +334,18 @@ added. Use:
 > clair et honnête sur la façon dont tu construis tes routines —
 > sans la culpabilité tout-ou-rien d'un compteur de série.
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > UN SCORE, PAS SEULEMENT UNE SÉRIE
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > L'algorithme de Kadō récompense la régularité sur la durée. Un
 > jour manqué n'efface pas ton progrès. Une longue phase solide
 > compte davantage qu'une phase parfaite. Tu vois la tendance, pas
 > une chaîne fragile.
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > PRIVÉ PAR DESIGN
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Aucun compte requis
 > • Aucune analytique, aucune télémétrie, aucun SDK publicitaire
@@ -354,9 +354,9 @@ added. Use:
 > • Synchronisation optionnelle via ton propre iCloud (jamais sur
 >   nos serveurs)
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > NATIF APPLE
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Application universelle — iPhone et iPad
 > • Widgets d'écran d'accueil en trois tailles
@@ -365,9 +365,9 @@ added. Use:
 > • Mode sombre complet et support Dynamic Type
 > • Libellés VoiceOver sur chaque écran
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > TES DONNÉES T'APPARTIENNENT
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Export CSV et JSON en un geste
 > • Import depuis les sauvegardes Kadō (aller-retour testé)
@@ -375,9 +375,9 @@ added. Use:
 > • Aucun abonnement, jamais — Tip Jar optionnel si tu veux
 >   soutenir le développement
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > HORAIRES FLEXIBLES
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > • Habitudes quotidiennes
 > • N jours par semaine (ex. 4 fois par semaine)
@@ -385,9 +385,9 @@ added. Use:
 > • Tous les N jours (ex. tous les 3 jours)
 > • Types binaire, compteur ou minuteur
 >
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 > CONSTRUIT À LA VUE DE TOUS
-> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+> ----------------------------
 >
 > Kadō est développé publiquement. Parcours la feuille de route,
 > ouvre des issues, propose une pull request —

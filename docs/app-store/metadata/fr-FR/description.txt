@@ -1,14 +1,14 @@
 Kadō est un suivi d'habitudes réfléchi qui t'offre un regard clair et honnête sur la façon dont tu construis tes routines — sans la culpabilité tout-ou-rien d'un compteur de série.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 UN SCORE, PAS SEULEMENT UNE SÉRIE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 L'algorithme de Kadō récompense la régularité sur la durée. Un jour manqué n'efface pas ton progrès. Une longue phase solide compte davantage qu'une phase parfaite. Tu vois la tendance, pas une chaîne fragile.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 PRIVÉ PAR DESIGN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 • Aucun compte requis
 • Aucune analytique, aucune télémétrie, aucun SDK publicitaire
@@ -16,9 +16,9 @@ PRIVÉ PAR DESIGN
 • Tes données restent sur ton appareil
 • Synchronisation optionnelle via ton propre iCloud (jamais sur nos serveurs)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 NATIF APPLE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 • Application universelle — iPhone et iPad
 • Widgets d'écran d'accueil en trois tailles
@@ -28,18 +28,18 @@ NATIF APPLE
 • Mode sombre complet et support Dynamic Type
 • Libellés VoiceOver sur chaque écran
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 TES DONNÉES T'APPARTIENNENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 • Export CSV et JSON en un geste
 • Import depuis les sauvegardes Kadō (aller-retour testé)
 • Code source sur GitHub sous licence MIT
 • Aucun abonnement, jamais — Tip Jar optionnel si tu veux soutenir le développement
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 HORAIRES FLEXIBLES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 • Habitudes quotidiennes
 • N jours par semaine (ex. 4 fois par semaine)
@@ -47,9 +47,9 @@ HORAIRES FLEXIBLES
 • Tous les N jours (ex. tous les 3 jours)
 • Types binaire, compteur ou minuteur
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 CONSTRUIT À LA VUE DE TOUS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------
 
 Kadō est développé publiquement. Parcours la feuille de route, ouvre des issues, propose une pull request — github.com/scastiel/kado.
 

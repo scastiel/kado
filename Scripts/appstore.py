@@ -306,6 +306,20 @@ def load_listings(locales: list[str]) -> list[Listing]:
     return listings
 
 
+# Characters App Store Connect refuses in a description, and the reason it is worth checking
+# here: the refusal is a 409 from the middle of an upload, naming one character and no line
+# number, after some of the run has already been written.
+#
+# Box Drawing and Block Elements — U+2500 to U+259F — is exactly the range somebody reaches for
+# to draw a rule between sections, and `docs/app-store-connect.md` had done precisely that with
+# `━`. The listing uses a row of hyphens instead.
+FORBIDDEN = {chr(code) for code in range(0x2500, 0x25A0)}
+
+
+def forbidden_in(value: str) -> set[str]:
+    return {character for character in value if character in FORBIDDEN}
+
+
 def check(config: dict, locales: list[str]) -> int:
     """Everything that can be known without the network: lengths, and whether the images exist."""
     problems = 0
@@ -326,6 +340,13 @@ def check(config: dict, locales: list[str]) -> int:
                 problems += 1
             elif limit and length > limit:
                 print(f"  !  {name} is {length} characters, and the limit is {limit}")
+                problems += 1
+            elif forbidden_in(value):
+                drawn = " ".join(sorted(forbidden_in(value)))
+                print(
+                    f"  !  {name} contains {drawn}, which App Store Connect refuses."
+                    " Use hyphens for a rule."
+                )
                 problems += 1
             else:
                 print(f"  ok {name:<18} {length}" + (f"/{limit}" if limit else ""))
