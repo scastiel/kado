@@ -20,6 +20,8 @@ struct TodayView: View {
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.reviewPromptService) private var reviewPromptService
+    @Environment(\.tipNudge) private var tipNudge
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
     @Environment(\.dayBoundary) private var dayBoundary
@@ -34,6 +36,13 @@ struct TodayView: View {
     @State private var sheet: TodaySheet?
     @State private var confirmingArchiveOf: UUID?
 
+    /// Whether the tip nudge is showing. Seeded in `.onAppear` rather
+    /// than in the property's initial value, because `@State` is set up
+    /// before the environment is injected and would capture the
+    /// `@Entry` default instead of whatever the app injected
+    /// (CLAUDE.md, SwiftUI section). `nil` means "not asked yet".
+    @State private var showsTipNudge: Bool?
+
     /// Single source of truth for sheets the Today surface presents.
     /// Replaces the boolean soup that would otherwise emerge from
     /// New / Edit / Log-counter / Log-timer running in parallel.
@@ -42,6 +51,11 @@ struct TodayView: View {
         case editHabit(UUID)
         case logCounter(UUID)
         case logTimer(UUID)
+        /// The Tip Jar, reached from the nudge at the bottom of the
+        /// list. A sheet rather than a `navigationDestination`, so the
+        /// detour doesn't leave the Tip Jar sitting on Today's
+        /// navigation stack once it's done.
+        case tipJar
 
         var id: String {
             switch self {
@@ -49,6 +63,7 @@ struct TodayView: View {
             case .editHabit(let habitID): "edit-\(habitID)"
             case .logCounter(let habitID): "counter-\(habitID)"
             case .logTimer(let habitID): "timer-\(habitID)"
+            case .tipJar: "tip-jar"
             }
         }
     }
@@ -72,7 +87,12 @@ struct TodayView: View {
                         .accessibilityIdentifier(AccessibilityID.Today.newHabitButton)
                     }
                 }
-                .sheet(item: $sheet) { sheet in
+                .onAppear(perform: refreshTipNudge)
+                // Re-asked after every sheet, because one of them is
+                // the Tip Jar: a tip taken there retires the nudge, and
+                // Today is already on screen so nothing else would
+                // prompt it to look again.
+                .sheet(item: $sheet, onDismiss: refreshTipNudge) { sheet in
                     sheetContent(for: sheet)
                 }
                 .confirmationDialog(
@@ -113,6 +133,19 @@ struct TodayView: View {
                 TimerLogSheet(habit: record)
             } else {
                 HabitUnavailableView()
+            }
+        case .tipJar:
+            NavigationStack {
+                TipJarView()
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            // Not "Done": that key already exists in the
+                            // catalog as a habit's completed-day label
+                            // ("Fait" in French), which would read as
+                            // nonsense on a dismiss button.
+                            Button("Close") { self.sheet = nil }
+                        }
+                    }
             }
         }
     }
@@ -161,6 +194,23 @@ struct TodayView: View {
                         Text("Not scheduled today")
                     } footer: {
                         Text("Tap to open detail, or long-press to edit or archive.")
+                    }
+                }
+                if showsTipNudge == true {
+                    Section {
+                        TipNudgeBanner(
+                            onTip: { sheet = .tipJar },
+                            onHide: hideTipNudge
+                        )
+                        // The tint and the rounded corners come from
+                        // the row background, the same way the habit
+                        // rows get theirs — so the card matches their
+                        // width and the list's own ~30pt corner radius
+                        // instead of a hand-drawn 10pt one. Zero insets
+                        // because the banner brings its own padding.
+                        .listRowBackground(Color.kadoAccentTint)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
                     }
                 }
             }
@@ -378,6 +428,22 @@ struct TodayView: View {
         }
     }
 
+    // MARK: - Tip nudge
+
+    /// Asks the service whether the nudge belongs on screen. Every rule
+    /// it applies is one-way, so this can only ever take the card away
+    /// — a dismissed or already-tipped nudge never comes back.
+    private func refreshTipNudge() {
+        showsTipNudge = tipNudge.shouldShow()
+    }
+
+    private func hideTipNudge() {
+        tipNudge.hide()
+        withAnimation(reduceMotion ? nil : KadoMotion.base) {
+            showsTipNudge = false
+        }
+    }
+
     private func archive(_ habitID: UUID) {
         guard let record = record(for: habitID) else { return }
         record.archivedAt = loggingInstant
@@ -399,6 +465,19 @@ struct TodayView: View {
 #Preview("Nothing due today") {
     TodayView()
         .modelContainer(PreviewContainer.noneDueTodayContainer())
+}
+
+#Preview("Tip nudge") {
+    TodayView()
+        .modelContainer(PreviewContainer.shared)
+        .environment(\.tipNudge, StubTipNudgeService())
+}
+
+#Preview("Tip nudge — Dark") {
+    TodayView()
+        .modelContainer(PreviewContainer.shared)
+        .environment(\.tipNudge, StubTipNudgeService())
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Dark") {

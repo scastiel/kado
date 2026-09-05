@@ -77,6 +77,12 @@ enum AccessibilityID {
         /// its label, which is localized, or on its SF Symbol name,
         /// which SwiftUI does not reliably surface for a `Label`.
         static let newHabitButton = "today.newHabit"
+
+        /// The tip nudge's two actions. Both sit on leaf buttons inside
+        /// `TipNudgeBanner` rather than on the card, which would stamp
+        /// the copy and both buttons with one identifier.
+        static let tipNudgeTipButton = "today.tipNudge.tip"
+        static let tipNudgeHideButton = "today.tipNudge.hide"
     }
 
     enum HabitDetail {

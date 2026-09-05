@@ -64,6 +64,11 @@ nonisolated enum UITestSupport {
         /// listing image, where it covers the frequency and type
         /// options the shot exists to show.
         static let suppressNameAutoFocus = "-uiTestSuppressNameAutoFocus"
+        /// Backdate the tip nudge's first-launch marker so the app
+        /// starts old enough to show it. Without this the nudge is a
+        /// week away from any fresh launch, which no test and no visual
+        /// check can wait for.
+        static let tipNudgeReady = "-uiTestTipNudgeReady"
     }
 
     /// Whether the New Habit sheet should skip focusing its name field.
@@ -93,6 +98,27 @@ nonisolated enum UITestSupport {
         DevModeDefaults.sharedDefaults.set(
             flag(Argument.devModeConfirmed, in: arguments),
             forKey: DevModeDefaults.hasConfirmedKey
+        )
+        applyTipNudgeState(arguments)
+    }
+
+    /// Puts the tip nudge into a known state for the run.
+    ///
+    /// Cleared unconditionally for the same reason the dev-mode flag is
+    /// written unconditionally: the nudge's "hidden" and "tipped" flags
+    /// are terminal, so a run that dismissed it would silently disarm
+    /// every run after it. The date is then written directly rather
+    /// than passed as a launch argument, because the argument domain
+    /// outranks stored values and would freeze it against the app's own
+    /// writes — see the note at the top of this file.
+    private static func applyTipNudgeState(_ arguments: [String]) {
+        for key in TipNudgeDefaults.allKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        guard arguments.contains(Argument.tipNudgeReady) else { return }
+        UserDefaults.standard.set(
+            Date.now.addingTimeInterval(-30 * 86_400),
+            forKey: TipNudgeDefaults.firstLaunchDate
         )
     }
 
