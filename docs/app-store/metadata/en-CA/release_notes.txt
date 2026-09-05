@@ -1,5 +1,5 @@
-Version 1.6 — Late nights and fairer scores.
+Version 1.7 — Spreadsheet-friendly backups, and a fairer "every N days".
 
-• New "Day starts at" setting. If you often log habits after midnight, you can push the day rollover to as late as 6 AM — one tap still lands on the day you mean, with no more back-filling through the calendar. Reminders keep their own times, and changing this never moves a completion you've already logged.
-• Habits with a "days per week" goal now score correctly. Meeting your weekly target every single week could previously leave the score stuck far below where it belonged.
-• The Overview grid now shows completions logged on days the schedule didn't ask for, instead of hiding them as rest days.
+• Export and import your data as CSV as well as JSON. Open a backup in Numbers or Excel, edit it, bring it back in — the round-trip keeps everything, notes included. Pick the format in Settings → Data.
+• Habits on an "every N days" schedule now count from the last day you actually did them, instead of from a fixed grid. Doing one early no longer leaves the following day showing as missed, and the days you complete ahead of schedule now count toward your score and your streak.
+• Fixed a crash that could happen when switching Dev mode on or off while habits were on screen.

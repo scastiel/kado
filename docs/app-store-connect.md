@@ -596,6 +596,47 @@ stemming.
 > • La vue d'ensemble affiche désormais les complétions notées un
 >   jour non prévu, au lieu de les masquer comme des jours de repos.
 
+### What's New — 1.7
+
+Lives in `docs/app-store/metadata/<locale>/release_notes.txt` and is
+pushed by `make listing` — from 1.7 on, that pair of files is the copy
+that ships, and these blocks are the readable record.
+
+Drawn from the four commits since the 1.6 bump: #62 (CSV round-trip)
+and #68 (every-N-days re-anchoring) are the features, #64 (dev-mode
+store-swap crash) is the fix. #66 added the `KadoUITests` target and is
+invisible to users.
+
+> Version 1.7 — Spreadsheet-friendly backups, and a fairer "every N days".
+>
+> • Export and import your data as CSV as well as JSON. Open a backup
+>   in Numbers or Excel, edit it, bring it back in — the round-trip
+>   keeps everything, notes included. Pick the format in Settings →
+>   Data.
+> • Habits on an "every N days" schedule now count from the last day
+>   you actually did them, instead of from a fixed grid. Doing one
+>   early no longer leaves the following day showing as missed, and the
+>   days you complete ahead of schedule now count toward your score and
+>   your streak.
+> • Fixed a crash that could happen when switching Dev mode on or off
+>   while habits were on screen.
+
+> Version 1.7 — Sauvegardes compatibles tableur et « tous les N jours »
+> plus juste.
+>
+> • Exporte et importe tes données en CSV aussi bien qu'en JSON. Ouvre
+>   une sauvegarde dans Numbers ou Excel, modifie-la, réimporte-la —
+>   l'aller-retour ne perd rien, notes comprises. Le format se choisit
+>   dans Réglages → Données.
+> • Les habitudes réglées sur « tous les N jours » se comptent
+>   désormais à partir du dernier jour où tu l'as vraiment faite, et
+>   non sur une grille fixe. La faire en avance ne marque plus le jour
+>   suivant comme manqué, et les jours faits en avance comptent
+>   maintenant dans ton score et dans ta série.
+> • Correction d'un plantage qui pouvait survenir en activant ou
+>   désactivant le mode développeur alors que des habitudes étaient
+>   affichées.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
