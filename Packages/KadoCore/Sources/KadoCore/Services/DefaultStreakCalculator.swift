@@ -48,12 +48,13 @@ public struct DefaultStreakCalculator: StreakCalculating {
         startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
+        let cycleAnchors = cycleAnchors(habit: habit, completions: completions)
         var streak = 0
         var day = end
         var isEndDay = true
 
         while day >= startDay {
-            let due = isDueByDay(habit: habit, on: day)
+            let due = isDueByDay(habit: habit, on: day, cycleAnchors: cycleAnchors)
             if !due {
                 day = previousDay(day)
                 isEndDay = false
@@ -81,12 +82,13 @@ public struct DefaultStreakCalculator: StreakCalculating {
         startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
+        let cycleAnchors = cycleAnchors(habit: habit, completions: completions)
         var best = 0
         var run = 0
         var day = startDay
 
         while day <= end {
-            let due = isDueByDay(habit: habit, on: day)
+            let due = isDueByDay(habit: habit, on: day, cycleAnchors: cycleAnchors)
             if !due {
                 day = nextDay(day)
                 continue
@@ -196,7 +198,10 @@ public struct DefaultStreakCalculator: StreakCalculating {
     /// day at a time across the habit's whole lifetime. That turns an
     /// O(1) check into O(completions) per day, on the main thread, for
     /// a value `HabitDetailView` reads from a computed property and
-    /// `WidgetSnapshotBuilder` recomputes on every mutation.
+    /// `WidgetSnapshotBuilder` recomputes on every mutation. The
+    /// `.everyNDays` anchor has the same shape — the evaluator rescans
+    /// every completion per day, where the walkers below hoist the
+    /// sorted anchors once and binary-search them.
     /// Correctness: the explicit `.daysPerWeek` case keeps the
     /// "week-bucket path handles this frequency" invariant enforced
     /// where it is used, rather than relying on both callers switching
@@ -205,7 +210,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
     ///
     /// The lifecycle guards the evaluator applies (`effectiveStart`,
     /// `archivedAt`) are already enforced by the callers' loop bounds.
-    private func isDueByDay(habit: Habit, on day: Date) -> Bool {
+    private func isDueByDay(habit: Habit, on day: Date, cycleAnchors: [Date]) -> Bool {
         switch habit.frequency {
         case .daily:
             return true
@@ -214,13 +219,36 @@ public struct DefaultStreakCalculator: StreakCalculating {
             guard let weekday = Weekday(rawValue: weekdayInt) else { return false }
             return weekdays.contains(weekday)
         case .everyNDays(let n):
-            guard n > 0 else { return false }
-            let createdDay = calendar.startOfDay(for: habit.createdAt)
-            let delta = calendar.dateComponents([.day], from: createdDay, to: day).day ?? 0
-            return ((delta % n) + n) % n == 0
+            // The cycle restarts from the last day the habit was
+            // done, so an early completion moves the next due day
+            // instead of leaving a phantom miss behind. `cycleAnchors`
+            // is hoisted out of the caller's day-by-day walk to keep
+            // this a binary search rather than a scan per day.
+            return EveryNDaysCycle.isDue(
+                interval: n,
+                on: day,
+                anchoredAt: EveryNDaysCycle.anchorDay(
+                    before: day,
+                    in: cycleAnchors,
+                    fallback: calendar.startOfDay(for: habit.createdAt)
+                ),
+                calendar: calendar
+            )
         case .daysPerWeek:
             return false
         }
+    }
+
+    /// Days that may re-anchor an `.everyNDays` cycle, ascending.
+    /// Empty for every other frequency — nothing else reads it, and
+    /// the walkers above call this once per streak, not once per day.
+    private func cycleAnchors(habit: Habit, completions: [Completion]) -> [Date] {
+        guard case .everyNDays = habit.frequency else { return [] }
+        return EveryNDaysCycle.anchorCandidates(
+            for: habit,
+            completions: completions,
+            calendar: calendar
+        )
     }
 
     private func completedDaySet(habit: Habit, completions: [Completion]) -> Set<Date> {

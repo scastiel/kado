@@ -136,6 +136,20 @@ struct StreakCalculatorTests {
         #expect(calc.best(for: h, completions: completions, asOf: asOf) == 3)
     }
 
+    @Test(".everyNDays counts an early completion instead of breaking on it")
+    func everyNDaysEarlyCompletionKeepsStreak() {
+        // N=2 from day -6. Done -6, then -5 a day early, then -3 and
+        // -1. Each completion restarts the cycle, so the due days are
+        // -6, -3, -1 and every one is met. Under a fixed createdAt
+        // grid the due days would be -6, -4, -2 and the user would
+        // read as having missed two of them.
+        let h = habit(frequency: .everyNDays(2), createdAtOffset: -6)
+        let completions = [-6, -5, -3, -1].map { completion(for: h, dayOffset: $0) }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: completions, asOf: asOf) == 3)
+        #expect(calc.best(for: h, completions: completions, asOf: asOf) == 3)
+    }
+
     // MARK: - .daysPerWeek
 
     @Test(".daysPerWeek(3) counts qualifying weeks, current week is grace")

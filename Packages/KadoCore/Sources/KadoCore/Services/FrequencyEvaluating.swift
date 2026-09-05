@@ -5,9 +5,11 @@ import Foundation
 /// (`createdAt` / `archivedAt`) and, for flexible schedules like
 /// `.daysPerWeek`, its recent completion history.
 ///
-/// The two differ **only** for `.daysPerWeek`. Fixed schedules
-/// (`.daily`, `.specificDays`, `.everyNDays`) ignore completions
-/// entirely, so they answer both identically.
+/// The two differ **only** for `.daysPerWeek`. `.daily` and
+/// `.specificDays` ignore completions outright; `.everyNDays` reads
+/// only the ones *strictly before* the day it is asked about, because
+/// its cycle restarts from the last day the habit was done (see
+/// `EveryNDaysCycle`). So all three answer both questions identically.
 ///
 /// Keeping them apart matters: collapsing them into a single `isDue`
 /// is what let a completed day render as "not scheduled" in the
@@ -24,6 +26,11 @@ public protocol FrequencyEvaluating: Sendable {
     ///
     /// For `.daysPerWeek(n)`, counts completions over the six days
     /// *before* `date` and reports whether the quota still had room.
+    ///
+    /// For `.everyNDays(n)`, measures the interval from the last day
+    /// the habit was done before `date`, falling back to its creation
+    /// day. Only a completion re-anchors the cycle, so a skipped due
+    /// day stays a miss.
     ///
     /// This is the right question for anything retrospective:
     /// rendering a grid or calendar, scoring, sectioning a list.

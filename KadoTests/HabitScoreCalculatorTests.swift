@@ -245,6 +245,41 @@ struct HabitScoreCalculatorTests {
         #expect(abs(dailyScore - everyThreeScore) < 1e-9, "daily=\(dailyScore) every3=\(everyThreeScore)")
     }
 
+    @Test("Completing an every-2-days habit early still scores a perfect run")
+    func everyNDaysEarlyCompletionMatchesPerfectRun() {
+        let daily = makeHabit(createdOffset: 0)
+        let dailyCompletions = (0..<5).map {
+            Completion(habitID: daily.id, date: TestCalendar.day($0))
+        }
+        let dailyScore = calculator.currentScore(
+            for: daily,
+            completions: dailyCompletions,
+            asOf: TestCalendar.day(4)
+        )
+
+        // Every 2 days, done a day early on offset 1. The cycle
+        // re-anchors there, so the due days are 0, 3, 5, 7, 9 — five
+        // of them, all met, which is the same perfect run as above.
+        // On a fixed createdAt grid the due days would be 0, 2, 4, 6,
+        // 8 and four of the five would read as missed.
+        let flexible = Habit(
+            name: "Long run",
+            frequency: .everyNDays(2),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        let flexibleCompletions = [0, 1, 3, 5, 7, 9].map {
+            Completion(habitID: flexible.id, date: TestCalendar.day($0))
+        }
+        let flexibleScore = calculator.currentScore(
+            for: flexible,
+            completions: flexibleCompletions,
+            asOf: TestCalendar.day(9)
+        )
+
+        #expect(abs(dailyScore - flexibleScore) < 1e-9, "daily=\(dailyScore) every2=\(flexibleScore)")
+    }
+
     @Test("Off-schedule completions on non-due days do not contribute to the score")
     func offScheduleCompletionsIgnored() {
         let mondayOnly = Habit(
