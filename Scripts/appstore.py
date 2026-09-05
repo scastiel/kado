@@ -405,6 +405,66 @@ def pick_editable(records: list[dict]) -> dict | None:
     return None
 
 
+def create_version(client: Client, config: dict, version_string: str):
+    """Open the next version for editing, which is what everything else here needs.
+
+    A version record is a draft, not a submission — it creates the "Prepare for Submission"
+    slot the copy and the screenshots hang off, and it can be deleted again from App Store
+    Connect while it is still in that state. Nothing is sent to review by this.
+    """
+    app = find_app(client, config["bundleId"])
+    versions = client.get(
+        f"/v1/apps/{app['id']}/appStoreVersions",
+        **{"filter[platform]": "IOS", "limit": "20"},
+    )["data"]
+
+    existing = next(
+        (v for v in versions if v["attributes"]["versionString"] == version_string), None
+    )
+    if existing:
+        fail(f"{version_string} already exists, in state {state_of(existing)}.")
+
+    # App Store Connect allows one version in flight at a time, and refuses the second with a
+    # message about the *app* rather than about the version already open. Say which one.
+    already_open = pick_editable(versions)
+    if already_open:
+        fail(
+            f"{already_open['attributes']['versionString']} is already open for editing "
+            f"({state_of(already_open)}). App Store Connect allows one at a time — finish it, "
+            "or delete it in App Store Connect, before opening another."
+        )
+
+    # Carried forward from the most recent version rather than left blank, because a version
+    # created through the API does not inherit them the way one created in the UI does.
+    attributes = {"platform": "IOS", "versionString": version_string}
+    if versions:
+        for field in ("copyright", "releaseType"):
+            value = versions[0]["attributes"].get(field)
+            if value:
+                attributes[field] = value
+
+    print(f"{app['attributes']['name']} — creating version {version_string}")
+    for key, value in sorted(attributes.items()):
+        print(f"  {key}: {value}")
+
+    created = client.post(
+        "/v1/appStoreVersions",
+        {
+            "data": {
+                "type": "appStoreVersions",
+                "attributes": attributes,
+                "relationships": {"app": {"data": {"type": "apps", "id": app["id"]}}},
+            }
+        },
+    )
+    if client.dry_run:
+        print("\n  (dry run — nothing was created)")
+        return
+    version = created["data"]
+    print(f"\n  created, in state {state_of(version)}")
+    print("  Next: Scripts/appstore.py all --dry-run, then make listing")
+
+
 def find_version(client: Client, app_id: str, wanted: str | None) -> dict:
     versions = client.get(
         f"/v1/apps/{app_id}/appStoreVersions",
@@ -518,7 +578,10 @@ def _push(client, listing, mapping, *, existing, collection, parent):
 # MARK: - Screenshots
 
 
-def push_screenshots(client: Client, config: dict, locales: list[str], wanted_version: str | None):
+def push_screenshots(
+    client: Client, config: dict, locales: list[str], wanted_version: str | None,
+    prune: bool = False,
+):
     app = find_app(client, config["bundleId"])
     version = find_version(client, app["id"], wanted_version)
     print(
@@ -553,8 +616,9 @@ def push_screenshots(client: Client, config: dict, locales: list[str], wanted_ve
 
             display_type = spec["displayType"]
             screenshot_set = sets.get(display_type)
+            print(f"  {device} → {display_type}")
             if screenshot_set is None:
-                print(f"  + {device}: creating the {display_type} set")
+                print("    creating the set, which the listing does not have yet")
                 created = client.post(
                     "/v1/appScreenshotSets",
                     {
@@ -606,6 +670,26 @@ def push_screenshots(client: Client, config: dict, locales: list[str], wanted_ve
                 {"data": [{"type": "appScreenshots", "id": i} for i in uploaded]},
             )
             print(f"  ✓ {device}: {len(shots)} screenshots")
+
+        # Sets the listing has and this repo does not. Left alone by default — deleting
+        # somebody's screenshots on a flag they didn't pass is not a thing a tool should do.
+        #
+        # But leaving them is not harmless either: Apple serves the closest set it has and
+        # scales down from there, so an old 6.5" set beside a fresh 6.7" one means two
+        # different people see two different listings, one of them out of date. That is
+        # exactly the drift this pipeline exists to remove, hence the flag.
+        configured_types = {device["displayType"] for device in config["devices"].values()}
+        for display_type, screenshot_set in sorted(sets.items()):
+            if display_type in configured_types:
+                continue
+            if not prune:
+                print(
+                    f"  - {display_type}: in the listing but not in config.json, left as it is"
+                    " (--prune-sets removes it)"
+                )
+                continue
+            print(f"  ✗ {display_type}: removing, nothing here replaces it")
+            client.delete(f"/v1/appScreenshotSets/{screenshot_set['id']}")
 
 
 def upload_screenshot(client: Client, set_id: str, path: Path) -> str:
@@ -735,7 +819,13 @@ def main() -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "command", choices=["check", "info", "metadata", "screenshots", "all"]
+        "command",
+        choices=["check", "info", "create-version", "metadata", "screenshots", "all"],
+    )
+    parser.add_argument(
+        "version_string",
+        nargs="?",
+        help="for create-version: the version to open, e.g. 1.7",
     )
     parser.add_argument(
         "--locales", nargs="+", help="only these, e.g. --locales fr-FR (default: all of them)"
@@ -746,6 +836,10 @@ def main() -> int:
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="read and compare, but send no writes"
+    )
+    parser.add_argument(
+        "--prune-sets", action="store_true",
+        help="also delete screenshot sets the listing has that config.json does not",
     )
     parser.add_argument(
         "--yes", action="store_true", help="skip the confirmation prompt"
@@ -760,10 +854,19 @@ def main() -> int:
     if arguments.command == "check":
         return check(config, locales)
 
-    if arguments.command in ("metadata", "screenshots", "all") and not arguments.dry_run:
+    if arguments.command == "create-version" and not arguments.version_string:
+        fail("create-version needs the version to open, e.g. create-version 1.7")
+
+    if arguments.command in ("create-version", "metadata", "screenshots", "all") \
+            and not arguments.dry_run:
         if not arguments.yes and sys.stdin.isatty():
-            what = "copy and screenshots" if arguments.command == "all" else arguments.command
-            print(f"About to write {what} for {', '.join(locales)} to App Store Connect.")
+            what = {
+                "all": f"copy and screenshots for {', '.join(locales)}",
+                "metadata": f"copy for {', '.join(locales)}",
+                "screenshots": f"screenshots for {', '.join(locales)}",
+                "create-version": f"a new version {arguments.version_string}",
+            }[arguments.command]
+            print(f"About to write {what} to App Store Connect.")
             if input("Continue? [y/N] ").strip().lower() not in ("y", "yes"):
                 print("Nothing was sent.")
                 return 1
@@ -774,14 +877,18 @@ def main() -> int:
 
     if arguments.command == "info":
         show_info(client, config)
+    if arguments.command == "create-version":
+        create_version(client, config, arguments.version_string)
     if arguments.command in ("metadata", "all"):
         push_metadata(client, config, locales, arguments.version)
     if arguments.command in ("screenshots", "all"):
         if arguments.command == "all":
             print()
-        push_screenshots(client, config, locales, arguments.version)
+        push_screenshots(
+            client, config, locales, arguments.version, prune=arguments.prune_sets
+        )
 
-    if not arguments.dry_run and arguments.command != "info":
+    if not arguments.dry_run and arguments.command in ("metadata", "screenshots", "all"):
         print("\nDone. Review it in App Store Connect before submitting.")
     return 0
 
