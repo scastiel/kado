@@ -64,6 +64,23 @@ final class DevModeSwapTests: KadoUITestCase {
     /// because tabs stay alive — Today, into a habit, over to Settings,
     /// toggle, back to Today, and the detail screen is still on the
     /// stack with a dead object in it.
+    ///
+    /// **This test currently fails, and the failure is real.** PR #64
+    /// fixes the list half above but not this one: `HabitDetailLoader`
+    /// re-resolves the id on every render, yet `HabitDetailView` is
+    /// built on `@Bindable var habit: HabitRecord` and retains the
+    /// object it was handed, so SwiftUI re-evaluates that retained
+    /// struct's body against the previous store's record and traps in
+    /// `HabitRecord.name.getter`. Keying the loader's child on
+    /// `record.persistentModelID` was tried and does not help — the
+    /// retained body runs before the replacement reaches it.
+    ///
+    /// The fix is for `HabitDetailView` to render from a value-type
+    /// snapshot and resolve the record only inside mutations, which is
+    /// the rule #64 itself added to `CLAUDE.md`. Left failing on
+    /// purpose rather than muted: a suite that reported green while the
+    /// app died would be the exact failure mode this target exists to
+    /// end.
     @MainActor
     func testTogglingDevModeWithADetailScreenPushedDoesNotCrash() {
         let app = launchApp(devMode: true, seedProduction: true)

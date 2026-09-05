@@ -818,6 +818,62 @@ where you still open Xcode:
 
 ---
 
+## UI tests (XCUITest)
+
+`KadoUITests` exists for the one class of bug unit tests structurally
+cannot see: a crash *inside* a SwiftUI update pass, where there is no
+seam to assert on. `make e2e` runs it; `make test` keeps the unit
+suite at its usual couple of seconds. Each worktree drives a simulator
+of its own (`SIM_NAME ?= Kado $(notdir $(CURDIR))`) because parallel
+`.claude/worktrees/` runs would otherwise install over each other, and
+XCUITest's parallel clones are named after the device they came from,
+so even the clones collide.
+
+Everything the app exposes to the suite lives in
+`Kado/Support/UITestSupport.swift`, entirely inside `#if DEBUG`.
+
+Four findings, each of which cost a cycle:
+
+- **Never build the UI suite with `CODE_SIGNING_ALLOWED=NO`.** Kadō's
+  app target carries the iCloud and App Group entitlements, and an
+  unsigned build has neither, so `CKContainer(identifier:)` traps on
+  the first line of `KadoApp.init()`. Every test then "fails" at launch
+  with `EXC_BREAKPOINT` for a reason unrelated to what it tested.
+  Simulator builds sign to run locally at no cost.
+- **A launch argument sets a `UserDefaults` value but also freezes
+  it.** `-kado.devMode 1` does start the app in dev mode — and then the
+  argument domain, which outranks every stored value, serves that `1`
+  straight back to `@AppStorage` after the user's toggle writes `false`.
+  The toggle springs on again and nothing swaps. Starting state that a
+  test intends to *change* must be written into the real suite from
+  inside the app (`UITestSupport.applyLaunchArguments()`), not passed
+  as an argument.
+- **SwiftUI's `Tab` gives no seam for an accessibility identifier.**
+  One on the tab's content stamps every element in the screen beneath
+  it; one on its label compiles, looks right, and never reaches the tab
+  bar button — dumped live, all three come through with their labels
+  and an empty identifier. It half-works by accident (the selected
+  tab's label matches something in the content), which is worse than
+  not working. Address tabs by position: `AccessibilityID.Tab`.
+- **`waitForExistence` cannot wait for a row below the fold.** An
+  unrealized `Form` row is not in the hierarchy at all, so the wait
+  watches for something that cannot appear until something scrolls.
+  Scroll first (`KadoUITestCase.scrollTo`). The Dev mode toggle, last
+  section in Settings, looked missing for a full 30s timeout this way.
+
+**Apply accessibility identifiers in the same commit as the view.**
+Retrofitting them across a grown app is what makes UI suites get
+abandoned. They go on **leaves, never containers** —
+`.accessibilityIdentifier` applies to every descendant, so an outer one
+silently erases every identifier set inside it. A row that has already
+collapsed its subtree with `.accessibilityElement(children: .combine)`
+is a leaf, and is the right place (`HabitRowView`). Identifiers also
+matter more here than in an English-only app: Kadō ships French, and a
+suite matching `app.staticTexts["Dev mode"]` passes on one simulator
+and fails on the other.
+
+---
+
 ## Git and commits
 
 ### Branches
