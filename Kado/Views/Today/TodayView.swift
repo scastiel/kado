@@ -6,6 +6,14 @@ import KadoCore
 /// for binary and negative habits, inline counter / timer logging,
 /// and a long-press context menu for the secondary actions
 /// (specific-value sheets, edit, archive).
+///
+/// Every piece of state this view retains — the list rows, the
+/// navigation path, the presented sheet, the pending archive
+/// confirmation — holds a habit **id**, never a `HabitRecord`. A
+/// dev-mode `ModelContainer` swap invalidates every managed object the
+/// previous store vended, and SwiftUI re-reads its retained data
+/// during the next list diff, which traps inside SwiftData. Ids
+/// survive the swap; records don't (issue #63).
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
@@ -24,23 +32,23 @@ struct TodayView: View {
 
     @State private var path = NavigationPath()
     @State private var sheet: TodaySheet?
-    @State private var confirmingArchiveOf: HabitRecord?
+    @State private var confirmingArchiveOf: UUID?
 
     /// Single source of truth for sheets the Today surface presents.
     /// Replaces the boolean soup that would otherwise emerge from
     /// New / Edit / Log-counter / Log-timer running in parallel.
     enum TodaySheet: Identifiable {
         case newHabit
-        case editHabit(HabitRecord)
-        case logCounter(HabitRecord)
-        case logTimer(HabitRecord)
+        case editHabit(UUID)
+        case logCounter(UUID)
+        case logTimer(UUID)
 
         var id: String {
             switch self {
             case .newHabit: "new"
-            case .editHabit(let h): "edit-\(h.id)"
-            case .logCounter(let h): "counter-\(h.id)"
-            case .logTimer(let h): "timer-\(h.id)"
+            case .editHabit(let habitID): "edit-\(habitID)"
+            case .logCounter(let habitID): "counter-\(habitID)"
+            case .logTimer(let habitID): "timer-\(habitID)"
             }
         }
     }
@@ -51,8 +59,8 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.kadoBackground.ignoresSafeArea())
                 .navigationTitle(Text("Today"))
-                .navigationDestination(for: HabitRecord.self) { habit in
-                    HabitDetailView(habit: habit)
+                .navigationDestination(for: HabitRoute.self) { route in
+                    HabitDetailLoader(habitID: route.id)
                 }
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
@@ -71,9 +79,9 @@ struct TodayView: View {
                     isPresented: archiveDialogBinding,
                     titleVisibility: .visible,
                     presenting: confirmingArchiveOf
-                ) { habit in
+                ) { habitID in
                     Button(String(localized: "Archive"), role: .destructive) {
-                        archive(habit)
+                        archive(habitID)
                     }
                     Button(String(localized: "Cancel"), role: .cancel) {}
                 } message: { _ in
@@ -87,12 +95,24 @@ struct TodayView: View {
         switch sheet {
         case .newHabit:
             NewHabitFormView(model: NewHabitFormModel())
-        case .editHabit(let habit):
-            NewHabitFormView(model: NewHabitFormModel(editing: habit))
-        case .logCounter(let habit):
-            CounterLogSheet(habit: habit)
-        case .logTimer(let habit):
-            TimerLogSheet(habit: habit)
+        case .editHabit(let habitID):
+            if let record = record(for: habitID) {
+                NewHabitFormView(model: NewHabitFormModel(editing: record))
+            } else {
+                HabitUnavailableView()
+            }
+        case .logCounter(let habitID):
+            if let record = record(for: habitID) {
+                CounterLogSheet(habit: record)
+            } else {
+                HabitUnavailableView()
+            }
+        case .logTimer(let habitID):
+            if let record = record(for: habitID) {
+                TimerLogSheet(habit: record)
+            } else {
+                HabitUnavailableView()
+            }
         }
     }
 
@@ -112,8 +132,7 @@ struct TodayView: View {
                 .buttonStyle(.borderedProminent)
             }
         } else {
-            let due = habitsDueToday
-            let other = habitsNotDueToday
+            let (due, other) = sections
             List {
                 // Sampled once and passed down: letting the guard and
                 // the view each read `.now` lets them straddle the
@@ -153,42 +172,40 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private func row(_ record: HabitRecord) -> some View {
-        let snap = record.snapshot
-        let comps = (record.completions ?? []).compactMap(\.snapshot)
+    private func row(_ item: TodayRow) -> some View {
         let state = HabitRowState.resolve(
-            habit: snap,
-            completions: comps,
+            habit: item.habit,
+            completions: item.completions,
             calendar: calendar,
             asOf: today
         )
-        NavigationLink(value: record) {
+        NavigationLink(value: HabitRoute(id: item.id)) {
             HabitRowView(
-                habit: snap,
+                habit: item.habit,
                 state: state,
                 streak: streakCalculator.current(
-                    for: snap, completions: comps, asOf: today
+                    for: item.habit, completions: item.completions, asOf: today
                 ),
                 scorePercent: Int(
                     (scoreCalculator.currentScore(
-                        for: snap, completions: comps, asOf: today
+                        for: item.habit, completions: item.completions, asOf: today
                     ) * 100).rounded()
                 ),
-                onToggle: canToggle(record) ? { toggle(record) } : nil,
-                onCounterIncrement: isCounter(record) ? { incrementCounter(record) } : nil,
-                onCounterDecrement: isCounter(record) ? { decrementCounter(record) } : nil,
-                onTimerAddFiveMinutes: isTimer(record) ? { addFiveMinutes(record) } : nil,
-                onLogSpecificValue: logSheetCallback(for: record),
-                onOpenDetail: { path.append(record) },
-                onEdit: { sheet = .editHabit(record) },
-                onArchive: { confirmingArchiveOf = record }
+                onToggle: canToggle(item) ? { toggle(item.id) } : nil,
+                onCounterIncrement: isCounter(item) ? { incrementCounter(item.id) } : nil,
+                onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
+                onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
+                onLogSpecificValue: logSheetCallback(for: item),
+                onOpenDetail: { path.append(HabitRoute(id: item.id)) },
+                onEdit: { sheet = .editHabit(item.id) },
+                onArchive: { confirmingArchiveOf = item.id }
             )
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            if canSwipeUndo(record, state: state) {
+            if canSwipeUndo(item, state: state) {
                 Button(role: .destructive) {
-                    toggle(record)
+                    toggle(item.id)
                 } label: {
                     Label("Undo", systemImage: "arrow.uturn.backward")
                 }
@@ -196,32 +213,28 @@ struct TodayView: View {
         }
     }
 
-    private var habitsDueToday: [HabitRecord] {
-        activeHabits.filter { record in
-            isDueTodayOrCompletedToday(record, on: today)
-        }
-    }
-
-    private var habitsNotDueToday: [HabitRecord] {
-        activeHabits.filter { record in
-            !isDueTodayOrCompletedToday(record, on: today)
-        }
-    }
-
-    /// "Show this habit in the Today section" — the schedule asks for
-    /// it today, or the user already logged progress today anyway (so
-    /// the row stays visible with its tick even once the daysPerWeek
-    /// rolling quota saturates).
+    /// The two Today sections, snapshotted from the live records.
     ///
-    /// The rule itself lives on `FrequencyEvaluating` so this view and
-    /// the widget snapshot can't drift apart.
-    private func isDueTodayOrCompletedToday(_ record: HabitRecord, on now: Date) -> Bool {
-        frequencyEvaluator.isDueOrLogged(
-            habit: record.snapshot,
-            on: now,
-            completions: (record.completions ?? []).compactMap(\.snapshot),
+    /// The split rule — "the schedule asks for it today, or the user
+    /// already logged progress today anyway", which keeps a row
+    /// visible with its tick once a daysPerWeek rolling quota
+    /// saturates — lives on `FrequencyEvaluating` so this view and the
+    /// widget snapshot can't drift apart.
+    private var sections: (due: [TodayRow], other: [TodayRow]) {
+        TodayRow.sections(
+            from: activeHabits,
+            on: today,
+            evaluator: frequencyEvaluator,
             calendar: calendar
         )
+    }
+
+    /// Resolves a row back to the live managed object it was
+    /// snapshotted from, against whichever store is mounted now.
+    /// Returns `nil` when the habit isn't there any more — archived
+    /// from another surface, or left behind by a dev-mode store swap.
+    private func record(for habitID: UUID) -> HabitRecord? {
+        activeHabits.first { $0.id == habitID }
     }
 
     private var archiveDialogBinding: Binding<Bool> {
@@ -233,20 +246,20 @@ struct TodayView: View {
 
     // MARK: - Type predicates
 
-    private func canToggle(_ record: HabitRecord) -> Bool {
-        switch record.type {
+    private func canToggle(_ item: TodayRow) -> Bool {
+        switch item.habit.type {
         case .binary, .negative: true
         case .counter, .timer: false
         }
     }
 
-    private func isCounter(_ record: HabitRecord) -> Bool {
-        if case .counter = record.type { return true }
+    private func isCounter(_ item: TodayRow) -> Bool {
+        if case .counter = item.habit.type { return true }
         return false
     }
 
-    private func isTimer(_ record: HabitRecord) -> Bool {
-        if case .timer = record.type { return true }
+    private func isTimer(_ item: TodayRow) -> Bool {
+        if case .timer = item.habit.type { return true }
         return false
     }
 
@@ -254,18 +267,18 @@ struct TodayView: View {
     /// day is already marked. Counter / timer get their undo from the
     /// row's own `−` button (counter) or the "Log specific value…"
     /// menu item, so a swipe action would be redundant.
-    private func canSwipeUndo(_ record: HabitRecord, state: HabitRowState) -> Bool {
+    private func canSwipeUndo(_ item: TodayRow, state: HabitRowState) -> Bool {
         guard state.status == .complete else { return false }
-        switch record.type {
+        switch item.habit.type {
         case .binary, .negative: return true
         case .counter, .timer: return false
         }
     }
 
-    private func logSheetCallback(for record: HabitRecord) -> (() -> Void)? {
-        switch record.type {
-        case .counter: return { sheet = .logCounter(record) }
-        case .timer: return { sheet = .logTimer(record) }
+    private func logSheetCallback(for item: TodayRow) -> (() -> Void)? {
+        switch item.habit.type {
+        case .counter: return { sheet = .logCounter(item.id) }
+        case .timer: return { sheet = .logTimer(item.id) }
         case .binary, .negative: return nil
         }
     }
@@ -279,29 +292,35 @@ struct TodayView: View {
         dayBoundary.loggingInstant(for: .now, on: today)
     }
 
-    private func moveHabits(_ section: [HabitRecord], from source: IndexSet, to destination: Int) {
+    private func moveHabits(_ section: [TodayRow], from source: IndexSet, to destination: Int) {
         var reordered = section
         reordered.move(fromOffsets: source, toOffset: destination)
 
-        let due = habitsDueToday
-        let other = habitsNotDueToday
-        let isDueSection = section.first.map({ due.contains($0) }) == true
+        let (due, other) = sections
+        let isDueSection = section.first.map { first in
+            due.contains { $0.id == first.id }
+        } == true
 
-        let finalOrder: [HabitRecord]
+        let finalOrder: [TodayRow]
         if isDueSection {
             finalOrder = reordered + other
         } else {
             finalOrder = due + reordered
         }
 
-        for (index, record) in finalOrder.enumerated() {
-            record.sortOrder = index
+        let recordsByID = Dictionary(
+            activeHabits.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        for (index, item) in finalOrder.enumerated() {
+            recordsByID[item.id]?.sortOrder = index
         }
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
-    private func toggle(_ record: HabitRecord) {
+    private func toggle(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
@@ -309,7 +328,8 @@ struct TodayView: View {
         checkMilestones(for: record)
     }
 
-    private func incrementCounter(_ record: HabitRecord) {
+    private func incrementCounter(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
@@ -317,14 +337,16 @@ struct TodayView: View {
         checkMilestones(for: record)
     }
 
-    private func decrementCounter(_ record: HabitRecord) {
+    private func decrementCounter(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
         CompletionLogger(calendar: calendar)
             .decrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
-    private func addFiveMinutes(_ record: HabitRecord) {
+    private func addFiveMinutes(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
         CompletionLogger(calendar: calendar)
             .incrementCounter(for: record, on: loggingInstant, by: 300, in: modelContext)
         try? modelContext.save()
@@ -340,17 +362,23 @@ struct TodayView: View {
             reviewPromptService.recordMilestone(.streak(days: streak))
         }
 
-        let allComplete = habitsDueToday.allSatisfy { habit in
-            let s = habit.snapshot
-            let c = (habit.completions ?? []).compactMap(\.snapshot)
-            return HabitRowState.resolve(habit: s, completions: c, calendar: calendar, asOf: today).status == .complete
+        // Re-snapshotted after the save, so this sees the mutation that
+        // just landed rather than the pre-tap rows.
+        let allComplete = sections.due.allSatisfy { item in
+            HabitRowState.resolve(
+                habit: item.habit,
+                completions: item.completions,
+                calendar: calendar,
+                asOf: today
+            ).status == .complete
         }
         if allComplete {
             reviewPromptService.recordMilestone(.allHabitsComplete)
         }
     }
 
-    private func archive(_ record: HabitRecord) {
+    private func archive(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
         record.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
