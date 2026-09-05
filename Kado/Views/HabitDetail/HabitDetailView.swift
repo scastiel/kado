@@ -6,8 +6,19 @@ import KadoCore
 /// type, and a current-month completion grid. Toolbar actions open
 /// the edit sheet and present an archive confirmation dialog; both
 /// are disabled once the habit is archived.
+///
+/// Renders from value-type snapshots and never stores a
+/// `HabitRecord`. `HabitDetailLoader` re-resolving the id on every
+/// render is necessary but *not* sufficient on its own: SwiftUI
+/// re-evaluates this view's retained struct against the previous
+/// store's record before the loader's re-resolution reaches it, and
+/// reading `habit.name` off an invalidated object traps inside
+/// SwiftData. Holding only structs means there is nothing left to
+/// invalidate; mutations resolve the record by id against the current
+/// context (issue #63).
 struct HabitDetailView: View {
-    @Bindable var habit: HabitRecord
+    let habit: Habit
+    let completions: [Completion]
 
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
@@ -30,9 +41,15 @@ struct HabitDetailView: View {
 
     private var isArchived: Bool { habit.archivedAt != nil }
 
+    /// The live record behind this screen, resolved against the store
+    /// that is mounted now. Called from mutations only — never from a
+    /// `body`, which is the whole point.
+    private var record: HabitRecord? {
+        modelContext.habitRecord(id: habit.id)
+    }
+
     private var trackingSinceLabel: String? {
-        let comps = (habit.completions ?? []).compactMap(\.snapshot)
-        let effective = habit.snapshot.effectiveStart(completions: comps, calendar: calendar)
+        let effective = habit.effectiveStart(completions: completions, calendar: calendar)
         let createdDay = calendar.startOfDay(for: habit.createdAt)
         let effectiveDay = calendar.startOfDay(for: effective)
         guard effectiveDay != createdDay else { return nil }
@@ -50,8 +67,8 @@ struct HabitDetailView: View {
                 metricsRow
                 quickLogSection
                 MonthlyCalendarView(
-                    habit: habit.snapshot,
-                    completions: (habit.completions ?? []).compactMap(\.snapshot),
+                    habit: habit,
+                    completions: completions,
                     month: Binding(
                         get: { displayedMonth ?? today },
                         set: { displayedMonth = $0 }
@@ -60,7 +77,7 @@ struct HabitDetailView: View {
                     navigable: true,
                     popoverContent: { day in
                         DayEditPopover(
-                            habit: habit.snapshot,
+                            habit: habit,
                             date: day,
                             currentValue: currentValue(on: day),
                             currentNote: currentNote(on: day),
@@ -73,7 +90,7 @@ struct HabitDetailView: View {
                         .presentationCompactAdaptation(.popover)
                     }
                 )
-                CompletionHistoryList(habit: habit)
+                CompletionHistoryList(habitType: habit.type, completions: completions)
             }
             .padding()
         }
@@ -100,10 +117,18 @@ struct HabitDetailView: View {
             }
         }
         .sheet(isPresented: $showingEdit) {
-            NewHabitFormView(model: NewHabitFormModel(editing: habit))
+            if let record {
+                NewHabitFormView(model: NewHabitFormModel(editing: record))
+            } else {
+                HabitUnavailableView()
+            }
         }
         .sheet(isPresented: $showingTimerSheet) {
-            TimerLogSheet(habit: habit)
+            if let record {
+                TimerLogSheet(habit: record)
+            } else {
+                HabitUnavailableView()
+            }
         }
         .confirmationDialog(
             String(localized: "Archive this habit?"),
@@ -126,7 +151,8 @@ struct HabitDetailView: View {
     }
 
     private func archive() {
-        habit.archivedAt = loggingInstant
+        guard let record else { return }
+        record.archivedAt = loggingInstant
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         dismiss()
@@ -167,45 +193,48 @@ struct HabitDetailView: View {
     }
 
     private var todayCounterValue: Double {
-        habit.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: today) }?
-            .value ?? 0
+        completion(on: today)?.value ?? 0
     }
 
     private func incrementCounter() {
-        CompletionLogger(calendar: calendar).incrementCounter(for: habit, on: loggingInstant, in: modelContext)
+        guard let record else { return }
+        CompletionLogger(calendar: calendar).incrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func decrementCounter() {
-        CompletionLogger(calendar: calendar).decrementCounter(for: habit, on: loggingInstant, in: modelContext)
+        guard let record else { return }
+        CompletionLogger(calendar: calendar).decrementCounter(for: record, on: loggingInstant, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     // MARK: - Past-day popover mutations
 
+    /// The snapshotted completion covering a day, if there is one.
+    private func completion(on day: Date) -> Completion? {
+        completions.first { calendar.isDate($0.date, inSameDayAs: day) }
+    }
+
     private func currentValue(on day: Date) -> Double {
-        habit.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: day) }?
-            .value ?? 0
+        completion(on: day)?.value ?? 0
     }
 
     private func currentNote(on day: Date) -> String? {
-        habit.completions?
-            .first { calendar.isDate($0.date, inSameDayAs: day) }?
-            .note
+        completion(on: day)?.note
     }
 
     private func toggle(on day: Date) {
-        CompletionToggler(calendar: calendar).toggleToday(for: habit, on: day, in: modelContext)
+        guard let record else { return }
+        CompletionToggler(calendar: calendar).toggleToday(for: record, on: day, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func setCounter(_ value: Double, on day: Date) {
-        CompletionLogger(calendar: calendar).setCounter(for: habit, on: day, to: value, in: modelContext)
+        guard let record else { return }
+        CompletionLogger(calendar: calendar).setCounter(for: record, on: day, to: value, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
@@ -217,8 +246,9 @@ struct HabitDetailView: View {
             clear(on: day)
             return
         }
+        guard let record else { return }
         CompletionLogger(calendar: calendar).logTimerSession(
-            for: habit,
+            for: record,
             seconds: seconds,
             on: day,
             in: modelContext
@@ -228,15 +258,19 @@ struct HabitDetailView: View {
     }
 
     private func setNote(_ note: String?, on day: Date) {
-        CompletionLogger(calendar: calendar).setNote(for: habit, on: day, to: note, in: modelContext)
+        guard let record else { return }
+        CompletionLogger(calendar: calendar).setNote(for: record, on: day, to: note, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func clear(on day: Date) {
-        guard let existing = habit.completions?.first(where: {
-            calendar.isDate($0.date, inSameDayAs: day)
-        }) else { return }
+        // Resolved from the snapshot's id rather than by walking the
+        // record's relationship, so the day being cleared is the one
+        // the user was actually looking at.
+        guard let snapshot = completion(on: day),
+              let existing = modelContext.completionRecord(id: snapshot.id)
+        else { return }
         if existing.note != nil {
             existing.value = 0
         } else {
@@ -344,27 +378,19 @@ struct HabitDetailView: View {
 
     private var scorePercent: String {
         let score = scoreCalculator.currentScore(
-            for: habit.snapshot,
-            completions: (habit.completions ?? []).compactMap(\.snapshot),
+            for: habit,
+            completions: completions,
             asOf: today
         )
         return "\(Int((score * 100).rounded()))%"
     }
 
     private var currentStreak: Int {
-        streakCalculator.current(
-            for: habit.snapshot,
-            completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: today
-        )
+        streakCalculator.current(for: habit, completions: completions, asOf: today)
     }
 
     private var bestStreak: Int {
-        streakCalculator.best(
-            for: habit.snapshot,
-            completions: (habit.completions ?? []).compactMap(\.snapshot),
-            asOf: today
-        )
+        streakCalculator.best(for: habit, completions: completions, asOf: today)
     }
 
     private var frequencyLabel: String {
@@ -431,10 +457,13 @@ private struct HabitDetailPreviewWrapper: View {
 
     var body: some View {
         if let habit = habits.first {
-            HabitDetailView(habit: habit)
-                .onAppear {
-                    if archived { habit.archivedAt = .now }
-                }
+            HabitDetailView(
+                habit: habit.snapshot,
+                completions: (habit.completions ?? []).compactMap(\.snapshot)
+            )
+            .onAppear {
+                if archived { habit.archivedAt = .now }
+            }
         } else {
             ContentUnavailableView(
                 "Seed habit not found",
