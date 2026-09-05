@@ -379,49 +379,115 @@ struct OverviewMatrixTests {
         #expect(row.days[3] == .notDue)
     }
 
-    // MARK: - colorOpacity
+    // MARK: - Cell appearance
 
-    @Test("DayCell.colorOpacity is nil for future and notDue")
-    func opacityNilForNonScored() {
-        #expect(DayCell.future.colorOpacity == nil)
-        #expect(DayCell.notDue.colorOpacity == nil)
+    @Test("Future days draw nothing at all")
+    func futureIsEmpty() {
+        #expect(DayCell.future.appearance == .empty)
     }
 
-    @Test("Off-schedule border is always more visible than a neutral cell")
-    func offScheduleBorderNeverFades() throws {
-        // The border is the only thing saying "you logged this". If it
-        // tracked `colorOpacity`, a negative habit's off-schedule slip
-        // — `.offSchedule(0.0)`, asserted above — would draw at 0.2,
-        // fainter than the `.notDue` fill beside it.
-        let zero = try #require(DayCell.offSchedule(0.0).borderOpacity)
-        let full = try #require(DayCell.offSchedule(1.0).borderOpacity)
-        #expect(zero >= 0.6)
-        #expect(full == 1.0)
-        #expect(zero < full)
-
-        // Interior stays faint so the border carries the signal.
-        let fill = try #require(DayCell.offSchedule(1.0).offScheduleFillOpacity)
-        #expect(fill < zero)
+    @Test("A missed day is neutral, not a faint version of the habit hue")
+    func missedIsNeutral() {
+        // The previous continuous ramp floored scored cells at 0.2
+        // opacity of the habit color, which made "scheduled and
+        // skipped" and "barely started" the same picture. They are the
+        // two states a grid most needs to tell apart.
+        #expect(DayCell.scored(0.0).appearance == .missed)
+        #expect(DayCell.scored(-1.0).appearance == .missed)
+        #expect(DayCell.notDue.appearance == .notScheduled)
+        #expect(DayCell.scored(0.0).appearance != DayCell.notDue.appearance)
     }
 
-    @Test("borderOpacity and offScheduleFillOpacity are nil for every other case")
-    func borderOpacityOnlyForOffSchedule() {
+    @Test("Scored days step through three intensities of one hue")
+    func scoredRamp() {
+        #expect(DayCell.scored(0.1).appearance == .hue(opacity: KadoTint.tileLight, ringed: false))
+        #expect(DayCell.scored(0.49).appearance == .hue(opacity: KadoTint.tileLight, ringed: false))
+        #expect(DayCell.scored(0.5).appearance == .hue(opacity: KadoTint.tilePartial, ringed: false))
+        #expect(DayCell.scored(0.99).appearance == .hue(opacity: KadoTint.tilePartial, ringed: false))
+        #expect(DayCell.scored(1.0).appearance == .hue(opacity: 1, ringed: false))
+        #expect(DayCell.scored(2.0).appearance == .hue(opacity: 1, ringed: false))
+    }
+
+    @Test("The ramp never decreases as the day's value rises")
+    func rampIsMonotonic() throws {
+        func opacity(_ value: Double) throws -> Double {
+            switch DayCell.scored(value).appearance {
+            case .hue(let opacity, _): return opacity
+            case .missed: return 0
+            default: throw TestFailure()
+            }
+        }
+        let samples = stride(from: 0.0, through: 1.0, by: 0.05).map { $0 }
+        for (lower, higher) in zip(samples, samples.dropFirst()) {
+            #expect(try opacity(lower) <= opacity(higher))
+        }
+    }
+
+    @Test("Only off-schedule cells are ringed, and they never fill solid")
+    func offScheduleIsRingedAndPale() {
+        // The ring is the only thing saying "you logged this on a day
+        // nothing was asked of you". A solid fill under a solid ring is
+        // invisible, so the interior stays pale at every value.
+        for value in [0.0, 0.5, 1.0] {
+            #expect(
+                DayCell.offSchedule(value).appearance
+                    == .hue(opacity: KadoTint.tileLight, ringed: true)
+            )
+        }
         for cell: DayCell in [.future, .notDue, .scored(0.0), .scored(1.0)] {
-            #expect(cell.borderOpacity == nil)
-            #expect(cell.offScheduleFillOpacity == nil)
+            if case .hue(_, ringed: true) = cell.appearance {
+                Issue.record("\(cell) should not be ringed")
+            }
         }
     }
 
-    @Test("DayCell.colorOpacity maps scored linearly to [0.2, 1.0]")
-    func opacityMapsScoredLinearly() {
-        func approx(_ cell: DayCell, _ expected: Double) -> Bool {
-            guard let actual = cell.colorOpacity else { return false }
-            return abs(actual - expected) < 1e-9
-        }
-        #expect(approx(.scored(0.0), 0.2))
-        #expect(approx(.scored(-1.0), 0.2))
-        #expect(approx(.scored(0.5), 0.6))
-        #expect(approx(.scored(1.0), 1.0))
-        #expect(approx(.scored(2.0), 1.0))
+    // MARK: - Summary
+
+    @Test("Summary counts scheduled days only")
+    func summaryCountsScheduledDaysOnly() {
+        let habit = Habit(name: "H", frequency: .daily, type: .binary, createdAt: .now)
+        let rows = [
+            MatrixRow(habit: habit, days: [
+                .scored(1.0), .scored(0.0), .scored(0.5),
+                .notDue, .future, .offSchedule(1.0),
+            ])
+        ]
+        let summary = OverviewMatrix.summary(for: rows, lastDays: 6)
+        // notDue / future were never asked for; offSchedule is credit
+        // for a day the schedule didn't claim. Counting any of them
+        // would make the denominator meaningless.
+        #expect(summary.scheduledDays == 3)
+        #expect(summary.loggedDays == 2)
+    }
+
+    @Test("Summary aggregates across habits and honours the window")
+    func summaryWindowAndAggregation() {
+        let a = Habit(name: "A", frequency: .daily, type: .binary, createdAt: .now)
+        let b = Habit(name: "B", frequency: .daily, type: .binary, createdAt: .now)
+        let rows = [
+            // Only the trailing three columns are in the window, so the
+            // leading `.scored(1.0)` must not be counted.
+            MatrixRow(habit: a, days: [.scored(1.0), .scored(1.0), .scored(0.0), .scored(1.0)]),
+            MatrixRow(habit: b, days: [.scored(0.0), .scored(0.0), .scored(1.0), .scored(0.0)]),
+        ]
+        let summary = OverviewMatrix.summary(for: rows, lastDays: 3)
+        #expect(summary.scheduledDays == 6)
+        #expect(summary.loggedDays == 3)
+    }
+
+    @Test("An empty grid summarises as zero rather than trapping")
+    func summaryEmpty() {
+        #expect(OverviewMatrix.summary(for: [], lastDays: 10) == OverviewSummary(loggedDays: 0, scheduledDays: 0))
+
+        let habit = Habit(name: "H", frequency: .daily, type: .binary, createdAt: .now)
+        let rows = [MatrixRow(habit: habit, days: [.scored(1.0)])]
+        // A window wider than the data, and one narrower than nothing.
+        #expect(OverviewMatrix.summary(for: rows, lastDays: 99).scheduledDays == 1)
+        #expect(OverviewMatrix.summary(for: rows, lastDays: 0).scheduledDays == 0)
+        #expect(OverviewMatrix.summary(for: rows, lastDays: -5).scheduledDays == 0)
     }
 }
+
+/// Thrown by a test helper that reached a case its caller had already
+/// ruled out — surfaces as a failure rather than a silent default.
+private struct TestFailure: Error {}

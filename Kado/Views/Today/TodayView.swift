@@ -5,7 +5,16 @@ import KadoCore
 /// The Today tab — lists habits due today and handles tap-to-toggle
 /// for binary and negative habits, inline counter / timer logging,
 /// and a long-press context menu for the secondary actions
-/// (specific-value sheets, edit, archive).
+/// (specific-value sheets, reordering, edit, archive).
+///
+/// Built from a `ScrollView` of `HabitCard`s rather than a `List`.
+/// The design's grouped card — 22pt corners, a hairline inset to the
+/// text column, 13pt row padding — is not reachable through `List`'s
+/// row insets and separator insets, and every approximation of it
+/// fought the platform. What `List` was giving us in return was
+/// drag-to-reorder and swipe-to-undo: reordering moved to the row's
+/// context menu, and undo was already redundant with the row control,
+/// which toggles in both directions.
 ///
 /// Every piece of state this view retains — the list rows, the
 /// navigation path, the presented sheet, the pending archive
@@ -70,43 +79,44 @@ struct TodayView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            content
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.kadoBackground.ignoresSafeArea())
-                .navigationTitle(Text("Today"))
-                .navigationDestination(for: HabitRoute.self) { route in
-                    HabitDetailLoader(habitID: route.id)
+            ZStack(alignment: .bottomTrailing) {
+                Color.kadoBackground.ignoresSafeArea()
+                content
+                if !activeHabits.isEmpty {
+                    AddHabitButton { sheet = .newHabit }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
                 }
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            sheet = .newHabit
-                        } label: {
-                            Label("New habit", systemImage: "plus")
-                        }
-                    }
+            }
+            // The title lives in the scroll content, at 40pt on the
+            // display serif with the progress bar tucked under it — a
+            // navigation bar can host neither that pairing nor that
+            // size.
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(for: HabitRoute.self) { route in
+                HabitDetailLoader(habitID: route.id)
+            }
+            .onAppear(perform: refreshTipNudge)
+            // Re-asked after every sheet, because one of them is
+            // the Tip Jar: a tip taken there retires the nudge, and
+            // Today is already on screen so nothing else would
+            // prompt it to look again.
+            .sheet(item: $sheet, onDismiss: refreshTipNudge) { sheet in
+                sheetContent(for: sheet)
+            }
+            .confirmationDialog(
+                String(localized: "Archive this habit?"),
+                isPresented: archiveDialogBinding,
+                titleVisibility: .visible,
+                presenting: confirmingArchiveOf
+            ) { habitID in
+                Button(String(localized: "Archive"), role: .destructive) {
+                    archive(habitID)
                 }
-                .onAppear(perform: refreshTipNudge)
-                // Re-asked after every sheet, because one of them is
-                // the Tip Jar: a tip taken there retires the nudge, and
-                // Today is already on screen so nothing else would
-                // prompt it to look again.
-                .sheet(item: $sheet, onDismiss: refreshTipNudge) { sheet in
-                    sheetContent(for: sheet)
-                }
-                .confirmationDialog(
-                    String(localized: "Archive this habit?"),
-                    isPresented: archiveDialogBinding,
-                    titleVisibility: .visible,
-                    presenting: confirmingArchiveOf
-                ) { habitID in
-                    Button(String(localized: "Archive"), role: .destructive) {
-                        archive(habitID)
-                    }
-                    Button(String(localized: "Cancel"), role: .cancel) {}
-                } message: { _ in
-                    Text("Archived habits stop appearing on Today but keep their history.")
-                }
+                Button(String(localized: "Cancel"), role: .cancel) {}
+            } message: { _ in
+                Text("Archived habits stop appearing on Today but keep their history.")
+            }
         }
     }
 
@@ -165,102 +175,117 @@ struct TodayView: View {
                 .buttonStyle(.borderedProminent)
             }
         } else {
-            let (due, other) = sections
-            List {
+            populated
+        }
+    }
+
+    private var populated: some View {
+        let (due, other) = sections
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
                 // Sampled once and passed down: letting the guard and
                 // the view each read `.now` lets them straddle the
                 // rollover and leave an empty, space-taking row.
                 let now = Date.now
-                if TodayDayCaption.isBeforeRollover(dayBoundary, now: now) {
-                    TodayDayCaption(boundary: dayBoundary, now: now)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 6, trailing: 20))
-                }
-                if !due.isEmpty {
-                    Section {
-                        ForEach(due) { row($0) }
-                            .onMove { moveHabits(due, from: $0, to: $1) }
-                    } header: {
-                        Text("Scheduled")
+
+                VStack(alignment: .leading, spacing: 8) {
+                    TodayProgressHeader(
+                        doneCount: doneCount(in: due),
+                        scheduledCount: due.count
+                    )
+                    if TodayDayCaption.isBeforeRollover(dayBoundary, now: now) {
+                        TodayDayCaption(boundary: dayBoundary, now: now)
                     }
+                }
+
+                if !due.isEmpty {
+                    section("Scheduled today", rows: due, scheduled: true)
                 }
                 if !other.isEmpty {
-                    Section {
-                        ForEach(other) { row($0) }
-                            .onMove { moveHabits(other, from: $0, to: $1) }
-                    } header: {
-                        Text("Not scheduled today")
-                    } footer: {
-                        Text("Tap to open detail, or long-press to edit or archive.")
-                    }
+                    section("Not scheduled today", rows: other, scheduled: false)
                 }
                 if showsTipNudge == true {
-                    Section {
-                        TipNudgeBanner(
-                            onTip: { sheet = .tipJar },
-                            onHide: hideTipNudge
-                        )
-                        // The tint and the rounded corners come from
-                        // the row background, the same way the habit
-                        // rows get theirs — so the card matches their
-                        // width and the list's own ~30pt corner radius
-                        // instead of a hand-drawn 10pt one. Zero insets
-                        // because the banner brings its own padding.
-                        .listRowBackground(Color.kadoAccentTint)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                    }
+                    TipNudgeBanner(
+                        onTip: { sheet = .tipJar },
+                        onHide: hideTipNudge
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: KadoRadius.group, style: .continuous)
+                            .fill(Color.kadoAccentTint)
+                    )
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.kadoBackground.ignoresSafeArea())
-            .refreshable {
-                try? await Task.sleep(for: .seconds(1))
+            .padding(.horizontal, 20)
+            .padding(.top, 14)
+            // Enough clearance that the last row can scroll out from
+            // under the floating add button.
+            .padding(.bottom, 96)
+        }
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            try? await Task.sleep(for: .seconds(1))
+        }
+    }
+
+    private func section(
+        _ title: LocalizedStringKey,
+        rows: [TodayRow],
+        scheduled: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            TodaySectionHeader(title: title)
+            HabitCard {
+                ForEach(rows) { item in
+                    row(item, in: rows, scheduled: scheduled)
+                }
             }
         }
     }
 
     @ViewBuilder
-    private func row(_ item: TodayRow) -> some View {
+    private func row(_ item: TodayRow, in section: [TodayRow], scheduled: Bool) -> some View {
         let state = HabitRowState.resolve(
             habit: item.habit,
             completions: item.completions,
             calendar: calendar,
             asOf: today
         )
-        NavigationLink(value: HabitRoute(id: item.id)) {
-            HabitRowView(
+        let streak = streakCalculator.current(
+            for: item.habit, completions: item.completions, asOf: today
+        )
+        let scorePercent = Int(
+            (scoreCalculator.currentScore(
+                for: item.habit, completions: item.completions, asOf: today
+            ) * 100).rounded()
+        )
+        HabitRowView(
+            habit: item.habit,
+            state: state,
+            meta: TodayRowMeta.line(
                 habit: item.habit,
                 state: state,
-                streak: streakCalculator.current(
-                    for: item.habit, completions: item.completions, asOf: today
-                ),
-                scorePercent: Int(
-                    (scoreCalculator.currentScore(
-                        for: item.habit, completions: item.completions, asOf: today
-                    ) * 100).rounded()
-                ),
-                onToggle: canToggle(item) ? { toggle(item.id) } : nil,
-                onCounterIncrement: isCounter(item) ? { incrementCounter(item.id) } : nil,
-                onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
-                onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
-                onLogSpecificValue: logSheetCallback(for: item),
-                onOpenDetail: { path.append(HabitRoute(id: item.id)) },
-                onEdit: { sheet = .editHabit(item.id) },
-                onArchive: { confirmingArchiveOf = item.id }
-            )
-        }
-        .listRowBackground(Color.kadoBackgroundSecondary)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            if canSwipeUndo(item, state: state) {
-                Button(role: .destructive) {
-                    toggle(item.id)
-                } label: {
-                    Label("Undo", systemImage: "arrow.uturn.backward")
-                }
-            }
-        }
+                streak: streak,
+                scorePercent: scorePercent,
+                nextDue: scheduled ? nil : nextDue(for: item),
+                calendar: calendar,
+                asOf: today
+            ),
+            isScheduledToday: scheduled,
+            streak: streak,
+            scorePercent: scorePercent,
+            onToggle: canToggle(item) ? { toggle(item.id) } : nil,
+            onCounterIncrement: isCounter(item) ? { incrementCounter(item.id) } : nil,
+            onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
+            onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
+            onLogSpecificValue: logSheetCallback(for: item),
+            onOpenDetail: { path.append(HabitRoute(id: item.id)) },
+            onMoveUp: canMove(item, in: section, by: -1)
+                ? { move(item, in: section, by: -1) } : nil,
+            onMoveDown: canMove(item, in: section, by: 1)
+                ? { move(item, in: section, by: 1) } : nil,
+            onEdit: { sheet = .editHabit(item.id) },
+            onArchive: { confirmingArchiveOf = item.id }
+        )
     }
 
     /// The two Today sections, snapshotted from the live records.
@@ -276,6 +301,32 @@ struct TodayView: View {
             on: today,
             evaluator: frequencyEvaluator,
             calendar: calendar
+        )
+    }
+
+    /// How many of today's scheduled habits are done. Drives the
+    /// progress bar, so it counts the same rows the bar's denominator
+    /// does.
+    private func doneCount(in due: [TodayRow]) -> Int {
+        due.filter { item in
+            HabitRowState.resolve(
+                habit: item.habit,
+                completions: item.completions,
+                calendar: calendar,
+                asOf: today
+            ).status == .complete
+        }.count
+    }
+
+    /// When the schedule next asks for a habit sitting in the
+    /// "not scheduled today" section.
+    private func nextDue(for item: TodayRow) -> Date? {
+        NextDueDate.next(
+            for: item.habit,
+            after: today,
+            completions: item.completions,
+            calendar: calendar,
+            evaluator: frequencyEvaluator
         )
     }
 
@@ -313,18 +364,6 @@ struct TodayView: View {
         return false
     }
 
-    /// Trailing-swipe Undo only applies to binary / negative when the
-    /// day is already marked. Counter / timer get their undo from the
-    /// row's own `−` button (counter) or the "Log specific value…"
-    /// menu item, so a swipe action would be redundant.
-    private func canSwipeUndo(_ item: TodayRow, state: HabitRowState) -> Bool {
-        guard state.status == .complete else { return false }
-        switch item.habit.type {
-        case .binary, .negative: return true
-        case .counter, .timer: return false
-        }
-    }
-
     private func logSheetCallback(for item: TodayRow) -> (() -> Void)? {
         switch item.habit.type {
         case .counter: return { sheet = .logCounter(item.id) }
@@ -342,28 +381,37 @@ struct TodayView: View {
         dayBoundary.loggingInstant(for: .now, on: today)
     }
 
-    private func moveHabits(_ section: [TodayRow], from source: IndexSet, to destination: Int) {
+    private func canMove(_ item: TodayRow, in section: [TodayRow], by delta: Int) -> Bool {
+        guard let index = section.firstIndex(where: { $0.id == item.id }) else { return false }
+        return section.indices.contains(index + delta)
+    }
+
+    /// Moves a habit one place within its own section.
+    ///
+    /// Confined to the section on purpose: the two sections are derived
+    /// from the schedule, not from `sortOrder`, so a row pushed across
+    /// the boundary would snap straight back and read as a broken
+    /// control.
+    private func move(_ item: TodayRow, in section: [TodayRow], by delta: Int) {
+        guard let index = section.firstIndex(where: { $0.id == item.id }),
+              section.indices.contains(index + delta)
+        else { return }
+
         var reordered = section
-        reordered.move(fromOffsets: source, toOffset: destination)
+        reordered.swapAt(index, index + delta)
 
         let (due, other) = sections
         let isDueSection = section.first.map { first in
             due.contains { $0.id == first.id }
         } == true
-
-        let finalOrder: [TodayRow]
-        if isDueSection {
-            finalOrder = reordered + other
-        } else {
-            finalOrder = due + reordered
-        }
+        let finalOrder = isDueSection ? reordered + other : due + reordered
 
         let recordsByID = Dictionary(
             activeHabits.map { ($0.id, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        for (index, item) in finalOrder.enumerated() {
-            recordsByID[item.id]?.sortOrder = index
+        for (position, row) in finalOrder.enumerated() {
+            recordsByID[row.id]?.sortOrder = position
         }
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
