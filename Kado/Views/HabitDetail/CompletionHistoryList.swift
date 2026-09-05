@@ -5,15 +5,22 @@ import KadoCore
 /// Scrollable list of completions for a habit, sorted newest first.
 /// Swipe-to-delete removes a completion. Empty state shows a neutral
 /// "No history yet" row.
+///
+/// Takes value-type snapshots for the same reason `HabitDetailView`
+/// does: its `ForEach` would otherwise hold `CompletionRecord`s from
+/// a store a dev-mode swap has already replaced, and re-reading one
+/// during an update pass traps inside SwiftData (issue #63). Deletion
+/// resolves the record by id against the current context.
 struct CompletionHistoryList: View {
-    @Bindable var habit: HabitRecord
+    let habitType: HabitType
+    let completions: [Completion]
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
 
-    private var sortedCompletions: [CompletionRecord] {
-        (habit.completions ?? []).sorted { $0.date > $1.date }
+    private var sortedCompletions: [Completion] {
+        completions.sorted { $0.date > $1.date }
     }
 
     var body: some View {
@@ -50,7 +57,7 @@ struct CompletionHistoryList: View {
     }
 
     @ViewBuilder
-    private func row(for completion: CompletionRecord) -> some View {
+    private func row(for completion: Completion) -> some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(relativeDate(for: completion.date))
@@ -87,8 +94,9 @@ struct CompletionHistoryList: View {
         }
     }
 
-    private func delete(_ completion: CompletionRecord) {
-        CompletionLogger(calendar: calendar).delete(completion, in: modelContext)
+    private func delete(_ completion: Completion) {
+        guard let record = modelContext.completionRecord(id: completion.id) else { return }
+        CompletionLogger(calendar: calendar).delete(record, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
@@ -123,8 +131,8 @@ struct CompletionHistoryList: View {
         return formatter.string(from: date)
     }
 
-    private func valueLabel(for completion: CompletionRecord) -> String {
-        switch habit.type {
+    private func valueLabel(for completion: Completion) -> String {
+        switch habitType {
         case .binary:
             return String(localized: "Done")
         case .negative:
@@ -155,8 +163,10 @@ struct CompletionHistoryList: View {
 }
 
 #Preview("Empty") {
-    CompletionHistoryListPreviewWrapperEmpty()
-        .modelContainer(PreviewContainer.emptyContainer())
+    ScrollView {
+        CompletionHistoryList(habitType: .binary, completions: [])
+            .padding()
+    }
 }
 
 #Preview("Dark") {
@@ -178,24 +188,14 @@ private struct CompletionHistoryListPreviewWrapper: View {
     var body: some View {
         ScrollView {
             if let habit = habits.first {
-                CompletionHistoryList(habit: habit)
-                    .padding()
+                CompletionHistoryList(
+                    habitType: habit.type,
+                    completions: (habit.completions ?? []).compactMap(\.snapshot)
+                )
+                .padding()
             } else {
                 Text("Seed habit not found")
             }
         }
-    }
-}
-
-private struct CompletionHistoryListPreviewWrapperEmpty: View {
-    @Environment(\.modelContext) private var context
-    @State private var habit = HabitRecord(name: "Fresh")
-
-    var body: some View {
-        ScrollView {
-            CompletionHistoryList(habit: habit)
-                .padding()
-        }
-        .onAppear { context.insert(habit) }
     }
 }

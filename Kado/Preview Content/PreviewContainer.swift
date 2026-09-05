@@ -22,6 +22,14 @@ enum PreviewContainer {
         }
     }()
 
+    /// Id of the first seeded habit, for previews of screens that
+    /// address a habit by id rather than by managed object (e.g.
+    /// `HabitDetailLoader`).
+    static var firstHabitID: UUID {
+        let descriptor = FetchDescriptor<HabitRecord>(sortBy: [SortDescriptor(\.sortOrder)])
+        return (try? shared.mainContext.fetch(descriptor))?.first?.id ?? UUID()
+    }
+
     /// In-memory container with no habits — exercises the empty state.
     static func emptyContainer() -> ModelContainer {
         do {
