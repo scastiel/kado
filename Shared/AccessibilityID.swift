@@ -41,6 +41,27 @@ enum AccessibilityID {
         case today = 0
         case overview = 1
         case settings = 2
+
+        /// The SF Symbol each tab carries, which is how the suite
+        /// reaches it on iPad.
+        ///
+        /// iPad has no tab bar to count positions in: `app.tabBars` is
+        /// empty there, and the tabs are drawn as plain buttons across
+        /// the top. SwiftUI does put the symbol's name on those buttons
+        /// as their identifier — verified by dumping the live hierarchy
+        /// on an iPad Pro 13" — so it is the one address that works on
+        /// a device where position doesn't. (Each button is nested
+        /// inside a second one carrying the same identifier, so a query
+        /// for it needs `firstMatch`.)
+        ///
+        /// Keep in step with `ContentView`, the same as `rawValue`.
+        var symbolName: String {
+            switch self {
+            case .today: "list.bullet.clipboard"
+            case .overview: "square.grid.2x2"
+            case .settings: "gearshape"
+            }
+        }
     }
 
     enum Today {
@@ -52,12 +73,48 @@ enum AccessibilityID {
         /// `.accessibilityElement(children: .combine)`, so the row is
         /// already a single element and this identifier lands on a leaf.
         static func row(_ habitID: UUID) -> String { "today.row.\(habitID.uuidString)" }
+        /// The toolbar's + button. Identified rather than matched on
+        /// its label, which is localized, or on its SF Symbol name,
+        /// which SwiftUI does not reliably surface for a `Label`.
+        static let newHabitButton = "today.newHabit"
 
         /// The tip nudge's two actions. Both sit on leaf buttons inside
         /// `TipNudgeBanner` rather than on the card, which would stamp
         /// the copy and both buttons with one identifier.
         static let tipNudgeTipButton = "today.tipNudge.tip"
         static let tipNudgeHideButton = "today.tipNudge.hide"
+    }
+
+    enum HabitDetail {
+        /// The score card. A `Button`, so it is already a single
+        /// accessibility element and this lands on a leaf. Waited on
+        /// rather than a navigation title, which this screen
+        /// deliberately leaves empty.
+        static let scoreCard = "habitDetail.scoreCard"
+        /// The monthly calendar's ‹ arrow. Its label is localized, and
+        /// the screenshot run steps back a month so the calendar it
+        /// photographs is a whole one — a capture taken on the 5th
+        /// otherwise shows five filled days and twenty-five empty.
+        static let previousMonthButton = "habitDetail.previousMonth"
+    }
+
+    enum Overview {
+        /// One habit's label in the matrix's overlay column, keyed by
+        /// the habit's `UUID` for the same reason `Today.row` is:
+        /// names are localized and user-editable.
+        static func habitLabel(_ habitID: UUID) -> String {
+            "overview.label.\(habitID.uuidString)"
+        }
+    }
+
+    enum NewHabit {
+        /// The habit-name text field — the first row the sheet draws,
+        /// so it is what says "the sheet is up".
+        static let nameField = "newHabit.nameField"
+        /// The sheet's Cancel button. Same reason as
+        /// `Today.newHabitButton`: "Cancel" is "Annuler" on the French
+        /// simulator, and the suite has to close the sheet on both.
+        static let cancelButton = "newHabit.cancel"
     }
 
     enum Settings {

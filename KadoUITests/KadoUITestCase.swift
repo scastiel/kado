@@ -34,13 +34,25 @@ class KadoUITestCase: XCTestCase {
     ///     on an English one — and so the suite is worth something as
     ///     evidence either way, since the assertions go through
     ///     identifiers rather than labels.
+    ///   - locale: the region to format dates and numbers with,
+    ///     defaulting to `language`. Only the screenshot run needs a
+    ///     region of its own — a French listing with US dates in it is
+    ///     the kind of thing nobody notices until it has shipped.
+    ///   - seedForScreenshots: fill the store with `ScreenshotSeed`'s
+    ///     authored dataset rather than `DevModeSeed`'s every-state
+    ///     one. Only the screenshot run wants this.
+    ///   - suppressNameAutoFocus: leave the New Habit sheet's name
+    ///     field unfocused, so the keyboard stays out of a screenshot.
     @MainActor
     func launchApp(
         devMode: Bool = false,
         hasConfirmedDevMode: Bool = true,
         seedProduction: Bool = false,
         resetState: Bool = true,
-        language: String = "en"
+        language: String = "en",
+        locale: String? = nil,
+        seedForScreenshots: Bool = false,
+        suppressNameAutoFocus: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -51,11 +63,20 @@ class KadoUITestCase: XCTestCase {
         if seedProduction {
             app.launchArguments.append("-uiTestSeedProduction")
         }
+        if seedForScreenshots {
+            app.launchArguments.append("-uiTestSeedForScreenshots")
+        }
+        if suppressNameAutoFocus {
+            app.launchArguments.append("-uiTestSuppressNameAutoFocus")
+        }
         app.launchArguments += [
             "-uiTestDevMode", devMode ? "1" : "0",
             "-uiTestDevModeConfirmed", hasConfirmedDevMode ? "1" : "0",
             "-AppleLanguages", "(\(language))",
-            "-AppleLocale", language,
+            // The *region*, not just the language, when one is given:
+            // it is what decides how dates and numbers are written
+            // inside the screenshots.
+            "-AppleLocale", locale ?? language,
         ]
 
         app.launch()
@@ -64,10 +85,16 @@ class KadoUITestCase: XCTestCase {
 
     /// Switches tabs.
     ///
-    /// By position, because SwiftUI's `Tab` gives no seam for an
-    /// accessibility identifier — see `AccessibilityID.Tab`. Going
+    /// By position on iPhone, because SwiftUI's `Tab` gives no seam for
+    /// an accessibility identifier — see `AccessibilityID.Tab`. Going
     /// through the tab bar rather than `app.buttons[…]` also keeps this
     /// from matching a same-named button inside the tab's content.
+    ///
+    /// **iPad has no tab bar at all**, so position is not an address
+    /// there: `app.tabBars` is empty and the tabs are drawn as plain
+    /// buttons across the top. The fallback below reaches them by SF
+    /// Symbol name, which is the only property of a tab that is neither
+    /// localized nor device-dependent.
     @MainActor
     func tapTab(
         _ tab: AccessibilityID.Tab,
@@ -75,12 +102,35 @@ class KadoUITestCase: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
+        // iPhone: a real tab bar at the bottom, addressed by position.
+        // Short wait, because it is there the moment the app is.
         let bar = app.tabBars.firstMatch
-        XCTAssertTrue(
-            bar.waitForExistence(timeout: 30), "The tab bar never appeared.",
-            file: file, line: line
-        )
-        bar.buttons.element(boundBy: tab.rawValue).tap()
+        if bar.waitForExistence(timeout: 5) {
+            bar.buttons.element(boundBy: tab.rawValue).tap()
+            return
+        }
+
+        // iPad: no tab bar element exists at all. The tabs are plain
+        // buttons across the top, each carrying its SF Symbol name as
+        // its identifier — see `AccessibilityID.Tab.symbolName`.
+        let button = app.buttons[tab.symbolName].firstMatch
+        guard button.waitForExistence(timeout: 30) else {
+            // The hierarchy, not just the miss. A tab that cannot be
+            // found is nearly always a tab bar that lives somewhere
+            // else on this device, and the only way to know where is to
+            // look. This attachment is how the iPad layout above was
+            // established in the first place.
+            let dump = XCTAttachment(string: app.debugDescription)
+            dump.name = "hierarchy-no-tab-bar"
+            dump.lifetime = .keepAlways
+            add(dump)
+            XCTFail(
+                "Found neither a tab bar nor a “\(tab.symbolName)” tab button.",
+                file: file, line: line
+            )
+            return
+        }
+        button.tap()
     }
 
     /// Scrolls until `element` exists and can be tapped.

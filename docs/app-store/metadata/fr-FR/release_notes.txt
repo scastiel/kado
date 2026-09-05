@@ -1,0 +1,5 @@
+Version 1.7 — Sauvegardes compatibles tableur et « tous les N jours » plus juste.
+
+• Exporte et importe tes données en CSV aussi bien qu'en JSON. Ouvre une sauvegarde dans Numbers ou Excel, modifie-la, réimporte-la — l'aller-retour ne perd rien, notes comprises. Le format se choisit dans Réglages → Données.
+• Les habitudes réglées sur « tous les N jours » se comptent désormais à partir du dernier jour où tu l'as vraiment faite, et non sur une grille fixe. La faire en avance ne marque plus le jour suivant comme manqué, et les jours faits en avance comptent maintenant dans ton score et dans ta série.
+• Correction d'un plantage qui pouvait survenir en activant ou désactivant le mode développeur alors que des habitudes étaient affichées.

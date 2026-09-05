@@ -349,6 +349,7 @@ struct HabitDetailView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(AccessibilityID.HabitDetail.scoreCard)
         .accessibilityHint(Text("Shows how the score is calculated."))
         .sheet(isPresented: $showingScoreInfo) {
             ScoreExplanationSheet()

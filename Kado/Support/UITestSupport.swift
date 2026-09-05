@@ -45,17 +45,36 @@ nonisolated enum UITestSupport {
         /// the Today list on its empty state, replacing the list rather
         /// than diffing it — and the diff is where the crash lives.
         static let seedProduction = "-uiTestSeedProduction"
+        /// Seed with `ScreenshotSeed` instead of `DevModeSeed`.
+        ///
+        /// Passed alongside `seedProduction` by the screenshot run and
+        /// by nothing else. The two datasets exist for opposite
+        /// reasons — see the note at the top of `ScreenshotSeed`.
+        static let seedForScreenshots = "-uiTestSeedForScreenshots"
         /// `1` to start in dev mode, `0` to start on the real store.
         /// Followed by its value. See the note at the top of this file
         /// for why this is not just `-kado.devMode`.
         static let devMode = "-uiTestDevMode"
         /// `1` to start past the first-activation confirmation alert.
         static let devModeConfirmed = "-uiTestDevModeConfirmed"
+        /// Leave the New Habit sheet's name field unfocused.
+        ///
+        /// Only the screenshot run passes this. A keyboard is the
+        /// right thing for a real user — it is the wrong thing for a
+        /// listing image, where it covers the frequency and type
+        /// options the shot exists to show.
+        static let suppressNameAutoFocus = "-uiTestSuppressNameAutoFocus"
         /// Backdate the tip nudge's first-launch marker so the app
         /// starts old enough to show it. Without this the nudge is a
         /// week away from any fresh launch, which no test and no visual
         /// check can wait for.
         static let tipNudgeReady = "-uiTestTipNudgeReady"
+    }
+
+    /// Whether the New Habit sheet should skip focusing its name field.
+    static var suppressesNameAutoFocus: Bool {
+        isRunningUITests
+            && ProcessInfo.processInfo.arguments.contains(Argument.suppressNameAutoFocus)
     }
 
     /// Whether the app is being driven by the UI suite.
@@ -172,7 +191,11 @@ nonisolated enum UITestSupport {
         let context = container.mainContext
         let count = (try? context.fetchCount(FetchDescriptor<HabitRecord>())) ?? 0
         guard count == 0 else { return }
-        DevModeSeed.seed(into: context)
+        if ProcessInfo.processInfo.arguments.contains(Argument.seedForScreenshots) {
+            ScreenshotSeed.seed(into: context)
+        } else {
+            DevModeSeed.seed(into: context)
+        }
     }
 
     private static func resetState() {
@@ -185,5 +208,15 @@ nonisolated enum UITestSupport {
             }
         }
     }
+}
+#else
+/// Release stand-in, carrying only the members production code reads.
+///
+/// `NewHabitFormView` asks whether to focus its name field on every
+/// launch, test run or not, and a `#if DEBUG` around the call site
+/// would put a compile-time conditional inside a view body. One here
+/// keeps the view unconditional and the answer constant in release.
+nonisolated enum UITestSupport {
+    static var suppressesNameAutoFocus: Bool { false }
 }
 #endif

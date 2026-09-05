@@ -1,0 +1,5 @@
+Version 1.7 — Spreadsheet-friendly backups, and a fairer "every N days".
+
+• Export and import your data as CSV as well as JSON. Open a backup in Numbers or Excel, edit it, bring it back in — the round-trip keeps everything, notes included. Pick the format in Settings → Data.
+• Habits on an "every N days" schedule now count from the last day you actually did them, instead of from a fixed grid. Doing one early no longer leaves the following day showing as missed, and the days you complete ahead of schedule now count toward your score and your streak.
+• Fixed a crash that could happen when switching Dev mode on or off while habits were on screen.

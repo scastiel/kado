@@ -84,6 +84,7 @@ struct TodayView: View {
                         } label: {
                             Label("New habit", systemImage: "plus")
                         }
+                        .accessibilityIdentifier(AccessibilityID.Today.newHabitButton)
                     }
                 }
                 .onAppear(perform: refreshTipNudge)
