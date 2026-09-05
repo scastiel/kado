@@ -14,15 +14,22 @@ import Foundation
 ///
 /// Two properties this keeps:
 ///
-/// - **Monotonic.** Only completions *strictly before* the day under
-///   test can move the anchor, so logging a day never rewrites whether
-///   that same day was due. `FrequencyEvaluating.isDue` depends on this.
+/// - **Monotonic in the day itself.** Only completions *strictly
+///   before* the day under test can move the anchor, so logging a day
+///   never rewrites whether that same day was due. See the caveat on
+///   `FrequencyEvaluating.isDue` about days *after* it.
 /// - **A miss doesn't reschedule.** Only a completion re-anchors, so
 ///   skipping a due day leaves the cycle where it was and the day stays
 ///   a miss (offsets `anchor + n`, `anchor + 2n`, … as before).
 ///
 /// Before the first completion the cycle is anchored to `createdAt`,
 /// which is what makes a brand-new habit due on the day it was created.
+///
+/// **Working ahead removes due days**, which is why the score and the
+/// streak measure a day that is due *or* done rather than due alone —
+/// see `FrequencyEvaluating.isCounted`. Measured on due days only, a
+/// habit done every single day on an every-2-days cadence is never due
+/// after its first day and scores near zero for perfect adherence.
 public enum EveryNDaysCycle {
 
     /// Does the `interval`-day cycle running from `anchorDay` land on
@@ -37,6 +44,18 @@ public enum EveryNDaysCycle {
         guard interval > 0 else { return false }
         let delta = calendar.dateComponents([.day], from: anchorDay, to: day).day ?? 0
         return ((delta % interval) + interval) % interval == 0
+    }
+
+    /// Is `completion` work that re-anchors `habit`'s cycle?
+    ///
+    /// The single definition both anchor lookups below filter on. Two
+    /// copies of a schedule rule drifting apart is what issue #57 was,
+    /// and the linear and sorted paths here feed different callers —
+    /// the streak walker versus the score, grid and calendar — so a
+    /// divergence would render two different due-day sets for one
+    /// habit.
+    public static func isAnchor(_ completion: Completion, for habit: Habit) -> Bool {
+        completion.habitID == habit.id && completion.value > 0 && canReanchor(habit)
     }
 
     /// The day the cycle restarts from when evaluating `day`: the most
@@ -56,8 +75,7 @@ public enum EveryNDaysCycle {
         guard canReanchor(habit) else { return createdDay }
 
         var latest: Date?
-        for completion in completions {
-            guard completion.habitID == habit.id, completion.value > 0 else { continue }
+        for completion in completions where isAnchor(completion, for: habit) {
             let completionDay = calendar.startOfDay(for: completion.date)
             guard completionDay < day else { continue }
             if latest == nil || completionDay > latest! { latest = completionDay }
@@ -89,10 +107,6 @@ public enum EveryNDaysCycle {
 
     /// The days that may re-anchor `habit`'s cycle, ascending and
     /// de-duplicated, ready for the sorted `anchorDay` overload.
-    ///
-    /// Empty for a `.negative` habit: there a record means the user
-    /// *broke* the habit, and a slip must not reschedule anything.
-    /// `Habit.effectiveStart` draws the same line.
     public static func anchorCandidates(
         for habit: Habit,
         completions: [Completion],
@@ -102,13 +116,30 @@ public enum EveryNDaysCycle {
         let days = Set(
             completions
                 .lazy
-                .filter { $0.habitID == habit.id && $0.value > 0 }
+                .filter { isAnchor($0, for: habit) }
                 .map { calendar.startOfDay(for: $0.date) }
         )
         return days.sorted()
     }
 
-    private static func canReanchor(_ habit: Habit) -> Bool {
+    /// Same, for a caller that has already reduced the habit's
+    /// completions to a set of day-start `Date`s — which is exactly
+    /// what the streak walkers build for their completed-day lookup.
+    /// Rebuilding it from `[Completion]` would repeat that whole
+    /// filter + map + `startOfDay` pass.
+    public static func anchorCandidates(
+        for habit: Habit,
+        completedDays: Set<Date>
+    ) -> [Date] {
+        guard canReanchor(habit) else { return [] }
+        return completedDays.sorted()
+    }
+
+    /// Whether a record on this habit represents work that moves the
+    /// cycle. False for `.negative`, where a record means the user
+    /// *broke* the habit — a slip must not push the next check-in out.
+    /// `Habit.effectiveStart` draws the same line.
+    public static func canReanchor(_ habit: Habit) -> Bool {
         if case .negative = habit.type { return false }
         return true
     }

@@ -248,20 +248,21 @@ struct HabitScoreCalculatorTests {
     @Test("Completing an every-2-days habit early still scores a perfect run")
     func everyNDaysEarlyCompletionMatchesPerfectRun() {
         let daily = makeHabit(createdOffset: 0)
-        let dailyCompletions = (0..<5).map {
+        let dailyCompletions = (0..<6).map {
             Completion(habitID: daily.id, date: TestCalendar.day($0))
         }
         let dailyScore = calculator.currentScore(
             for: daily,
             completions: dailyCompletions,
-            asOf: TestCalendar.day(4)
+            asOf: TestCalendar.day(5)
         )
 
         // Every 2 days, done a day early on offset 1. The cycle
-        // re-anchors there, so the due days are 0, 3, 5, 7, 9 — five
-        // of them, all met, which is the same perfect run as above.
-        // On a fixed createdAt grid the due days would be 0, 2, 4, 6,
-        // 8 and four of the five would read as missed.
+        // re-anchors there, so the due days are 0, 3, 5, 7, 9 — all
+        // met — and offset 1 counts as a day it was done. Six measured
+        // days at full value, the same perfect run as above. On a fixed
+        // createdAt grid the due days would be 0, 2, 4, 6, 8 and four
+        // of the five would read as missed.
         let flexible = Habit(
             name: "Long run",
             frequency: .everyNDays(2),
@@ -278,6 +279,43 @@ struct HabitScoreCalculatorTests {
         )
 
         #expect(abs(dailyScore - flexibleScore) < 1e-9, "daily=\(dailyScore) every2=\(flexibleScore)")
+    }
+
+    @Test("An every-2-days habit done daily scores the same as a daily habit done daily")
+    func everyNDaysDailyOverDeliveryScoresPerfect() {
+        // Working ahead re-anchors the cycle, so this habit is never
+        // due after its first day. Measured on due days alone its
+        // score would freeze at alpha (5%) after 30 days of flawless
+        // adherence — far worse than doing half the work. Counting the
+        // days actually done is what keeps "more work never scores
+        // worse" true.
+        let daily = makeHabit(createdOffset: 0)
+        let dailyCompletions = (0..<30).map {
+            Completion(habitID: daily.id, date: TestCalendar.day($0))
+        }
+        let dailyScore = calculator.currentScore(
+            for: daily,
+            completions: dailyCompletions,
+            asOf: TestCalendar.day(29)
+        )
+
+        let everyTwo = Habit(
+            name: "Water plants",
+            frequency: .everyNDays(2),
+            type: .binary,
+            createdAt: TestCalendar.day(0)
+        )
+        let everyTwoCompletions = (0..<30).map {
+            Completion(habitID: everyTwo.id, date: TestCalendar.day($0))
+        }
+        let everyTwoScore = calculator.currentScore(
+            for: everyTwo,
+            completions: everyTwoCompletions,
+            asOf: TestCalendar.day(29)
+        )
+
+        #expect(abs(dailyScore - everyTwoScore) < 1e-9, "daily=\(dailyScore) every2=\(everyTwoScore)")
+        #expect(everyTwoScore > 0.75, "every2=\(everyTwoScore) — over-delivery must not stall the score")
     }
 
     @Test("Off-schedule completions on non-due days do not contribute to the score")

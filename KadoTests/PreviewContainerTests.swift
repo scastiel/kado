@@ -40,6 +40,13 @@ struct PreviewContainerTests {
             if case .timer = type { return true } else { return false }
         })
 
+        // The every-N-days habit only demonstrates the re-anchoring
+        // cycle if it starts on its creation day and is still due
+        // today. Both are silent properties of the offset list, and a
+        // count assertion alone would not notice either drifting.
+        #expect(DevModeSeed.everyNDaysOffsets.first == 30)
+        #expect(DevModeSeed.everyNDaysOffsets.last == 2)
+
         let completions = try container.mainContext.fetch(FetchDescriptor<CompletionRecord>())
         #expect(
             completions.count

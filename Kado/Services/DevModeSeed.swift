@@ -36,19 +36,15 @@ enum DevModeSeed {
     /// habit would render identically either way and dev mode would
     /// show nothing.
     ///
-    /// Starts on the creation day so both readings begin aligned, and
-    /// ends two days ago so the habit is due — and outstanding — today.
-    static let everyNDaysOffsets: [Int] = {
-        var offsets: [Int] = []
-        var daysAgo = 30
-        // Gaps walking forward in time. A 1 is an early completion.
-        for gap in [2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2] {
-            offsets.append(daysAgo)
-            daysAgo -= gap
-        }
-        offsets.append(daysAgo)
-        return offsets
-    }()
+    /// Starts on the creation day (30) so the habit is due on the day
+    /// it was created, and ends two days ago (2) so it is due — and
+    /// outstanding — today. Both ends are load-bearing, so the values
+    /// are written out rather than derived from a gap array whose sum
+    /// would have to stay exactly 28 for the last one to land on 2.
+    /// `PreviewContainerTests` pins both.
+    static let everyNDaysOffsets: [Int] = [
+        30, 28, 26, 25, 23, 21, 19, 18, 16, 14, 12, 11, 9, 7, 5, 4, 2,
+    ]
 
     static func seed(into context: ModelContext, calendar: Calendar = .current) {
         // Through the boundary so seeded history lines up with what

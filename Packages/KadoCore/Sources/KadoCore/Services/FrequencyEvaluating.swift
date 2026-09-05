@@ -18,11 +18,20 @@ import Foundation
 public protocol FrequencyEvaluating: Sendable {
     /// Did the schedule ask for this habit on `date`?
     ///
-    /// **Monotonic**: what is logged *on* `date` never changes the
-    /// answer. Performing a habit must not retroactively decide the
-    /// day was never required — otherwise back-filling a day makes it
-    /// disappear from the grid, and hitting a weekly target stops the
-    /// score from advancing.
+    /// **Monotonic in `date` itself**: what is logged *on* `date` never
+    /// changes the answer. Performing a habit must not retroactively
+    /// decide that same day was never required — otherwise back-filling
+    /// a day makes it disappear from the grid, and hitting a weekly
+    /// target stops the score from advancing.
+    ///
+    /// It is **not** monotonic in days that follow, and deliberately so
+    /// for the two completion-driven schedules. Back-filling day 1 of
+    /// an `.everyNDays(2)` habit re-anchors its cycle and turns day 2
+    /// from due into not-due, clearing the miss that day 2 had been
+    /// carrying; `.daysPerWeek` shifts its rolling window the same way.
+    /// That is the point of both — a schedule that answers "was this
+    /// asked for?" from history has to be allowed to change its mind
+    /// when the history changes.
     ///
     /// For `.daysPerWeek(n)`, counts completions over the six days
     /// *before* `date` and reports whether the quota still had room.
@@ -64,6 +73,40 @@ extension FrequencyEvaluating {
     /// day the schedule never covered is not a reason to surface the
     /// row — and `HabitRowState` would resolve that row to
     /// `.complete`, crediting the user for the day they slipped.
+    /// Should `date`'s outcome feed the habit's score and streak?
+    ///
+    /// `isDue` for every schedule except `.everyNDays`, which also
+    /// counts a day the user did the habit on anyway.
+    ///
+    /// That exception is load-bearing rather than generous. An
+    /// `.everyNDays` cycle re-anchors on each completion, so working
+    /// ahead *removes* due days: a habit on an every-2-days cadence
+    /// done every single day is never due after its first day. Measured
+    /// on due days alone its score would sit near zero and its streak
+    /// at 1 for flawless adherence — strictly worse than doing less
+    /// work. Counting the days actually done restores the monotonicity
+    /// that matters to a user: more work never scores worse.
+    ///
+    /// A fixed schedule keeps the opposite rule. Running on a Tuesday
+    /// is not part of a Monday-only habit, and `.daysPerWeek` already
+    /// expresses "extra is fine" through its rolling quota.
+    public func isCounted(
+        habit: Habit,
+        on date: Date,
+        completions: [Completion],
+        calendar: Calendar
+    ) -> Bool {
+        guard case .everyNDays = habit.frequency else {
+            return isDue(habit: habit, on: date, completions: completions)
+        }
+        return isDueOrLogged(
+            habit: habit,
+            on: date,
+            completions: completions,
+            calendar: calendar
+        )
+    }
+
     public func isDueOrLogged(
         habit: Habit,
         on date: Date,

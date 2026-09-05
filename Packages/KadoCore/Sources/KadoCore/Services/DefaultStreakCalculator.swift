@@ -48,14 +48,18 @@ public struct DefaultStreakCalculator: StreakCalculating {
         startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
-        let cycleAnchors = cycleAnchors(habit: habit, completions: completions)
+        let cycleAnchors = EveryNDaysCycle.anchorCandidates(for: habit, completedDays: completedDays)
+        let createdDay = calendar.startOfDay(for: habit.createdAt)
+        let countsLogged = countsLoggedDays(habit: habit)
         var streak = 0
         var day = end
         var isEndDay = true
 
         while day >= startDay {
-            let due = isDueByDay(habit: habit, on: day, cycleAnchors: cycleAnchors)
-            if !due {
+            let due = isDueByDay(
+                habit: habit, on: day, cycleAnchors: cycleAnchors, createdDay: createdDay
+            )
+            if !due && !(countsLogged && completedDays.contains(day)) {
                 day = previousDay(day)
                 isEndDay = false
                 continue
@@ -82,14 +86,18 @@ public struct DefaultStreakCalculator: StreakCalculating {
         startDay: Date
     ) -> Int {
         let completedDays = completedDaySet(habit: habit, completions: completions)
-        let cycleAnchors = cycleAnchors(habit: habit, completions: completions)
+        let cycleAnchors = EveryNDaysCycle.anchorCandidates(for: habit, completedDays: completedDays)
+        let createdDay = calendar.startOfDay(for: habit.createdAt)
+        let countsLogged = countsLoggedDays(habit: habit)
         var best = 0
         var run = 0
         var day = startDay
 
         while day <= end {
-            let due = isDueByDay(habit: habit, on: day, cycleAnchors: cycleAnchors)
-            if !due {
+            let due = isDueByDay(
+                habit: habit, on: day, cycleAnchors: cycleAnchors, createdDay: createdDay
+            )
+            if !due && !(countsLogged && completedDays.contains(day)) {
                 day = nextDay(day)
                 continue
             }
@@ -210,7 +218,12 @@ public struct DefaultStreakCalculator: StreakCalculating {
     ///
     /// The lifecycle guards the evaluator applies (`effectiveStart`,
     /// `archivedAt`) are already enforced by the callers' loop bounds.
-    private func isDueByDay(habit: Habit, on day: Date, cycleAnchors: [Date]) -> Bool {
+    private func isDueByDay(
+        habit: Habit,
+        on day: Date,
+        cycleAnchors: [Date],
+        createdDay: Date
+    ) -> Bool {
         switch habit.frequency {
         case .daily:
             return true
@@ -224,13 +237,14 @@ public struct DefaultStreakCalculator: StreakCalculating {
             // instead of leaving a phantom miss behind. `cycleAnchors`
             // is hoisted out of the caller's day-by-day walk to keep
             // this a binary search rather than a scan per day.
+            guard n > 0 else { return false }
             return EveryNDaysCycle.isDue(
                 interval: n,
                 on: day,
                 anchoredAt: EveryNDaysCycle.anchorDay(
                     before: day,
                     in: cycleAnchors,
-                    fallback: calendar.startOfDay(for: habit.createdAt)
+                    fallback: createdDay
                 ),
                 calendar: calendar
             )
@@ -239,16 +253,20 @@ public struct DefaultStreakCalculator: StreakCalculating {
         }
     }
 
-    /// Days that may re-anchor an `.everyNDays` cycle, ascending.
-    /// Empty for every other frequency — nothing else reads it, and
-    /// the walkers above call this once per streak, not once per day.
-    private func cycleAnchors(habit: Habit, completions: [Completion]) -> [Date] {
-        guard case .everyNDays = habit.frequency else { return [] }
-        return EveryNDaysCycle.anchorCandidates(
-            for: habit,
-            completions: completions,
-            calendar: calendar
-        )
+    /// Whether a day the user logged counts toward the streak even when
+    /// the schedule didn't ask for it.
+    ///
+    /// Only `.everyNDays`, and only because its cycle re-anchors on
+    /// completion: working ahead removes due days, so a habit done
+    /// every day on an every-2-days cadence would otherwise report a
+    /// streak of 1. Mirrors `FrequencyEvaluating.isCounted`, which the
+    /// score uses for the same reason.
+    ///
+    /// Never for `.negative`, where `completedDaySet` holds the days
+    /// the user *slipped* — counting those would credit the slip.
+    private func countsLoggedDays(habit: Habit) -> Bool {
+        guard case .everyNDays = habit.frequency else { return false }
+        return EveryNDaysCycle.canReanchor(habit)
     }
 
     private func completedDaySet(habit: Habit, completions: [Completion]) -> Set<Date> {

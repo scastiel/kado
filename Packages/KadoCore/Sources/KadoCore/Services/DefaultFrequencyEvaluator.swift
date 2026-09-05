@@ -49,6 +49,15 @@ public struct DefaultFrequencyEvaluator: FrequencyEvaluating {
             // the clock. Only completions strictly before `day` are
             // read, so this stays monotonic and `isDue` /
             // `isOutstanding` still agree. See `EveryNDaysCycle`.
+            //
+            // Guarded here rather than left to `EveryNDaysCycle.isDue`:
+            // the anchor is an argument expression, so it would be
+            // computed — an O(completions) scan, per day, per habit —
+            // before the interval was ever checked. A corrupt or
+            // hand-edited backup can decode `.everyNDays(0)`; neither
+            // `Frequency.init(from:)` nor `CSVBackupCoder` range-checks
+            // it.
+            guard n > 0 else { return false }
             return EveryNDaysCycle.isDue(
                 interval: n,
                 on: day,

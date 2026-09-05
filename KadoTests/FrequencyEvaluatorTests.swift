@@ -290,12 +290,24 @@ struct FrequencyEvaluatorTests {
             let habit = makeHabit(frequency, createdOffset: 0)
             for offset in 0...13 {
                 let day = TestCalendar.day(offset)
-                let completions = [Completion(habitID: habit.id, date: day)]
-                #expect(
-                    evaluator.isDue(habit: habit, on: day, completions: completions)
-                        == evaluator.isOutstanding(habit: habit, on: day, completions: completions),
-                    "\(frequency) at offset \(offset)"
-                )
+                // Both a completion on the day itself and one on a
+                // prior day. The own-day record alone cannot detect an
+                // `.everyNDays` divergence: the anchor lookup skips
+                // records that are not strictly earlier, so both
+                // questions fall through to the createdAt fallback and
+                // agree trivially. A prior-day record is what actually
+                // exercises the re-anchored cycle here.
+                let ownDay = [Completion(habitID: habit.id, date: day)]
+                let withPrior = ownDay + [
+                    Completion(habitID: habit.id, date: TestCalendar.day(offset - 1))
+                ]
+                for completions in [ownDay, withPrior] {
+                    #expect(
+                        evaluator.isDue(habit: habit, on: day, completions: completions)
+                            == evaluator.isOutstanding(habit: habit, on: day, completions: completions),
+                        "\(frequency) at offset \(offset)"
+                    )
+                }
             }
         }
     }
