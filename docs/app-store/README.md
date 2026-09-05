@@ -116,7 +116,16 @@ These pass the same API key to `xcodebuild` as `-authenticationKeyPath` / `-auth
 
 Check what the account already holds before creating anything — the App Store Connect API answers this directly, and `security find-identity -v -p codesigning` says what this machine holds. The two can disagree: a certificate can exist on the account with its private key on a different Mac, which looks identical to "no certificate" from here and is fixed by exporting a `.p12`, not by creating a second one.
 
-**An App Store Connect API key cannot create a distribution certificate unless it has the Admin role.** Kadō's key is App Manager, which is enough to write the entire listing and not enough to sign. The failure is worth recognising because it arrives late and reads like a missing file rather than a permission:
+**Signing needs an Admin key; the listing does not.** This is the one place two keys earn their keep:
+
+| Key | Role | Can do |
+|---|---|---|
+| `3NJ328MR4F` | App Manager | the whole listing — copy, screenshots, version records |
+| `RLTPSN7JPS` | Admin | all of that, plus cloud signing: certificates and profiles |
+
+Use the App Manager key for `make listing` and the Admin key for `make archive` / `ipa` / `testflight`. Nothing stops you using the Admin key for everything, but the narrower one is the right default for the step that runs most often.
+
+An App Manager key cannot create a distribution certificate *or* a provisioning profile. The failure is worth recognising because it arrives late and reads like a missing file rather than a permission:
 
 ```
 error: exportArchive Cloud signing permission error
@@ -129,7 +138,14 @@ Worse, `xcodebuild archive` *succeeds* first — it falls back to the Apple Deve
 /usr/libexec/PlistBuddy -c 'Print :ApplicationProperties:SigningIdentity' build/Kado.xcarchive/Info.plist
 ```
 
-So the certificate is made once, by a person, in **Xcode → Settings → Accounts → Manage Certificates → + → Apple Distribution**. After that these targets work headlessly, because signing with an existing certificate needs no special role. The archive already on disk stays usable — `-exportArchive` re-signs it — so only `make ipa` has to be re-run, not `make archive`.
+Two things have to be true, and the second is easy to miss because fixing the first changes the error rather than removing it:
+
+1. **An Apple Distribution certificate in the keychain.** Made once, by a person, in **Xcode → Settings → Accounts → Manage Certificates → + → Apple Distribution**. Note that the same menu's "Apple Development" entry looks equally plausible and is not it — check with `security find-identity -v -p codesigning`, which must list `Apple Distribution: … (VKY5EKKU47)`.
+2. **An App Store provisioning profile** for `dev.scastiel.kado` and each extension. These do not exist until something creates them, and creating them is cloud signing — so an Admin key, or one archive from Xcode's Organizer.
+
+With only the first done, the error changes to `Provisioning profile "…" doesn't include signing certificate "…"`, which reads like a stale cache and is really the profile never having existed.
+
+The archive on disk stays usable throughout — `-exportArchive` re-signs it — so only `make ipa` has to be re-run, never `make archive`.
 
 The build number must exceed everything App Store Connect has already seen. It rejects a duplicate *after* the upload rather than before it, so bump `CURRENT_PROJECT_VERSION` in the same commit as `MARKETING_VERSION`; the repo convention is `chore: bump version to 1.X (build N)`. Both live in `Kado.xcodeproj/project.pbxproj` in eight places each — every target — and a partial bump builds fine and fails at upload.
 

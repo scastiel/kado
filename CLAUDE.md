@@ -928,6 +928,15 @@ make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
   the real run does and sends nothing. Use it: the API has no undo,
   and this is the copy customers read. It is what caught both of the
   mismatches above, before anything was sent.
+- **Two API keys, on purpose.** `3NJ328MR4F` (App Manager) writes the
+  listing; `RLTPSN7JPS` (Admin) is the only one that can sign, because
+  creating a distribution certificate *or* a provisioning profile is a
+  cloud-signing operation and App Manager cannot do either. The failure
+  mode is nasty: `xcodebuild archive` succeeds anyway, silently falling
+  back to the Apple Development identity, and the refusal only surfaces
+  at `-exportArchive` as `Cloud signing permission error`. Check
+  `SigningIdentity` in the archive's `Info.plist` if a release looks
+  wrong.
 - **The marketing site is regenerated from the same captures.**
   `docs/screenshots/iphone-67-appstore/` is resized out of the iPhone
   set on the way out of `make screenshots`, so `getkado.app` and the
