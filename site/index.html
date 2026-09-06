@@ -101,15 +101,15 @@
           </article>
           <article>
             <h3>Native to Apple</h3>
-            <p>SwiftUI, SwiftData, CloudKit, WidgetKit, App Intents. Home-screen and lock-screen widgets. Designed to feel like a first-party iOS app, not a cross-platform port.</p>
+            <p>SwiftUI, SwiftData, CloudKit, WidgetKit, App Intents. Home-screen and lock-screen widgets. Siri and Shortcuts: complete a habit, log a value, or ask for a streak, hands-free. Designed to feel like a first-party iOS app, not a cross-platform port.</p>
           </article>
           <article>
             <h3>Flexible schedules</h3>
-            <p>Daily, N days per week, specific weekdays, or every N days. Binary, counter, or timer habit types — switch without losing what you already entered.</p>
+            <p>Daily, N days per week, specific weekdays, or every N days — and the "every N days" cycle re-anchors each time you actually do it, so finishing early never costs you a day. Binary, counter, or timer habit types.</p>
           </article>
           <article>
             <h3>Overview at a glance</h3>
-            <p>A habits × days matrix with score-shaded cells — the Loop / Way of Life pattern with Kadō's score DNA. Scroll back through history, tap any cell to open its day.</p>
+            <p>A habits × days matrix with score-shaded cells — the Loop / Way of Life pattern with Kadō's score DNA. Scroll back through history, tap any cell to open its day. Days you did something off-schedule show up too, instead of hiding as rest days.</p>
           </article>
           <article>
             <h3>Reminders without noise</h3>
@@ -117,7 +117,15 @@
           </article>
           <article>
             <h3>Import, export, leave</h3>
-            <p>Lossless JSON round-trip is shipped. CSV export and import from Loop, Streaks, and generic CSV arrive shortly after v0.2. Anti-lock-in from day one.</p>
+            <p>Lossless export and import in both JSON and CSV, round-trip tested. Open a CSV backup in Numbers or Excel, edit it, bring it back in — notes and all. Anti-lock-in from day one.</p>
+          </article>
+          <article>
+            <h3>History you can fix</h3>
+            <p>Forgot to log yesterday? Tap any day in the calendar and set it right — including days before the habit existed. Add a short note to any completion, and page back through the months.</p>
+          </article>
+          <article>
+            <h3>Shaped around your day</h3>
+            <p>Log after midnight? Push the day rollover as late as 6 AM and one tap still lands on the day you mean. Drag your habits into the order you actually do them — it syncs across your devices.</p>
           </article>
           <article>
             <h3>Accessible by default</h3>
@@ -126,6 +134,10 @@
           <article>
             <h3>English and native French</h3>
             <p>Translated by a French speaker, not a machine. <code>tu</code>, <code>série</code>, <code>habitude</code> — it reads right, not translated.</p>
+          </article>
+          <article>
+            <h3>Free, and staying that way</h3>
+            <p>No subscription, no ads, no paywalled features, no upsell. There is a Tip Jar in Settings if you want to support the work — it unlocks nothing, because there is nothing locked.</p>
           </article>
         </div>
       </div>
@@ -149,7 +161,7 @@
           <details class="faq-item">
             <summary>How much does Kadō cost?</summary>
             <div class="faq-answer">
-              <p>The app is free and open source under the MIT license. No subscription, no ads, no paywalled core features. A one-time tip jar — and possibly an optional cosmetic "Pro" tier later, for things like extra themes — are the only monetization paths ever considered.</p>
+              <p>The app is free and open source under the MIT license. No subscription, no ads, no paywalled features. There's an optional Tip Jar in Settings → Support Kadō if you'd like to fund the work; it unlocks nothing, and the whole app stays free either way.</p>
             </div>
           </details>
 
@@ -177,21 +189,21 @@
           <details class="faq-item">
             <summary>Is there an Apple Watch app?</summary>
             <div class="faq-answer">
-              <p>Not yet. A native Apple Watch app is planned for v0.3, alongside App Intents / Siri support, HealthKit auto-completion, and Live Activities with Dynamic Island. See the <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">roadmap</a>.</p>
+              <p>No, and it isn't planned. A watchOS app and HealthKit auto-completion were both on the roadmap, and in the months since launch nobody has asked for either — so they've been dropped rather than left dangling as vapourware. If that changes, <a href="https://github.com/scastiel/kado/issues">open an issue</a>; real demand would bring them back. Siri and Shortcuts already cover hands-free logging on iPhone and iPad. See the <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">roadmap</a>.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary>Can I import my habits from another tracker?</summary>
             <div class="faq-answer">
-              <p>JSON import/export is shipped and round-trip tested. CSV export, generic CSV import, and direct import from Loop Habit Tracker and Streaks are on the short-term roadmap. You should never feel stuck in an app.</p>
+              <p>JSON and CSV import/export are both shipped and round-trip tested — export, edit in a spreadsheet if you like, import back with nothing lost. Direct import from Loop Habit Tracker and Streaks is still on the roadmap. You should never feel stuck in an app.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary>What devices and iOS versions are supported?</summary>
             <div class="faq-answer">
-              <p>iPhone and iPad on iOS 18 or later. watchOS, Dynamic Island, and macOS support are planned but not shipped yet.</p>
+              <p>iPhone and iPad on iOS 18 or later — one universal app. Live Activities with Dynamic Island are planned; a Mac app is a maybe; watchOS isn't planned.</p>
             </div>
           </details>
 
@@ -205,7 +217,7 @@
           <details class="faq-item">
             <summary>What does "Kadō" mean?</summary>
             <div class="faq-answer">
-              <p>Kadō (稼働) is Japanese for "in operation" or "running" — the state of a system that's quietly doing its job, day after day. A fitting name for a habit that keeps going. It's a working name; the final public name will be confirmed before v1.0.</p>
+              <p>Kadō (稼働) is Japanese for "in operation" or "running" — the state of a system that's quietly doing its job, day after day. A fitting name for a habit that keeps going.</p>
             </div>
           </details>
         </div>
@@ -215,9 +227,9 @@
     <section class="block">
       <div class="container">
         <div class="next">
-          <div class="section-kicker">What's next</div>
-          <h2>v0.3: Siri, HealthKit, Watch</h2>
-          <p>App Intents and Siri shortcuts, HealthKit auto-completion, Live Activities with Dynamic Island, and a native Apple Watch app. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">See the roadmap →</a></p>
+          <div class="section-kicker">Latest release</div>
+          <h2>Version 1.7 is out</h2>
+          <p>CSV export and import, with a round-trip that keeps everything — notes included. And habits on an "every N days" schedule now count from the last day you actually did them, so finishing early no longer shows up as a miss. Next up: Live Activities for timer habits, then themes and Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">See the roadmap →</a></p>
         </div>
       </div>
     </section>
