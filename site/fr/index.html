@@ -102,15 +102,15 @@
           </article>
           <article>
             <h3>Natif Apple</h3>
-            <p>SwiftUI, SwiftData, CloudKit, WidgetKit, App Intents. Widgets d'écran d'accueil et d'écran verrouillé. Pensé pour ressembler à une app Apple, pas à un portage multiplateforme.</p>
+            <p>SwiftUI, SwiftData, CloudKit, WidgetKit, App Intents. Widgets d'écran d'accueil et d'écran verrouillé. Siri et Raccourcis : complète une habitude, saisis une valeur ou demande ta série, mains libres. Pensé pour ressembler à une app Apple, pas à un portage multiplateforme.</p>
           </article>
           <article>
             <h3>Horaires flexibles</h3>
-            <p>Quotidien, N jours par semaine, jours précis, ou tous les N jours. Habitudes binaires, compteurs, ou chronométrées — change de mode sans perdre ce que tu as déjà saisi.</p>
+            <p>Quotidien, N jours par semaine, jours précis, ou tous les N jours — et le cycle « tous les N jours » repart du jour où tu l'as vraiment faite, donc t'y prendre en avance ne te coûte jamais une journée. Habitudes binaires, compteurs, ou chronométrées.</p>
           </article>
           <article>
             <h3>Aperçu d'un coup d'œil</h3>
-            <p>Une matrice habitudes × jours avec des cellules teintées selon le score — le motif Loop / Way of Life avec l'ADN du score de Kadō. Défile dans l'historique, touche une cellule pour ouvrir la journée.</p>
+            <p>Une matrice habitudes × jours avec des cellules teintées selon le score — le motif Loop / Way of Life avec l'ADN du score de Kadō. Défile dans l'historique, touche une cellule pour ouvrir la journée. Les jours où tu as fait une habitude hors programme s'affichent aussi, au lieu d'être masqués comme des jours de repos.</p>
           </article>
           <article>
             <h3>Des rappels sans bruit</h3>
@@ -118,7 +118,15 @@
           </article>
           <article>
             <h3>Importe, exporte, quitte</h3>
-            <p>L'import/export JSON sans perte est déjà livré. L'export CSV et l'import depuis Loop, Streaks, ou CSV générique arriveront peu après la v0.2. Anti-enfermement dès le départ.</p>
+            <p>Export et import sans perte, en JSON comme en CSV, testés en aller-retour. Ouvre une sauvegarde CSV dans Numbers ou Excel, modifie-la, réimporte-la — notes comprises. Anti-enfermement dès le départ.</p>
+          </article>
+          <article>
+            <h3>Un historique qui se corrige</h3>
+            <p>Oublié de noter hier ? Touche n'importe quel jour du calendrier et corrige-le — même les jours antérieurs à la création de l'habitude. Ajoute une courte note à une complétion, et remonte les mois passés.</p>
+          </article>
+          <article>
+            <h3>Réglé sur ta journée</h3>
+            <p>Tu notes après minuit ? Décale le changement de journée jusqu'à 6 h du matin : un seul appui tombe toujours sur la bonne date. Et glisse tes habitudes dans l'ordre où tu les fais vraiment — l'ordre se synchronise entre tes appareils.</p>
           </article>
           <article>
             <h3>Accessible par défaut</h3>
@@ -127,6 +135,10 @@
           <article>
             <h3>Anglais et français natif</h3>
             <p>Traduit par une personne francophone, pas par une machine. <code>tu</code>, <code>série</code>, <code>habitude</code> — ça sonne juste, pas traduit.</p>
+          </article>
+          <article>
+            <h3>Gratuite, et ça ne changera pas</h3>
+            <p>Aucun abonnement, aucune publicité, aucune fonctionnalité payante, aucune relance. Une cagnotte de pourboires existe dans les réglages si tu veux soutenir le travail — elle ne débloque rien, puisque rien n'est verrouillé.</p>
           </article>
         </div>
       </div>
@@ -150,7 +162,7 @@
           <details class="faq-item">
             <summary>Combien coûte Kadō ?</summary>
             <div class="faq-answer">
-              <p>L'app est gratuite et open source sous licence MIT. Aucun abonnement, aucune publicité, aucune fonctionnalité essentielle payante. Un pourboire optionnel — et éventuellement une version "Pro" cosmétique plus tard, pour des thèmes supplémentaires — sont les seules pistes de monétisation envisagées.</p>
+              <p>L'app est gratuite et open source sous licence MIT. Aucun abonnement, aucune publicité, aucune fonctionnalité payante. Une cagnotte de pourboires facultative se trouve dans Réglages → Soutenir Kadō si tu souhaites financer le travail ; elle ne débloque rien, et l'app reste entièrement gratuite dans tous les cas.</p>
             </div>
           </details>
 
@@ -178,21 +190,21 @@
           <details class="faq-item">
             <summary>Y a-t-il une app Apple Watch ?</summary>
             <div class="faq-answer">
-              <p>Pas encore. Une app Apple Watch native est prévue pour la v0.3, avec les App Intents / raccourcis Siri, l'auto-complétion HealthKit, et les Live Activities avec l'îlot dynamique. Voir la <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">feuille de route</a>.</p>
+              <p>Non, et ce n'est pas prévu. Une app watchOS et l'auto-complétion HealthKit figuraient sur la feuille de route, et depuis le lancement personne ne les a demandées — elles ont donc été abandonnées plutôt que laissées en promesse indéfinie. Si ça change, <a href="https://github.com/scastiel/kado/issues">ouvre un ticket</a> : une vraie demande les ramènerait. Siri et Raccourcis couvrent déjà la saisie mains libres sur iPhone et iPad. Voir la <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">feuille de route</a>.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary>Puis-je importer mes habitudes depuis une autre app ?</summary>
             <div class="faq-answer">
-              <p>L'import/export JSON est livré et testé en aller-retour. L'export CSV, l'import CSV générique, et l'import direct depuis Loop Habit Tracker et Streaks sont sur la feuille de route à court terme. Tu ne devrais jamais te sentir coincé dans une app.</p>
+              <p>L'import/export JSON et CSV sont livrés et testés en aller-retour — exporte, modifie dans un tableur si tu veux, réimporte sans rien perdre. L'import direct depuis Loop Habit Tracker et Streaks reste sur la feuille de route. Tu ne devrais jamais te sentir coincé dans une app.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary>Quels appareils et versions d'iOS sont pris en charge ?</summary>
             <div class="faq-answer">
-              <p>iPhone et iPad sous iOS 18 ou plus récent. Le support watchOS, de l'îlot dynamique, et de macOS est prévu mais pas encore livré.</p>
+              <p>iPhone et iPad sous iOS 18 ou plus récent — une seule app universelle. Les Live Activities avec l'îlot dynamique sont prévues ; une app Mac reste un peut-être ; watchOS n'est pas prévu.</p>
             </div>
           </details>
 
@@ -206,7 +218,7 @@
           <details class="faq-item">
             <summary>Que veut dire "Kadō" ?</summary>
             <div class="faq-answer">
-              <p>Kadō (稼働) veut dire "en opération" ou "en fonctionnement" en japonais — l'état d'un système qui fait son travail discrètement, jour après jour. Un nom qui va bien à une habitude qui tient dans la durée. C'est un nom de travail ; le nom public définitif sera confirmé avant la v1.0.</p>
+              <p>Kadō (稼働) veut dire "en opération" ou "en fonctionnement" en japonais — l'état d'un système qui fait son travail discrètement, jour après jour. Un nom qui va bien à une habitude qui tient dans la durée.</p>
             </div>
           </details>
         </div>
@@ -216,9 +228,9 @@
     <section class="block">
       <div class="container">
         <div class="next">
-          <div class="section-kicker">La suite</div>
-          <h2>v0.3 : Siri, HealthKit, Watch</h2>
-          <p>App Intents et raccourcis Siri, auto-complétion HealthKit, Live Activities avec îlot dynamique, et une app Apple Watch native. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">Voir la feuille de route →</a></p>
+          <div class="section-kicker">Dernière version</div>
+          <h2>La version 1.7 est disponible</h2>
+          <p>Export et import CSV, avec un aller-retour qui conserve tout — notes comprises. Et les habitudes « tous les N jours » comptent désormais à partir du jour où tu les as vraiment faites : t'y prendre en avance n'apparaît plus comme un oubli. Ensuite : les Live Activities pour les habitudes chronométrées, puis les thèmes et Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">Voir la feuille de route →</a></p>
         </div>
       </div>
     </section>
