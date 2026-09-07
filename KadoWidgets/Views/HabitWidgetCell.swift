@@ -44,16 +44,22 @@ struct HabitWidgetCell: View {
             Image(systemName: row.habit.icon)
                 .font(.caption)
                 .frame(width: 18)
-                .foregroundStyle(onFill)
+                .foregroundStyle(palette.glyphColor(row.habit.color, status: row.status))
             Text(row.habit.name)
                 .font(.caption)
                 .lineLimit(1)
-                .foregroundStyle(isComplete ? onFill : palette.foreground)
+                .foregroundStyle(palette.labelColor(row.habit.color, status: row.status))
             Spacer(minLength: 4)
             indicator
                 .font(.caption2)
-                .foregroundStyle(onFill)
+                .foregroundStyle(palette.glyphColor(row.habit.color, status: row.status))
         }
+        // Order matters, and is load-bearing: `.widgetAccentable()`
+        // must stay *above* `.background`, so the fill is added
+        // outside the accentable subtree. Fold the background up into
+        // the `HStack` and the fill joins the accent group alongside
+        // the label — both render as one flat tint under Clear and the
+        // text disappears again, with every test still green.
         .widgetAccentable()
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -72,11 +78,6 @@ struct HabitWidgetCell: View {
 
     private var background: Color {
         palette.habitFill(row.habit.color, status: row.status, progress: row.progress)
-    }
-
-    /// Colour for the glyphs sitting on top of `background`.
-    private var onFill: Color {
-        palette.onHabitFill(row.habit.color, status: row.status)
     }
 
     @ViewBuilder

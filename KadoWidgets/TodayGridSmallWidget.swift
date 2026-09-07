@@ -53,6 +53,12 @@ struct TodayEmptyPlaceholder: View {
                 .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // The only content on the tile, so it belongs in the accent
+        // group. Without this the whole widget falls into the dimmed
+        // default group and the caption's own alpha dims it a second
+        // time — leaving the empty state fainter than it was before
+        // any of this.
+        .widgetAccentable()
     }
 }
 

@@ -130,6 +130,7 @@ struct WeeklyGridLargeView: View {
                 .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetAccentable()
     }
 
     /// Taken from the snapshot rather than the clock. The app builds
@@ -160,6 +161,10 @@ struct WidgetMatrixCell: View {
 
     @Environment(\.widgetRenderingMode) private var renderingMode
 
+    private var palette: WidgetPalette {
+        WidgetPalette(renderingMode: renderingMode)
+    }
+
     var body: some View {
         RoundedRectangle(cornerRadius: 4, style: .continuous)
             .fill(fill)
@@ -182,11 +187,12 @@ struct WidgetMatrixCell: View {
     /// they survive the tint untouched. `.notDue` is the one opaque
     /// fill here, and an opaque fill is exactly what gets flattened
     /// into a solid block under Tinted / Clear — route it through the
-    /// palette.
+    /// palette, which keeps it under the scored ramp's 0.2 floor so
+    /// "never due" stays tellable from "due and missed".
     private var fill: Color {
         switch cell {
         case .future: Color.clear
-        case .notDue: WidgetPalette(renderingMode: renderingMode).restingFill
+        case .notDue: palette.notDueFill
         case .scored: color.color.opacity(cell.colorOpacity ?? 0)
         case .offSchedule: color.color.opacity(cell.offScheduleFillOpacity ?? 0)
         }

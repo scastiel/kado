@@ -7,14 +7,19 @@ import KadoCore
 
 /// Guards the invariant the Home Screen's Tinted / Clear appearance
 /// broke: under `.accented` WidgetKit re-tints every opaque pixel
-/// with one colour and keeps only alpha, so any two opaque colours
-/// we picked render identically. Text sitting on a fill must
-/// therefore always differ from that fill.
+/// with one colour and keeps only alpha, so any two opaque colours we
+/// picked render identically.
+///
+/// Every assertion here is therefore about **alpha**, never about
+/// `Color` identity — two different `Color` values are not evidence of
+/// anything once hue has been discarded.
 @Suite("WidgetPalette")
 struct WidgetPaletteTests {
 
     private let tinted: [WidgetRenderingMode] = [.accented, .vibrant]
     private let everyStatus: [WidgetStatus] = [.none, .partial, .complete]
+
+    // MARK: - Full colour is untouched
 
     @Test("Full colour reproduces the paper / ink palette")
     func fullColourIsUnchanged() {
@@ -23,26 +28,64 @@ struct WidgetPaletteTests {
         #expect(palette.foreground == .kadoForeground)
         #expect(palette.foregroundSecondary == .kadoForegroundSecondary)
         #expect(palette.restingFill == .kadoHairline)
-        #expect(palette.habitFill(.blue, status: .complete, progress: 1) == HabitColor.blue.color)
-        #expect(palette.habitFill(.blue, status: .none, progress: 0) == .kadoHairline)
-        #expect(palette.onHabitFill(.blue, status: .complete) == .white)
-        #expect(palette.onHabitFill(.blue, status: .none) == HabitColor.blue.color)
+        #expect(palette.notDueFill == .kadoHairline)
     }
 
-    @Test("Tinted modes never draw a label in its own fill's colour")
-    func labelNeverMatchesItsFill() {
+    /// The `.partial` curve is the one arm that was physically moved
+    /// out of `HabitWidgetCell.background`, so it is the one most
+    /// exposed to a transcription slip.
+    @Test("Full colour keeps the habit hue and the 0.3 + 0.4p partial ramp")
+    func fullColourHabitFills() {
+        let palette = WidgetPalette(renderingMode: .fullColor)
+        for color in HabitColor.allCases {
+            #expect(palette.habitFill(color, status: .complete, progress: 1) == color.color)
+            #expect(palette.habitFill(color, status: .none, progress: 0) == .kadoHairline)
+            for (progress, expected) in [(0.0, 0.3), (0.5, 0.5), (1.0, 0.7)] {
+                #expect(
+                    palette.habitFill(color, status: .partial, progress: progress)
+                        == color.color.opacity(expected)
+                )
+            }
+        }
+    }
+
+    @Test("Full colour knocks the label out to white only once complete")
+    func fullColourGlyphAndLabel() {
+        let palette = WidgetPalette(renderingMode: .fullColor)
+        for color in HabitColor.allCases {
+            #expect(palette.glyphColor(color, status: .complete) == .white)
+            #expect(palette.labelColor(color, status: .complete) == .white)
+            for status in [WidgetStatus.none, .partial] {
+                #expect(palette.glyphColor(color, status: status) == color.color)
+                #expect(palette.labelColor(color, status: status) == .kadoForeground)
+            }
+        }
+    }
+
+    // MARK: - Tinted hierarchy is carried by alpha
+
+    /// The shipped bug, stated as a bound: a label drawn at the same
+    /// strength as the fill under it is invisible once the tint
+    /// removes the hue between them.
+    @Test("Tinted labels clear their own fill by a wide alpha margin")
+    func labelClearsItsFill() {
         for mode in tinted {
             let palette = WidgetPalette(renderingMode: mode)
             #expect(palette.isTinted)
             for color in HabitColor.allCases {
                 for status in everyStatus {
-                    let fill = palette.habitFill(color, status: status, progress: 0.5)
-                    let label = palette.onHabitFill(color, status: status)
-                    #expect(fill != label, "\(mode) / \(color) / \(status) flattens label into fill")
+                    for progress in [0.0, 0.5, 1.0] {
+                        let fill = opacity(of: palette.habitFill(color, status: status, progress: progress))
+                        let label = opacity(of: palette.labelColor(color, status: status))
+                        let glyph = opacity(of: palette.glyphColor(color, status: status))
+                        #expect(
+                            label - fill >= 0.5,
+                            "\(mode)/\(color)/\(status)@\(progress): label \(label) vs fill \(fill)"
+                        )
+                        #expect(glyph - fill >= 0.5)
+                    }
                 }
             }
-            #expect(palette.restingFill != palette.foreground)
-            #expect(palette.foreground != palette.foregroundSecondary)
         }
     }
 
@@ -53,7 +96,7 @@ struct WidgetPaletteTests {
             for status in everyStatus {
                 for progress in [0.0, 0.5, 1.0] {
                     let fill = palette.habitFill(.green, status: status, progress: progress)
-                    #expect(opacity(of: fill) < 0.75, "\(mode) / \(status) / \(progress) fill is too solid")
+                    #expect(opacity(of: fill) < 0.75, "\(mode)/\(status)/\(progress) fill is too solid")
                 }
             }
             #expect(opacity(of: palette.restingFill) < 0.75)
@@ -72,15 +115,47 @@ struct WidgetPaletteTests {
         }
     }
 
+    /// `.notDue` and a scheduled-but-unscored day are told apart by
+    /// hue in full colour and by alpha alone under the tint. The
+    /// scored ramp floors at 0.2, so the not-due wash has to clear it
+    /// downwards — pulled from `WidgetDayCell` rather than retyped, so
+    /// that moving the ramp fails this test.
+    @Test("Not-due sits clear of the scored ramp's floor under the tint")
+    func notDueClearsTheScoredFloor() throws {
+        let scoredFloor = try #require(WidgetDayCell.scored(0).colorOpacity)
+        #expect(scoredFloor == 0.2)
+        for mode in tinted {
+            let palette = WidgetPalette(renderingMode: mode)
+            let notDue = opacity(of: palette.notDueFill)
+            #expect(notDue < scoredFloor - 0.05, "\(mode): not-due \(notDue) vs scored floor \(scoredFloor)")
+        }
+    }
+
+    /// Secondary text is already dimmed once by landing in the
+    /// non-accented group; a heavy alpha on top of that dims it twice
+    /// and buries it.
+    @Test("Secondary text ranks below primary without being buried")
+    func secondaryTextIsRankedNotBuried() {
+        for mode in tinted {
+            let palette = WidgetPalette(renderingMode: mode)
+            let primary = opacity(of: palette.foreground)
+            let secondary = opacity(of: palette.foregroundSecondary)
+            #expect(secondary < primary)
+            #expect(secondary >= 0.7, "\(mode): secondary \(secondary) dims twice over")
+        }
+    }
+
     /// Out-of-range progress reaches the palette straight from the
-    /// snapshot, so clamp rather than trust it.
+    /// App Group JSON, so clamp rather than trust it.
     @Test("Progress outside 0...1 stays inside the fill's alpha band")
     func progressIsClamped() {
-        let palette = WidgetPalette(renderingMode: .accented)
-        let low = opacity(of: palette.habitFill(.green, status: .partial, progress: -3))
-        let high = opacity(of: palette.habitFill(.green, status: .partial, progress: 12))
-        #expect(low == opacity(of: palette.habitFill(.green, status: .partial, progress: 0)))
-        #expect(high == opacity(of: palette.habitFill(.green, status: .partial, progress: 1)))
+        for mode in [WidgetRenderingMode.fullColor, .accented] {
+            let palette = WidgetPalette(renderingMode: mode)
+            let low = palette.habitFill(.green, status: .partial, progress: -3)
+            let high = palette.habitFill(.green, status: .partial, progress: 12)
+            #expect(low == palette.habitFill(.green, status: .partial, progress: 0))
+            #expect(high == palette.habitFill(.green, status: .partial, progress: 1))
+        }
     }
 
     /// `.primary` bridges to a dynamic `UIColor`, which only yields
