@@ -50,7 +50,15 @@ struct KadoApp: App {
         #endif
         DevModeDefaults.migrateFromStandardIfNeeded()
         KadoFont.register()
-        let scheduler = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
+        // The scheduler's reminder copy quotes a streak, and a
+        // days-per-week streak is counted in calendar weeks — so it
+        // needs the user's week, not the region's. Read from
+        // `UserDefaults` rather than `@AppStorage`: `init` runs before
+        // any property wrapper is readable.
+        let scheduler = DefaultNotificationScheduler(
+            center: LiveUserNotificationCenter(),
+            calendar: WeekStartDefaults.calendar()
+        )
         _notificationScheduler = State(initialValue: scheduler)
         _notificationManager = State(initialValue: NotificationManager(scheduler: scheduler))
     }
@@ -101,6 +109,12 @@ struct KadoApp: App {
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
         .environment(\.calendar, weekCalendar)
+        // The one calculator that reads `firstWeekday`: a
+        // `.daysPerWeek` streak is counted in whole calendar weeks, so
+        // the week it counts has to be the week the calendar draws.
+        // The score and frequency evaluators answer `.daysPerWeek` over
+        // a rolling seven days and are unaffected.
+        .environment(\.streakCalculator, DefaultStreakCalculator(calendar: weekCalendar))
         .environment(\.today, boundary.startOfDay(for: clockMark))
         .environment(\.dayBoundary, boundary)
         .onChange(of: scenePhase) { _, newPhase in

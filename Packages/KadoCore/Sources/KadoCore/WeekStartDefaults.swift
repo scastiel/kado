@@ -46,11 +46,13 @@ public extension WeekStart {
 ///
 /// Mirrors ``DayStartDefaults``: stored in `UserDefaults` rather than
 /// on a `@Model` so the SwiftData — and therefore CloudKit Production
-/// — schema stays untouched, and in the App Group suite so an
-/// extension can read it without a second store. Being device-local
-/// is the right shape for a display preference: two devices
-/// disagreeing changes nothing about the data, only about which
-/// column Monday lands in.
+/// — schema stays untouched, and in the App Group suite so it sits
+/// beside the other preference keys rather than in a second store.
+/// Nothing outside the app process reads it today; the widget's
+/// snapshot is built in-app, where ``calendar(base:in:)`` resolves it.
+/// Being device-local is the right shape for a display preference: two
+/// devices disagreeing changes nothing about the data, only about
+/// which column Monday lands in.
 nonisolated public enum WeekStartDefaults {
     public static let key = "kado.weekStart"
 

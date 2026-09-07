@@ -60,6 +60,14 @@ struct WeekdayPicker: View {
     StatefulPreview(initial: [])
 }
 
+/// The state the previewing Mac never shows on its own: every preview
+/// above renders under `Calendar.current`, so on a Monday-first machine
+/// they are indistinguishable from the order this row used to hard-code.
+#Preview("Week starts on Sunday") {
+    StatefulPreview(initial: [.monday, .wednesday, .friday])
+        .environment(\.calendar, .sundayFirst)
+}
+
 #Preview("Dark") {
     StatefulPreview(initial: [.monday, .wednesday, .friday])
         .preferredColorScheme(.dark)

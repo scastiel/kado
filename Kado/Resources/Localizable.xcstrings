@@ -4179,19 +4179,19 @@
         }
       }
     },
-    "Sets the day the calendar on a habit's screen opens on, and the order of the day pickers. Automatic follows your region." : {
+    "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region." : {
       "comment" : "Footer under the week-start picker, saying what it changes.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sets the day the calendar on a habit's screen opens on, and the order of the day pickers. Automatic follows your region."
+            "value" : "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "D\u00e9termine le jour par lequel s'ouvre le calendrier d'une habitude, ainsi que l'ordre des s\u00e9lecteurs de jours. Automatique suit ta r\u00e9gion."
+            "value" : "Détermine où commence une semaine : le calendrier d'une habitude, l'ordre des sélecteurs de jours, et les jours qui comptent ensemble pour une habitude mesurée en jours par semaine. Automatique suit ta région."
           }
         }
       }

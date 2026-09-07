@@ -7,16 +7,10 @@ import KadoCore
 @Suite("Week-start presentation")
 @MainActor
 struct WeekStartPresentationTests {
-    private func calendar(firstWeekday: Int) -> Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.firstWeekday = firstWeekday
-        return calendar
-    }
-
     @Test("Every offerable option has a distinct, non-empty label")
     func labelsAreDistinct() {
         let labels = WeekStart.allCases.map {
-            WeekStartLabel.text(for: $0, localeCalendar: calendar(firstWeekday: 2))
+            WeekStartLabel.text(for: $0, localeCalendar: TestCalendar.utc(firstWeekday: 2))
         }
 
         #expect(labels.allSatisfy { !$0.isEmpty })
@@ -38,8 +32,8 @@ struct WeekStartPresentationTests {
     /// Monday.
     @Test("Automatic names the region's day")
     func automaticNamesTheRegionDay() {
-        let sunday = WeekStartLabel.text(for: .automatic, localeCalendar: calendar(firstWeekday: 1))
-        let monday = WeekStartLabel.text(for: .automatic, localeCalendar: calendar(firstWeekday: 2))
+        let sunday = WeekStartLabel.text(for: .automatic, localeCalendar: TestCalendar.utc(firstWeekday: 1))
+        let monday = WeekStartLabel.text(for: .automatic, localeCalendar: TestCalendar.utc(firstWeekday: 2))
 
         #expect(sunday.contains(Weekday.sunday.localizedFull))
         #expect(monday.contains(Weekday.monday.localizedFull))

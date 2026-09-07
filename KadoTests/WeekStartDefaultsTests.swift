@@ -14,12 +14,6 @@ struct WeekStartDefaultsTests {
         UserDefaults().removePersistentDomain(forName: name)
     }
 
-    private func calendar(firstWeekday: Int) -> Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.firstWeekday = firstWeekday
-        return calendar
-    }
-
     @Test("An unset key reads as automatic")
     func defaultsToAutomatic() {
         let (suite, name) = makeSuite()
@@ -54,13 +48,13 @@ struct WeekStartDefaultsTests {
     @Test("Automatic takes the region's first weekday, whatever it is")
     func automaticFollowsTheRegion() {
         for firstWeekday in 1...7 {
-            #expect(WeekStart.automatic.firstWeekday(in: calendar(firstWeekday: firstWeekday)) == firstWeekday)
+            #expect(WeekStart.automatic.firstWeekday(in: TestCalendar.utc(firstWeekday: firstWeekday)) == firstWeekday)
         }
     }
 
     @Test("A pinned day overrides the region")
     func pinnedDayOverridesTheRegion() {
-        let sundayRegion = calendar(firstWeekday: 1)
+        let sundayRegion = TestCalendar.utc(firstWeekday: 1)
 
         #expect(WeekStart.monday.firstWeekday(in: sundayRegion) == 2)
         #expect(WeekStart.saturday.firstWeekday(in: sundayRegion) == 7)
@@ -87,7 +81,7 @@ struct WeekStartDefaultsTests {
     func storedOptionDrivesTheCalendar() {
         let (suite, name) = makeSuite()
         defer { tearDown(name) }
-        let sundayRegion = calendar(firstWeekday: 1)
+        let sundayRegion = TestCalendar.utc(firstWeekday: 1)
 
         #expect(WeekStartDefaults.calendar(base: sundayRegion, in: suite).firstWeekday == 1)
 

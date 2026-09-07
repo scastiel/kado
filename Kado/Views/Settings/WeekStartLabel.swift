@@ -13,8 +13,11 @@ import KadoCore
 enum WeekStartLabel {
     static func text(for weekStart: WeekStart, localeCalendar: Calendar = .current) -> String {
         guard let weekday = weekStart.weekday else {
-            let region = Weekday(rawValue: localeCalendar.firstWeekday)?.localizedFull ?? ""
-            return String(localized: "Automatic (\(region))")
+            // Through `Weekday.week(startingOn:)` rather than
+            // `Weekday(rawValue:)`, so a `firstWeekday` outside 1...7
+            // folds into a real day instead of rendering "Automatic ()".
+            let region = Weekday.week(startingOn: localeCalendar.firstWeekday)[0]
+            return String(localized: "Automatic (\(region.localizedFull))")
         }
         return weekday.localizedFull
     }

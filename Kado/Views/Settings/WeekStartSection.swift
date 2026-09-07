@@ -11,8 +11,14 @@ import KadoCore
 /// the picker is for people whose habit of reading a week disagrees
 /// with their region's.
 ///
-/// Purely a display preference: no completion, score, or streak is
-/// computed per week, so changing it moves columns and nothing else.
+/// Not purely cosmetic, though it looks it: a `.daysPerWeek` streak is
+/// counted in whole calendar weeks, so this decides which days fall in
+/// the same week as each other. `KadoApp` hands the resolved calendar
+/// to `DefaultStreakCalculator` for exactly that reason — a streak
+/// counting Sunday-to-Saturday under a Monday-first grid would break
+/// where the grid says it shouldn't. Everything else about a habit —
+/// the score, whether it's due — answers `.daysPerWeek` over a rolling
+/// seven days and doesn't care where a week begins.
 struct WeekStartSection: View {
     @AppStorage(WeekStartDefaults.key, store: WeekStartDefaults.sharedDefaults)
     private var weekStart: WeekStart = WeekStartDefaults.defaultValue
@@ -39,10 +45,11 @@ private struct WeekStartPicker: View {
                         .tag(option)
                 }
             }
+            .accessibilityIdentifier(AccessibilityID.Settings.weekStartPicker)
         } header: {
             Text("Week")
         } footer: {
-            Text("Sets the day the calendar on a habit's screen opens on, and the order of the day pickers. Automatic follows your region.")
+            Text("Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region.")
                 .fixedSize(horizontal: false, vertical: true)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)

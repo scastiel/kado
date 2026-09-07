@@ -168,8 +168,15 @@ public enum WidgetSnapshotBuilder {
     /// mutation site.
     public static func rebuildAndWrite(using context: ModelContext) {
         // Widgets render a pre-computed snapshot and never ask what day
-        // it is, so the day boundary has to be resolved here, once.
-        let snapshot = build(from: context, asOf: DayStartDefaults.boundary().startOfDay(for: .now))
+        // it is — nor which day a week opens on — so both preferences
+        // have to be resolved here, once. The week start reaches the
+        // streak calculator, whose `.daysPerWeek` count is bucketed
+        // into whole calendar weeks.
+        let snapshot = build(
+            from: context,
+            asOf: DayStartDefaults.boundary().startOfDay(for: .now),
+            calendar: WeekStartDefaults.calendar()
+        )
         WidgetSnapshotStore.write(snapshot)
     }
 

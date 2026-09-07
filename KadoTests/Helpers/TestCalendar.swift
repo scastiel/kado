@@ -28,6 +28,17 @@ enum TestCalendar {
         utc.date(byAdding: .day, value: offset, to: referenceDate)!
     }
 
+    /// UTC and Gregorian like ``utc``, but opening the week on
+    /// `firstWeekday` (a `Calendar.firstWeekday` value, 1 = Sunday).
+    /// For anything whose answer depends on where a week begins —
+    /// the week-start preference, and `.daysPerWeek` streaks, which
+    /// are bucketed into whole calendar weeks.
+    static func utc(firstWeekday: Int) -> Calendar {
+        var cal = utc
+        cal.firstWeekday = firstWeekday
+        return cal
+    }
+
     /// Europe/Paris — the DST-crossing zone used whenever day
     /// arithmetic has to survive a spring-forward or fall-back.
     /// 2026 transitions: **2026-03-29** (02:00 → 03:00, the day is 23
