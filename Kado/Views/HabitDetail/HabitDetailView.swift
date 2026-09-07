@@ -401,7 +401,7 @@ struct HabitDetailView: View {
         case .daysPerWeek(let n):
             return String(localized: "\(n) days per week")
         case .specificDays(let days):
-            let ordered: [Weekday] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+            let ordered = Weekday.week(startingOn: calendar.firstWeekday)
             let labels = ordered.filter(days.contains).map(\.localizedMedium)
             return labels.joined(separator: " · ")
         case .everyNDays(let n):

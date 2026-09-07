@@ -123,5 +123,9 @@ enum AccessibilityID {
         /// alert. A test that launches with the flag already confirmed
         /// never sees it.
         static let devModeConfirmButton = "settings.devMode.confirm"
+        /// Addressed by identifier rather than by label, which reads
+        /// "Week starts on" on one simulator and "La semaine commence
+        /// le" on the other.
+        static let weekStartPicker = "settings.weekStart.picker"
     }
 }

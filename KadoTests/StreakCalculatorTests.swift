@@ -233,6 +233,31 @@ struct StreakCalculatorTests {
         #expect(calc.best(for: h, completions: completions, asOf: asOf) == 1)
     }
 
+    /// The week start is not only a layout choice: a `.daysPerWeek`
+    /// streak is counted in whole calendar weeks, so moving where the
+    /// week begins moves which completions fall inside the same one.
+    /// A Saturday and the Sunday after it are one week's work under a
+    /// Monday-first calendar and two separate half-weeks under a
+    /// Sunday-first one — which is why `KadoApp` hands the user's
+    /// chosen calendar to this calculator and not just to the views.
+    @Test(".daysPerWeek streaks follow the calendar's first weekday")
+    func daysPerWeekFollowsFirstWeekday() {
+        let h = habit(frequency: .daysPerWeek(2), createdAtOffset: -30)
+        let completions = [
+            completion(for: h, dayOffset: -2), // Sat Apr 11
+            completion(for: h, dayOffset: -1), // Sun Apr 12
+        ]
+
+        let sundayFirst = DefaultStreakCalculator(calendar: TestCalendar.utc(firstWeekday: 1))
+        let mondayFirst = DefaultStreakCalculator(calendar: TestCalendar.utc(firstWeekday: 2))
+
+        // Sunday-first: the two completions straddle Apr 11/12, so the
+        // week before the current one holds just one and breaks the run.
+        #expect(sundayFirst.current(for: h, completions: completions, asOf: asOf) == 1)
+        // Monday-first: both fall inside Apr 6-12, which qualifies.
+        #expect(mondayFirst.current(for: h, completions: completions, asOf: asOf) == 2)
+    }
+
     // MARK: - Negative habits
 
     @Test("Negative habit streak counts days without completion")

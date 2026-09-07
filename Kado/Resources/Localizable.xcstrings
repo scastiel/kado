@@ -4161,6 +4161,74 @@
           }
         }
       }
+    },
+    "Automatic (%@)" : {
+      "comment" : "Week-start picker option that follows the region. %@ is the resolved day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatique (%@)"
+          }
+        }
+      }
+    },
+    "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region." : {
+      "comment" : "Footer under the week-start picker, saying what it changes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détermine où commence une semaine : le calendrier d'une habitude, l'ordre des sélecteurs de jours, et les jours qui comptent ensemble pour une habitude mesurée en jours par semaine. Automatique suit ta région."
+          }
+        }
+      }
+    },
+    "Week" : {
+      "comment" : "Settings section header above the week-start picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semaine"
+          }
+        }
+      }
+    },
+    "Week starts on" : {
+      "comment" : "Settings picker label: the day a week starts on.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week starts on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La semaine commence le"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

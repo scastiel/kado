@@ -7,6 +7,8 @@ struct KadoApp: App {
     @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
     @AppStorage(DayStartDefaults.key, store: DayStartDefaults.sharedDefaults)
     private var dayStartHour = DayStartDefaults.defaultHour
+    @AppStorage(WeekStartDefaults.key, store: WeekStartDefaults.sharedDefaults)
+    private var weekStart: WeekStart = WeekStartDefaults.defaultValue
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
@@ -21,10 +23,23 @@ struct KadoApp: App {
     /// immediately without needing its own invalidation path.
     @State private var clockMark: Date = .now
 
+    /// `Calendar.current` with the user's "Week starts on" choice
+    /// applied, injected as `\.calendar` at the root.
+    ///
+    /// The preference travels as a calendar rather than as a setting
+    /// of its own because `Calendar` already models it: a view asking
+    /// `calendar.firstWeekday` gets the region's answer by default and
+    /// the user's the moment they override it, with nothing to wire up
+    /// per view. The day boundary is built on the same calendar so the
+    /// app has one, not two that agree by accident.
+    private var weekCalendar: Calendar {
+        weekStart.calendar()
+    }
+
     /// Rebuilt on every `body` evaluation, so it always reflects the
     /// live `dayStartHour`.
     private var dayBoundary: DayBoundary {
-        DayBoundary(calendar: .current, startHour: DayStartDefaults.clamp(dayStartHour))
+        DayBoundary(calendar: weekCalendar, startHour: DayStartDefaults.clamp(dayStartHour))
     }
 
     init() {
@@ -35,7 +50,15 @@ struct KadoApp: App {
         #endif
         DevModeDefaults.migrateFromStandardIfNeeded()
         KadoFont.register()
-        let scheduler = DefaultNotificationScheduler(center: LiveUserNotificationCenter())
+        // The scheduler's reminder copy quotes a streak, and a
+        // days-per-week streak is counted in calendar weeks — so it
+        // needs the user's week, not the region's. Read from
+        // `UserDefaults` rather than `@AppStorage`: `init` runs before
+        // any property wrapper is readable.
+        let scheduler = DefaultNotificationScheduler(
+            center: LiveUserNotificationCenter(),
+            calendar: WeekStartDefaults.calendar()
+        )
         _notificationScheduler = State(initialValue: scheduler)
         _notificationManager = State(initialValue: NotificationManager(scheduler: scheduler))
     }
@@ -85,6 +108,13 @@ struct KadoApp: App {
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
+        .environment(\.calendar, weekCalendar)
+        // The one calculator that reads `firstWeekday`: a
+        // `.daysPerWeek` streak is counted in whole calendar weeks, so
+        // the week it counts has to be the week the calendar draws.
+        // The score and frequency evaluators answer `.daysPerWeek` over
+        // a rolling seven days and are unaffected.
+        .environment(\.streakCalculator, DefaultStreakCalculator(calendar: weekCalendar))
         .environment(\.today, boundary.startOfDay(for: clockMark))
         .environment(\.dayBoundary, boundary)
         .onChange(of: scenePhase) { _, newPhase in

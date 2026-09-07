@@ -1,18 +1,23 @@
 import SwiftUI
 import KadoCore
 
-/// Horizontal row of 7 toggleable capsules, Monday through Sunday.
+/// Horizontal row of 7 toggleable capsules, one week's worth.
 /// Each capsule toggles membership in the bound set.
+///
+/// Laid out from the injected calendar's `firstWeekday` (Settings →
+/// Week), so the row reads in the same direction as the calendar grid
+/// on a habit's screen.
 struct WeekdayPicker: View {
     @Binding var selection: Set<Weekday>
+    @Environment(\.calendar) private var calendar
 
-    private static let displayOrder: [Weekday] = [
-        .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday
-    ]
+    private var displayOrder: [Weekday] {
+        Weekday.week(startingOn: calendar.firstWeekday)
+    }
 
     var body: some View {
         HStack(spacing: 6) {
-            ForEach(Self.displayOrder, id: \.self) { day in
+            ForEach(displayOrder, id: \.self) { day in
                 capsule(for: day)
             }
         }
@@ -53,6 +58,14 @@ struct WeekdayPicker: View {
 
 #Preview("Empty") {
     StatefulPreview(initial: [])
+}
+
+/// The state the previewing Mac never shows on its own: every preview
+/// above renders under `Calendar.current`, so on a Monday-first machine
+/// they are indistinguishable from the order this row used to hard-code.
+#Preview("Week starts on Sunday") {
+    StatefulPreview(initial: [.monday, .wednesday, .friday])
+        .environment(\.calendar, .sundayFirst)
 }
 
 #Preview("Dark") {

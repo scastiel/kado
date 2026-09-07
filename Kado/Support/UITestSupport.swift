@@ -99,6 +99,13 @@ nonisolated enum UITestSupport {
             flag(Argument.devModeConfirmed, in: arguments),
             forKey: DevModeDefaults.hasConfirmedKey
         )
+        // Cleared for the same reason, and to nothing rather than to a
+        // value: absent means "follow the region", which is what pins a
+        // screenshot run's calendar to the language it was launched in.
+        // `Scripts/screenshots.sh` reuses its simulator between runs,
+        // so a week start set by hand once would otherwise reorder
+        // every capture taken after it.
+        WeekStartDefaults.sharedDefaults.removeObject(forKey: WeekStartDefaults.key)
         applyTipNudgeState(arguments)
     }
 
