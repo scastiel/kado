@@ -25,13 +25,21 @@ struct WeeklyGridLargeWidget: Widget {
 struct WeeklyGridLargeView: View {
     let entry: SnapshotEntry
 
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     private let rowLimit = 6
     private static let cellSpacing: CGFloat = 4
+
+    private var palette: WidgetPalette {
+        WidgetPalette(renderingMode: renderingMode)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("This week")
                 .font(.headline)
+                .foregroundStyle(palette.foreground)
+                .widgetAccentable()
             if entry.snapshot.matrix.isEmpty {
                 emptyPlaceholder
             } else {
@@ -57,7 +65,7 @@ struct WeeklyGridLargeView: View {
                 ForEach(entry.snapshot.matrixDays, id: \.self) { day in
                     Text(weekdayLabel(for: day))
                         .font(.caption2.monospaced())
-                        .foregroundStyle(isToday(day) ? Color.kadoForeground : Color.kadoForegroundSecondary)
+                        .foregroundStyle(isToday(day) ? palette.foreground : palette.foregroundSecondary)
                         .frame(width: cellWidth)
                 }
             }
@@ -83,7 +91,9 @@ struct WeeklyGridLargeView: View {
                 Text(row.habit.name)
                     .font(.caption.weight(.medium))
                     .lineLimit(1)
+                    .foregroundStyle(palette.foreground)
             }
+            .widgetAccentable()
             cellStripe(for: row)
         }
     }
@@ -114,12 +124,13 @@ struct WeeklyGridLargeView: View {
         VStack(spacing: 6) {
             Image(systemName: "square.grid.3x3")
                 .font(.title2)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
             Text("No habits yet")
                 .font(.caption)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetAccentable()
     }
 
     /// Taken from the snapshot rather than the clock. The app builds
@@ -148,6 +159,12 @@ struct WidgetMatrixCell: View {
     let color: HabitColor
     let size: CGFloat
 
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
+    private var palette: WidgetPalette {
+        WidgetPalette(renderingMode: renderingMode)
+    }
+
     var body: some View {
         RoundedRectangle(cornerRadius: 4, style: .continuous)
             .fill(fill)
@@ -166,10 +183,16 @@ struct WidgetMatrixCell: View {
             .frame(height: size)
     }
 
+    /// `.scored` / `.offSchedule` already carry their own alpha, so
+    /// they survive the tint untouched. `.notDue` is the one opaque
+    /// fill here, and an opaque fill is exactly what gets flattened
+    /// into a solid block under Tinted / Clear — route it through the
+    /// palette, which keeps it under the scored ramp's 0.2 floor so
+    /// "never due" stays tellable from "due and missed".
     private var fill: Color {
         switch cell {
         case .future: Color.clear
-        case .notDue: Color.kadoHairline
+        case .notDue: palette.notDueFill
         case .scored: color.color.opacity(cell.colorOpacity ?? 0)
         case .offSchedule: color.color.opacity(cell.offScheduleFillOpacity ?? 0)
         }

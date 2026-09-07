@@ -352,6 +352,58 @@ repo. Guard against that with an explicit
   Pattern: `TipJarView.tierButton` sets `purchasingTier` in the action,
   not inside `tip(_:)`, to block a double-tap double-purchase.
 
+### Widget colours
+
+**A widget does not get to keep its palette.** Under the Home
+Screen's Tinted and Clear appearances WidgetKit renders in
+`.accented`: it drops your `containerBackground` for its own glass
+and re-tints every *opaque* pixel with one system colour, preserving
+only alpha. Two colours you chose for their contrast — ink on paper,
+a white label on a saturated fill — arrive as the same colour, and
+the text disappears. Kadō shipped exactly that: the "Today" and
+"This week" headlines were invisible on Clear, because a headline is
+the one piece of text with no fill of its own to sit on. Rules:
+
+- **Hierarchy comes from alpha, not hue.** Route *content* colours —
+  text, glyphs, and the fills they sit on — through `WidgetPalette`
+  (`Packages/KadoCore/.../Design/WidgetPalette.swift`), which returns
+  the paper / ink palette in `.fullColor` and alpha-separated
+  `.primary` in `.accented` / `.vibrant`. Two things stay outside it,
+  both deliberately: the `containerBackground`, which takes
+  `Color.kadoBackgroundSecondary` straight because the system drops it
+  wholesale in `.accented`; and a habit's own hue on a shape that
+  already carries alpha (the weekly matrix's scored cells), which
+  survives the tint untouched.
+- **A fill that text sits on must stay translucent.** An opaque fill
+  becomes a solid tint block, and the equally opaque label on it
+  vanishes. `WidgetPaletteTests` pins this in alpha, not in `Color`
+  identity — two distinct `Color`s prove nothing once hue is
+  discarded: every label clears its own fill by ≥0.5 alpha, no tinted
+  fill exceeds 0.75, and the not-due wash stays clear of the scored
+  ramp's 0.2 floor so "never due" is still tellable from "due and
+  missed".
+- **Dimming is cumulative — don't pay for it twice.** Content outside
+  the accent group is *already* rendered dimmer by the system, so a
+  heavy alpha on top of that buries it. Kadō's first cut dropped
+  secondary text to 0.6 and made the small widget's empty state
+  fainter than it had been before the fix. Rank secondary text with a
+  light touch (0.75), and mark a tile whose only content is an empty
+  state `.widgetAccentable()` so it isn't dimmed at all.
+- **Mark the content that must read first `.widgetAccentable()`** —
+  never where it encloses the background, or the fill joins the accent
+  group too and you are back to one flat colour. Nothing accentable
+  means everything lands in the dimmed default group. Note this is a
+  rule about the *modifier chain*, not just about which view you put
+  it on: `HabitWidgetCell` applies it to an `HStack` and stays correct
+  only because `.background` comes after it. Folding the background up
+  into that `HStack` reintroduces the bug with every test still green.
+- `test_sim` cannot see any of this: the flattening happens in
+  WidgetKit's render server, not in SwiftUI, so previews in
+  `.fullColor` and the unit suite both pass on a widget that is
+  unreadable on the Home Screen. Verify by hand — long-press the Home
+  Screen → **Edit** → **Customize** → **Clear** (and **Tinted**), in
+  both Light and Dark.
+
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with
   `@Relationship(deleteRule:inverse:)`.

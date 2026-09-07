@@ -40,16 +40,25 @@ struct TodayGridSmallView: View {
 }
 
 struct TodayEmptyPlaceholder: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     var body: some View {
+        let palette = WidgetPalette(renderingMode: renderingMode)
         VStack(spacing: 6) {
             Image(systemName: "checkmark.circle")
                 .font(.title2)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
             Text("All done")
                 .font(.caption)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // The only content on the tile, so it belongs in the accent
+        // group. Without this the whole widget falls into the dimmed
+        // default group and the caption's own alpha dims it a second
+        // time — leaving the empty state fainter than it was before
+        // any of this.
+        .widgetAccentable()
     }
 }
 

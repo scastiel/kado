@@ -12,8 +12,20 @@ import KadoCore
 /// can't safely open SwiftData, the intent is configured to open
 /// the main app, which performs the toggle. Counter and timer
 /// rows render plain and fall through to the widget's `widgetURL`.
+///
+/// Colours go through `WidgetPalette` rather than reaching for paper
+/// and ink directly: under the Home Screen's Tinted and Clear
+/// appearances the system re-tints every opaque pixel with a single
+/// colour, which would otherwise flatten a completed row's white
+/// label into the block behind it.
 struct HabitWidgetCell: View {
     let row: WidgetTodayRow
+
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
+    private var palette: WidgetPalette {
+        WidgetPalette(renderingMode: renderingMode)
+    }
 
     var body: some View {
         switch row.habit.typeKind {
@@ -32,16 +44,23 @@ struct HabitWidgetCell: View {
             Image(systemName: row.habit.icon)
                 .font(.caption)
                 .frame(width: 18)
-                .foregroundStyle(isComplete ? Color.white : row.habit.color.color)
+                .foregroundStyle(palette.glyphColor(row.habit.color, status: row.status))
             Text(row.habit.name)
                 .font(.caption)
                 .lineLimit(1)
-                .foregroundStyle(isComplete ? Color.white : Color.kadoForeground)
+                .foregroundStyle(palette.labelColor(row.habit.color, status: row.status))
             Spacer(minLength: 4)
             indicator
                 .font(.caption2)
-                .foregroundStyle(isComplete ? Color.white : row.habit.color.color)
+                .foregroundStyle(palette.glyphColor(row.habit.color, status: row.status))
         }
+        // Order matters, and is load-bearing: `.widgetAccentable()`
+        // must stay *above* `.background`, so the fill is added
+        // outside the accentable subtree. Fold the background up into
+        // the `HStack` and the fill joins the accent group alongside
+        // the label — both render as one flat tint under Clear and the
+        // text disappears again, with every test still green.
+        .widgetAccentable()
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background {
@@ -58,14 +77,7 @@ struct HabitWidgetCell: View {
     }
 
     private var background: Color {
-        switch row.status {
-        case .complete:
-            return row.habit.color.color
-        case .partial:
-            return row.habit.color.color.opacity(0.3 + row.progress * 0.4)
-        case .none:
-            return Color.kadoHairline
-        }
+        palette.habitFill(row.habit.color, status: row.status, progress: row.progress)
     }
 
     @ViewBuilder
