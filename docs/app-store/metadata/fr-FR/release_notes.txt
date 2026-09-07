@@ -1,5 +1,4 @@
-Version 1.7 — Sauvegardes compatibles tableur et « tous les N jours » plus juste.
+Version 1.8 — Des semaines qui commencent où tu les commences, et des widgets qui restent lisibles.
 
-• Exporte et importe tes données en CSV aussi bien qu'en JSON. Ouvre une sauvegarde dans Numbers ou Excel, modifie-la, réimporte-la — l'aller-retour ne perd rien, notes comprises. Le format se choisit dans Réglages → Données.
-• Les habitudes réglées sur « tous les N jours » se comptent désormais à partir du dernier jour où tu l'as vraiment faite, et non sur une grille fixe. La faire en avance ne marque plus le jour suivant comme manqué, et les jours faits en avance comptent maintenant dans ton score et dans ta série.
-• Correction d'un plantage qui pouvait survenir en activant ou désactivant le mode développeur alors que des habitudes étaient affichées.
+• Les calendriers et les grilles de semaine commencent maintenant le jour où ta région commence la sienne — le dimanche dans les Amériques et une bonne partie de l'Asie, le lundi en Europe — au lieu de toujours démarrer un lundi. Kadō suit le premier jour de la semaine que tu as choisi dans les Réglages d'iOS, et Réglages → Semaine te laisse décider toi-même. Les séries des habitudes « jours par semaine » se comptent sur la semaine que tu as sous les yeux.
+• Les widgets de l'écran d'accueil restent lisibles avec les apparences Claire et Teintée. Les titres « Aujourd'hui » et « Cette semaine » disparaissaient dans la tuile dès qu'iOS reteintait le widget.
