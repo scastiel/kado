@@ -637,6 +637,43 @@ invisible to users.
 >   désactivant le mode développeur alors que des habitudes étaient
 >   affichées.
 
+### What's New — 1.8
+
+Drawn from the two user-visible commits since the 1.7 build: #74 (the
+week starts where the region starts it, and a days-per-week streak is
+counted in the week the user sees) and #73 (widget text under the Clear
+and Tinted appearances). #69 and #72 landed in the same range and are
+tooling and documentation — invisible from the App Store.
+
+> Version 1.8 — Weeks that start where you do, and widgets that stay
+> readable.
+>
+> • Calendars and week grids now start on the day your region starts
+>   its week — Sunday across the Americas and much of Asia, Monday
+>   across Europe — instead of always Monday. Kadō follows the First
+>   Day of Week you have set in iOS Settings if you have set one, and
+>   Settings → Week lets you choose for yourself. Streaks for "days per
+>   week" habits are counted over the same week you are looking at.
+> • Home Screen widgets stay readable under the Clear and Tinted
+>   appearances. The "Today" and "This week" headlines used to
+>   disappear into the tile once iOS re-tinted the widget.
+
+> Version 1.8 — Des semaines qui commencent où tu les commences, et des
+> widgets qui restent lisibles.
+>
+> • Les calendriers et les grilles de semaine commencent maintenant le
+>   jour où ta région commence la sienne — le dimanche dans les
+>   Amériques et une bonne partie de l'Asie, le lundi en Europe — au
+>   lieu de toujours démarrer un lundi. Kadō suit le premier jour de la
+>   semaine que tu as choisi dans les Réglages d'iOS, et Réglages →
+>   Semaine te laisse décider toi-même. Les séries des habitudes
+>   « jours par semaine » se comptent sur la semaine que tu as sous les
+>   yeux.
+> • Les widgets de l'écran d'accueil restent lisibles avec les
+>   apparences Claire et Teintée. Les titres « Aujourd'hui » et
+>   « Cette semaine » disparaissaient dans la tuile dès qu'iOS
+>   reteintait le widget.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
