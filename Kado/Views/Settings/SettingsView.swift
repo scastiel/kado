@@ -14,6 +14,7 @@ struct SettingsView: View {
             Form {
                 SyncStatusSection()
                 DayStartSection()
+                WeekStartSection()
                 NotificationsSection()
                 BackupSection()
                 SupportSection()

@@ -7,6 +7,8 @@ struct KadoApp: App {
     @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
     @AppStorage(DayStartDefaults.key, store: DayStartDefaults.sharedDefaults)
     private var dayStartHour = DayStartDefaults.defaultHour
+    @AppStorage(WeekStartDefaults.key, store: WeekStartDefaults.sharedDefaults)
+    private var weekStart: WeekStart = WeekStartDefaults.defaultValue
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
@@ -21,10 +23,23 @@ struct KadoApp: App {
     /// immediately without needing its own invalidation path.
     @State private var clockMark: Date = .now
 
+    /// `Calendar.current` with the user's "Week starts on" choice
+    /// applied, injected as `\.calendar` at the root.
+    ///
+    /// The preference travels as a calendar rather than as a setting
+    /// of its own because `Calendar` already models it: a view asking
+    /// `calendar.firstWeekday` gets the region's answer by default and
+    /// the user's the moment they override it, with nothing to wire up
+    /// per view. The day boundary is built on the same calendar so the
+    /// app has one, not two that agree by accident.
+    private var weekCalendar: Calendar {
+        weekStart.calendar()
+    }
+
     /// Rebuilt on every `body` evaluation, so it always reflects the
     /// live `dayStartHour`.
     private var dayBoundary: DayBoundary {
-        DayBoundary(calendar: .current, startHour: DayStartDefaults.clamp(dayStartHour))
+        DayBoundary(calendar: weekCalendar, startHour: DayStartDefaults.clamp(dayStartHour))
     }
 
     init() {
@@ -85,6 +100,7 @@ struct KadoApp: App {
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
+        .environment(\.calendar, weekCalendar)
         .environment(\.today, boundary.startOfDay(for: clockMark))
         .environment(\.dayBoundary, boundary)
         .onChange(of: scenePhase) { _, newPhase in

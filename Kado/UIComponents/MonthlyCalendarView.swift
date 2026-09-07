@@ -5,6 +5,9 @@ import KadoCore
 /// Renders as a 7-column `LazyVGrid` with weekday headers and
 /// leading blanks that align the first day of the month to its
 /// weekday column.
+///
+/// Which day opens the week comes from the injected calendar's
+/// `firstWeekday`, which `KadoApp` derives from Settings → Week.
 struct MonthlyCalendarView<PopoverContent: View>: View {
     let habit: Habit
     let completions: [Completion]
@@ -145,15 +148,17 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         }
     }
 
+    /// Blank cells before the 1st, so it lands under its own weekday
+    /// header. Follows `calendar.firstWeekday` — the region's day by
+    /// default, the user's once they set "Week starts on" — rather
+    /// than the Monday this used to hard-code.
     private var leadingBlanks: Int {
-        let firstWeekday = calendar.component(.weekday, from: monthStart)
-        // Shift so Monday (2) becomes column 0, Tuesday column 1, ..., Sunday column 6.
-        let monStart = (firstWeekday + 5) % 7
-        return monStart
+        let weekday = calendar.component(.weekday, from: monthStart)
+        return Weekday(rawValue: weekday)?.column(inWeekStartingOn: calendar.firstWeekday) ?? 0
     }
 
     private var weekdayDisplayOrder: [Weekday] {
-        [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+        Weekday.week(startingOn: calendar.firstWeekday)
     }
 
     @ViewBuilder

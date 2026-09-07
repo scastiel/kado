@@ -12,6 +12,7 @@ struct NewHabitFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.notificationScheduler) private var notificationScheduler
     @Environment(\.dayBoundary) private var dayBoundary
+    @Environment(\.calendar) private var calendar
 
     @FocusState private var nameFocused: Bool
     @State private var saveTick: Int = 0
@@ -169,7 +170,7 @@ struct NewHabitFormView: View {
         case .daysPerWeek(let n):
             return String(localized: "\(n) days each week")
         case .specificDays(let days):
-            let ordered: [Weekday] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+            let ordered = Weekday.week(startingOn: calendar.firstWeekday)
             return ordered.filter(days.contains).map(\.localizedMedium).joined(separator: " · ")
         case .everyNDays(let n):
             return String(localized: "every \(n) days")

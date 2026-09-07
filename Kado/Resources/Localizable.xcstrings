@@ -4161,6 +4161,74 @@
           }
         }
       }
+    },
+    "Automatic (%@)" : {
+      "comment" : "Week-start picker option that follows the region. %@ is the resolved day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatique (%@)"
+          }
+        }
+      }
+    },
+    "Sets the day the calendar on a habit's screen opens on, and the order of the day pickers. Automatic follows your region." : {
+      "comment" : "Footer under the week-start picker, saying what it changes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sets the day the calendar on a habit's screen opens on, and the order of the day pickers. Automatic follows your region."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D\u00e9termine le jour par lequel s'ouvre le calendrier d'une habitude, ainsi que l'ordre des s\u00e9lecteurs de jours. Automatique suit ta r\u00e9gion."
+          }
+        }
+      }
+    },
+    "Week" : {
+      "comment" : "Settings section header above the week-start picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semaine"
+          }
+        }
+      }
+    },
+    "Week starts on" : {
+      "comment" : "Settings picker label: the day a week starts on.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week starts on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La semaine commence le"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
