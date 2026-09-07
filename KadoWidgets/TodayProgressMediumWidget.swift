@@ -22,7 +22,13 @@ struct TodayProgressMediumWidget: Widget {
 struct TodayProgressMediumView: View {
     let entry: SnapshotEntry
 
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     private let limit = 8
+
+    private var palette: WidgetPalette {
+        WidgetPalette(renderingMode: renderingMode)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -40,6 +46,8 @@ struct TodayProgressMediumView: View {
         HStack {
             Text("Today")
                 .font(.headline)
+                .foregroundStyle(palette.foreground)
+                .widgetAccentable()
             Spacer()
             Text(
                 String(
@@ -48,7 +56,7 @@ struct TodayProgressMediumView: View {
                 )
             )
             .font(.caption.monospacedDigit())
-            .foregroundStyle(Color.kadoForegroundSecondary)
+            .foregroundStyle(palette.foregroundSecondary)
         }
     }
 

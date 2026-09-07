@@ -40,14 +40,17 @@ struct TodayGridSmallView: View {
 }
 
 struct TodayEmptyPlaceholder: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     var body: some View {
+        let palette = WidgetPalette(renderingMode: renderingMode)
         VStack(spacing: 6) {
             Image(systemName: "checkmark.circle")
                 .font(.title2)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
             Text("All done")
                 .font(.caption)
-                .foregroundStyle(Color.kadoForegroundSecondary)
+                .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

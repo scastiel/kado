@@ -352,6 +352,39 @@ repo. Guard against that with an explicit
   Pattern: `TipJarView.tierButton` sets `purchasingTier` in the action,
   not inside `tip(_:)`, to block a double-tap double-purchase.
 
+### Widget colours
+
+**A widget does not get to keep its palette.** Under the Home
+Screen's Tinted and Clear appearances WidgetKit renders in
+`.accented`: it drops your `containerBackground` for its own glass
+and re-tints every *opaque* pixel with one system colour, preserving
+only alpha. Two colours you chose for their contrast — ink on paper,
+a white label on a saturated fill — arrive as the same colour, and
+the text disappears. Kadō shipped exactly that: the "Today" and
+"This week" headlines were invisible on Clear, because a headline is
+the one piece of text with no fill of its own to sit on. Rules:
+
+- **Hierarchy comes from alpha, not hue.** Route every colour through
+  `WidgetPalette` (`Packages/KadoCore/.../Design/WidgetPalette.swift`),
+  which returns the paper / ink palette in `.fullColor` and
+  alpha-separated `.primary` in `.accented` / `.vibrant`. Never hand a
+  home widget a `Color.kado*` or a `Color.white` directly.
+- **A fill that text sits on must stay translucent.** An opaque fill
+  becomes a solid tint block, and the equally opaque label on it
+  vanishes. `WidgetPaletteTests` pins this: no label ever resolves to
+  its own fill's colour, and no tinted fill exceeds 0.75 alpha.
+- **Mark the content that must read first `.widgetAccentable()`** — on
+  the leaf text and glyphs, never on a container that also encloses
+  the background, or the fill joins the accent group too and you are
+  back to one flat colour. Nothing accentable means everything lands
+  in the dimmed default group.
+- `test_sim` cannot see any of this: the flattening happens in
+  WidgetKit's render server, not in SwiftUI, so previews in
+  `.fullColor` and the unit suite both pass on a widget that is
+  unreadable on the Home Screen. Verify by hand — long-press the Home
+  Screen → **Edit** → **Customize** → **Clear** (and **Tinted**), in
+  both Light and Dark.
+
 ### SwiftData
 - One `@Model` per persistent type, explicit relationships with
   `@Relationship(deleteRule:inverse:)`.
