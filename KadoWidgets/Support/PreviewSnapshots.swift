@@ -115,6 +115,13 @@ enum PreviewSnapshots {
         let names = ["Meditate", "Read", "Water", "Focus", "Workout", "Stretch", "Journal"]
         let icons = ["leaf.fill", "book.fill", "drop.fill", "timer", "dumbbell.fill", "figure.cooldown", "square.and.pencil"]
 
+        // Streaks and scores the large widget renders beside each row.
+        // Two rows sit at zero on purpose — the chip drops the flame
+        // there, and that arm needs eyes on it too — and one is
+        // three-digit, so the widest chip is in the picture.
+        let streaks = [12, 5, 0, 31, 0, 128, 3]
+        let scores = [0.92, 0.78, 0.41, 0.86, 0.12, 1.0, 0.55]
+
         let rows: [WidgetMatrixRow] = zip(zip(names, icons), colors).enumerated().map { index, pair in
             let ((name, icon), color) = pair
             let habit = WidgetHabit(
@@ -123,7 +130,10 @@ enum PreviewSnapshots {
                 color: color,
                 icon: icon,
                 typeKind: .binary,
-                target: nil
+                target: nil,
+                currentStreak: streaks[index],
+                bestStreak: streaks[index],
+                currentScore: scores[index]
             )
             let cells: [WidgetDayCell] = days.enumerated().map { dayIndex, _ in
                 let roll = Double((dayIndex + index) % 5) / 4.0

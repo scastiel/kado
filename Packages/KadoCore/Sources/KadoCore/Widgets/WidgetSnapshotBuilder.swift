@@ -121,7 +121,7 @@ public enum WidgetSnapshotBuilder {
                     progress: state.progress,
                     valueToday: state.valueToday,
                     streak: stats?.current ?? 0,
-                    scorePercent: Int(((stats?.score ?? 0) * 100).rounded())
+                    scorePercent: widgetHabit.scorePercent
                 )
             )
             if state.status == .complete { completed += 1 }

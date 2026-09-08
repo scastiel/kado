@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%lld" : {
-      "comment" : "Circular lock widget — bare percentage number (Int).",
+      "comment" : "Bare number, no unit (Int). Circular lock widget's percentage; large widget's streak count.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -291,6 +291,23 @@
         }
       }
     },
+    "Score %lld percent" : {
+      "comment" : "VoiceOver label for a habit row in the large widget with no active streak. Arg: EMA score percent (0-100).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score %lld percent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score %lld pour cent"
+          }
+        }
+      }
+    },
     "Show one habit on the lock screen." : {
       "comment" : "Rectangular lock widget description.",
       "localizations" : {
@@ -304,6 +321,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Affiche une habitude sur l'écran verrouillé."
+          }
+        }
+      }
+    },
+    "Streak %lld, score %lld percent" : {
+      "comment" : "VoiceOver label for a habit row in the large widget. First arg: streak length in days. Second arg: EMA score percent (0-100).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak %1$lld, score %2$lld percent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Série %1$lld, score %2$lld pour cent"
           }
         }
       }

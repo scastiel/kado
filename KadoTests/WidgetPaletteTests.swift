@@ -145,6 +145,23 @@ struct WidgetPaletteTests {
         }
     }
 
+    /// The streak flame is the one place the widgets reach for a hue
+    /// that is neither the habit's nor the palette's. It survives in
+    /// full colour; under the tint it has to stop being a second
+    /// colour, because it isn't one — every opaque pixel arrives the
+    /// same shade, and an orange that is silently `.primary` would
+    /// read a whole step louder than the percentage beside it.
+    @Test("The streak flame keeps its orange in full colour and folds into secondary under the tint")
+    func streakAccentFoldsIntoSecondary() {
+        #expect(WidgetPalette(renderingMode: .fullColor).streakAccent == .orange)
+        for mode in tinted {
+            let palette = WidgetPalette(renderingMode: mode)
+            #expect(palette.streakAccent == palette.foregroundSecondary)
+            #expect(opacity(of: palette.streakAccent) < opacity(of: palette.foreground))
+            #expect(opacity(of: palette.streakAccent) >= 0.7, "\(mode): the flame dims twice over")
+        }
+    }
+
     /// Out-of-range progress reaches the palette straight from the
     /// App Group JSON, so clamp rather than trust it.
     @Test("Progress outside 0...1 stays inside the fill's alpha band")

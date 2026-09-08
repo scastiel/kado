@@ -84,16 +84,27 @@ struct WeeklyGridLargeView: View {
     private func habitBlock(for row: WidgetMatrixRow) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Image(systemName: row.habit.icon)
-                    .font(.caption)
-                    .foregroundStyle(row.habit.color.color)
-                    .frame(width: 16, alignment: .center)
-                Text(row.habit.name)
-                    .font(.caption.weight(.medium))
-                    .lineLimit(1)
-                    .foregroundStyle(palette.foreground)
+                // Only the icon + name are accentable: the metrics
+                // rank second, and content outside the accent group is
+                // already dimmed by the system, which is the whole of
+                // the hierarchy they need.
+                HStack(spacing: 6) {
+                    Image(systemName: row.habit.icon)
+                        .font(.caption)
+                        .foregroundStyle(row.habit.color.color)
+                        .frame(width: 16, alignment: .center)
+                    Text(row.habit.name)
+                        .font(.caption.weight(.medium))
+                        .lineLimit(1)
+                        .foregroundStyle(palette.foreground)
+                }
+                .widgetAccentable()
+                Spacer(minLength: 4)
+                WidgetMetricsChip(
+                    streak: row.habit.currentStreak,
+                    scorePercent: row.habit.scorePercent
+                )
             }
-            .widgetAccentable()
             cellStripe(for: row)
         }
     }
