@@ -1,4 +1,5 @@
-Version 1.8 — Des semaines qui commencent où tu les commences, et des widgets qui restent lisibles.
+Version 1.8 — Des semaines qui commencent où tu les commences, et des widgets qui méritent un second coup d'œil.
 
 • Les calendriers et les grilles de semaine commencent maintenant le jour où ta région commence la sienne — le dimanche dans les Amériques et une bonne partie de l'Asie, le lundi en Europe — au lieu de toujours démarrer un lundi. Kadō suit le premier jour de la semaine que tu as choisi dans les Réglages d'iOS, et Réglages → Semaine te laisse décider toi-même. Les séries des habitudes « jours par semaine » se comptent sur la semaine que tu as sous les yeux.
+• Le grand widget de l'écran d'accueil affiche maintenant la série en cours et le score de chaque habitude à côté de son nom : la grille de la semaine arrive avec les chiffres qui vont avec, plutôt que sept cases toutes seules.
 • Les widgets de l'écran d'accueil restent lisibles avec les apparences Claire et Teintée. Les titres « Aujourd'hui » et « Cette semaine » disparaissaient dans la tuile dès qu'iOS reteintait le widget.

@@ -1,4 +1,5 @@
-Version 1.8 — Weeks that start where you do, and widgets that stay readable.
+Version 1.8 — Weeks that start where you do, and widgets worth a second look.
 
 • Calendars and week grids now start on the day your region starts its week — Sunday across the Americas and much of Asia, Monday across Europe — instead of always Monday. Kadō follows the First Day of Week you have set in iOS Settings if you have set one, and Settings → Week lets you choose for yourself. Streaks for "days per week" habits are counted over the same week you are looking at.
+• The large Home Screen widget now shows each habit's current streak and score next to its name, so the week's grid arrives with the numbers behind it rather than seven squares on their own.
 • Home Screen widgets stay readable under the Clear and Tinted appearances. The "Today" and "This week" headlines used to disappear into the tile once iOS re-tinted the widget.
