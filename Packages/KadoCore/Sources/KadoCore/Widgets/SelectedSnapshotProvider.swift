@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import OSLog
 @preconcurrency import WidgetKit
 
 /// `AppIntentTimelineProvider` for the home widgets, which show
@@ -40,6 +41,23 @@ public struct SelectedSnapshotProvider: AppIntentTimelineProvider {
             snapshot: WidgetSnapshotStore.read(),
             habitIDs: configuration.habitIDs
         )
+        #if DEBUG
+        // A widget that ignores its configuration and one that was
+        // never configured render identically, and neither the unit
+        // suite nor a screenshot can tell them apart. Counts only —
+        // never a habit name — so the log stays as private as the app.
+        //
+        //   xcrun simctl spawn booted log stream \
+        //     --predicate 'subsystem == "dev.scastiel.kado"'
+        Logger(subsystem: "dev.scastiel.kado", category: "widget")
+            .debug("""
+                timeline family=\(String(describing: context.family), privacy: .public) \
+                picked=\(configuration.habitIDs.count, privacy: .public) \
+                snapshotHabits=\(entry.snapshot.habits.count, privacy: .public) \
+                todayRows=\(entry.snapshot.today.count, privacy: .public) \
+                matrixRows=\(entry.snapshot.matrix.count, privacy: .public)
+                """)
+        #endif
         // Same hourly cadence the other providers use: the app pushes
         // a reload on every mutation, so this is only the floor under
         // a day that rolls over untouched.
