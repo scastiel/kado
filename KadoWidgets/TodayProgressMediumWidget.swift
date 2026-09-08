@@ -3,38 +3,45 @@ import WidgetKit
 import KadoCore
 
 /// Medium home widget — two-column habit grid plus a progress
-/// summary. Reads the App Group snapshot.
+/// summary. Reads the App Group snapshot, narrowed to the habits the
+/// user picked in the widget-edit sheet.
 struct TodayProgressMediumWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.todayMedium"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
+        AppIntentConfiguration(
+            kind: kind,
+            intent: SelectHabitsIntent.self,
+            provider: SelectedSnapshotProvider()
+        ) { entry in
             TodayProgressMediumView(entry: entry)
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://today"))
         }
         .configurationDisplayName(Text("Today · Progress"))
-        .description(Text("Habits due today with a completion summary."))
+        .description(Text("Habits due today with a completion summary. Pick up to 8."))
         .supportedFamilies([.systemMedium])
     }
 }
 
 struct TodayProgressMediumView: View {
-    let entry: SnapshotEntry
+    let entry: SelectedSnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
-
-    private let limit = 8
 
     private var palette: WidgetPalette {
         WidgetPalette(renderingMode: renderingMode)
     }
 
+    private var rows: [WidgetTodayRow] {
+        entry.todayRows(limit: WidgetHabitLimit.medium)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             header
-            if entry.snapshot.today.isEmpty {
-                TodayEmptyPlaceholder()
+            if rows.isEmpty {
+                TodayEmptyPlaceholder(isFilteredOut: !entry.snapshot.today.isEmpty)
             } else {
                 cellGrid
             }
@@ -43,7 +50,11 @@ struct TodayProgressMediumView: View {
     }
 
     private var header: some View {
-        HStack {
+        // Counts the pick when there is one, the whole day when there
+        // isn't — otherwise the summary describes habits this tile
+        // deliberately hides.
+        let progress = entry.progress(limit: WidgetHabitLimit.medium)
+        return HStack {
             Text("Today")
                 .font(.headline)
                 .foregroundStyle(palette.foreground)
@@ -51,7 +62,7 @@ struct TodayProgressMediumView: View {
             Spacer()
             Text(
                 String(
-                    localized: "\(entry.snapshot.completedToday) / \(entry.snapshot.totalDueToday) done",
+                    localized: "\(progress.completed) / \(progress.total) done",
                     comment: "Widget progress summary. Arg 1 is completed count, arg 2 is total count."
                 )
             )
@@ -68,7 +79,7 @@ struct TodayProgressMediumView: View {
             ],
             spacing: 4
         ) {
-            ForEach(entry.snapshot.today.prefix(limit)) { row in
+            ForEach(rows) { row in
                 HabitWidgetCell(row: row)
             }
         }
@@ -78,11 +89,21 @@ struct TodayProgressMediumView: View {
 #Preview("Eight habits", as: .systemMedium) {
     TodayProgressMediumWidget()
 } timeline: {
-    SnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated)
+    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [])
+}
+
+#Preview("Picked two", as: .systemMedium) {
+    TodayProgressMediumWidget()
+} timeline: {
+    SelectedSnapshotEntry(
+        date: .now,
+        snapshot: PreviewSnapshots.populated,
+        habitIDs: PreviewSnapshots.pickedTodayIDs
+    )
 }
 
 #Preview("Empty", as: .systemMedium) {
     TodayProgressMediumWidget()
 } timeline: {
-    SnapshotEntry(date: .now, snapshot: .empty)
+    SelectedSnapshotEntry(date: .now, snapshot: .empty, habitIDs: [])
 }
