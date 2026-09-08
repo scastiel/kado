@@ -11,34 +11,27 @@ struct WeeklyGridLargeWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.weeklyLarge"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(
-            kind: kind,
-            intent: SelectHabitsIntent.self,
-            provider: SelectedSnapshotProvider()
-        ) { entry in
+        StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
             WeeklyGridLargeView(entry: entry)
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://overview"))
         }
         .configurationDisplayName(Text("This Week"))
-        .description(Text("Your habit grid for the past seven days. Pick up to 5."))
+        .description(Text("Your habit grid for the past seven days."))
         .supportedFamilies([.systemLarge])
     }
 }
 
 struct WeeklyGridLargeView: View {
-    let entry: SelectedSnapshotEntry
+    let entry: SnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
 
+    private let rowLimit = 6
     private static let cellSpacing: CGFloat = 4
 
     private var palette: WidgetPalette {
         WidgetPalette(renderingMode: renderingMode)
-    }
-
-    private var rows: [WidgetMatrixRow] {
-        entry.matrixRows(limit: WidgetHabitLimit.large)
     }
 
     var body: some View {
@@ -47,11 +40,8 @@ struct WeeklyGridLargeView: View {
                 .font(.headline)
                 .foregroundStyle(palette.foreground)
                 .widgetAccentable()
-            if rows.isEmpty {
-                // "No habits yet" only when there really are none. A
-                // pick whose habits have all been archived is a
-                // different situation and gets its own wording.
-                emptyPlaceholder(isFilteredOut: !entry.snapshot.matrix.isEmpty)
+            if entry.snapshot.matrix.isEmpty {
+                emptyPlaceholder
             } else {
                 weekdayStripe
                 habitRows
@@ -85,7 +75,7 @@ struct WeeklyGridLargeView: View {
 
     private var habitRows: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(rows, id: \.habit.id) { row in
+            ForEach(entry.snapshot.matrix.prefix(rowLimit), id: \.habit.id) { row in
                 habitBlock(for: row)
             }
         }
@@ -141,24 +131,14 @@ struct WeeklyGridLargeView: View {
         .frame(height: 22)
     }
 
-    private func emptyPlaceholder(isFilteredOut: Bool) -> some View {
+    private var emptyPlaceholder: some View {
         VStack(spacing: 6) {
-            Image(systemName: isFilteredOut ? "line.3.horizontal.decrease.circle" : "square.grid.3x3")
+            Image(systemName: "square.grid.3x3")
                 .font(.title2)
                 .foregroundStyle(palette.foregroundSecondary)
-            // Split rather than a ternary inside one `Text`: a
-            // `Text(cond ? "A" : "B")` binds to the `StringProtocol`
-            // overload and neither arm ever reaches the catalog.
-            Group {
-                if isFilteredOut {
-                    Text("No picked habits to show")
-                } else {
-                    Text("No habits yet")
-                }
-            }
-            .font(.caption)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(palette.foregroundSecondary)
+            Text("No habits yet")
+                .font(.caption)
+                .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .widgetAccentable()
@@ -233,21 +213,11 @@ struct WidgetMatrixCell: View {
 #Preview("Populated", as: .systemLarge) {
     WeeklyGridLargeWidget()
 } timeline: {
-    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [])
-}
-
-#Preview("Picked three", as: .systemLarge) {
-    WeeklyGridLargeWidget()
-} timeline: {
-    SelectedSnapshotEntry(
-        date: .now,
-        snapshot: PreviewSnapshots.populated,
-        habitIDs: PreviewSnapshots.pickedMatrixIDs
-    )
+    SnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated)
 }
 
 #Preview("Empty", as: .systemLarge) {
     WeeklyGridLargeWidget()
 } timeline: {
-    SelectedSnapshotEntry(date: .now, snapshot: .empty, habitIDs: [])
+    SnapshotEntry(date: .now, snapshot: .empty)
 }

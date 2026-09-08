@@ -53,38 +53,10 @@ public extension HabitEntity {
 public struct HabitEntityQuery: EntityQuery {
     public init() {}
 
-    /// Rehydrates stored entity ids — this is how a widget's saved
-    /// habit selection comes back after a reload, so two properties
-    /// matter beyond "returns the right set".
-    ///
-    /// **Order follows `identifiers`, not the snapshot.** The home
-    /// widgets render habits in the order they were picked, and
-    /// AppIntents rebuilds the selection from what this returns. A
-    /// snapshot-ordered result silently re-sorts the user's choice.
-    ///
-    /// **A miss drops one habit, never the selection.** Anything not
-    /// in the snapshot — archived, deleted — is skipped, and the rest
-    /// still resolve. That matters because an empty return is read
-    /// upstream as "no selection", which means *show everything*: the
-    /// failure mode of losing the whole list is a widget that quietly
-    /// ignores the user's pick rather than one that looks broken.
     public func entities(for identifiers: [UUID]) async throws -> [HabitEntity] {
-        Self.resolve(identifiers: identifiers, in: WidgetSnapshotStore.read().habits)
-    }
-
-    /// The resolution step on its own, so it can be tested without
-    /// writing into the real App Group container the installed app is
-    /// using.
-    public static func resolve(
-        identifiers: [UUID],
-        in habits: [WidgetHabit]
-    ) -> [HabitEntity] {
-        let byID = Dictionary(
-            habits.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        return identifiers
-            .compactMap { byID[$0] }
+        let idSet = Set(identifiers)
+        return WidgetSnapshotStore.read().habits
+            .filter { idSet.contains($0.id) }
             .map(HabitEntity.init(widgetHabit:))
     }
 

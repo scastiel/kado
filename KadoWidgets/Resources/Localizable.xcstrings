@@ -172,19 +172,19 @@
         }
       }
     },
-    "Habits due today with a completion summary. Pick up to 8." : {
-      "comment" : "Medium home widget description, shown in the widget gallery.",
+    "Habits due today with a completion summary." : {
+      "comment" : "Medium home widget description.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habits due today with a completion summary. Pick up to 8."
+            "value" : "Habits due today with a completion summary."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habitudes prévues aujourd'hui avec un résumé de progression. Choisis-en jusqu'à 8."
+            "value" : "Habitudes prévues aujourd'hui avec un résumé de progression."
           }
         }
       }
@@ -219,23 +219,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune habitude pour l'instant"
-          }
-        }
-      }
-    },
-    "No picked habits to show" : {
-      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No picked habits to show"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune habitude choisie à afficher"
           }
         }
       }
@@ -291,19 +274,19 @@
         }
       }
     },
-    "Quick tap-to-complete for the habits due today. Pick up to 5." : {
-      "comment" : "Small home widget description, shown in the widget gallery.",
+    "Quick tap-to-complete for the habits due today." : {
+      "comment" : "Small home widget description.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick tap-to-complete for the habits due today. Pick up to 5."
+            "value" : "Quick tap-to-complete for the habits due today."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valide rapidement les habitudes du jour d'un tap. Choisis-en jusqu'à 5."
+            "value" : "Valide rapidement les habitudes du jour d'un tap."
           }
         }
       }
@@ -478,19 +461,19 @@
         }
       }
     },
-    "Your habit grid for the past seven days. Pick up to 5." : {
-      "comment" : "Large home widget description, shown in the widget gallery.",
+    "Your habit grid for the past seven days." : {
+      "comment" : "Large home widget description.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your habit grid for the past seven days. Pick up to 5."
+            "value" : "Your habit grid for the past seven days."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ta grille d'habitudes sur les sept derniers jours. Choisis-en jusqu'à 5."
+            "value" : "Ta grille d'habitudes sur les sept derniers jours."
           }
         }
       }
