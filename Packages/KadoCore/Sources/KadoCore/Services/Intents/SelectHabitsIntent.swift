@@ -22,7 +22,28 @@ public struct SelectHabitsIntent: WidgetConfigurationIntent {
         "Choose which habits this widget shows. Leave it empty to show them all."
     )
 
-    @Parameter(title: "Habits")
+    /// The picker caps the selection per family, so the user can't
+    /// choose eight habits for a tile that draws five.
+    ///
+    /// The numbers are spelled out rather than read from
+    /// `WidgetHabitLimit`: `IntentCollectionSize.init(min:max:)` takes
+    /// `_const Int`, which rejects even a `static let` — "expect a
+    /// compile-time constant literal". They must therefore agree with
+    /// `WidgetHabitLimit` by hand, and
+    /// `SelectHabitsIntentTests.pickerCapsMatchTheRenderLimits` reads
+    /// them back out of the generated AppIntents metadata and fails
+    /// if they ever drift.
+    ///
+    /// `min: 0` is load-bearing: an empty selection has to stay legal,
+    /// because that is what "show every habit" means everywhere else.
+    @Parameter(
+        title: "Habits",
+        size: [
+            .systemSmall: IntentCollectionSize(min: 0, max: 5),
+            .systemMedium: IntentCollectionSize(min: 0, max: 8),
+            .systemLarge: IntentCollectionSize(min: 0, max: 5),
+        ]
+    )
     public var habits: [HabitEntity]?
 
     public init() {}

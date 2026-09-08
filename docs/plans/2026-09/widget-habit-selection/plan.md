@@ -16,7 +16,7 @@ These were judgement calls, not things the request settled. Each is cheap to rev
 - **An empty selection shows everything, as today.** A freshly added widget has no pick yet and must not render blank, so "no selection" means "all of them, up to the limit" rather than "none".
 - **The user's pick order is the display order.** Selecting habits deliberately implies an order; honouring it hands the user widget-level ordering for free, independent of the app's sort order.
 - **The Today widgets still only show what's due.** A picked habit that isn't due today stays absent from the small and medium tiles — they exist for tap-to-complete, and a row you cannot act on would be noise. The large tile is a weekly grid and shows every pick.
-- **One `SelectHabitsIntent` for all three families, not three intents.** AppIntents has no max-count on an array parameter, so the cap is enforced when rendering either way. The per-family number is communicated in each widget's localized `description`, which is per-family already.
+- **One `SelectHabitsIntent` for all three families, not three intents.** Originally justified as "AppIntents has no max-count on an array parameter, so the cap is enforced at render time either way" — which was wrong, and corrected during build: `@Parameter(size: [IntentWidgetFamily: IntentCollectionSize])` caps the picker per family, on a single intent, from iOS 18. The one-intent shape survives, for a better reason than the one it was chosen for.
 - **Selection filtering is a free struct in KadoCore**, not view code — it is conditional business logic, so it gets tests (`CLAUDE.md`, Testing § Philosophy).
 
 ## Task list
@@ -72,7 +72,7 @@ These were judgement calls, not things the request settled. Each is cheap to rev
 - **`StaticConfiguration` → `AppIntentConfiguration` on an unchanged `kind`.** Widgets already on a user's Home Screen get a default-initialised intent, which means an empty selection — which by the decision above means "show everything", i.e. exactly what they showed before. So the migration is invisible if the fallback is right, and this is the reason the fallback has to be "all" rather than "none". Verify by installing over an existing build with a widget already placed.
 - **Intent strings are not localized.** KadoCore has no string catalog, so `PickHabitIntent`'s title and parameter names already ship in English in the French build. The new intent inherits that hole rather than widening it; adding a package catalog touches every existing intent and belongs in its own change. Noted as a follow-up, not fixed here.
 - **`HabitEntityQuery` reads the App Group snapshot.** If the snapshot is stale or missing, the picker offers nothing. Pre-existing for the lock widgets; the app rebuilds the snapshot on every mutation.
-- **Capacity vs. selection mismatch.** Nothing stops the user picking eight habits and putting them on a small tile. The extra three are trimmed silently; the widget's description states the number up front.
+- ~~**Capacity vs. selection mismatch.** Nothing stops the user picking eight habits and putting them on a small tile. The extra three are trimmed silently; the widget's description states the number up front.~~ **This shipped and was wrong.** Accepting it as a documented limitation was the mistake — silently discarding a choice the UI accepted is a bug, not a trade-off. Fixed during build with the per-family `size:` cap; the render-time `prefix(limit)` stays as defence for widgets configured before the cap existed.
 
 ## Open questions
 

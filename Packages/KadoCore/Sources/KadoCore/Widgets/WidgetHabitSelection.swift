@@ -3,9 +3,14 @@ import Foundation
 /// How many habits each home widget family has room for.
 ///
 /// One place rather than a `private let limit` per view, because each
-/// number is also written into that widget's gallery description —
-/// the user is told the capacity before they pick, so the two must
-/// not drift.
+/// number is written down three times over: here, in that widget's
+/// gallery description, and — as a bare literal — in
+/// `SelectHabitsIntent`'s `size:` dictionary, which caps the picker
+/// itself. AppIntents forces the third one: its
+/// `IntentCollectionSize.init(min:max:)` takes `_const Int` and
+/// rejects even a `static let`, so the value cannot be shared from
+/// here. `SelectHabitsIntentTests` reads the generated metadata back
+/// and fails if the picker and these limits disagree.
 public enum WidgetHabitLimit {
     public static let small = 5
     public static let medium = 8

@@ -39,6 +39,12 @@ Two changes landed together: per-habit streaks and scores on the large widget, t
 - **What we did**: made `populated` a stored `static let`.
 - **Lesson**: a preview fixture containing generated identity must be stored, not computed, the moment anything references it twice.
 
+### "AppIntents has no max-count on an array parameter" was simply false
+
+- **What happened**: the plan recorded, as a locked-in decision and then as an accepted risk, that nothing could stop a user picking eight habits for a five-habit tile. That belief shaped the design. The author placed a widget, picked more than five, and reported it — correctly, as a bug.
+- **What we did**: read the AppIntents `.swiftinterface` out of the SDK. `@Parameter(title:size:)` takes either an `IntentCollectionSize` or, better, a `[IntentWidgetFamily: IntentCollectionSize]` — a *per-family* cap on a single intent, available from iOS 18.0, exactly the project's deployment target. Three lines, and the picker enforces 5 / 8 / 5 itself.
+- **Lesson**: two lessons, and the second is the bigger one. (1) Grep the SDK's `.swiftinterface` before asserting an API doesn't exist; it is on disk, it is authoritative, and it takes a minute. (2) **"The UI accepts a choice it then discards" is a bug, not a trade-off.** It was written down twice as a known limitation and neither writing made it acceptable. A documented silent data loss is still silent data loss.
+
 ### The toolchain claim was checkable without tapping anything
 
 - **What happened**: the load-bearing assumption was that an array `@Parameter` of `AppEntity` renders as a multi-select in the widget-edit sheet. XcodeBuildMCP has no tap primitives, so there was no way to open that sheet.
@@ -62,7 +68,9 @@ Two changes landed together: per-habit streaks and scores on the large widget, t
 
 - **[→ CLAUDE.md]** Narrowing what a view renders invalidates every aggregate and every empty state on that view, and neither the compiler nor the existing tests will say so. Walk them explicitly.
 - **[→ CLAUDE.md]** A SwiftUI preview fixture that generates identity (`UUID()`) must be a stored `static let`, not a computed `static var`, as soon as anything derives from it — a computed one hands each caller a different set of ids and the preview fails in a way that looks like a plausible state.
-- **[→ CLAUDE.md]** AppIntents shape can be verified without UI automation by reading `Metadata.appintents/extract.actionsdata` from the built product. Useful precisely because XcodeBuildMCP can't tap.
+- **[→ CLAUDE.md]** AppIntents shape can be verified without UI automation by reading `Metadata.appintents/extract.actionsdata` from the built product. Useful precisely because XcodeBuildMCP can't tap — and strong enough to assert on in a unit test, which is how the picker cap is now pinned to the render limit.
+- **[→ CLAUDE.md]** Before recording "the framework can't do X", grep the SDK's `.swiftinterface` (`$(xcrun --sdk iphonesimulator --show-sdk-path)/System/Library/Frameworks/<F>.framework/Modules/<F>.swiftmodule/arm64-apple-ios-simulator.swiftinterface`). It is authoritative, it is on disk, and it takes a minute. The claim "AppIntents has no max-count on an array parameter" survived a plan, a build and a PR description before one grep disproved it.
+- **[→ CLAUDE.md]** A UI that accepts a choice and then silently discards it is a bug, never an accepted trade-off — writing it down in a plan's Risks section does not make it one.
 - **[local]** The lock widgets' `PickHabitIntent` / `PickedSnapshotProvider` pair is the template for the plural version; keep the two shaped alike.
 
 ## Metrics
