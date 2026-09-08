@@ -41,14 +41,18 @@ public struct SelectedSnapshotProvider: AppIntentTimelineProvider {
             snapshot: WidgetSnapshotStore.read(),
             habitIDs: configuration.habitIDs
         )
-        #if DEBUG
         // A widget that ignores its configuration and one that was
         // never configured render identically, and neither the unit
         // suite nor a screenshot can tell them apart. Counts only —
         // never a habit name — so the log stays as private as the app.
         //
         //   xcrun simctl spawn booted log stream \
-        //     --predicate 'subsystem == "dev.scastiel.kado"'
+        //     --predicate 'subsystem == "dev.scastiel.kado"' --debug
+        //
+        // Deliberately not behind `#if DEBUG`: whether a Swift package
+        // target gets `-DDEBUG` from the app's configuration is not
+        // something to bet a diagnostic on, and `.debug` level is
+        // dropped unless someone is actively streaming with --debug.
         Logger(subsystem: "dev.scastiel.kado", category: "widget")
             .debug("""
                 timeline family=\(String(describing: context.family), privacy: .public) \
@@ -57,7 +61,6 @@ public struct SelectedSnapshotProvider: AppIntentTimelineProvider {
                 todayRows=\(entry.snapshot.today.count, privacy: .public) \
                 matrixRows=\(entry.snapshot.matrix.count, privacy: .public)
                 """)
-        #endif
         // Same hourly cadence the other providers use: the app pushes
         // a reload on every mutation, so this is only the floor under
         // a day that rolls over untouched.
