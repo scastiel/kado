@@ -83,12 +83,15 @@ struct WeeklyGridLargeView: View {
 
     private func habitBlock(for row: WidgetMatrixRow) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
+            // Baseline, not centre: the chip is a step smaller than
+            // the name, and centring two different text sizes floats
+            // the digits above the name's baseline.
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 // Only the icon + name are accentable: the metrics
                 // rank second, and content outside the accent group is
                 // already dimmed by the system, which is the whole of
                 // the hierarchy they need.
-                HStack(spacing: 6) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Image(systemName: row.habit.icon)
                         .font(.caption)
                         .foregroundStyle(row.habit.color.color)

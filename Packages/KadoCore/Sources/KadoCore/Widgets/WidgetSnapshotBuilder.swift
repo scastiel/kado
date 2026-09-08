@@ -112,7 +112,6 @@ public enum WidgetSnapshotBuilder {
                 calendar: calendar,
                 asOf: reference
             )
-            let stats = statsByID[snap.id]
             let widgetHabit = makeWidgetHabit(from: snap)
             todayRows.append(
                 WidgetTodayRow(
@@ -120,7 +119,12 @@ public enum WidgetSnapshotBuilder {
                     status: mapStatus(state.status),
                     progress: state.progress,
                     valueToday: state.valueToday,
-                    streak: stats?.current ?? 0,
+                    // Both off `widgetHabit`, which already carries
+                    // them from the same `statsByID` lookup. Reading
+                    // the dictionary again here would leave two paths
+                    // to one number, and a later change to how either
+                    // is derived would have to find both.
+                    streak: widgetHabit.currentStreak,
                     scorePercent: widgetHabit.scorePercent
                 )
             )

@@ -260,7 +260,13 @@ struct WidgetSnapshotBuilderTests {
         let matrixHabit = try #require(snapshot.matrix.first?.habit)
 
         #expect(todayRow.scorePercent == matrixHabit.scorePercent)
-        #expect(todayRow.scorePercent == todayRow.habit.scorePercent)
+        // Not `todayRow.scorePercent == todayRow.habit.scorePercent`:
+        // the builder stores that habit and derives the field from it,
+        // so those are the same expression on the same value and the
+        // assertion could never fail. Seven perfect days instead —
+        // enough that a percent of zero would mean the stats never
+        // reached the row at all.
+        #expect(todayRow.scorePercent > 0)
     }
 
     @Test("scorePercent rounds to whole percent and clamps a score out of 0...1")

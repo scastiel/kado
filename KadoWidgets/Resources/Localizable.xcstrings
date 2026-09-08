@@ -71,7 +71,7 @@
       }
     },
     "%lld%%" : {
-      "comment" : "Rectangular lock widget — score percentage badge.",
+      "comment" : "Score percentage badge. Rectangular lock widget, and the large home widget's per-habit metrics chip.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -292,7 +292,7 @@
       }
     },
     "Score %lld percent" : {
-      "comment" : "VoiceOver label for a habit row in the large widget with no active streak. Arg: EMA score percent (0-100).",
+      "comment" : "VoiceOver label for a large-widget habit row with no active streak. Arg: EMA score percent (0-100).",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -326,7 +326,7 @@
       }
     },
     "Streak %lld, score %lld percent" : {
-      "comment" : "VoiceOver label for a habit row in the large widget. First arg: streak length in days. Second arg: EMA score percent (0-100).",
+      "comment" : "VoiceOver label for a large-widget habit row. First arg: streak length in days. Second arg: EMA score percent (0-100).",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -48,9 +48,15 @@ struct WidgetMetricsChip: View {
         // One element, or VoiceOver reads a bare "7" for the flame.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
-        // The numbers must never be the thing that gives — the habit
-        // name beside them truncates instead.
-        .fixedSize(horizontal: true, vertical: false)
+        // The numbers shouldn't truncate to "7…", but they mustn't
+        // hold the row hostage either: at accessibility sizes the
+        // widest chip ("128 · 100%") plus its gap can eat a
+        // systemLarge row and leave the habit name as an ellipsis,
+        // which is worse than a smaller number. Shrink first, and
+        // only then let the name give.
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var accessibilityLabel: String {

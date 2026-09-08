@@ -40,7 +40,12 @@ public struct GetHabitStatsIntent: AppIntent {
     /// Kept to three sentence variants — one per done-today state —
     /// so each is a single localizable key with clean interpolations.
     public static func dialog(habit: WidgetHabit, todayRow: WidgetTodayRow?) -> IntentDialog {
-        let percent = Int((habit.currentScore * 100).rounded())
+        // Through `scorePercent` like every other surface, not a
+        // local rounding: Siri saying 71% while the tile beside it
+        // says 70% is the same drift, and this one also inherits the
+        // clamp — `Int(_: Double)` traps on an infinite value, and
+        // the score arrives from App Group JSON nothing revalidates.
+        let percent = habit.scorePercent
         let streak = habit.currentStreak
         if streak == 0 {
             return IntentDialog("\(habit.name): no active streak. Score \(percent)%.")

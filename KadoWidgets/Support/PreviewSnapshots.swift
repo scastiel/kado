@@ -33,6 +33,13 @@ enum PreviewSnapshots {
             streak: Int = 7,
             score: Int = 70
         ) -> WidgetTodayRow {
+            // The nested habit carries the same streak and score the
+            // row does. `populated` publishes `today.map(\.habit)` as
+            // `snapshot.habits`, so leaving these at their zero
+            // defaults would put one habit id in the fixture twice
+            // with contradictory stats — exactly what
+            // `scorePercentAgreesAcrossSurfaces` forbids in a real
+            // build.
             WidgetTodayRow(
                 habit: WidgetHabit(
                     id: id,
@@ -40,7 +47,10 @@ enum PreviewSnapshots {
                     color: color,
                     icon: icon,
                     typeKind: typeKind,
-                    target: target
+                    target: target,
+                    currentStreak: streak,
+                    bestStreak: streak,
+                    currentScore: Double(score) / 100
                 ),
                 status: status,
                 progress: progress,
@@ -111,29 +121,35 @@ enum PreviewSnapshots {
         let days: [Date] = (0..<7).reversed().compactMap { offset in
             calendar.date(byAdding: .day, value: -offset, to: today)
         }
-        let colors: [HabitColor] = [.green, .blue, .teal, .orange, .purple, .mint, .yellow]
-        let names = ["Meditate", "Read", "Water", "Focus", "Workout", "Stretch", "Journal"]
-        let icons = ["leaf.fill", "book.fill", "drop.fill", "timer", "dumbbell.fill", "figure.cooldown", "square.and.pencil"]
-
-        // Streaks and scores the large widget renders beside each row.
-        // Two rows sit at zero on purpose — the chip drops the flame
-        // there, and that arm needs eyes on it too — and one is
+        // One row per tuple rather than five arrays zipped by index:
+        // parallel arrays only stay safe while they stay the same
+        // length, and adding an eighth habit to some of them traps on
+        // a subscript rather than failing to compile.
+        //
+        // Two streaks sit at zero on purpose — the chip drops the
+        // flame there, and that arm needs eyes on it too — and one is
         // three-digit, so the widest chip is in the picture.
-        let streaks = [12, 5, 0, 31, 0, 128, 3]
-        let scores = [0.92, 0.78, 0.41, 0.86, 0.12, 1.0, 0.55]
+        let specs: [(name: String, icon: String, color: HabitColor, streak: Int, score: Double)] = [
+            ("Meditate", "leaf.fill", .green, 12, 0.92),
+            ("Read", "book.fill", .blue, 5, 0.78),
+            ("Water", "drop.fill", .teal, 0, 0.41),
+            ("Focus", "timer", .orange, 31, 0.86),
+            ("Workout", "dumbbell.fill", .purple, 0, 0.12),
+            ("Stretch", "figure.cooldown", .mint, 128, 1.0),
+            ("Journal", "square.and.pencil", .yellow, 3, 0.55),
+        ]
 
-        let rows: [WidgetMatrixRow] = zip(zip(names, icons), colors).enumerated().map { index, pair in
-            let ((name, icon), color) = pair
+        let rows: [WidgetMatrixRow] = specs.enumerated().map { index, spec in
             let habit = WidgetHabit(
                 id: index == 0 ? firstHabitID : UUID(),
-                name: name,
-                color: color,
-                icon: icon,
+                name: spec.name,
+                color: spec.color,
+                icon: spec.icon,
                 typeKind: .binary,
                 target: nil,
-                currentStreak: streaks[index],
-                bestStreak: streaks[index],
-                currentScore: scores[index]
+                currentStreak: spec.streak,
+                bestStreak: spec.streak,
+                currentScore: spec.score
             )
             let cells: [WidgetDayCell] = days.enumerated().map { dayIndex, _ in
                 let roll = Double((dayIndex + index) % 5) / 4.0
