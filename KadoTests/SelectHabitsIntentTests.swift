@@ -27,6 +27,56 @@ struct SelectHabitsIntentTests {
         #expect(SelectHabitsIntent().habitIDs.isEmpty)
     }
 
+    /// The link that was never covered, and the one that broke: the
+    /// selection function was tested in isolation and the manifest was
+    /// tested in isolation, while *nothing* checked that a pick set on
+    /// the intent actually arrives at the rows a widget draws.
+    @Test("A pick set on the intent reaches the rows the widget draws")
+    func pickReachesTheRenderedRows() {
+        let habits = ["A", "B", "C", "D", "E"].map {
+            WidgetHabit(
+                id: UUID(),
+                name: $0,
+                color: .blue,
+                icon: "circle",
+                typeKind: .binary,
+                target: nil
+            )
+        }
+        let snapshot = WidgetSnapshot(
+            generatedAt: .now,
+            habits: habits,
+            today: habits.map {
+                WidgetTodayRow(
+                    habit: $0,
+                    status: .none,
+                    progress: 0,
+                    valueToday: nil,
+                    streak: 0,
+                    scorePercent: 0
+                )
+            },
+            totalDueToday: habits.count,
+            completedToday: 0,
+            matrix: habits.map { WidgetMatrixRow(habit: $0, cells: []) },
+            matrixDays: []
+        )
+
+        let intent = SelectHabitsIntent(
+            habits: [habits[2], habits[0]].map(HabitEntity.init(widgetHabit:))
+        )
+        #expect(intent.habitIDs == [habits[2].id, habits[0].id], "the @Parameter dropped its value")
+
+        // The entry is what the provider hands the view.
+        let entry = SelectedSnapshotEntry(
+            date: .now,
+            snapshot: snapshot,
+            habitIDs: intent.habitIDs
+        )
+        #expect(entry.matrixRows(limit: WidgetHabitLimit.large).map(\.habit.name) == ["C", "A"])
+        #expect(entry.todayRows(limit: WidgetHabitLimit.small).map(\.habit.name) == ["C", "A"])
+    }
+
     @Test("The picker's per-family caps match the limits the widgets render")
     func pickerCapsMatchTheRenderLimits() throws {
         let sizes = try habitsParameterCollectionSizes()

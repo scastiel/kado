@@ -45,6 +45,18 @@ Two changes landed together: per-habit streaks and scores on the large widget, t
 - **What we did**: read the AppIntents `.swiftinterface` out of the SDK. `@Parameter(title:size:)` takes either an `IntentCollectionSize` or, better, a `[IntentWidgetFamily: IntentCollectionSize]` — a *per-family* cap on a single intent, available from iOS 18.0, exactly the project's deployment target. Three lines, and the picker enforces 5 / 8 / 5 itself.
 - **Lesson**: two lessons, and the second is the bigger one. (1) Grep the SDK's `.swiftinterface` before asserting an API doesn't exist; it is on disk, it is authoritative, and it takes a minute. (2) **"The UI accepts a choice it then discards" is a bug, not a trade-off.** It was written down twice as a known limitation and neither writing made it acceptable. A documented silent data loss is still silent data loss.
 
+### Two pieces tested, the seam between them not
+
+- **What happened**: the selection filter had ten tests and the picker's caps had a manifest test, and the widget still ignored the selection. Nothing covered `HabitEntityQuery.entities(for:)` — the step where AppIntents rebuilds a stored pick — and it had a real defect: it resolved ids against the snapshot's own order, so a pick came back re-sorted into app order, silently undoing "pick order is display order".
+- **What we did**: split the pure resolution out as `HabitEntityQuery.resolve(identifiers:in:)` (so a test needn't write into the App Group container the installed app uses) and covered order, misses and the empty case.
+- **Lesson**: testing both ends of a pipeline is not testing the pipeline. The untested seam is the one that carries the user's data, and it was invisible precisely because both neighbours were green.
+
+### An empty resolution is indistinguishable from "no pick", and means the opposite
+
+- **What happened**: `entities(for:)` returning `[]` — snapshot unreadable, ids stale — flows upstream as an empty selection, which the widgets read as *show everything*. A pick that fails to resolve doesn't look broken; it looks unconfigured.
+- **What we did**: made resolution drop only the ids that miss, so a partial failure reduces the pick rather than erasing it, and pinned the consequence in a named test so the next person meets it in writing.
+- **Lesson**: when a fallback means "the opposite of what the user asked for", every path that can silently produce it needs to be enumerated. "Empty means show everything" is convenient for a fresh widget and dangerous for a failed read.
+
 ### The toolchain claim was checkable without tapping anything
 
 - **What happened**: the load-bearing assumption was that an array `@Parameter` of `AppEntity` renders as a multi-select in the widget-edit sheet. XcodeBuildMCP has no tap primitives, so there was no way to open that sheet.
