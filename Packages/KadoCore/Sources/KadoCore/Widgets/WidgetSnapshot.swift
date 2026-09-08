@@ -87,6 +87,16 @@ public struct WidgetHabit: Codable, Sendable, Identifiable, Hashable {
         self.currentScore = currentScore
     }
 
+    /// `currentScore` as the whole percent every widget surface
+    /// displays. One rounding shared by all of them — the today
+    /// widgets read it through `WidgetTodayRow.scorePercent` and the
+    /// weekly grid straight off the habit, so the two can't disagree
+    /// about the same habit by a point. Clamped because the value
+    /// arrives from App Group JSON that nothing revalidates.
+    public var scorePercent: Int {
+        Int((max(0, min(1, currentScore)) * 100).rounded())
+    }
+
     // Backward-compatible decoding: pre-upgrade snapshot files on
     // disk don't carry the stats fields; default them to zero.
     private enum CodingKeys: String, CodingKey {

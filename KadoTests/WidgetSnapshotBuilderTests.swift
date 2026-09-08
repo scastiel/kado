@@ -226,6 +226,73 @@ struct WidgetSnapshotBuilderTests {
         #expect(topLevel.currentScore == matrixNested.currentScore)
     }
 
+    /// The large widget renders the percentage off the matrix row's
+    /// own habit, while the today widgets render the one the builder
+    /// baked into `WidgetTodayRow`. Both go through
+    /// `WidgetHabit.scorePercent`, so pin that they agree — a habit
+    /// showing 71% on one tile and 70% on the next is the visible
+    /// form of this drifting apart.
+    @Test("Today rows and matrix rows round the same habit to the same percent")
+    func scorePercentAgreesAcrossSurfaces() throws {
+        let container = try makeContainer()
+        let calendar = TestCalendar.utc
+        let today = TestCalendar.day(0)
+        let habit = HabitRecord(
+            name: "Walk",
+            frequency: .daily,
+            type: .binary,
+            createdAt: TestCalendar.day(-10)
+        )
+        container.mainContext.insert(habit)
+        for offset in 0...6 {
+            container.mainContext.insert(
+                CompletionRecord(date: TestCalendar.day(-offset), value: 1, habit: habit)
+            )
+        }
+        try container.mainContext.save()
+
+        let snapshot = WidgetSnapshotBuilder.build(
+            from: container.mainContext,
+            asOf: today,
+            calendar: calendar
+        )
+        let todayRow = try #require(snapshot.today.first)
+        let matrixHabit = try #require(snapshot.matrix.first?.habit)
+
+        #expect(todayRow.scorePercent == matrixHabit.scorePercent)
+        // Not `todayRow.scorePercent == todayRow.habit.scorePercent`:
+        // the builder stores that habit and derives the field from it,
+        // so those are the same expression on the same value and the
+        // assertion could never fail. Seven perfect days instead —
+        // enough that a percent of zero would mean the stats never
+        // reached the row at all.
+        #expect(todayRow.scorePercent > 0)
+    }
+
+    @Test("scorePercent rounds to whole percent and clamps a score out of 0...1")
+    func scorePercentRoundsAndClamps() {
+        func habit(score: Double) -> WidgetHabit {
+            WidgetHabit(
+                id: UUID(),
+                name: "Walk",
+                color: .blue,
+                icon: "figure.walk",
+                typeKind: .binary,
+                target: nil,
+                currentScore: score
+            )
+        }
+
+        #expect(habit(score: 0).scorePercent == 0)
+        #expect(habit(score: 1).scorePercent == 100)
+        #expect(habit(score: 0.704).scorePercent == 70)
+        #expect(habit(score: 0.705).scorePercent == 71)
+        // Values reach the widget through App Group JSON nothing
+        // revalidates, so out-of-range input must not print "-300%".
+        #expect(habit(score: -3).scorePercent == 0)
+        #expect(habit(score: 12).scorePercent == 100)
+    }
+
     // MARK: - Off-schedule completions (issue #57)
 
     @Test("A habit completed today past its weekly quota still appears in today's rows")
