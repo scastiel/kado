@@ -1,5 +1,5 @@
-Version 1.8 — Des semaines qui commencent où tu les commences, et des widgets qui méritent un second coup d'œil.
+Version 1.9 — Une petite fête quand la journée est bouclée, et un anneau sur ton écran verrouillé pour la voir se remplir.
 
-• Les calendriers et les grilles de semaine commencent maintenant le jour où ta région commence la sienne — le dimanche dans les Amériques et une bonne partie de l'Asie, le lundi en Europe — au lieu de toujours démarrer un lundi. Kadō suit le premier jour de la semaine que tu as choisi dans les Réglages d'iOS, et Réglages → Semaine te laisse décider toi-même. Les séries des habitudes « jours par semaine » se comptent sur la semaine que tu as sous les yeux.
-• Le grand widget de l'écran d'accueil affiche maintenant la série en cours et le score de chaque habitude à côté de son nom : la grille de la semaine arrive avec les chiffres qui vont avec, plutôt que sept cases toutes seules.
-• Les widgets de l'écran d'accueil restent lisibles avec les apparences Claire et Teintée. Les titres « Aujourd'hui » et « Cette semaine » disparaissaient dans la tuile dès qu'iOS reteintait le widget.
+• Termine la dernière habitude de ta liste et Kadō lance des confettis — une courte salve depuis les deux côtés de l'écran, avec « Tout est fait pour aujourd'hui » par-dessus. Ça s'affiche où que tu sois dans l'app, sans jamais bloquer un tap. Avec Réduire les animations, les confettis restent au placard et seule la légende apparaît ; VoiceOver annonce le moment dans les deux cas.
+• Un nouveau widget d'écran verrouillé « Progression du jour » : un anneau qui se referme à mesure que les habitudes du jour sont faites, avec le symbole de Kadō au centre. Un jour de repos, il affiche un tiret plutôt qu'un anneau vide.
+• Un écart sur une habitude « à éviter » ne compte plus comme fait dans le bilan de la journée : le compteur du widget d'écran d'accueil — et maintenant la fête — n'additionnent que les habitudes que tu as vraiment tenues.

@@ -688,6 +688,48 @@ tooling and documentation — invisible from the App Store.
 >   « Cette semaine » disparaissaient dans la tuile dès qu'iOS
 >   reteintait le widget.
 
+### What's New — 1.9
+
+Drawn from the one user-visible PR since the 1.8 build: #78, the daily
+completion reward — confetti with an "All done for today" caption when
+the last scheduled habit is completed, a "Daily Progress" Lock Screen
+ring with the Kadō mark at its centre, and the fix that stopped a slip
+on a negative habit counting as done in the day's tally.
+
+> Version 1.9 — A little celebration when the day is done, and a ring
+> on your Lock Screen to watch it get there.
+>
+> • Finish the last habit on your list and Kadō throws confetti — a
+>   quick burst from both sides of the screen, with "All done for
+>   today" on top. It plays wherever you happen to be in the app, and
+>   it never gets in the way of a tap. With Reduce Motion on, the
+>   confetti stays home and only the caption appears; VoiceOver
+>   announces the moment either way.
+> • A new "Daily Progress" Lock Screen widget: a ring that closes as
+>   today's habits get done, with the Kadō mark at its centre. On a
+>   rest day it shows a dash instead of an empty ring.
+> • A slip on a "don't" habit no longer counts as done in the day's
+>   tally, so the Home Screen widget's count — and now the
+>   celebration — only add up habits you actually kept.
+
+> Version 1.9 — Une petite fête quand la journée est bouclée, et un
+> anneau sur ton écran verrouillé pour la voir se remplir.
+>
+> • Termine la dernière habitude de ta liste et Kadō lance des
+>   confettis — une courte salve depuis les deux côtés de l'écran, avec
+>   « Tout est fait pour aujourd'hui » par-dessus. Ça s'affiche où que
+>   tu sois dans l'app, sans jamais bloquer un tap. Avec Réduire les
+>   animations, les confettis restent au placard et seule la légende
+>   apparaît ; VoiceOver annonce le moment dans les deux cas.
+> • Un nouveau widget d'écran verrouillé « Progression du jour » : un
+>   anneau qui se referme à mesure que les habitudes du jour sont
+>   faites, avec le symbole de Kadō au centre. Un jour de repos, il
+>   affiche un tiret plutôt qu'un anneau vide.
+> • Un écart sur une habitude « à éviter » ne compte plus comme fait
+>   dans le bilan de la journée : le compteur du widget d'écran
+>   d'accueil — et maintenant la fête — n'additionnent que les
+>   habitudes que tu as vraiment tenues.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
