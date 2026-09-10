@@ -14,7 +14,7 @@ supports it).
 
 | Field                  | Limit          | Where           | Status  |
 |------------------------|----------------|-----------------|---------|
-| App Name               | 30 chars       | App Information | ✅ 4    |
+| App Name               | 30 chars       | App Information | ✅ 24   |
 | Subtitle               | 30 chars       | App Information | ✅ 28   |
 | Promotional Text       | 170 chars      | Version (any)   | ✅ <170 |
 | Description            | 4000 chars     | Version (any)   | ✅ <4k  |
@@ -36,7 +36,21 @@ review — useful to tweak messaging between builds.
 
 ### Name
 
-> Kadō
+> Kadō — Habit Tracker
+
+(20 chars)
+
+### Name — FR
+
+> Kadō — Suivi d'habitudes
+
+(24 chars)
+
+The brand alone said nothing in a results list, and "tracker" only
+lived in the keyword field — the lightest-weighted one. The name is the
+heaviest, so the category goes there and the subtitle stays the pitch.
+The device keeps `CFBundleDisplayName = Kadō`; only the store name
+carries the descriptor.
 
 ### Subtitle — EN
 
@@ -398,9 +412,9 @@ added. Use:
 
 ### Keywords — EN (100 chars, comma-separated, no spaces after commas)
 
-> habit,tracker,streak,routine,goals,productivity,health,watch,widget,privacy,open source,loop
+> streak,routine,goals,productivity,health,watch,widget,privacy,open source,loop
 
-(94 chars)
+(78 chars — `habit` and `tracker` moved into the name)
 
 Do not repeat words already in the app name or title. Do not use
 plurals and singulars together — App Store Search handles
@@ -408,9 +422,9 @@ stemming.
 
 ### Keywords — FR (100 chars)
 
-> habitude,suivi,routine,série,objectif,productivité,santé,widget,confidentialité,open source
+> routine,série,objectif,productivité,santé,widget,confidentialité,open source
 
-(94 chars)
+(76 chars — `habitude` et `suivi` sont dans le nom)
 
 ### What's New — first public release (EN)
 
