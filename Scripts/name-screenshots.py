@@ -5,7 +5,7 @@
 records the real one in a manifest. The real one is the whole point — "01-today" is what puts
 the screenshot first in App Store Connect — so this is the step that turns one into the other.
 
-    name-screenshots.py <exported dir> <destination dir> <expected WxH>
+    name-screenshots.py <exported dir> <destination dir> <expected WxH> [<tiles dir>]
     name-screenshots.py --self-test
 
 The destination is added to, never emptied: a light pass, a dark pass and a widgets pass write
@@ -16,8 +16,10 @@ listing is rejected for it, and the rejection arrives days later.
 
 The one exception is a *tile*: an attachment named `NN-name--part` is one piece of a shot that
 `Scripts/frame-screenshots.swift` assembles rather than a shot on its own, and it lands at
-`NN-name/part.png` at whatever size the element it photographs has. The widgets shot is made of
-four of these. `--self-test` checks the routing rule without a result bundle.
+`<tiles dir>/NN-name/part.png` at whatever size the element it photographs has. The tiles dir is
+the *locale's* folder, not the device's: tiles are photographed once, on the iPhone at 3×, and
+every canvas is composed from the same files. The widgets shot is made of four of these.
+`--self-test` checks the routing rule without a result bundle.
 """
 
 import json
@@ -95,6 +97,7 @@ def main() -> int:
     if sys.argv[1:] == ["--self-test"]:
         return self_test()
     source, destination, expected = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
+    tiles = Path(sys.argv[4]) if len(sys.argv) > 4 else destination
     expected_size = tuple(int(part) for part in expected.split("x"))
 
     manifest_path = source / "manifest.json"
@@ -132,7 +135,7 @@ def main() -> int:
             )
             return 1
 
-        target = destination / relative
+        target = (destination if is_shot else tiles) / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(file, target)
         print(f"  {target}  {size[0]}x{size[1]}")

@@ -103,9 +103,11 @@ final class ScreenshotTests: KadoUITestCase {
     /// Not a screen: `Scripts/frame-screenshots.swift` arranges these
     /// on the paper ground under the headline, so what leaves here is
     /// four crops, each at the device's scale, named `03-widgets--<part>`
-    /// so `Scripts/name-screenshots.py` files them under `03-widgets/`
-    /// and skips the canvas check a whole screenshot gets. Any name
-    /// change here is a file-name change in the frame's layout table.
+    /// so `Scripts/name-screenshots.py` files them under the locale's
+    /// `03-widgets/` and skips the canvas check a whole screenshot gets.
+    /// The script runs this on the iPhone only — its 3× tiles serve
+    /// every canvas. Any name change here is a file-name change in the
+    /// frame's layout table.
     @MainActor
     func testCaptureWidgetTiles() throws {
         let app = launchApp(

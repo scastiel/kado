@@ -13,12 +13,15 @@
 # docs/app-store/screenshots/<locale>/<device>/, numbered in the order App Store Connect should
 # show them, then get wrapped for the listing into docs/app-store/marketing/.
 #
-# Three passes per combination. Light and dark, because nothing inside a test can change the
-# simulator's appearance: a light one for the screens (01, 02, 04–06) and a dark one for 07.
-# And a widgets pass, which launches the app on its Debug-only widget gallery and photographs
-# the tiles the frame assembles into 03. `--passes` picks a subset — and a subset run adds to
-# the folder rather than emptying it first, so re-photographing the tiles after a lock-screen
-# tweak keeps the six screens as they were.
+# Three passes. Light and dark, per language and per device, because nothing inside a test can
+# change the simulator's appearance: a light one for the screens (01, 02, 04–06) and a dark one
+# for 07. And a widgets pass, per language on the iPhone only, which launches the app on its
+# Debug-only widget gallery and photographs the tiles the frame assembles into 03. The tiles
+# land beside the device folders, in docs/app-store/screenshots/<locale>/03-widgets/, because
+# both canvases are composed from the same 3× files — the iPad's own 2× tiles would only be
+# upscaled onto its canvas. `--passes` picks a subset, and a subset run adds to the folder
+# rather than emptying it first, so re-photographing the tiles after a lock-screen tweak keeps
+# the six screens as they were.
 #
 # Before each pass the simulator is set to that language, booted, pinned to an appearance and
 # given a 9:41 status bar, so two runs a week apart differ only where the app differs.
@@ -61,6 +64,9 @@ print(d)' "$CONFIG" "$@"
 LANGUAGES=(en fr)
 DEVICES=(iphone-6.9 ipad-13)
 PASSES=(light dark widgets)
+# The one device the widget tiles are photographed on. Its 3× tiles downscale cleanly onto
+# every canvas; a 2× iPad tile would have to be upscaled onto the iPad's own.
+TILE_DEVICE="iphone-6.9"
 # Whether this run covers every pass. Only then is the destination emptied first: a partial run
 # is replacing some of the pictures and must leave the others alone.
 FULL_RUN="yes"
@@ -133,9 +139,18 @@ for device in "${DEVICES[@]}"; do
     # the rest where they are.
     if [[ -n "$FULL_RUN" ]]; then
       rm -rf "$destination"
+      # The locale's tiles too, when this is the device that photographs them.
+      if [[ "$device" == "$TILE_DEVICE" ]]; then
+        for tiles in "$OUTPUT/$locale"/[0-9][0-9]-*; do
+          [[ -d "$tiles" ]] && rm -rf "$tiles"
+        done
+      fi
     fi
 
     for pass in "${PASSES[@]}"; do
+      if [[ "$pass" == widgets && "$device" != "$TILE_DEVICE" ]]; then
+        continue
+      fi
       case "$pass" in
         light)   test_case="ScreenshotTests/testCaptureLightScreenshots"; appearance="light" ;;
         dark)    test_case="ScreenshotTests/testCaptureDarkScreenshots";  appearance="dark" ;;
@@ -175,7 +190,8 @@ for device in "${DEVICES[@]}"; do
       # The export names files after the attachment's UUID and records the name the test gave it
       # in a manifest. The name is the whole point — it is what orders the set in App Store
       # Connect — so the manifest is what decides the file names here.
-      python3 Scripts/name-screenshots.py "$exported" "$destination" "$expected_size"
+      python3 Scripts/name-screenshots.py "$exported" "$destination" "$expected_size" \
+        "$OUTPUT/$locale"
     done
 
     xcrun simctl status_bar "$udid" clear
