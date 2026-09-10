@@ -144,6 +144,11 @@ struct KadoApp: App {
             }
             let swapped = devModeController.container(forDevMode: newValue)
             ActiveContainer.shared.set(swapped)
+            // The reload below reports the *new* store's day to the
+            // celebration; without a reset it would be compared with
+            // the old store's, and a dev dataset that happens to be
+            // finished would throw confetti for flipping a toggle.
+            DayCompletionCelebration.shared.reset()
             // Widgets read a JSON snapshot, not the live SwiftData
             // store. Without this the widget keeps showing the
             // previous dataset (dev vs production) until the next

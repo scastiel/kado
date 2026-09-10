@@ -170,18 +170,27 @@ public enum WidgetSnapshotBuilder {
     /// Convenience: build from the production container and write
     /// to the App Group JSON in one shot. Safe to call from any
     /// mutation site.
+    ///
+    /// Also where the day-complete celebration is fed. This is the one
+    /// call every mutation path already makes — the views through
+    /// `WidgetReloader`, the intents directly, the app at launch and
+    /// at the day edge — so reporting the day's progress here means no
+    /// surface can complete the day without the confetti hearing about
+    /// it, and none has to remember a second call.
     public static func rebuildAndWrite(using context: ModelContext) {
         // Widgets render a pre-computed snapshot and never ask what day
         // it is — nor which day a week opens on — so both preferences
         // have to be resolved here, once. The week start reaches the
         // streak calculator, whose `.daysPerWeek` count is bucketed
         // into whole calendar weeks.
+        let day = DayStartDefaults.boundary().startOfDay(for: .now)
         let snapshot = build(
             from: context,
-            asOf: DayStartDefaults.boundary().startOfDay(for: .now),
+            asOf: day,
             calendar: WeekStartDefaults.calendar()
         )
         WidgetSnapshotStore.write(snapshot)
+        DayCompletionCelebration.shared.observe(snapshot.dayProgress, on: day)
     }
 
     // MARK: - Mapping helpers
