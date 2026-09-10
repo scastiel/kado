@@ -249,6 +249,13 @@ celebration count changes.
   a negative habit — and routed the snapshot count and the Today
   milestone through it. Pinned by three row-state tests and a builder
   test.
+- **After the device run, on request**: the top-edge rain was rebuilt
+  as two party poppers, one per side, firing inward and up. Motion is
+  a launch under gravity with linear air drag, solved exactly, so it
+  is still closed-form and stateless. Speeds and gravity are tuned in
+  phone points and scaled with the shorter screen side, so an iPad
+  gets the same burst shape. 220 pieces, a 0–0.18s roll on the
+  launch, and the duration went to 3.4s.
 - **Catalogs**: appended with a small script that dumps with
   `separators=(",", " : ")` so the diff is purely additive and matches
   Xcode's layout; the widget catalog had no trailing newline, so its
