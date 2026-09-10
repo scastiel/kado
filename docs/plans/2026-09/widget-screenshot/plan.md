@@ -1,7 +1,7 @@
 # Plan — Widget screenshot for the App Store listing
 
 **Date**: 2026-09-09
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -33,7 +33,7 @@ thumbnails the results page shows.
 
 ## Task list
 
-### Task 1: Renumber the set to make room
+### Task 1: Renumber the set to make room ✅
 
 **Goal**: `03` is free, and every reference to the old numbers moves
 with the files, so `make frames` regenerates an identical set under
@@ -63,7 +63,7 @@ the new names before any new code lands.
 
 ---
 
-### Task 2: Move the widget views into KadoCore
+### Task 2: Move the widget views into KadoCore ✅
 
 **Goal**: the app target can compile every widget view; the extension
 keeps only its `Widget` configurations, bundle and previews.
@@ -97,7 +97,7 @@ keeps only its `Widget` configurations, bundle and previews.
 
 ---
 
-### Task 3: A Debug-only widget gallery
+### Task 3: A Debug-only widget gallery ✅
 
 **Goal**: launched with `-uiTestWidgetGallery`, the app shows every
 widget at its Home Screen / Lock Screen size on the screenshot seed,
@@ -147,7 +147,7 @@ each tile addressable by identifier.
 
 ---
 
-### Task 4: Photograph the tiles
+### Task 4: Photograph the tiles ✅
 
 **Goal**: `make screenshots` writes
 `screenshots/<locale>/<device>/03-widgets/{medium,small,large,lock}.png`
@@ -181,7 +181,7 @@ beside the six captures, and a partial run can refresh only them.
 
 ---
 
-### Task 5: Compose the assembly in the frame
+### Task 5: Compose the assembly in the frame ✅
 
 **Goal**: `make frames` turns `03-widgets/` into a framed
 `03-widgets.png` on every canvas, under the headline, in the set's
@@ -216,7 +216,7 @@ own idiom.
 
 ---
 
-### Task 6: Documentation
+### Task 6: Documentation ✅
 
 **Goal**: the pipeline's own docs describe assemblies, and the
 "widgets are not captured" note is retired.
@@ -234,7 +234,7 @@ own idiom.
 
 ---
 
-### Task 7: Ship it to 1.9
+### Task 7: Ship it to 1.9 ✅
 
 **Goal**: the seven framed screenshots replace the six on the 1.9
 version record.
@@ -265,12 +265,52 @@ version record.
   `public`, a `Bundle.main` string that used to be found). Mitigation:
   `build_sim` + adding each widget on the simulator once after Task 2.
 
+## Notes during build
+
+- **Task 3**: the first gallery ignored the safe area to fit four
+  170/170/170/382 rows in 956pt — and the simulator paints the Dynamic
+  Island *over* the app, so the medium tile would have been
+  photographed with a black pill in its corner. Staying inside the
+  safe area left 860pt, which four rows don't fit. Fix was a layout
+  change, not a smaller gallery: the lock card became a tall tile
+  (186×230) beside the small one, so `170 + 8 + 186` lines up with the
+  medium's 364 and the gallery is 806pt. That column is also what the
+  phone canvas composes, so the constraint improved the frame.
+- **Task 3**: the seed's hero, "Morning meditation", truncates on the
+  172pt rectangular Lock Screen card exactly as it would for real.
+  The picked widgets now show the first *completed* habit whose name
+  fits (≤ 14 characters) — "Running" / "Course à pied" in both
+  languages. `.footnote` for the inline line, with `minimumScaleFactor
+  0.75`, was needed for "4 sur 6 faites aujourd'hui".
+- **Task 3**: XcodeBuildMCP's `snapshot_ui` flattens accessibility
+  containers, so it never shows the tile identifiers. The real check
+  was XCUITest's `app.otherElements[id]` in Task 4, which found all
+  four on the first run.
+- **Task 4 → 5**: the iPad's own tiles came out at 2× (728px for the
+  medium) and the iPad canvas needs ~1650px of them. Rather than
+  upscale 1.5× beside pixel-exact device frames, the tiles moved up to
+  `screenshots/<locale>/03-widgets/` and are photographed **once, on
+  the iPhone, at 3×**; both canvases compose from those at 0.94× and
+  1.03×. The plan had assumed per-device tiles.
+- **Task 4**: the six existing screens were *not* re-photographed —
+  `--passes widgets` was used for all four combinations, which
+  exercised the subset mode and kept the committed captures (taken
+  Sep 5) rather than churning them for a four-day-newer calendar.
+- **Task 5**: `.accessibilityElement(children: .contain)` +
+  `.accessibilityIdentifier` on the tile is the right shape:
+  `XCUIElement.screenshot()` crops to it at device scale, corners
+  included, and the frame re-clips at 22pt × scale.
+- **Task 5**: the iPad arrangement right-aligns the 170pt small tile
+  with the 186pt lock card so the silhouette is a rectangle; the
+  16pt gap between tiles is about the Home Screen's own.
+
 ## Open questions
 
 - [ ] Should getkado.app show the assembly (it would need the framed
-      image, not a raw capture, on its strip)?
-- [ ] Upload to 1.9 as soon as Task 5 lands, or hold for a look at
-      the whole set in App Store Connect first?
+      image, not a raw capture, on its strip)? Carried forward — the
+      site keeps its six raw captures.
+- [x] Uploaded to 1.9 as soon as the frame landed: seven per set, in
+      both locales, replacing the six.
 
 ## Out of scope
 
