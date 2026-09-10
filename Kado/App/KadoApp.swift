@@ -42,6 +42,24 @@ struct KadoApp: App {
         DayBoundary(calendar: weekCalendar, startHour: DayStartDefaults.clamp(dayStartHour))
     }
 
+    /// The app, or — on a screenshot run that asked for it — the
+    /// gallery of widgets it photographs tile by tile. Swapped here
+    /// rather than inside `ContentView` so the gallery sits under the
+    /// same container and environment the app does, and the seed task
+    /// below still runs.
+    @ViewBuilder
+    private var rootView: some View {
+        #if DEBUG
+        if UITestSupport.showsWidgetGallery {
+            WidgetGalleryView()
+        } else {
+            ContentView()
+        }
+        #else
+        ContentView()
+        #endif
+    }
+
     init() {
         #if DEBUG
         // Before anything opens a `ModelContainer`: a run that asked for
@@ -74,7 +92,7 @@ struct KadoApp: App {
         ActiveScheduler.shared.set(notificationScheduler)
 
         return WindowGroup {
-            ContentView()
+            rootView
                 .task { await cloudAccountStatus.refresh() }
                 .task {
                     // Seed the widget's App Group JSON snapshot at

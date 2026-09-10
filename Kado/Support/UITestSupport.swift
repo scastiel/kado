@@ -69,6 +69,17 @@ nonisolated enum UITestSupport {
         /// week away from any fresh launch, which no test and no visual
         /// check can wait for.
         static let tipNudgeReady = "-uiTestTipNudgeReady"
+        /// Show `WidgetGalleryView` instead of the app: every widget
+        /// at its Home Screen / Lock Screen size on the seeded data,
+        /// for the screenshot run to photograph tile by tile. Passed
+        /// alongside `seedProduction` and `seedForScreenshots`.
+        static let widgetGallery = "-uiTestWidgetGallery"
+    }
+
+    /// Whether the root view should be the widget gallery.
+    static var showsWidgetGallery: Bool {
+        isRunningUITests
+            && ProcessInfo.processInfo.arguments.contains(Argument.widgetGallery)
     }
 
     /// Whether the New Habit sheet should skip focusing its name field.
@@ -225,5 +236,6 @@ nonisolated enum UITestSupport {
 /// keeps the view unconditional and the answer constant in release.
 nonisolated enum UITestSupport {
     static var suppressesNameAutoFocus: Bool { false }
+    static var showsWidgetGallery: Bool { false }
 }
 #endif
