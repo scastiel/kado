@@ -29,7 +29,7 @@ struct ConfettiView: View {
     static let simulatedLength: TimeInterval = 3.6
     /// How many simulated seconds pass per real one. The one knob for
     /// "a bit faster" that keeps every arc and flutter the same shape.
-    static let tempo: Double = 1.3
+    static let tempo: Double = 1.7
     /// How long a burst lasts in real time, fade included. The host
     /// removes the view after this.
     static var duration: TimeInterval { simulatedLength / tempo }
