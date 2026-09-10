@@ -33,16 +33,16 @@ struct DayCompletionCelebrationModifier: ViewModifier {
         content
             .overlay {
                 if let run {
+                    // No transition here: one on the whole overlay
+                    // would slide the confetti canvas in along with
+                    // the caption, and a burst that is translating
+                    // while it pops reads as wrong before anything
+                    // else does. Each part brings its own, below.
                     CelebrationOverlay(
                         startedAt: run.startedAt,
-                        showsParticles: !reduceMotion
+                        reduceMotion: reduceMotion
                     )
                     .id(run.id)
-                    .transition(
-                        reduceMotion
-                            ? .opacity
-                            : .move(edge: .top).combined(with: .opacity)
-                    )
                 }
             }
             .onChange(of: celebration.celebrationCount) { _, count in
@@ -70,16 +70,25 @@ struct DayCompletionCelebrationModifier: ViewModifier {
 /// the top safe area. Neither takes touches.
 private struct CelebrationOverlay: View {
     let startedAt: Date
-    let showsParticles: Bool
+    let reduceMotion: Bool
 
     var body: some View {
         ZStack(alignment: .top) {
-            if showsParticles {
+            if !reduceMotion {
+                // The canvas draws nothing until its own clock starts,
+                // so it only needs to be there, not to arrive: a plain
+                // fade on removal, and no movement of its own.
                 ConfettiView(startedAt: startedAt)
                     .ignoresSafeArea()
+                    .transition(.opacity)
             }
             caption
                 .padding(.top, KadoSpace.s3)
+                .transition(
+                    reduceMotion
+                        ? .opacity
+                        : .move(edge: .top).combined(with: .opacity)
+                )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .allowsHitTesting(false)

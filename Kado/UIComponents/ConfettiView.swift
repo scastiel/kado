@@ -7,11 +7,18 @@ import KadoCore
 /// Every particle's position, spin and fade are closed-form functions
 /// of the time elapsed since `startedAt`, so the view holds no
 /// simulation state: `TimelineView` asks for a frame, the canvas
-/// evaluates each particle at that instant and draws it. Motion is a
-/// launch velocity under gravity with linear air drag — the pop, then
-/// the float — which has an exact solution and needs no integration.
-/// The particle set comes from a seeded generator, so previews and
-/// repeated runs look the same.
+/// evaluates each particle at that instant and draws it. The particle
+/// set comes from a seeded generator, so previews and repeated runs
+/// look the same.
+///
+/// Each piece has two lives. The **pop**: a launch under gravity with
+/// linear air drag, which has an exact solution and plays out as a
+/// visible arc over most of a second. The **float**: what a flat piece of paper does
+/// once it has stopped travelling — it glides sideways while it is
+/// flat and slow, then tips edge-on and drops, over and over. That is
+/// modelled as a sideways sine whose vertical speed is slowest at the
+/// ends of each glide and fastest in the middle, integrated in closed
+/// form, with a fall speed that differs piece to piece.
 ///
 /// Purely decorative: it lets touches through and is hidden from
 /// VoiceOver. The caller decides *when* to show it — and whether to,
@@ -19,13 +26,13 @@ import KadoCore
 struct ConfettiView: View {
     /// How long a burst lasts, fade included. The host removes the
     /// view after this.
-    static let duration: TimeInterval = 3.4
+    static let duration: TimeInterval = 3.6
 
     let startedAt: Date
 
     private let particles: [Particle]
 
-    init(startedAt: Date, count: Int = 220, seed: UInt64 = 0x5EED_CAFE) {
+    init(startedAt: Date, count: Int = 160, seed: UInt64 = 0x5EED_CAFE) {
         self.startedAt = startedAt
         var generator = SeededGenerator(seed: seed)
         // Alternating sides, so an odd count still splits evenly.
@@ -79,18 +86,25 @@ struct ConfettiView: View {
         /// part already carries the side's direction.
         let launchX: Double
         let launchY: Double
-        /// Air drag, per second. Paper decelerates fast, and the more
-        /// drag a piece has the sooner it stops travelling and starts
-        /// floating.
+        /// Air drag during the pop, per second. The launch velocity
+        /// relaxes toward the float with time constant 1 / drag.
         let drag: Double
         /// Seconds after the burst starts before this piece leaves the
         /// popper — a little roll so the burst isn't a single frame.
         let delay: Double
-        /// Side-to-side flutter once it floats: amplitude in points,
-        /// frequency in Hz.
-        let sway: Double
-        let swayFrequency: Double
-        let swayPhase: Double
+        /// Steady fall once floating, phone points per second. A
+        /// slip of paper and a heavier dot fall at different speeds,
+        /// so the cloud stretches instead of sinking as a block.
+        let terminal: Double
+        /// A gentle constant sideways breeze, points per second, so
+        /// pieces don't all settle on their own vertical.
+        let breeze: Double
+        /// The glide: amplitude in points, angular frequency, phase.
+        let glide: Double
+        let glideOmega: Double
+        let glidePhase: Double
+        /// How much the fall slows at the ends of a glide (0…1).
+        let flutter: Double
         /// In-plane spin and a fake out-of-plane tumble (the x scale
         /// runs through a cosine so a rectangle appears to flip).
         let angle0: Double
@@ -98,15 +112,11 @@ struct ConfettiView: View {
         let flip: Double
         let flipPhase: Double
 
-        /// Phone points per second squared. With the drag above this
-        /// gives a terminal fall of roughly 250–375 pt/s: a float, not
-        /// a drop.
-        static let gravity: Double = 900
         /// The screen width the tuning was done on. Larger screens
-        /// scale speeds and gravity up by the same factor.
+        /// scale distances and speeds up by the same factor.
         static let referenceWidth: Double = 402
         /// The fraction of `duration` after which pieces start to fade.
-        static let fadeStart: Double = 0.7
+        static let fadeStart: Double = 0.68
 
         init(side: Side, using generator: inout SeededGenerator) {
             func random(_ range: ClosedRange<Double>) -> Double {
@@ -116,30 +126,45 @@ struct ConfettiView: View {
             color = Self.palette[Int.random(in: 0..<Self.palette.count, using: &generator)]
             // Sized for a phone at arm's length: on a 3× screen anything
             // under ~7pt reads as dust rather than paper.
-            if random(0...1) < 0.25 {
-                shape = .circle(radius: random(3...5.5))
+            let isDot = random(0...1) < 0.22
+            if isDot {
+                shape = .circle(radius: random(3...5))
             } else {
                 shape = .rectangle(width: random(7...15), height: random(4...8))
             }
-            // Poppers sit low; the burst has to climb the whole screen.
-            // With these numbers half the pieces peak in the top
-            // eighth, a tenth briefly leave the top and fall back in,
-            // and the median piece crosses nearly the full width.
-            originY = random(0.7...0.95)
-            let speed = random(2200...3400)
-            let angle = random(45...85) * .pi / 180
+            // Poppers sit low and fire along an axis about 68° above
+            // horizontal, in a fan that bunches toward the axis (two
+            // rolls averaged) the way a cannon's stream does. With the
+            // drag below the flight is visible for most of a second:
+            // the median piece peaks in the upper half of the screen
+            // three-quarters of the way across, and leaves the bottom
+            // just under three seconds in.
+            originY = random(0.72...0.95)
+            let speed = random(1000...1900)
+            let spread = (random(-12...12) + random(-12...12)) / 2
+            let angle = (68 + spread) * .pi / 180
             let direction: Double = side == .leading ? 1 : -1
             launchX = direction * speed * cos(angle)
             launchY = -speed * sin(angle)
-            drag = random(2.4...3.6)
-            delay = random(0...0.18)
-            sway = random(6...22)
-            swayFrequency = random(0.8...1.8)
-            swayPhase = random(0...(2 * .pi))
+            drag = random(1.3...2.1)
+            // A stream, not a shell: the popper empties over a third
+            // of a second.
+            delay = random(0...0.3)
+            // Dots are the heavy ones: they drop straighter and faster
+            // and hardly glide. Strips linger.
+            terminal = isDot ? random(480...680) : random(320...520)
+            breeze = random(-18...18)
+            glide = isDot ? random(4...10) : random(22...56)
+            glideOmega = 2 * .pi * (isDot ? random(1.2...2) : random(0.5...1.0))
+            glidePhase = random(0...(2 * .pi))
+            flutter = isDot ? random(0.05...0.15) : random(0.35...0.6)
             angle0 = random(0...(2 * .pi))
-            spin = random(-9...9)
-            flip = random(3...9)
-            flipPhase = random(0...(2 * .pi))
+            spin = random(-4...4)
+            // The tumble rides on the glide's phase (see `draw`), so
+            // this is only a slow drift on top of it — enough that two
+            // pieces on the same glide don't flip in lockstep.
+            flip = isDot ? 0 : random(0.3...1.2)
+            flipPhase = random(-0.4...0.4)
         }
 
         func draw(in context: GraphicsContext, size: CGSize, at elapsed: Double) {
@@ -150,19 +175,31 @@ struct ConfettiView: View {
 
             let scale = max(1, min(size.width, size.height) / Self.referenceWidth)
             let k = drag
-            let decay = 1 - exp(-k * t)
+            // 0 at launch, 1 once the pop has burned out. Also what
+            // brings the float in, so the two lives blend rather than
+            // switch.
+            let settled = 1 - exp(-k * t)
+
+            // The pop: linear drag under gravity, solved exactly —
+            // velocity relaxes from the launch value toward the float.
+            let popX = launchX / k * settled
+            let popY = terminal * t + (launchY - terminal) / k * settled
+
+            // The float. Sideways: a glide that starts from rest.
+            // Vertical: the fall is slowest at the ends of each glide
+            // (the piece is flat, sliding) and fastest in the middle
+            // (edge-on, dropping) — speed ∝ 1 − flutter·cos 2θ, whose
+            // integral is the sine term below.
+            let theta = glideOmega * t + glidePhase
+            let glideX = (glide * (sin(theta) - sin(glidePhase)) + breeze * t) * settled
+            let flutterY = -terminal * flutter / (2 * glideOmega)
+                * (sin(2 * theta) - sin(2 * glidePhase)) * settled
+
             // Just off the edge, so the first frame shows pieces
             // already in flight rather than popping into existence.
             let originX = side == .leading ? -0.03 * size.width : 1.03 * size.width
-            // Linear drag under gravity, solved exactly: velocity
-            // relaxes from the launch value toward terminal (gravity /
-            // drag) with time constant 1 / drag.
-            let x = originX
-                + scale * launchX / k * decay
-                + scale * sway * sin(2 * .pi * swayFrequency * t + swayPhase) * decay
-            let terminal = Self.gravity / k
-            let y = originY * size.height
-                + scale * (terminal * t + (launchY - terminal) / k * decay)
+            let x = originX + scale * (popX + glideX)
+            let y = originY * size.height + scale * (popY + flutterY)
             // Off the bottom: nothing to draw.
             guard y < size.height * 1.1 else { return }
 
@@ -172,9 +209,14 @@ struct ConfettiView: View {
             local.rotate(by: .radians(angle0 + spin * t))
             switch shape {
             case .rectangle(let width, let height):
-                // Never let the scale reach zero: a degenerate transform
-                // is a wasted fill, and a hairline reads as a glint.
-                let flipScale = max(0.15, abs(cos(flip * t + flipPhase)))
+                // The tumble follows the glide: flat (cos θ = ±1) at
+                // the ends where the piece slides slowly, on edge
+                // (cos θ = 0) through the middle where it drops — the
+                // same phase the fall speed keys off, so what the eye
+                // sees and how the piece moves agree. Never fully
+                // edge-on: a degenerate transform is a wasted fill,
+                // and a hairline reads as a glint.
+                let flipScale = max(0.12, abs(cos(theta + flip * t + flipPhase)))
                 local.scaleBy(x: flipScale * scale, y: scale)
                 local.fill(
                     Path(CGRect(x: -width / 2, y: -height / 2, width: width, height: height)),
