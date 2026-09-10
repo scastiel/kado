@@ -477,6 +477,57 @@
           }
         }
       }
+    },
+    "Daily Progress" : {
+      "comment" : "Day-progress circular lock widget display name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Progress"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression du jour"
+          }
+        }
+      }
+    },
+    "How many of today's habits are done, as a ring." : {
+      "comment" : "Day-progress circular lock widget description.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How many of today's habits are done, as a ring."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien d'habitudes du jour sont faites, en anneau."
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "comment" : "Centre of the day-progress lock ring. Arg 1 completed, arg 2 scheduled today.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

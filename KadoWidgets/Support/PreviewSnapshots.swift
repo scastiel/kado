@@ -19,6 +19,32 @@ enum PreviewSnapshots {
         )
     }
 
+    /// `populated` with every row finished — the closed ring on the
+    /// day-progress widget, and the small widget's grid with nothing
+    /// left to tap.
+    static var allDone: WidgetSnapshot {
+        let today = makeTodayRows().map { row in
+            WidgetTodayRow(
+                habit: row.habit,
+                status: .complete,
+                progress: 1,
+                valueToday: row.habit.target ?? 1,
+                streak: row.streak,
+                scorePercent: row.scorePercent
+            )
+        }
+        let (matrix, days) = makeMatrix()
+        return WidgetSnapshot(
+            generatedAt: .now,
+            habits: today.map(\.habit),
+            today: today,
+            totalDueToday: today.count,
+            completedToday: today.count,
+            matrix: matrix,
+            matrixDays: days
+        )
+    }
+
     private static func makeTodayRows() -> [WidgetTodayRow] {
         func row(
             id: UUID = UUID(),
