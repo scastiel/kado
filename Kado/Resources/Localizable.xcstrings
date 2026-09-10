@@ -4229,6 +4229,23 @@
           }
         }
       }
+    },
+    "All done for today" : {
+      "comment" : "Caption shown with the confetti when the last habit scheduled for today is completed. Also read by VoiceOver.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All done for today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout est fait pour aujourd'hui"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

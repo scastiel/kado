@@ -85,6 +85,15 @@ enum AccessibilityID {
         static let tipNudgeHideButton = "today.tipNudge.hide"
     }
 
+    enum Celebration {
+        /// The "All done for today" caption that rides along with the
+        /// confetti. Collapsed to one element by the view, so this lands
+        /// on a leaf; the confetti canvas itself is hidden from
+        /// accessibility and has nothing to identify. It is on screen
+        /// for about three seconds, which is the window a test has.
+        static let caption = "celebration.caption"
+    }
+
     enum HabitDetail {
         /// The score card. A `Button`, so it is already a single
         /// accessibility element and this lands on a leaf. Waited on
