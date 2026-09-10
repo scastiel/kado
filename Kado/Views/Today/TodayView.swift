@@ -425,7 +425,7 @@ struct TodayView: View {
                 completions: item.completions,
                 calendar: calendar,
                 asOf: today
-            ).status == .complete
+            ).isDone(for: item.habit)
         }.count
         if DayProgress(completed: completed, total: due.count).isComplete {
             reviewPromptService.recordMilestone(.allHabitsComplete)

@@ -128,7 +128,10 @@ public enum WidgetSnapshotBuilder {
                     scorePercent: widgetHabit.scorePercent
                 )
             )
-            if state.status == .complete { completed += 1 }
+            // Not `status == .complete`: for a negative habit that is a
+            // slip, and the day's tally must not count giving in as
+            // getting it done.
+            if state.isDone(for: snap) { completed += 1 }
         }
 
         // Matrix window (last N days ending today).

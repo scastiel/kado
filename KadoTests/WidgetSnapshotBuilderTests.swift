@@ -360,4 +360,31 @@ struct WidgetSnapshotBuilderTests {
         #expect(cells[5] == .notDue)
         #expect(cells[6] == .scored(0.0))
     }
+
+    @Test("A negative habit counts as done until it slips")
+    func negativeHabitCountsUntilItSlips() throws {
+        let container = try makeContainer()
+        let read = HabitRecord(name: "Read", frequency: .daily, type: .binary)
+        let noSugar = HabitRecord(name: "No sugar", frequency: .daily, type: .negative)
+        container.mainContext.insert(read)
+        container.mainContext.insert(noSugar)
+        container.mainContext.insert(CompletionRecord(date: .now, value: 1, habit: read))
+        try container.mainContext.save()
+
+        // Nothing recorded against "No sugar" is the win, so with the
+        // book read the day is whole.
+        let kept = WidgetSnapshotBuilder.build(from: container.mainContext)
+        #expect(kept.dayProgress == DayProgress(completed: 2, total: 2))
+        #expect(kept.dayProgress.isComplete)
+
+        // A slip is a record — `.complete` on the row — but it takes
+        // the day *away*, and must never read as the last habit done.
+        container.mainContext.insert(CompletionRecord(date: .now, value: 1, habit: noSugar))
+        try container.mainContext.save()
+
+        let slipped = WidgetSnapshotBuilder.build(from: container.mainContext)
+        #expect(slipped.today.first { $0.habit.name == "No sugar" }?.status == .complete)
+        #expect(slipped.dayProgress == DayProgress(completed: 1, total: 2))
+        #expect(!slipped.dayProgress.isComplete)
+    }
 }

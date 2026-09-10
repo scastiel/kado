@@ -1,8 +1,9 @@
 import Foundation
 
-/// How far today has come: habits completed against habits the
-/// schedule asked for (or that were logged anyway — the Today tab's
-/// `isDueOrLogged` rule).
+/// How far today has come: habits done against habits the schedule
+/// asked for (or that were logged anyway — the Today tab's
+/// `isDueOrLogged` rule). "Done" is `HabitRowState.isDone(for:)`,
+/// which is where a negative habit counts as done *until* it slips.
 ///
 /// The one home for "the day is done". The confetti, the review-prompt
 /// milestone and the lock-screen ring all read `isComplete` from here

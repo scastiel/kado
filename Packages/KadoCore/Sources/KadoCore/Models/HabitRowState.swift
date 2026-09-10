@@ -25,6 +25,23 @@ nonisolated public struct HabitRowState: Equatable, Sendable {
         self.valueToday = valueToday
     }
 
+    /// Whether the day counts as done for this habit — the rule behind
+    /// "3 of 5 done today", the lock-screen ring and the confetti.
+    ///
+    /// `status` describes what was *recorded*, and for a negative habit
+    /// a record is a slip: `.complete` means the user gave in. So the
+    /// win for a "don't" habit is the empty row, and it stays a win
+    /// only until a slip lands. Everything else is done when its
+    /// target is met.
+    public func isDone(for habit: Habit) -> Bool {
+        switch habit.type {
+        case .negative:
+            return status != .complete
+        case .binary, .counter, .timer:
+            return status == .complete
+        }
+    }
+
     public static func resolve(
         habit: Habit,
         completions: [Completion],
