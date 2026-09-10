@@ -24,9 +24,15 @@ import KadoCore
 /// VoiceOver. The caller decides *when* to show it — and whether to,
 /// under Reduce Motion.
 struct ConfettiView: View {
-    /// How long a burst lasts, fade included. The host removes the
-    /// view after this.
-    static let duration: TimeInterval = 3.6
+    /// The burst in its own seconds: the physics below is tuned in
+    /// these, and the fade is placed against them.
+    static let simulatedLength: TimeInterval = 3.6
+    /// How many simulated seconds pass per real one. The one knob for
+    /// "a bit faster" that keeps every arc and flutter the same shape.
+    static let tempo: Double = 1.3
+    /// How long a burst lasts in real time, fade included. The host
+    /// removes the view after this.
+    static var duration: TimeInterval { simulatedLength / tempo }
 
     let startedAt: Date
 
@@ -44,8 +50,8 @@ struct ConfettiView: View {
     var body: some View {
         TimelineView(.animation) { timeline in
             Canvas { context, size in
-                let elapsed = timeline.date.timeIntervalSince(startedAt)
-                guard elapsed >= 0, elapsed <= Self.duration else { return }
+                let elapsed = timeline.date.timeIntervalSince(startedAt) * Self.tempo
+                guard elapsed >= 0, elapsed <= Self.simulatedLength else { return }
                 for particle in particles {
                     particle.draw(in: context, size: size, at: elapsed)
                 }
@@ -115,7 +121,8 @@ struct ConfettiView: View {
         /// The screen width the tuning was done on. Larger screens
         /// scale distances and speeds up by the same factor.
         static let referenceWidth: Double = 402
-        /// The fraction of `duration` after which pieces start to fade.
+        /// The fraction of `simulatedLength` after which pieces start
+        /// to fade.
         static let fadeStart: Double = 0.68
 
         init(side: Side, using generator: inout SeededGenerator) {
@@ -170,7 +177,7 @@ struct ConfettiView: View {
         func draw(in context: GraphicsContext, size: CGSize, at elapsed: Double) {
             let t = elapsed - delay
             guard t > 0 else { return }
-            let fade = max(0, min(1, (1 - elapsed / ConfettiView.duration) / (1 - Self.fadeStart)))
+            let fade = max(0, min(1, (1 - elapsed / ConfettiView.simulatedLength) / (1 - Self.fadeStart)))
             guard fade > 0 else { return }
 
             let scale = max(1, min(size.width, size.height) / Self.referenceWidth)
