@@ -1,7 +1,7 @@
 # Research — Widget screenshot for the App Store listing
 
 **Date**: 2026-09-09
-**Status**: draft
+**Status**: ready for plan
 **Related**: `docs/app-store/README.md`, `docs/plans/2026-04/widgets/`,
 `docs/plans/2026-09/daily-completion-reward/` (the Daily Progress lock
 ring), #69 (the screenshot pipeline)
