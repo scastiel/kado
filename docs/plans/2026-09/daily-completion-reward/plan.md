@@ -240,6 +240,15 @@ celebration count changes.
   tap primitive.
 - **Visual check**: the first burst read a touch small on a 3× screen
   (rects 6–11pt). Bumped to 7–14 × 4–7.5pt and circles 3–5.5pt.
+- **After the device run**: a negative habit's `HabitRowState.status`
+  is `.complete` when it *slipped*, and the day's tally counted
+  `.complete` as done — so a slip counted as a completion (and could
+  be the "last habit" that fired the confetti), while an avoided
+  "don't" habit counted as not done. Added
+  `HabitRowState.isDone(for:)` — done means target met, or no slip for
+  a negative habit — and routed the snapshot count and the Today
+  milestone through it. Pinned by three row-state tests and a builder
+  test.
 - **Catalogs**: appended with a small script that dumps with
   `separators=(",", " : ")` so the diff is purely additive and matches
   Xcode's layout; the widget catalog had no trailing newline, so its

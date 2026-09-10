@@ -86,6 +86,26 @@ call every mutation already makes — here `WidgetSnapshotBuilder.rebuildAndWrit
   control would be the cleaner seam — at the cost of the single-element
   VoiceOver reading the rows deliberately have.
 
+### A slip counted as a completion
+
+- **What happened**: on the device, negative habits came out wrong.
+  `HabitRowState.status` is `.complete` when a "don't" habit *slipped*
+  (the row's red pill), and the snapshot builder counted `.complete`
+  as done — a pre-existing quirk of "3 / 5 done" that the ring and the
+  confetti inherited and made visible. A slip could be the "last habit
+  done" that threw confetti, and a kept negative habit held the day
+  at "not done" all day.
+- **What we did**: added `HabitRowState.isDone(for:)` — target met,
+  or no slip for a negative habit — and routed the snapshot count and
+  the Today milestone through it. Three row-state tests and a builder
+  test pin the two readings apart.
+- **Lesson**: `status` describes what was *recorded*; whether that
+  record is good news depends on the habit type. Any new tally over
+  rows must go through `isDone(for:)`, not `status == .complete`. The
+  per-habit `LockCircularWidget` still draws a slipped negative habit
+  as a full ring with a checkmark; that is the same confusion one
+  surface over, and is left for a follow-up.
+
 ### Seeing a three-second animation without a tap primitive
 
 - **What happened**: XcodeBuildMCP can build and screenshot but cannot
@@ -166,10 +186,11 @@ call every mutation already makes — here `WidgetSnapshotBuilder.rebuildAndWrit
 ## Metrics
 
 - Tasks completed: 7 of 7
-- Tests added: 13 unit (`DayProgressTests`, `DayCompletionTrackerTests`),
+- Tests added: 17 unit (`DayProgressTests`, `DayCompletionTrackerTests`,
+  three in `HabitRowStateTests`, one in `WidgetSnapshotBuilderTests`),
   2 UI (`DayCompletionCelebrationTests`)
-- Commits: 9 on the branch
-- Files touched: 20 (5 new source, 3 new test, 2 catalogs, 3 docs)
+- Commits: 11 on the branch
+- Files touched: 22 (5 new source, 3 new test, 2 catalogs, 3 docs)
 
 ## References
 
