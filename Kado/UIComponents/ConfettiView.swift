@@ -88,10 +88,12 @@ struct ConfettiView: View {
                 Double.random(in: range, using: &generator)
             }
             color = Self.palette[Int.random(in: 0..<Self.palette.count, using: &generator)]
+            // Sized for a phone at arm's length: on a 3× screen anything
+            // under ~7pt reads as dust rather than paper.
             if random(0...1) < 0.25 {
-                shape = .circle(radius: random(2.5...4.5))
+                shape = .circle(radius: random(3...5.5))
             } else {
-                shape = .rectangle(width: random(6...11), height: random(3...6))
+                shape = .rectangle(width: random(7...14), height: random(4...7.5))
             }
             x0 = random(0...1)
             y0 = random(-0.14 ... -0.02)
