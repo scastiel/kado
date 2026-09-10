@@ -1,8 +1,9 @@
 # Plan — Daily completion reward
 
 **Date**: 2026-09-09
-**Status**: ready to build
+**Status**: done
 **Research**: [research.md](./research.md)
+**Compound**: [compound.md](./compound.md)
 
 ## Summary
 
@@ -41,7 +42,7 @@ same way. No schema or snapshot-shape change.
 
 ## Task list
 
-### Task 1: `DayProgress` value type (tests first)
+### Task 1: `DayProgress` value type (tests first) ✅
 
 **Goal**: one home for the completed / scheduled pair and the all-done
 rule.
@@ -64,7 +65,7 @@ rule.
 
 ---
 
-### Task 2: `DayCompletionTracker` + `DayCompletionCelebration` (tests first)
+### Task 2: `DayCompletionTracker` + `DayCompletionCelebration` (tests first) ✅
 
 **Goal**: detect the same-day incomplete→complete edge at the funnel.
 
@@ -92,7 +93,7 @@ rule.
 
 ---
 
-### Task 3: `ConfettiView`
+### Task 3: `ConfettiView` ✅
 
 **Goal**: a self-contained, previewable particle burst.
 
@@ -110,7 +111,7 @@ rule.
 
 ---
 
-### Task 4: celebrate on `ContentView`
+### Task 4: celebrate on `ContentView` ✅
 
 **Goal**: play the confetti (or the reduced-motion caption) when the
 celebration count changes.
@@ -136,7 +137,7 @@ celebration count changes.
 
 ---
 
-### Task 5: UI test and screenshot
+### Task 5: UI test and screenshot ✅
 
 **Goal**: prove the edge fires end to end and photograph it.
 
@@ -155,7 +156,7 @@ celebration count changes.
 
 ---
 
-### Task 6: lock-screen day-progress widget
+### Task 6: lock-screen day-progress widget ✅
 
 **Goal**: the circular ring with "completed/scheduled".
 
@@ -182,7 +183,7 @@ celebration count changes.
 
 ---
 
-### Task 7: docs
+### Task 7: docs ✅
 
 **Goal**: roadmap and plan bookkeeping.
 
@@ -221,4 +222,25 @@ celebration count changes.
 
 ## Notes during build
 
-_(filled in as tasks land)_
+- **Task 2**: `#expect(tracker.record(...))` does not compile — the
+  macro captures its operands, and a mutating call on a captured `var`
+  is an error ("cannot use mutating member on immutable value: '$0'").
+  Bind the result to a `let` and expect that.
+- **Task 4**: a preview that calls `.modelContainer(_:)` needs
+  `import SwiftData` in that file even though the view itself doesn't.
+- **Task 5**: a Today row is one combined accessibility element, so
+  XCUITest cannot address its pill, and custom accessibility actions
+  ("Mark as done") are not reachable from XCUITest either. The test
+  taps the row at a normalised offset (`dx: 0.92`), which lands on the
+  28pt check circle on both phone widths. Both cases passed first run.
+- **Task 5**: the screenshot came out of the result bundle with
+  `xcrun xcresulttool export attachments --path build/Logs/Test/<run>.xcresult --output-path <dir>`;
+  `manifest.json` maps attachment names to the exported files. That is
+  the way to *see* a three-second animation when the tooling has no
+  tap primitive.
+- **Visual check**: the first burst read a touch small on a 3× screen
+  (rects 6–11pt). Bumped to 7–14 × 4–7.5pt and circles 3–5.5pt.
+- **Catalogs**: appended with a small script that dumps with
+  `separators=(",", " : ")` so the diff is purely additive and matches
+  Xcode's layout; the widget catalog had no trailing newline, so its
+  diff shows one cosmetic `}` line.

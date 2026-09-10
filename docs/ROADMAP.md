@@ -165,7 +165,9 @@ at-a-glance overview, notifications, frictionless data portability.
 - [x] Small home screen widget: today's grid (5-6 habits max)
 - [x] Medium home screen widget: grid + progress
 - [x] Large home screen widget: weekly view
-- [x] Lock screen widget (rectangular, circular, inline)
+- [x] Lock screen widget (rectangular, circular, inline) — plus a
+      "Daily Progress" ring with today's completed / scheduled count,
+      see `docs/plans/2026-09/daily-completion-reward/`
 - [x] App Group configured for data sharing
 
 ### Multi-habit overview
@@ -260,6 +262,12 @@ noted inline.
       logical day for every surface; completions are normalised on
       write, so changing the setting never re-buckets history.
       Shipped in 1.6, see `docs/plans/2026-08/day-start-hour/`.
+- [x] **Daily completion reward** — confetti the moment the last habit
+      scheduled for today is done, from whichever surface did it
+      (Today, Detail, a log sheet, a widget tap, Siri), and a
+      lock-screen "Daily Progress" ring. The edge is detected once, in
+      the snapshot rebuild every mutation already runs through. See
+      `docs/plans/2026-09/daily-completion-reward/`.
 - [x] Habit archive with history preservation
 - [ ] Import from Streaks — still open
 - [ ] Core themes: light, dark, sepia, high contrast — still open
