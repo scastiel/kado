@@ -511,23 +511,6 @@
           }
         }
       }
-    },
-    "%lld/%lld" : {
-      "comment" : "Centre of the day-progress lock ring. Arg 1 completed, arg 2 scheduled today.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld/%lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld/%2$lld"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"

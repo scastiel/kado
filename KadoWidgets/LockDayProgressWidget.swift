@@ -3,10 +3,10 @@ import WidgetKit
 import KadoCore
 
 /// The round lock-screen "button" for the whole day: a ring that
-/// closes as habits get done, with *completed / scheduled* in the
-/// middle. Sibling of `LockCircularWidget`, which shows one picked
-/// habit; this one needs no configuration, so it is a static widget on
-/// the shared snapshot.
+/// closes as habits get done, with the Kadō mark in the middle.
+/// Sibling of `LockCircularWidget`, which shows one picked habit; this
+/// one needs no configuration, so it is a static widget on the shared
+/// snapshot.
 struct LockDayProgressWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.lockDayProgress"
 
@@ -28,13 +28,15 @@ struct LockDayProgressView: View {
 
     var body: some View {
         // The capacity style is the one built for "N of M": a thick
-        // ring that reads as a fill level, with the count centred.
-        // System-drawn, so it already adapts to the lock screen's
-        // vibrant and tinted renderings.
+        // ring that reads as a fill level. System-drawn, so it already
+        // adapts to the lock screen's vibrant and tinted renderings.
+        // The count itself is the ring; the centre carries the mark, so
+        // the button reads as Kadō's at a glance. VoiceOver still gets
+        // the numbers.
         Gauge(value: progress.fraction) {
             Image(systemName: "checkmark")
         } currentValueLabel: {
-            label
+            mark
         }
         .gaugeStyle(.accessoryCircularCapacity)
         .widgetAccentable()
@@ -42,19 +44,17 @@ struct LockDayProgressView: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
-    @ViewBuilder
-    private var label: some View {
-        if progress.total == 0 {
-            // A rest day. A dash rather than "0/0", which would read as
-            // a day the user failed.
-            Text(verbatim: "–")
-                .font(.system(.body, design: .rounded).weight(.medium))
-        } else {
-            Text("\(progress.completed)/\(progress.total)")
-                .font(.system(.footnote, design: .rounded).weight(.semibold).monospacedDigit())
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
-        }
+    /// The ensō from `branding/kado-mark.svg`, as a template image:
+    /// the lock screen keeps only its alpha and paints it in the
+    /// widget's tint, which is exactly what a one-colour brush stroke
+    /// wants.
+    private var mark: some View {
+        Image("KadoMark")
+            .resizable()
+            .renderingMode(.template)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 24, height: 24)
+            .foregroundStyle(.primary)
     }
 
     private var accessibilityLabel: String {
