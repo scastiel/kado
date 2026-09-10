@@ -124,6 +124,9 @@ enum AccessibilityID {
         /// `Today.newHabitButton`: "Cancel" is "Annuler" on the French
         /// simulator, and the suite has to close the sheet on both.
         static let cancelButton = "newHabit.cancel"
+        /// The sheet's Save button, for the tests that create a habit
+        /// rather than launch with one seeded.
+        static let saveButton = "newHabit.save"
     }
 
     enum Settings {
