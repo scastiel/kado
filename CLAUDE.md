@@ -993,6 +993,16 @@ make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
   `docs/screenshots/iphone-67-appstore/` is resized out of the iPhone
   set on the way out of `make screenshots`, so `getkado.app` and the
   listing cannot drift apart.
+- **The widgets shot is assembled, not photographed.** A Home Screen
+  is the wrong picture (wallpaper, other apps' icons) and XCUITest
+  can't add a widget to one anyway. The widget views live in
+  `KadoCore` so the app can draw them; `-uiTestWidgetGallery` shows
+  every widget at true size on the screenshot seed, the test
+  photographs each tile by element into
+  `screenshots/<locale>/03-widgets/` (once, on the iPhone, at 3× — the
+  iPad's 2× tiles would only be upscaled), and
+  `frame-screenshots.swift` composes them per canvas. Moving a tile is
+  `make frames`; changing a widget is `screenshots.sh --passes widgets`.
 
 ---
 
