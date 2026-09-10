@@ -414,16 +414,20 @@ struct TodayView: View {
         }
 
         // Re-snapshotted after the save, so this sees the mutation that
-        // just landed rather than the pre-tap rows.
-        let allComplete = sections.due.allSatisfy { item in
+        // just landed rather than the pre-tap rows. Through
+        // `DayProgress` so "all done" means the same thing here as it
+        // does for the confetti and the lock-screen ring — in
+        // particular, a day with nothing scheduled is not a milestone.
+        let due = sections.due
+        let completed = due.filter { item in
             HabitRowState.resolve(
                 habit: item.habit,
                 completions: item.completions,
                 calendar: calendar,
                 asOf: today
             ).status == .complete
-        }
-        if allComplete {
+        }.count
+        if DayProgress(completed: completed, total: due.count).isComplete {
             reviewPromptService.recordMilestone(.allHabitsComplete)
         }
     }

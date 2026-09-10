@@ -43,6 +43,13 @@ public struct WidgetSnapshot: Codable, Sendable {
             matrixDays: []
         )
     }
+
+    /// The two counts as one value, so the lock-screen ring and the
+    /// day-complete celebration read the same "is the day done" rule.
+    /// Derived, not stored: the JSON on disk keeps its shape.
+    public var dayProgress: DayProgress {
+        DayProgress(completed: completedToday, total: totalDueToday)
+    }
 }
 
 /// Minimum representation of a habit the widgets need. Carries
