@@ -256,6 +256,21 @@ celebration count changes.
   phone points and scaled with the shorter screen side, so an iPad
   gets the same burst shape. 220 pieces, a 0–0.18s roll on the
   launch, and the duration went to 3.4s.
+- **"Highly unnatural", on the device**: two causes. The overlay's
+  `.move(edge: .top)` transition was on the *whole* overlay, so the
+  canvas — and every piece — slid downward during the pop; the
+  transition now sits on the caption alone and the canvas only fades.
+  And the physics: launch speeds of 2200–3400 pt/s with drag 2.4–3.6
+  meant every piece reached its extent inside a third of a second
+  (a flash, not a flight), then fell at a constant 150–300 pt/s on a
+  perfect sine — static snow. Now 1000–1900 pt/s with drag 1.3–2.1
+  (arcs visible for ~0.8 s), a fan bunched around a 68° axis, a 0.3 s
+  launch roll per side, 320–520 pt/s falls (dots 480–680), and a
+  falling-leaf float whose fall speed and tumble share one phase.
+  Judged from a 6 fps contact sheet of a simulator recording
+  (`xcrun simctl io <udid> recordVideo` around a single
+  `test-without-building` run, then `ffmpeg … tile=`) — the only way
+  to see *motion* headless.
 - **Catalogs**: appended with a small script that dumps with
   `separators=(",", " : ")` so the diff is purely additive and matches
   Xcode's layout; the widget catalog had no trailing newline, so its
