@@ -271,6 +271,12 @@ celebration count changes.
   (`xcrun simctl io <udid> recordVideo` around a single
   `test-without-building` run, then `ffmpeg … tile=`) — the only way
   to see *motion* headless.
+- **On request**: the ring's centre shows the Kadō mark instead of
+  "3/5". `branding/kado-mark.svg` (a `currentColor` ensō) rasterised
+  with `rsvg-convert` at 24/48/72 px into a template image set in the
+  widget catalog; the lock screen keeps alpha only, which is exactly
+  what a one-colour stroke wants. The count stays in the VoiceOver
+  label; the `%lld/%lld` key left the catalog.
 - **Catalogs**: appended with a small script that dumps with
   `separators=(",", " : ")` so the diff is purely additive and matches
   Xcode's layout; the widget catalog had no trailing newline, so its
