@@ -756,12 +756,14 @@ Captured by `KadoUITests/ScreenshotTests`; headlines in
    the scores
 2. `02-habit-detail` — score, streak, and the monthly calendar; the
    differentiator
-3. `03-overview` — the habits × days matrix
-4. `04-new-habit` — the New Habit sheet, where the flexible schedules
+3. `03-widgets` — the widgets, assembled: Home Screen and Lock Screen
+   (Task 5 of `docs/plans/2026-09/widget-screenshot/`)
+4. `04-overview` — the habits × days matrix
+5. `05-new-habit` — the New Habit sheet, where the flexible schedules
    live
-5. `05-settings` — the privacy story: iCloud status, and no account
+6. `06-settings` — the privacy story: iCloud status, and no account
    anywhere
-6. `06-today-dark` — Today in dark mode, on a dark frame
+7. `07-today-dark` — Today in dark mode, on a dark frame
 
 Still not captured, and worth adding when there is a way to drive them:
 **widgets on a Home Screen**, which XCUITest cannot photograph from

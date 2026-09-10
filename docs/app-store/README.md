@@ -64,7 +64,7 @@ Promotional text and What's New can be changed without a new review. The rest ca
 
 ## The screenshots
 
-`make screenshots` drives `KadoUITests/ScreenshotTests`, once per language and per device, twice over — a light pass for shots 01–05 and a dark pass for 06, because nothing inside a test can change the simulator's appearance and `simctl` can.
+`make screenshots` drives `KadoUITests/ScreenshotTests`, once per language and per device, twice over — a light pass for shots 01–06 (all but the widgets, which are 03) and a dark pass for 07, because nothing inside a test can change the simulator's appearance and `simctl` can.
 
 Before each pass the simulator is shut down, given the run's language on disk, booted, checked that the language took, pinned to the right appearance, and given a 9:41 status bar with a full battery. Two runs a week apart differ only where the app differs.
 

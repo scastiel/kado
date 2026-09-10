@@ -45,7 +45,7 @@ final class ScreenshotTests: KadoUITestCase {
         photograph(app, "02-habit-detail")
         app.navigationBars.buttons.firstMatch.tap()
 
-        // 3 — the Overview matrix, habits × days.
+        // 4 — the Overview matrix, habits × days.
         tapTab(.overview, in: app)
         assertReached(
             app.descendants(matching: .any)
@@ -53,9 +53,9 @@ final class ScreenshotTests: KadoUITestCase {
                 .firstMatch,
             "The Overview tab should show the habit labels."
         )
-        photograph(app, "03-overview")
+        photograph(app, "04-overview")
 
-        // 4 — the New Habit sheet, which is where the flexible
+        // 5 — the New Habit sheet, which is where the flexible
         // schedules live. Launched with the name field unfocused: the
         // keyboard would cover the frequency and type sections that
         // are the reason this shot is in the set.
@@ -66,17 +66,17 @@ final class ScreenshotTests: KadoUITestCase {
             app.textFields[AccessibilityID.NewHabit.nameField],
             "The toolbar's + should open the New Habit sheet."
         )
-        photograph(app, "04-new-habit")
+        photograph(app, "05-new-habit")
         app.buttons[AccessibilityID.NewHabit.cancelButton].firstMatch.tap()
 
-        // 5 — Settings, which is where the privacy story is told:
+        // 6 — Settings, which is where the privacy story is told:
         // iCloud status, reminders, export, and no account anywhere.
         tapTab(.settings, in: app)
         assertReached(
             app.navigationBars.firstMatch,
             "The Settings tab should show its own navigation bar."
         )
-        photograph(app, "05-settings")
+        photograph(app, "06-settings")
     }
 
     // MARK: - Dark
@@ -91,7 +91,7 @@ final class ScreenshotTests: KadoUITestCase {
     func testCaptureDarkScreenshots() throws {
         let app = launch()
         waitForTodayRows(in: app)
-        photograph(app, "06-today-dark")
+        photograph(app, "07-today-dark")
     }
 
     // MARK: - Driving

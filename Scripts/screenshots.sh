@@ -13,7 +13,7 @@
 # show them, then get wrapped for the listing into docs/app-store/marketing/.
 #
 # Two passes per combination, because nothing inside a test can change the simulator's
-# appearance: a light one for shots 01–05 and a dark one for 06.
+# appearance: a light one for the screens (01, 02, 04–06) and a dark one for 07.
 #
 # Before each pass the simulator is set to that language, booted, pinned to an appearance and
 # given a 9:41 status bar, so two runs a week apart differ only where the app differs.
