@@ -22,7 +22,8 @@ make listing         send the copy and the screenshots
 | `metadata/<locale>/*.txt` | The copy. One file per field, because a description is four thousand characters of prose with its own line breaks and no JSON string survives being edited by hand at that length. |
 | `captions.json` | The headline drawn across the top of each screenshot, per locale. |
 | `screenshots/<locale>/<device>/` | The raw captures. The source of truth — committed, and never edited by hand. |
-| `marketing/<locale>/<device>/` | The same captures wrapped in the frame. **This is what gets uploaded.** |
+| `screenshots/<locale>/03-widgets/` | The widget tiles, one PNG per widget, photographed once at 3× and composed onto every canvas. An *assembly*, not a capture — see below. |
+| `marketing/<locale>/<device>/` | The same captures wrapped in the frame, plus the assembled shots. **This is what gets uploaded.** |
 
 `docs/app-store-connect.md`, one level up, is the human document: the age-rating answers, the App Review notes, the TestFlight copy, the submission checklists. It is prose for a person to read before a submission. This folder is what a script reads. Where they overlap — the description, the keywords — the files here are what actually ships, so a change made in one belongs in both.
 
@@ -64,7 +65,7 @@ Promotional text and What's New can be changed without a new review. The rest ca
 
 ## The screenshots
 
-`make screenshots` drives `KadoUITests/ScreenshotTests`, once per language and per device, twice over — a light pass for shots 01–05 and a dark pass for 06, because nothing inside a test can change the simulator's appearance and `simctl` can.
+`make screenshots` drives `KadoUITests/ScreenshotTests`, once per language and per device, in three passes: a light one for the screens (01, 02, 04–06) and a dark one for 07, because nothing inside a test can change the simulator's appearance and `simctl` can; and a widgets pass, on the iPhone only, for the tiles the frame assembles into 03. `Scripts/screenshots.sh --passes widgets` runs just that one — and a partial run adds to the folder rather than emptying it, so re-photographing the tiles after a lock-card tweak leaves the six screens as they were.
 
 Before each pass the simulator is shut down, given the run's language on disk, booted, checked that the language took, pinned to the right appearance, and given a 9:41 status bar with a full battery. Two runs a week apart differ only where the app differs.
 
@@ -72,9 +73,15 @@ The app launches with `-uiTestRun`, which redirects SwiftData to a throwaway fil
 
 Then everything is wrapped: Kadō's paper ground, a Fraunces headline from `captions.json`, and a device the capture sits inside — the dark shot on a dark ground so it isn't a black rectangle marooned on white. The framing is a **separate pass over the raw captures**, which is the whole point: a new headline is `make frames` and four seconds, where re-photographing the app is a simulator per language per device and the better part of half an hour.
 
+### The widgets shot is an assembly
+
+`03-widgets` is not a photograph of a Home Screen — a real one carries a wallpaper, other apps' icons and a dock, and XCUITest adding widgets through jiggle mode is the most fragile thing the suite could do. It is the widgets themselves: the app, launched with `-uiTestWidgetGallery`, shows a Debug-only gallery of every widget at its Home Screen / Lock Screen size on the screenshot seed (`Kado/Support/WidgetGalleryView.swift`), and the test photographs each tile by element. The tiles land in `screenshots/<locale>/03-widgets/` — beside the device folders, not inside one, because both canvases are composed from the same 3× files. The frame then arranges them: one column on the phone's canvas, two on the iPad's, under the headline where a device would start. The arrangement lives in `Scripts/frame-screenshots.swift`'s `Assembly`, so moving a tile is `make frames`, not a simulator run.
+
+The widget views themselves live in `KadoCore` so the app can draw them; the extension keeps only its `Widget` configurations. The gallery supplies what WidgetKit normally would — the container background, the 22pt corner, the 16pt content margins — and renders the Lock Screen widgets `.vibrant` on a dark card, the way a Lock Screen does. The Home Screen's Tinted and Clear appearances are the one thing it cannot show: those are flattened in WidgetKit's render server, not in SwiftUI.
+
 ### Adding a shot
 
-1. Photograph it in `ScreenshotTests`, named `07-something` — the name orders the set in App Store Connect, and it is what the file ends up called.
+1. Photograph it in `ScreenshotTests`, named `08-something` — the name orders the set in App Store Connect, and it is what the file ends up called. For an assembly, name each tile `08-something--part` instead; `Scripts/name-screenshots.py` files those under `08-something/` at whatever size the element has, and `frame-screenshots.swift` needs a layout for it.
 2. Write its headline into `captions.json`, in **every** locale. The framing stops on a missing one rather than shipping one untitled screenshot beside six titled ones.
 3. `make screenshots`.
 

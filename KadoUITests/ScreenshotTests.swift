@@ -13,10 +13,11 @@ import XCTest
 /// `01-today` and so on; the script exports them and names the files
 /// after them, which is what puts them in order in App Store Connect.
 ///
-/// Split in two on purpose. Light and dark are separate methods because
+/// Split in three on purpose. Light and dark are separate methods because
 /// nothing inside a test can change the simulator's appearance —
 /// `simctl ui <udid> appearance` can, and the script sets it between
-/// the two passes.
+/// the passes. The widgets are a third method because they launch a
+/// different root: the gallery, not the app.
 final class ScreenshotTests: KadoUITestCase {
 
     // MARK: - Light
@@ -45,7 +46,7 @@ final class ScreenshotTests: KadoUITestCase {
         photograph(app, "02-habit-detail")
         app.navigationBars.buttons.firstMatch.tap()
 
-        // 3 — the Overview matrix, habits × days.
+        // 4 — the Overview matrix, habits × days.
         tapTab(.overview, in: app)
         assertReached(
             app.descendants(matching: .any)
@@ -53,9 +54,9 @@ final class ScreenshotTests: KadoUITestCase {
                 .firstMatch,
             "The Overview tab should show the habit labels."
         )
-        photograph(app, "03-overview")
+        photograph(app, "04-overview")
 
-        // 4 — the New Habit sheet, which is where the flexible
+        // 5 — the New Habit sheet, which is where the flexible
         // schedules live. Launched with the name field unfocused: the
         // keyboard would cover the frequency and type sections that
         // are the reason this shot is in the set.
@@ -66,17 +67,17 @@ final class ScreenshotTests: KadoUITestCase {
             app.textFields[AccessibilityID.NewHabit.nameField],
             "The toolbar's + should open the New Habit sheet."
         )
-        photograph(app, "04-new-habit")
+        photograph(app, "05-new-habit")
         app.buttons[AccessibilityID.NewHabit.cancelButton].firstMatch.tap()
 
-        // 5 — Settings, which is where the privacy story is told:
+        // 6 — Settings, which is where the privacy story is told:
         // iCloud status, reminders, export, and no account anywhere.
         tapTab(.settings, in: app)
         assertReached(
             app.navigationBars.firstMatch,
             "The Settings tab should show its own navigation bar."
         )
-        photograph(app, "05-settings")
+        photograph(app, "06-settings")
     }
 
     // MARK: - Dark
@@ -91,7 +92,54 @@ final class ScreenshotTests: KadoUITestCase {
     func testCaptureDarkScreenshots() throws {
         let app = launch()
         waitForTodayRows(in: app)
-        photograph(app, "06-today-dark")
+        photograph(app, "07-today-dark")
+    }
+
+    // MARK: - Widgets
+
+    /// The widget tiles, photographed one element at a time off the
+    /// Debug-only gallery, for the shot the frame assembles.
+    ///
+    /// Not a screen: `Scripts/frame-screenshots.swift` arranges these
+    /// on the paper ground under the headline, so what leaves here is
+    /// four crops, each at the device's scale, named `03-widgets--<part>`
+    /// so `Scripts/name-screenshots.py` files them under the locale's
+    /// `03-widgets/` and skips the canvas check a whole screenshot gets.
+    /// The script runs this on the iPhone only — its 3× tiles serve
+    /// every canvas. Any name change here is a file-name change in the
+    /// frame's layout table.
+    @MainActor
+    func testCaptureWidgetTiles() throws {
+        let app = launchApp(
+            seedProduction: true,
+            language: Self.runLanguage,
+            locale: Self.runLocale,
+            seedForScreenshots: true,
+            widgetGallery: true
+        )
+        let tiles: [(identifier: String, part: String)] = [
+            (AccessibilityID.Screenshot.widgetMedium, "medium"),
+            (AccessibilityID.Screenshot.widgetSmall, "small"),
+            (AccessibilityID.Screenshot.lockCard, "lock"),
+            (AccessibilityID.Screenshot.widgetLarge, "large"),
+        ]
+        // The gallery builds its snapshot after the seed lands; the
+        // first tile appearing is the whole gallery appearing.
+        assertReached(
+            app.otherElements[tiles[0].identifier],
+            "The widget gallery should show its tiles."
+        )
+        // One beat for the lot rather than one per tile: nothing here
+        // animates once the snapshot is in.
+        Thread.sleep(forTimeInterval: 1.0)
+        for tile in tiles {
+            let element = app.otherElements[tile.identifier]
+            XCTAssertTrue(element.exists, "No \(tile.part) tile in the gallery.")
+            let attachment = XCTAttachment(screenshot: element.screenshot())
+            attachment.name = "03-widgets--\(tile.part)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
     }
 
     // MARK: - Driving

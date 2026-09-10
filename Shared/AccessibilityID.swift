@@ -140,4 +140,15 @@ enum AccessibilityID {
         /// le" on the other.
         static let weekStartPicker = "settings.weekStart.picker"
     }
+
+    /// The tiles of the Debug-only widget gallery the App Store
+    /// screenshot run photographs one by one. Each sits on the tile
+    /// itself — the rounded container with the widget inside — which
+    /// `XCUIElement.screenshot()` crops to.
+    enum Screenshot {
+        static let widgetSmall = "screenshot.widget.small"
+        static let widgetMedium = "screenshot.widget.medium"
+        static let widgetLarge = "screenshot.widget.large"
+        static let lockCard = "screenshot.widget.lock"
+    }
 }

@@ -2,6 +2,8 @@ import SwiftUI
 import WidgetKit
 import KadoCore
 
+/// One picked habit as a Lock Screen ring. The content is
+/// `LockCircularView`, in `KadoCore`, so the app can draw it too.
 struct LockCircularWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.lockCircular"
 
@@ -17,48 +19,6 @@ struct LockCircularWidget: Widget {
         .configurationDisplayName(Text("Habit Progress"))
         .description(Text("Today's progress for one habit as a ring."))
         .supportedFamilies([.accessoryCircular])
-    }
-}
-
-struct LockCircularView: View {
-    let entry: PickedSnapshotEntry
-
-    var body: some View {
-        if let row = entry.pickedRow {
-            filled(row: row)
-        } else {
-            prompt
-        }
-    }
-
-    private func filled(row: WidgetTodayRow) -> some View {
-        Gauge(value: row.progress) {
-            Image(systemName: row.habit.icon)
-        } currentValueLabel: {
-            currentLabel(for: row)
-        }
-        .gaugeStyle(.accessoryCircular)
-        .widgetAccentable()
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(row.habit.name)
-    }
-
-    @ViewBuilder
-    private func currentLabel(for row: WidgetTodayRow) -> some View {
-        switch row.habit.typeKind {
-        case .binary, .negative:
-            Image(systemName: row.status == .complete ? "checkmark" : "")
-                .font(.caption2)
-        case .counter, .timer:
-            Text("\(Int(row.progress * 100))")
-                .font(.caption2.monospacedDigit())
-        }
-    }
-
-    private var prompt: some View {
-        Image(systemName: "square.and.pencil")
-            .widgetAccentable()
-            .accessibilityLabel("Pick a habit")
     }
 }
 

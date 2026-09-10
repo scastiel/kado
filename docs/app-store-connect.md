@@ -756,16 +756,22 @@ Captured by `KadoUITests/ScreenshotTests`; headlines in
    the scores
 2. `02-habit-detail` — score, streak, and the monthly calendar; the
    differentiator
-3. `03-overview` — the habits × days matrix
-4. `04-new-habit` — the New Habit sheet, where the flexible schedules
+3. `03-widgets` — every widget, assembled from tiles photographed off
+   the app's Debug-only gallery rather than off a Home Screen: the
+   three Home Screen families and the four Lock Screen widgets on a
+   dark card. Third because it is a differentiator and the results
+   page shows three.
+4. `04-overview` — the habits × days matrix
+5. `05-new-habit` — the New Habit sheet, where the flexible schedules
    live
-5. `05-settings` — the privacy story: iCloud status, and no account
+6. `06-settings` — the privacy story: iCloud status, and no account
    anywhere
-6. `06-today-dark` — Today in dark mode, on a dark frame
+7. `07-today-dark` — Today in dark mode, on a dark frame
 
-Still not captured, and worth adding when there is a way to drive them:
-**widgets on a Home Screen**, which XCUITest cannot photograph from
-inside the app.
+The widgets shot is composed, not captured — see "The widgets shot is
+an assembly" in `docs/app-store/README.md`. A real Home Screen would
+carry a wallpaper and other apps' icons, and XCUITest cannot add a
+widget to one from inside the app anyway.
 
 ---
 

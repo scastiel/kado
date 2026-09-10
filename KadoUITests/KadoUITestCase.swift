@@ -52,7 +52,8 @@ class KadoUITestCase: XCTestCase {
         language: String = "en",
         locale: String? = nil,
         seedForScreenshots: Bool = false,
-        suppressNameAutoFocus: Bool = false
+        suppressNameAutoFocus: Bool = false,
+        widgetGallery: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -68,6 +69,9 @@ class KadoUITestCase: XCTestCase {
         }
         if suppressNameAutoFocus {
             app.launchArguments.append("-uiTestSuppressNameAutoFocus")
+        }
+        if widgetGallery {
+            app.launchArguments.append("-uiTestWidgetGallery")
         }
         app.launchArguments += [
             "-uiTestDevMode", devMode ? "1" : "0",

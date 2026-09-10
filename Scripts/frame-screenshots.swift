@@ -9,6 +9,12 @@
 // puts a framed copy of each at the same path under <destination>, under the same file name, so
 // the numbering that orders the set in App Store Connect survives.
 //
+// A folder beside the device folders, <captures>/<locale>/NN-name/, is an *assembly*: a shot
+// composed here from the tiles inside it rather than photographed whole. The widgets shot is one
+// — the Home Screen and Lock Screen widgets, each photographed on its own off the app's
+// Debug-only gallery, arranged on the paper ground under the headline. It is drawn on every
+// device's canvas from the same tiles, which is why it sits at the locale level.
+//
 // The raw captures stay the source of truth, which is the point of doing this as a second pass:
 // a new headline or a different green is seconds of work here, where re-photographing the app
 // is a simulator per language per device and the better part of half an hour.
@@ -121,6 +127,8 @@ struct Profile {
     /// it shrinks to fit rather than crowding the edge — French is reliably the longer of the
     /// two, and a line that nearly touches the canvas reads as a mistake at thumbnail size.
     let headlineMargin: CGFloat
+    /// How the widget tiles are arranged on this canvas.
+    let assembly: Assembly
 
     static func named(_ name: String) -> Profile? {
         switch name {
@@ -133,7 +141,8 @@ struct Profile {
                 headlineSize: 82,
                 headlineTop: 150,
                 headlineGap: 96,
-                headlineMargin: 110
+                headlineMargin: 110,
+                assembly: .column
             )
         case "ipad-13":
             return Profile(
@@ -144,12 +153,93 @@ struct Profile {
                 headlineSize: 100,
                 headlineTop: 180,
                 headlineGap: 110,
-                headlineMargin: 170
+                headlineMargin: 170,
+                assembly: .twoColumns
             )
         default:
             return nil
         }
     }
+}
+
+// MARK: - The widget assembly
+//
+// The tiles are photographed at their Home Screen / Lock Screen point sizes — the ones in
+// `WidgetTileMetrics`, in the app — so they are laid out in points here and scaled once, as a
+// group, onto the canvas. The tile PNGs are 3× and every canvas asks for a little under that,
+// so nothing is upscaled: a soft tile beside a pixel-exact device frame is the one thing that
+// would give the assembly away.
+
+/// One tile's file name (under `NN-name/`) and its size in points.
+struct Tile {
+    let part: String
+    let size: NSSize
+
+    static let medium = Tile(part: "medium", size: NSSize(width: 364, height: 170))
+    static let small = Tile(part: "small", size: NSSize(width: 170, height: 170))
+    static let large = Tile(part: "large", size: NSSize(width: 364, height: 382))
+    static let lock = Tile(part: "lock", size: NSSize(width: 186, height: 230))
+}
+
+/// Where each tile sits, in points from the assembly's top-left corner.
+struct Assembly {
+    let placements: [(tile: Tile, origin: NSPoint)]
+    /// The whole arrangement's size in points, which is what gets scaled to the canvas.
+    let size: NSSize
+    /// The arrangement's width as a fraction of the canvas — the device's role, played by the
+    /// tiles. Chosen so the 3× tiles land at or a touch under 1:1.
+    let widthFraction: CGFloat
+
+    /// The Home Screen's container corner on iPhone, in points. `WidgetTileMetrics.cornerRadius`
+    /// in the app — the gallery clips with it and so does this.
+    static let cornerRadius: CGFloat = 22
+    /// Between tiles, in points. About what the Home Screen leaves between two widgets.
+    static let gap: CGFloat = 16
+
+    /// The phone's canvas is tall: one column, the width of the medium tile — medium; small
+    /// beside the lock card; large.
+    static let column: Assembly = {
+        let gap = Assembly.gap
+        let row2 = Tile.medium.size.height + gap
+        let row3 = row2 + Tile.lock.size.height + gap
+        return Assembly(
+            placements: [
+                (.medium, NSPoint(x: 0, y: 0)),
+                (.small, NSPoint(x: 0, y: row2)),
+                (.lock, NSPoint(x: Tile.small.size.width + gap, y: row2)),
+                (.large, NSPoint(x: 0, y: row3)),
+            ],
+            size: NSSize(width: Tile.medium.size.width, height: row3 + Tile.large.size.height),
+            widthFraction: 0.78
+        )
+    }()
+
+    /// The iPad's canvas is nearly square, and a phone's column on it would be a strip down the
+    /// middle. Two columns instead: the Home Screen tiles stacked on the left, the small tile
+    /// and the lock card down the right, each row's tops aligned. The small tile is narrower
+    /// than the lock card and sits flush with its outer edge, so the arrangement's silhouette
+    /// is a rectangle rather than a rectangle with a notch.
+    static let twoColumns: Assembly = {
+        let gap = Assembly.gap
+        let right = Tile.medium.size.width + gap
+        let row2 = Tile.medium.size.height + gap
+        let smallInset = Tile.lock.size.width - Tile.small.size.width
+        return Assembly(
+            placements: [
+                (.medium, NSPoint(x: 0, y: 0)),
+                (.small, NSPoint(x: right + smallInset, y: 0)),
+                (.large, NSPoint(x: 0, y: row2)),
+                (.lock, NSPoint(x: right, y: row2)),
+            ],
+            size: NSSize(
+                width: right + Tile.lock.size.width,
+                height: row2 + Tile.large.size.height
+            ),
+            // A touch over 1:1 on the 3× tiles — 1.03 — which is invisible at this size, and
+            // buys the arrangement enough of the canvas not to float in the top half.
+            widthFraction: 0.84
+        )
+    }()
 }
 
 // MARK: - Drawing
@@ -172,8 +262,11 @@ func attributed(_ line: String, size: CGFloat, color: NSColor) -> NSAttributedSt
     )
 }
 
-func frame(
-    capture: NSImage, caption: String, profile: Profile, palette: Palette
+/// Sets up a canvas, draws the ground and the headline, and hands `content` the distance from
+/// the top of the canvas to where whatever sits under the headline starts — the same for a
+/// device and for an assembly, so the two kinds of shot line up in the strip.
+func canvas(
+    caption: String, profile: Profile, palette: Palette, content: (_ top: CGFloat) -> Void
 ) -> NSBitmapImageRep {
     let canvas = profile.canvas
     let rep = NSBitmapImageRep(
@@ -223,48 +316,107 @@ func frame(
         text.draw(at: NSPoint(x: (canvas.width - width) / 2, y: bottom))
     }
 
-    // The device. Its width is fixed by the profile and its height follows the capture's own
-    // aspect, so a screenshot is never stretched to fit a frame that disagrees with it.
-    let screenWidth = (canvas.width * profile.screenWidthFraction).rounded()
-    let screenHeight = (screenWidth * canvas.height / canvas.width).rounded()
-    let screenTop = profile.headlineTop + lineHeight * CGFloat(lines.count) + profile.headlineGap
-    let screen = NSRect(
-        x: ((canvas.width - screenWidth) / 2).rounded(),
-        y: canvas.height - screenTop - screenHeight,
-        width: screenWidth,
-        height: screenHeight
-    )
-    let body = screen.insetBy(dx: -profile.bezel, dy: -profile.bezel)
-    let screenRadius = screenWidth * profile.cornerFraction
+    content(profile.headlineTop + lineHeight * CGFloat(lines.count) + profile.headlineGap)
 
-    // Shadow on the body only: set on the fill and cleared before the screenshot goes in, or
-    // every pixel of the app picks it up as a halo.
+    NSGraphicsContext.restoreGraphicsState()
+    return rep
+}
+
+/// A rounded, shadowed slab — the phone's body, or a widget tile's — filled with `color`.
+///
+/// Shadow on the fill only: set on the fill and cleared before anything goes in over it, or
+/// every pixel of the picture picks it up as a halo.
+func slab(_ rect: NSRect, radius: CGFloat, color: NSColor, shadowOffset: CGFloat, shadowBlur: CGFloat, shadowAlpha: CGFloat) {
     NSGraphicsContext.saveGraphicsState()
     let shadow = NSShadow()
-    shadow.shadowOffset = NSSize(width: 0, height: -profile.bezel * 2)
-    shadow.shadowBlurRadius = profile.bezel * 4
-    shadow.shadowColor = NSColor.black.withAlphaComponent(0.28)
+    shadow.shadowOffset = NSSize(width: 0, height: -shadowOffset)
+    shadow.shadowBlurRadius = shadowBlur
+    shadow.shadowColor = NSColor.black.withAlphaComponent(shadowAlpha)
     shadow.set()
-    palette.bezel.setFill()
-    NSBezierPath(
-        roundedRect: body,
-        xRadius: screenRadius + profile.bezel,
-        yRadius: screenRadius + profile.bezel
-    ).fill()
+    color.setFill()
+    NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
     NSGraphicsContext.restoreGraphicsState()
+}
 
+/// Draws `image` into `rect`, clipped to a rounded rectangle.
+func draw(_ image: NSImage, in rect: NSRect, radius: CGFloat) {
     NSGraphicsContext.saveGraphicsState()
-    NSBezierPath(roundedRect: screen, xRadius: screenRadius, yRadius: screenRadius).addClip()
-    capture.draw(
-        in: screen,
-        from: NSRect(origin: .zero, size: capture.size),
+    NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).addClip()
+    image.draw(
+        in: rect,
+        from: NSRect(origin: .zero, size: image.size),
         operation: .sourceOver,
         fraction: 1
     )
     NSGraphicsContext.restoreGraphicsState()
+}
 
-    NSGraphicsContext.restoreGraphicsState()
-    return rep
+func frame(
+    capture: NSImage, caption: String, profile: Profile, palette: Palette
+) -> NSBitmapImageRep {
+    canvas(caption: caption, profile: profile, palette: palette) { top in
+        let canvas = profile.canvas
+        // The device. Its width is fixed by the profile and its height follows the capture's
+        // own aspect, so a screenshot is never stretched to fit a frame that disagrees with it.
+        let screenWidth = (canvas.width * profile.screenWidthFraction).rounded()
+        let screenHeight = (screenWidth * canvas.height / canvas.width).rounded()
+        let screen = NSRect(
+            x: ((canvas.width - screenWidth) / 2).rounded(),
+            y: canvas.height - top - screenHeight,
+            width: screenWidth,
+            height: screenHeight
+        )
+        let screenRadius = screenWidth * profile.cornerFraction
+        slab(
+            screen.insetBy(dx: -profile.bezel, dy: -profile.bezel),
+            radius: screenRadius + profile.bezel,
+            color: palette.bezel,
+            shadowOffset: profile.bezel * 2,
+            shadowBlur: profile.bezel * 4,
+            shadowAlpha: 0.28
+        )
+        draw(capture, in: screen, radius: screenRadius)
+    }
+}
+
+/// The widget shot: the tiles laid out per the profile's `Assembly`, centred under the
+/// headline where a device would start.
+func assemble(
+    tiles: [String: NSImage], caption: String, profile: Profile, palette: Palette
+) -> NSBitmapImageRep {
+    canvas(caption: caption, profile: profile, palette: palette) { top in
+        let canvas = profile.canvas
+        let layout = profile.assembly
+        // One scale for the group, from the arrangement's width — the same role the device's
+        // width plays in the other frames.
+        let scale = (canvas.width * layout.widthFraction) / layout.size.width
+        let originX = ((canvas.width - layout.size.width * scale) / 2).rounded()
+        let radius = Assembly.cornerRadius * scale
+
+        for (tile, origin) in layout.placements {
+            guard let image = tiles[tile.part] else {
+                fail("the widgets assembly has no \(tile.part) tile")
+            }
+            let rect = NSRect(
+                x: (originX + origin.x * scale).rounded(),
+                y: (canvas.height - top - (origin.y + tile.size.height) * scale).rounded(),
+                width: (tile.size.width * scale).rounded(),
+                height: (tile.size.height * scale).rounded()
+            )
+            // Lighter than the phone's: these are tiles resting on paper, not a device. The fill
+            // under the image is paper so an antialiased edge blends into the tile, not into a
+            // dark ring.
+            slab(
+                rect,
+                radius: radius,
+                color: paper50,
+                shadowOffset: profile.bezel,
+                shadowBlur: profile.bezel * 3,
+                shadowAlpha: 0.16
+            )
+            draw(image, in: rect, radius: radius)
+        }
+    }
 }
 
 // MARK: - Walking the tree
@@ -304,6 +456,31 @@ func directories(in url: URL) -> [URL] {
         .sorted { $0.lastPathComponent < $1.lastPathComponent }
 }
 
+/// The PNG files directly inside `url`, sorted by name.
+func pngs(in url: URL) -> [URL] {
+    ((try? manager.contentsOfDirectory(
+        at: url, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]
+    )) ?? [])
+        .filter { $0.pathExtension.lowercased() == "png" }
+        .sorted { $0.lastPathComponent < $1.lastPathComponent }
+}
+
+/// Encodes and writes one framed shot.
+func write(_ rep: NSBitmapImageRep, named name: String, to out: URL, locale: String, device: String) {
+    guard let png = rep.representation(using: .png, properties: [:]) else {
+        fail("could not encode \(name) for \(locale) on \(device)")
+    }
+    let target = out.appendingPathComponent("\(name).png")
+    try! png.write(to: target)
+    print("  \(target.path)  \(rep.pixelsWide)x\(rep.pixelsHigh)")
+}
+
+/// An assembly folder is named like a shot — two digits and a dash — where a device folder is
+/// named after a canvas. That is the whole of how the two are told apart.
+func isAssembly(_ url: URL) -> Bool {
+    url.lastPathComponent.range(of: #"^\d\d-"#, options: .regularExpression) != nil
+}
+
 var written = 0
 for localeDirectory in directories(in: captures) {
     let locale = localeDirectory.lastPathComponent
@@ -311,7 +488,23 @@ for localeDirectory in directories(in: captures) {
         fail("captions.json says nothing about \(locale)")
     }
 
-    for deviceDirectory in directories(in: localeDirectory) {
+    let entries = directories(in: localeDirectory)
+    let deviceDirectories = entries.filter { !isAssembly($0) }
+    // Read once per locale: the same tiles go onto every canvas.
+    let assemblies: [(name: String, tiles: [String: NSImage])] = entries
+        .filter(isAssembly)
+        .map { folder in
+            var tiles: [String: NSImage] = [:]
+            for file in pngs(in: folder) {
+                guard let image = NSImage(contentsOf: file) else {
+                    fail("could not read \(file.path)")
+                }
+                tiles[file.deletingPathExtension().lastPathComponent] = image
+            }
+            return (folder.lastPathComponent, tiles)
+        }
+
+    for deviceDirectory in deviceDirectories {
         let device = deviceDirectory.lastPathComponent
         guard let profile = Profile.named(device) else {
             fail("no frame is defined for the \(device) canvas")
@@ -321,35 +514,37 @@ for localeDirectory in directories(in: captures) {
         try? manager.removeItem(at: out)
         try! manager.createDirectory(at: out, withIntermediateDirectories: true)
 
-        let shots = ((try? manager.contentsOfDirectory(
-            at: deviceDirectory, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]
-        )) ?? [])
-            .filter { $0.pathExtension.lowercased() == "png" }
-            .sorted { $0.lastPathComponent < $1.lastPathComponent }
-
-        for shot in shots {
+        for shot in pngs(in: deviceDirectory) {
             let name = shot.deletingPathExtension().lastPathComponent
             // A shot with no headline is a shot nobody wrote copy for, and shipping it untitled
-            // beside five that are titled is worse than stopping here.
+            // beside six that are titled is worse than stopping here.
             guard let caption = localeCaptions[name] else {
                 fail("captions.json has no \(locale) headline for \(name)")
             }
             guard let capture = NSImage(contentsOf: shot) else {
                 fail("could not read \(shot.path)")
             }
-
             let rep = frame(
                 capture: capture,
                 caption: caption,
                 profile: profile,
                 palette: darkFrames.contains(name) ? .dark : .light
             )
-            guard let png = rep.representation(using: .png, properties: [:]) else {
-                fail("could not encode \(name) for \(locale) on \(device)")
+            write(rep, named: name, to: out, locale: locale, device: device)
+            written += 1
+        }
+
+        for assembly in assemblies {
+            guard let caption = localeCaptions[assembly.name] else {
+                fail("captions.json has no \(locale) headline for \(assembly.name)")
             }
-            let target = out.appendingPathComponent(shot.lastPathComponent)
-            try! png.write(to: target)
-            print("  \(target.path)  \(rep.pixelsWide)x\(rep.pixelsHigh)")
+            let rep = assemble(
+                tiles: assembly.tiles,
+                caption: caption,
+                profile: profile,
+                palette: darkFrames.contains(assembly.name) ? .dark : .light
+            )
+            write(rep, named: assembly.name, to: out, locale: locale, device: device)
             written += 1
         }
     }

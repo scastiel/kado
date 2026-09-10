@@ -53,9 +53,9 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 <p float="left">
   <img src="docs/screenshots/iphone-67-appstore/en/01-today.png" width="19%" alt="Today view" />
   <img src="docs/screenshots/iphone-67-appstore/en/02-habit-detail.png" width="19%" alt="Habit detail with score popover" />
-  <img src="docs/screenshots/iphone-67-appstore/en/03-overview.png" width="19%" alt="Multi-habit overview" />
-  <img src="docs/screenshots/iphone-67-appstore/en/04-new-habit.png" width="19%" alt="New habit form" />
-  <img src="docs/screenshots/iphone-67-appstore/en/06-today-dark.png" width="19%" alt="Today view in dark mode" />
+  <img src="docs/screenshots/iphone-67-appstore/en/04-overview.png" width="19%" alt="Multi-habit overview" />
+  <img src="docs/screenshots/iphone-67-appstore/en/05-new-habit.png" width="19%" alt="New habit form" />
+  <img src="docs/screenshots/iphone-67-appstore/en/07-today-dark.png" width="19%" alt="Today view in dark mode" />
 </p>
 
 ## Features

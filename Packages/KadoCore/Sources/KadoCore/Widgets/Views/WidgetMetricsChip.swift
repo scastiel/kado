@@ -1,6 +1,5 @@
 import SwiftUI
 import WidgetKit
-import KadoCore
 
 /// `🔥 streak · score%` caption for a habit row in the large home
 /// widget — the widget's counterpart to the app's `MetricsChip`.
@@ -15,17 +14,22 @@ import KadoCore
 ///
 /// Streak is hidden when zero, matching the app: a habit with no run
 /// going shouldn't display a `0` for it.
-struct WidgetMetricsChip: View {
+public struct WidgetMetricsChip: View {
     let streak: Int
     let scorePercent: Int
 
     @Environment(\.widgetRenderingMode) private var renderingMode
 
+    public init(streak: Int, scorePercent: Int) {
+        self.streak = streak
+        self.scorePercent = scorePercent
+    }
+
     private var palette: WidgetPalette {
         WidgetPalette(renderingMode: renderingMode)
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 4) {
             if streak > 0 {
                 // Hand-rolled "label" — `Label`'s default icon-to-title

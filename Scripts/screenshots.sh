@@ -5,6 +5,7 @@
 #   Scripts/screenshots.sh                          # everything the listing needs
 #   Scripts/screenshots.sh --languages en           # just English
 #   Scripts/screenshots.sh --devices iphone-6.9     # just the iPhone set
+#   Scripts/screenshots.sh --passes widgets         # only the widget tiles; keeps the rest
 #
 # It drives `KadoUITests/ScreenshotTests` — the only suite `make e2e` skips — once per language
 # and per device, with `-testLanguage` so the app and its seeded data are both in that language.
@@ -12,8 +13,15 @@
 # docs/app-store/screenshots/<locale>/<device>/, numbered in the order App Store Connect should
 # show them, then get wrapped for the listing into docs/app-store/marketing/.
 #
-# Two passes per combination, because nothing inside a test can change the simulator's
-# appearance: a light one for shots 01–05 and a dark one for 06.
+# Three passes. Light and dark, per language and per device, because nothing inside a test can
+# change the simulator's appearance: a light one for the screens (01, 02, 04–06) and a dark one
+# for 07. And a widgets pass, per language on the iPhone only, which launches the app on its
+# Debug-only widget gallery and photographs the tiles the frame assembles into 03. The tiles
+# land beside the device folders, in docs/app-store/screenshots/<locale>/03-widgets/, because
+# both canvases are composed from the same 3× files — the iPad's own 2× tiles would only be
+# upscaled onto its canvas. `--passes` picks a subset, and a subset run adds to the folder
+# rather than emptying it first, so re-photographing the tiles after a lock-screen tweak keeps
+# the six screens as they were.
 #
 # Before each pass the simulator is set to that language, booted, pinned to an appearance and
 # given a 9:41 status bar, so two runs a week apart differ only where the app differs.
@@ -55,15 +63,23 @@ print(d)' "$CONFIG" "$@"
 # readable in `bash -x` output and works on the bash 3.2 macOS still ships as /bin/bash.
 LANGUAGES=(en fr)
 DEVICES=(iphone-6.9 ipad-13)
+PASSES=(light dark widgets)
+# The one device the widget tiles are photographed on. Its 3× tiles downscale cleanly onto
+# every canvas; a 2× iPad tile would have to be upscaled onto the iPad's own.
+TILE_DEVICE="iphone-6.9"
+# Whether this run covers every pass. Only then is the destination emptied first: a partial run
+# is replacing some of the pictures and must leave the others alone.
+FULL_RUN="yes"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --languages) IFS=' ' read -r -a LANGUAGES <<< "$2"; shift 2 ;;
     --devices)   IFS=' ' read -r -a DEVICES <<< "$2"; shift 2 ;;
+    --passes)    IFS=' ' read -r -a PASSES <<< "$2"; FULL_RUN=""; shift 2 ;;
     --output)    OUTPUT="$2"; shift 2 ;;
     --framed)    FRAMED="$2"; shift 2 ;;
     --no-site)   SITE=""; shift ;;
-    -h|--help)   sed -n '2,24p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help)   sed -n '2,29p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 1 ;;
   esac
 done
@@ -118,18 +134,35 @@ for device in "${DEVICES[@]}"; do
       --cellularMode active --cellularBars 4 --operatorName "" \
       --batteryState charged --batteryLevel 100
 
-    # Emptied once, before both passes, because each pass writes only its own shots into it.
-    rm -rf "$destination"
+    # Emptied once, before the passes, because each pass writes only its own shots into it —
+    # and only on a full run, because a partial one is refreshing some pictures and must leave
+    # the rest where they are.
+    if [[ -n "$FULL_RUN" ]]; then
+      rm -rf "$destination"
+      # The locale's tiles too, when this is the device that photographs them.
+      if [[ "$device" == "$TILE_DEVICE" ]]; then
+        for tiles in "$OUTPUT/$locale"/[0-9][0-9]-*; do
+          [[ -d "$tiles" ]] && rm -rf "$tiles"
+        done
+      fi
+    fi
 
-    for appearance in light dark; do
-      case "$appearance" in
-        light) test_case="ScreenshotTests/testCaptureLightScreenshots" ;;
-        dark)  test_case="ScreenshotTests/testCaptureDarkScreenshots" ;;
+    for pass in "${PASSES[@]}"; do
+      if [[ "$pass" == widgets && "$device" != "$TILE_DEVICE" ]]; then
+        continue
+      fi
+      case "$pass" in
+        light)   test_case="ScreenshotTests/testCaptureLightScreenshots"; appearance="light" ;;
+        dark)    test_case="ScreenshotTests/testCaptureDarkScreenshots";  appearance="dark" ;;
+        # The tiles are photographed in light: the Home Screen tiles show the paper palette,
+        # and the lock card carries its own dark ground whatever the appearance.
+        widgets) test_case="ScreenshotTests/testCaptureWidgetTiles";      appearance="light" ;;
+        *) echo "unknown pass: $pass (light, dark, widgets)" >&2; exit 1 ;;
       esac
-      bundle="$DERIVED/screenshots-$device-$language-$appearance.xcresult"
-      exported="$DERIVED/attachments-$device-$language-$appearance"
+      bundle="$DERIVED/screenshots-$device-$language-$pass.xcresult"
+      exported="$DERIVED/attachments-$device-$language-$pass"
 
-      echo "--> $appearance"
+      echo "--> $pass"
       xcrun simctl ui "$udid" appearance "$appearance" > /dev/null
 
       rm -rf "$bundle" "$exported"
@@ -157,7 +190,8 @@ for device in "${DEVICES[@]}"; do
       # The export names files after the attachment's UUID and records the name the test gave it
       # in a manifest. The name is the whole point — it is what orders the set in App Store
       # Connect — so the manifest is what decides the file names here.
-      python3 Scripts/name-screenshots.py "$exported" "$destination" "$expected_size"
+      python3 Scripts/name-screenshots.py "$exported" "$destination" "$expected_size" \
+        "$OUTPUT/$locale"
     done
 
     xcrun simctl status_bar "$udid" clear

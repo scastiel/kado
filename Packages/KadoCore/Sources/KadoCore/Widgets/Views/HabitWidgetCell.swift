@@ -1,7 +1,6 @@
 import AppIntents
 import SwiftUI
 import WidgetKit
-import KadoCore
 
 /// One habit row as it appears in the small and medium home
 /// widgets. Score-shaded background, habit icon, truncated name,
@@ -18,16 +17,24 @@ import KadoCore
 /// appearances the system re-tints every opaque pixel with a single
 /// colour, which would otherwise flatten a completed row's white
 /// label into the block behind it.
-struct HabitWidgetCell: View {
+///
+/// Lives in `KadoCore` rather than the extension so the app can draw
+/// it too — the App Store screenshot of the widgets is assembled from
+/// these views rendered in-app, not photographed off a Home Screen.
+public struct HabitWidgetCell: View {
     let row: WidgetTodayRow
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+
+    public init(row: WidgetTodayRow) {
+        self.row = row
+    }
 
     private var palette: WidgetPalette {
         WidgetPalette(renderingMode: renderingMode)
     }
 
-    var body: some View {
+    public var body: some View {
         switch row.habit.typeKind {
         case .binary, .negative:
             Button(intent: CompleteHabitIntent(habit: HabitEntity(widgetHabit: row.habit))) {

@@ -4,7 +4,8 @@ import KadoCore
 
 /// The small home widget — up to five habits due today as
 /// tappable, score-shaded chips. Reads from the App Group JSON
-/// snapshot via `SnapshotTimelineProvider`.
+/// snapshot via `SnapshotTimelineProvider`. The content is
+/// `TodayGridSmallView`, in `KadoCore`, so the app can draw it too.
 struct TodayGridSmallWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.todaySmall"
 
@@ -17,48 +18,6 @@ struct TodayGridSmallWidget: Widget {
         .configurationDisplayName(Text("Today"))
         .description(Text("Quick tap-to-complete for the habits due today."))
         .supportedFamilies([.systemSmall])
-    }
-}
-
-struct TodayGridSmallView: View {
-    let entry: SnapshotEntry
-
-    private let limit = 5
-
-    var body: some View {
-        if entry.snapshot.today.isEmpty {
-            TodayEmptyPlaceholder()
-        } else {
-            VStack(spacing: 4) {
-                ForEach(entry.snapshot.today.prefix(limit)) { row in
-                    HabitWidgetCell(row: row)
-                }
-                Spacer(minLength: 0)
-            }
-        }
-    }
-}
-
-struct TodayEmptyPlaceholder: View {
-    @Environment(\.widgetRenderingMode) private var renderingMode
-
-    var body: some View {
-        let palette = WidgetPalette(renderingMode: renderingMode)
-        VStack(spacing: 6) {
-            Image(systemName: "checkmark.circle")
-                .font(.title2)
-                .foregroundStyle(palette.foregroundSecondary)
-            Text("All done")
-                .font(.caption)
-                .foregroundStyle(palette.foregroundSecondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // The only content on the tile, so it belongs in the accent
-        // group. Without this the whole widget falls into the dimmed
-        // default group and the caption's own alpha dims it a second
-        // time — leaving the empty state fainter than it was before
-        // any of this.
-        .widgetAccentable()
     }
 }
 
