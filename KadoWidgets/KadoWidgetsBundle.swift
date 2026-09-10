@@ -18,5 +18,6 @@ struct KadoWidgetsBundle: WidgetBundle {
         LockRectangularWidget()
         LockCircularWidget()
         LockInlineWidget()
+        LockDayProgressWidget()
     }
 }

@@ -95,6 +95,47 @@ struct HabitRowStateTests {
         #expect(state.progress == 0.0)
     }
 
+    // MARK: - Done for the day
+
+    /// `status` says what was recorded; `isDone(for:)` says whether the
+    /// day counts. They agree for every type but negative, where the
+    /// record is the failure.
+
+    @Test("A negative habit with nothing recorded is done — the empty row is the win")
+    func negativeAvoidedIsDone() {
+        let h = habit(.negative)
+        let state = HabitRowState.resolve(
+            habit: h, completions: [], calendar: TestCalendar.utc, asOf: TestCalendar.day(0)
+        )
+        #expect(state.isDone(for: h))
+    }
+
+    @Test("A negative habit that slipped today is not done")
+    func negativeSlippedIsNotDone() {
+        let h = habit(.negative)
+        let state = HabitRowState.resolve(
+            habit: h,
+            completions: [completion(for: h, dayOffset: 0)],
+            calendar: TestCalendar.utc,
+            asOf: TestCalendar.day(0)
+        )
+        #expect(!state.isDone(for: h))
+    }
+
+    @Test("Binary, counter and timer are done exactly when their status is .complete")
+    func positiveTypesFollowStatus() {
+        let binary = habit(.binary)
+        let counter = habit(.counter(target: 3))
+        let timer = habit(.timer(targetSeconds: 600))
+
+        #expect(!HabitRowState(status: .none, progress: 0, valueToday: nil).isDone(for: binary))
+        #expect(HabitRowState(status: .complete, progress: 1, valueToday: 1).isDone(for: binary))
+        #expect(!HabitRowState(status: .partial, progress: 2.0 / 3.0, valueToday: 2).isDone(for: counter))
+        #expect(HabitRowState(status: .complete, progress: 1, valueToday: 3).isDone(for: counter))
+        #expect(!HabitRowState(status: .partial, progress: 0.5, valueToday: 300).isDone(for: timer))
+        #expect(HabitRowState(status: .complete, progress: 1, valueToday: 600).isDone(for: timer))
+    }
+
     // MARK: - Counter
 
     @Test("Counter with no completion today is .none, progress 0")

@@ -27,6 +27,7 @@ struct ContentView: View {
         }
         .kadoTheme()
         .reviewPromptOnForeground()
+        .dayCompletionCelebration()
     }
 }
 

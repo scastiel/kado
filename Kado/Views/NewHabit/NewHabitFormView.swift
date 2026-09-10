@@ -41,6 +41,7 @@ struct NewHabitFormView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
                         .disabled(!model.isValid)
+                        .accessibilityIdentifier(AccessibilityID.NewHabit.saveButton)
                 }
             }
             .sensoryFeedback(.success, trigger: saveTick)

@@ -98,4 +98,10 @@ extension EnvironmentValues {
     /// is a mock so previews and unit tests never touch StoreKit; the
     /// main app injects `DefaultTipJarStore(tipNudge:)` at scene build.
     @Entry var tipJarStore: any TipJarStoring = MockTipJarStore()
+
+    /// Defaults to the process-wide instance rather than a fresh one:
+    /// the snapshot funnel and the intents feed `.shared`, and a view
+    /// watching any other instance would simply never see a
+    /// celebration. Previews inject their own to drive it by hand.
+    @Entry var dayCompletionCelebration: DayCompletionCelebration = .shared
 }
