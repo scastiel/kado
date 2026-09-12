@@ -69,9 +69,23 @@ struct ConfettiView: View {
     /// and scaled with the shorter screen side, so an iPad gets the
     /// same burst shape rather than a phone-sized puff in a corner.
     private struct Particle {
-        /// The eight habit hues and the brand sage: a fistful of the
-        /// colours the user already lives with, not a new palette.
-        static let palette: [Color] = HabitColor.allCases.map(\.color) + [.kadoSage]
+        /// The theme, not the habit hues. Habit colours are Apple's
+        /// full-chroma system hues, and the app only ever shows them
+        /// washed — a ring at 0.25, a cell at 0.3–0.7 — so a hundred
+        /// of them opaque at once was the one loud thing on a paper
+        /// screen. Sage in four steps carries the burst, with a few
+        /// warm neutrals so it reads as torn paper rather than
+        /// plastic. Weighted toward the mid sages: the darkest step
+        /// and the neutrals are the minority. Every token is dynamic,
+        /// so dark mode comes for free.
+        static let palette: [Color] = [
+            .kadoSage300, .kadoSage300,
+            .kadoSage500, .kadoSage500,
+            .kadoSage,
+            .kadoSage900,
+            .kadoPaper300,
+            .kadoInk100,
+        ]
 
         enum Side {
             case leading

@@ -28,10 +28,16 @@ final class DayCompletionCelebrationTests: KadoUITestCase {
             caption.waitForExistence(timeout: 5),
             "Completing the only habit due today should show the “All done for today” caption."
         )
-        // A beat in, so the confetti is mid-air in the picture rather
-        // than still bunched above the top edge.
-        Thread.sleep(forTimeInterval: 0.8)
-        capture(app, "celebration")
+        // Several frames across the burst rather than one: how far in
+        // the first lands depends on how long `waitForExistence` and
+        // the screenshot took on this machine, and a single frame timed
+        // for one run has landed on the last stragglers on the next. A
+        // burst lasts about two seconds; a frame every third of one
+        // guarantees a picture with the confetti mid-air.
+        for frame in 0..<4 {
+            capture(app, "celebration-\(frame)")
+            Thread.sleep(forTimeInterval: 0.3)
+        }
         XCTAssertEqual(app.state, .runningForeground)
     }
 
