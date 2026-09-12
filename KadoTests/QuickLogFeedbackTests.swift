@@ -1,6 +1,7 @@
 import Testing
 import SwiftUI
 @testable import Kado
+import KadoCore
 
 /// The haptic a quick-log control plays for a change of the day's
 /// recorded value. One feedback per change: `.success` on the edge
@@ -58,9 +59,39 @@ struct QuickLogFeedbackTests {
         #expect(feedback(9, 8) == .selection)
     }
 
-    @Test("A zero target never reports a success edge")
+    @Test("A zero target is met by the first recorded value, as HabitRowState resolves it")
     func zeroTarget() {
-        #expect(feedback(0, 1, target: 0) == .selection)
+        #expect(feedback(0, 1, target: 0) == .success)
         #expect(feedback(1, 2, target: 0) == .selection)
+        #expect(feedback(1, 0, target: 0) == .selection)
+    }
+
+    // MARK: - QuickLogEvent
+
+    @Test("Events are sequenced so identical consecutive steps still differ")
+    func eventSequence() {
+        let first = QuickLogEvent.next(after: nil, type: .counter(target: 8), oldValue: 3, newValue: 4)
+        let second = QuickLogEvent.next(after: first, type: .counter(target: 8), oldValue: 3, newValue: 4)
+        #expect(first?.sequence == 1)
+        #expect(second?.sequence == 2)
+        #expect(first != second)
+        #expect(first?.feedback == .selection)
+        #expect(second?.feedback == .selection)
+    }
+
+    @Test("An event carries the rule's feedback for the habit's own target")
+    func eventFeedback() {
+        let counter = QuickLogEvent.next(after: nil, type: .counter(target: 8), oldValue: 7, newValue: 8)
+        #expect(counter?.feedback == .success)
+        let timer = QuickLogEvent.next(after: nil, type: .timer(targetSeconds: 1800), oldValue: 1500, newValue: 1800)
+        #expect(timer?.feedback == .success)
+        let past = QuickLogEvent.next(after: nil, type: .timer(targetSeconds: 1800), oldValue: 1800, newValue: 2100)
+        #expect(past?.feedback == .selection)
+    }
+
+    @Test("Binary and negative habits produce no event")
+    func noEventForToggles() {
+        #expect(QuickLogEvent.next(after: nil, type: .binary, oldValue: 0, newValue: 1) == nil)
+        #expect(QuickLogEvent.next(after: nil, type: .negative, oldValue: 0, newValue: 1) == nil)
     }
 }

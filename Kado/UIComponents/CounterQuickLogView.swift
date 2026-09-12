@@ -3,9 +3,10 @@ import KadoCore
 
 /// Quick-log control for counter habits on the detail view.
 /// Shows today's value next to the target, with `−` and `+`
-/// buttons on either side. Minus is disabled at zero. Every tap
-/// ticks; the one that meets `target` plays `.success`
-/// (`QuickLogFeedback`).
+/// buttons on either side. Minus is disabled at zero. Display only:
+/// the haptic for a tap is the detail view's, recorded where the
+/// value is written (`QuickLogEvent`), so it can't fire for a value
+/// that moved for some other reason.
 struct CounterQuickLogView: View {
     let target: Double
     let todayValue: Double
@@ -58,9 +59,6 @@ struct CounterQuickLogView: View {
             RoundedRectangle(cornerRadius: KadoRadius.card)
                 .fill(Color.kadoBackgroundSecondary)
         )
-        .sensoryFeedback(trigger: todayValue) { old, new in
-            QuickLogFeedback.feedback(oldValue: old, newValue: new, target: target)
-        }
     }
 }
 

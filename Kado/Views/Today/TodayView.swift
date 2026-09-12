@@ -35,6 +35,12 @@ struct TodayView: View {
     @State private var path = NavigationPath()
     @State private var sheet: TodaySheet?
     @State private var confirmingArchiveOf: UUID?
+    /// The latest `−` / `+` / `+5m` tap, for the haptic. Recorded by
+    /// the mutation rather than observed on the row: a row keyed on
+    /// its own value ticks when the day rolls over or a sync lands,
+    /// and misses the tap that moves it between sections (a new
+    /// `ForEach` identity sees no old → new).
+    @State private var quickLog: QuickLogEvent?
 
     /// Whether the tip nudge is showing. Seeded in `.onAppear` rather
     /// than in the property's initial value, because `@State` is set up
@@ -216,6 +222,7 @@ struct TodayView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
+            .quickLogFeedback(quickLog)
             .refreshable {
                 try? await Task.sleep(for: .seconds(1))
             }
@@ -381,8 +388,10 @@ struct TodayView: View {
 
     private func incrementCounter(_ habitID: UUID) {
         guard let record = record(for: habitID) else { return }
-        CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, on: loggingInstant, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: loggingInstant)
+        logger.incrementCounter(for: record, on: loggingInstant, in: modelContext)
+        recordQuickLog(for: record, from: before, to: before + 1)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
@@ -390,19 +399,33 @@ struct TodayView: View {
 
     private func decrementCounter(_ habitID: UUID) {
         guard let record = record(for: habitID) else { return }
-        CompletionLogger(calendar: calendar)
-            .decrementCounter(for: record, on: loggingInstant, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: loggingInstant)
+        logger.decrementCounter(for: record, on: loggingInstant, in: modelContext)
+        recordQuickLog(for: record, from: before, to: max(0, before - 1))
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func addFiveMinutes(_ habitID: UUID) {
         guard let record = record(for: habitID) else { return }
-        CompletionLogger(calendar: calendar)
-            .incrementCounter(for: record, on: loggingInstant, by: 300, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: loggingInstant)
+        logger.incrementCounter(for: record, on: loggingInstant, by: 300, in: modelContext)
+        recordQuickLog(for: record, from: before, to: before + 300)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)
+    }
+
+    /// The step is known here exactly — `+1`, `−1` floored at zero,
+    /// `+300` — so the haptic is derived from the mutation, not read
+    /// back from a store that may still hold a just-deleted record.
+    private func recordQuickLog(for record: HabitRecord, from old: Double, to new: Double) {
+        guard let event = QuickLogEvent.next(after: quickLog, type: record.type, oldValue: old, newValue: new) else {
+            return
+        }
+        quickLog = event
     }
 
     private func checkMilestones(for record: HabitRecord) {

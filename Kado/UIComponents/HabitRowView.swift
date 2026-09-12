@@ -170,10 +170,10 @@ struct HabitRowView: View {
             binaryCheckButton
         case .negative:
             negativePill
-        case .counter(let target):
-            counterStepper(target: target)
-        case .timer(let targetSeconds):
-            timerAddFiveChip(target: targetSeconds)
+        case .counter:
+            counterStepper
+        case .timer:
+            timerAddFiveChip
         }
     }
 
@@ -188,7 +188,7 @@ struct HabitRowView: View {
     /// full session editor (existing `TimerLogSheet`) is reachable
     /// from the row's context menu via "Log specific value…".
     @ViewBuilder
-    private func timerAddFiveChip(target: TimeInterval) -> some View {
+    private var timerAddFiveChip: some View {
         if let onTimerAddFiveMinutes {
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) {
@@ -196,9 +196,6 @@ struct HabitRowView: View {
                     timerChip(action: onTimerAddFiveMinutes)
                 }
                 timerChip(action: onTimerAddFiveMinutes)
-            }
-            .sensoryFeedback(trigger: state.valueToday ?? 0) { old, new in
-                QuickLogFeedback.feedback(oldValue: old, newValue: new, target: target)
             }
         }
     }
@@ -283,14 +280,10 @@ struct HabitRowView: View {
     /// point, so it is the minus that gives way. Decrement is disabled
     /// at zero so "no completion" stays equivalent to "not started
     /// today" (matches CompletionLogger semantics).
-    @ViewBuilder
-    private func counterStepper(target: Double) -> some View {
+    private var counterStepper: some View {
         ViewThatFits(in: .horizontal) {
             counterStepperFull
             counterStepperPlusOnly
-        }
-        .sensoryFeedback(trigger: state.valueToday ?? 0) { old, new in
-            QuickLogFeedback.feedback(oldValue: old, newValue: new, target: target)
         }
     }
 
@@ -360,11 +353,14 @@ struct HabitRowView: View {
         Text(Int(state.valueToday ?? 0), format: .number)
     }
 
-    /// Whole minutes, floored — the same rounding as the VoiceOver
-    /// phrase, so the two never disagree.
     private var timerCountText: Text {
-        let minutes = Int((state.valueToday ?? 0) / 60)
-        return Text("\(minutes)m")
+        Text("\(todayMinutes)m")
+    }
+
+    /// Whole minutes, floored. Both the visual count and the VoiceOver
+    /// phrase read this, so the two can't disagree.
+    private var todayMinutes: Int {
+        Int((state.valueToday ?? 0) / 60)
     }
 
     // MARK: - Formatting helpers
@@ -404,9 +400,8 @@ struct HabitRowView: View {
             let v = Int(state.valueToday ?? 0)
             return String(localized: "\(v) of \(Int(target))")
         case .timer(let targetSeconds):
-            let v = Int((state.valueToday ?? 0) / 60)
             let t = Int(targetSeconds / 60)
-            return String(localized: "\(v) of \(t) minutes")
+            return String(localized: "\(todayMinutes) of \(t) minutes")
         }
     }
 
@@ -509,12 +504,17 @@ private extension HabitRowView {
     }
 }
 
+// The timer row is here on purpose: at AX sizes its count and chip
+// once wrapped to `35 / m` `+5 / m`, and this preview held no timer to
+// show it. Keep every trailing control represented.
 #Preview("Dynamic Type XXXL") {
     let binary = Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now)
     let counter = Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now)
+    let timer = Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now)
     return List {
         HabitRowView(habit: binary, state: HabitRowView.previewState(for: binary.type, value: 1), streak: 6, scorePercent: 78, onToggle: {})
         HabitRowView(habit: counter, state: HabitRowView.previewState(for: counter.type, value: 3), streak: 2, scorePercent: 55, onToggle: nil)
+        HabitRowView(habit: timer, state: HabitRowView.previewState(for: timer.type, value: 2100), streak: 9, scorePercent: 88, onToggle: nil)
     }
     .environment(\.dynamicTypeSize, .accessibility3)
 }

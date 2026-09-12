@@ -13,6 +13,13 @@ struct CompletionLogger {
         self.calendar = calendar
     }
 
+    /// The day's recorded value, 0 when there is no record. Read
+    /// before a mutation so the quick-log haptic can compare the
+    /// value it moved from with the one it moved to.
+    func value(for habit: HabitRecord, on date: Date = .now) -> Double {
+        todayCompletion(for: habit, on: date)?.value ?? 0
+    }
+
     /// Adds `delta` to today's completion value, creating a record
     /// if none exists.
     func incrementCounter(

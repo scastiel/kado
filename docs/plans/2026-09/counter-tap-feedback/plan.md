@@ -53,11 +53,13 @@ watchOS"*), so that's what every tap uses.
   view; `HabitRowState` doesn't change. Timer minutes floor to the minute
   (`Int(value / 60)`), the same rounding `accessibilityProgressText`
   already uses.
-- Haptics trigger on the **recorded value**, not on the tap — same as the
-  existing `.success` today. A value that changes under the row from a
-  CloudKit sync or the midnight rollover will tick once; that's the
-  precedent the `.success` edge already set. See Risks for the swap if it
-  proves annoying.
+- ~~Haptics trigger on the **recorded value**, not on the tap — same as
+  the existing `.success` today. A value that changes under the row from
+  a CloudKit sync or the midnight rollover will tick once; that's the
+  precedent the `.success` edge already set.~~ **Reversed after review**
+  (see Notes during build): the haptic is recorded at the **mutation
+  site** as a `QuickLogEvent` and played by one `.quickLogFeedback(_:)`
+  on a stable ancestor. The controls carry no haptic of their own.
 - The count animates with `.contentTransition(.numericText(value:))` under
   `KadoMotion.fast`, disabled when `accessibilityReduceMotion` is on.
 - VoiceOver output is unchanged: the row is `.accessibilityElement(children:
@@ -246,12 +248,13 @@ value, so the number past the target — and every tap's effect — is visible.
   unit tests; the wiring is a one-line modifier per control. Budget one
   on-device check (TestFlight or a cable) before marking the PR ready —
   it's the reporter's complaint, and `test_sim` can't hear it.
-- **A tick for a change the user didn't make** (sync, midnight). Same
-  exposure the `.success` edge already has. If it's ever reported, switch
-  the trigger to a per-tap `@State` counter incremented in the button
-  action and compute the feedback from `(valueToday, valueToday + step,
-  target)` — the step is fixed (1, or 300s), so the prediction is exact.
-  `QuickLogFeedback` doesn't change.
+- **A tick for a change the user didn't make** (sync, midnight). ~~Same
+  exposure the `.success` edge already has.~~ Wrong — the old edge fired
+  on `false → true` only and never on a value → 0 path, so a value-keyed
+  `.selection` was *new* exposure: every counter and timer row would
+  tick at once on the first foreground of a new day. Materialised in
+  review and fixed by the tap-keyed swap this bullet sketched; see Notes
+  during build.
 - **Row width at large Dynamic Type.** `ViewThatFits` already drops the
   `−`; the count adds one to two digits to both variants. If the XXXL
   preview clips the name, the plus-only variant can drop the count last —
@@ -276,7 +279,9 @@ value, so the number past the target — and every tap's effect — is visible.
   body covers both steppers. That's the "tap-keyed" alternative the Risks
   section describes for the row, needed here for a different reason. If
   #80 moves the popover off local state, the trigger stays where it is —
-  it never depended on the state.
+  it never depended on the state. *Superseded by the review fix below:
+  the popover's `stepTick` is gone; `HabitDetailView` records the event
+  where it writes the value.*
 - **Task 4**: the Dynamic Type pass caught a real regression the XXXL
   preview couldn't (it holds no timer row): at AX3 the timer row's `35m`
   and its `+5m` chip both wrapped mid-token — `35 / m`, `+5 / m` — because
@@ -292,6 +297,32 @@ value, so the number past the target — and every tap's effect — is visible.
   primitives, the screenshot seed's today values were bumped locally
   (water 5 → 12, read nil → 2100s), photographed, and `git checkout`-ed
   back. Nothing of it is committed.
+- **Review (`/code-review` on the finished branch)**: keying the row's
+  haptic on `state.valueToday` was the wrong seam, for four reasons the
+  review made concrete. (1) A new day zeroes every row's value on the
+  first foreground → N simultaneous ticks on launch; the old `.success`
+  edge never fired on value → 0, so this was a regression, not the
+  "same exposure" the plan claimed. (2) A not-scheduled row that gets
+  logged moves from the *other* `ForEach` to the *due* one — a new
+  identity that never sees old → new — so the first tap on it was
+  silent: the #81 class, still open for that case. (3) On Detail, a
+  popover step on today also moved `CounterQuickLogView`'s value → two
+  haptics per tap; and the "Log specific value…" sheets stacked their
+  own save `.success` on the row's tick. (4) `target ≤ 0` never played
+  `.success` while `HabitRowState` filled the badge. **Fix**: the
+  mutation sites — `TodayView.incrementCounter / decrementCounter /
+  addFiveMinutes`, `HabitDetailView`'s counterparts plus `setCounter /
+  setTimerSeconds / clear` — read the value before, derive the value
+  after from the step they apply (fixed `+1`, `−1` floored, `+300`, or
+  the explicit value), and record a sequenced `QuickLogEvent`; one
+  `.quickLogFeedback(quickLog)` sits on the Today `List` and the detail
+  `ScrollView`. `HabitRowView`, `CounterQuickLogView` and
+  `DayEditPopover` carry no haptic (the popover is byte-identical to
+  `main` again — nothing for #80 to rebase). The sheets keep their
+  `.success` because they save through their own logger call, not
+  through these functions. `Clear` ticks like any step to 0. The
+  zero-target rule now mirrors `HabitRowState`. `QuickLogFeedback`'s
+  nine cases are unchanged; three `QuickLogEvent` cases join them.
 
 ## Open questions
 

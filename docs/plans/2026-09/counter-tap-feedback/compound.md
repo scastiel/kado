@@ -1,6 +1,6 @@
 ---
 name: Counter tap feedback compound
-description: Retrospective on giving every quick-log tap a haptic and bringing the count back into the Today row — the iOS-silent SensoryFeedback kinds, the popover that seeds its own state, and the Dynamic Type regression the preview couldn't show
+description: Retrospective on giving every quick-log tap a haptic and bringing the count back into the Today row — the iOS-silent SensoryFeedback kinds, why a haptic must be keyed on the mutation and not on displayed state, and the Dynamic Type regression the preview couldn't show
 type: project
 ---
 
@@ -17,12 +17,14 @@ Every `+` / `−` / `+5m` tap on the four quick-log controls now ticks
 (`.selection`), with `.success` kept for the tap that meets the target,
 through one tested rule, `QuickLogFeedback`. The Today row shows the
 day's count again — `− 3 +`, `12m +5m` — at every value, reversing the
-ring-only decision from `today-row-actions`. Two deviations from the
-plan: the calendar popover keys its haptic on the tap rather than on the
-value, and the timer row needed the counter's `ViewThatFits` fallback.
-The headline lesson is that the feedback the issue suggested,
-`.increase` / `.decrease`, compiles on iOS and never plays — a fact the
-SDK's swiftinterface doesn't carry and only Apple's doc page states.
+ring-only decision from `today-row-actions`. The big deviation from the
+plan came from the code review, after build: keying each control's
+haptic on the value it displays was the wrong seam, and the haptic
+moved to the **mutation sites** as a `QuickLogEvent`. Two lessons lead:
+the feedback the issue suggested, `.increase` / `.decrease`, compiles on
+iOS and never plays — a fact only Apple's doc page states — and a
+haptic keyed on displayed state fires for every reason that state moves,
+of which the user's tap is only one.
 
 ## Decisions made
 
@@ -43,9 +45,15 @@ SDK's swiftinterface doesn't carry and only Apple's doc page states.
 - **Presentation only**: `state.valueToday` formatted in the row;
   `HabitRowState` unchanged. Timer minutes floor like the VoiceOver
   phrase so the two never disagree.
-- **The popover keys on the tap**: its `Binding` setter is the only
-  user-driven path; it computes the feedback and bumps a `stepTick`. See
-  Surprises.
+- **The haptic is recorded where the value is written**: the mutation
+  functions in `TodayView` and `HabitDetailView` read the value before,
+  derive the value after from the step they apply, and store a sequenced
+  `QuickLogEvent`; one `.quickLogFeedback(_:)` on the `List` / the
+  `ScrollView` plays it. `HabitRowView`, `CounterQuickLogView` and
+  `DayEditPopover` are display-only. See Surprises for why.
+- **The "Log specific value…" sheets keep their own save `.success`**:
+  they save through their own logger call, not through the recording
+  functions, so a save is one haptic, not two.
 - **Timer fallback drops the count, keeps the chip**: at Dynamic Type AX
   sizes `35m +5m` gives way to `+5m` alone. The chip is the action; the
   count is still in `accessibilityValue`.
@@ -68,19 +76,31 @@ SDK's swiftinterface doesn't carry and only Apple's doc page states.
 - **Lesson**: haptic kinds are a per-platform table, not an availability
   annotation. Check the doc page for the kind, not the SDK.
 
-### A popover that seeds its own state ticks on open
+### The value the control displays is the wrong trigger
 
-- **What happened**: `DayEditPopover` seeds `counterValue` in
-  `.onAppear` (0 → today's value). A haptic keyed on that value — the
-  plan's "trigger on whatever the label reads" — would tick every time
-  the popover opens, and play `.success` on a day already done.
-- **What we did**: key on the tap. The `Binding` setter records the
-  feedback for old → new and bumps `stepTick`; one
-  `.sensoryFeedback(trigger: stepTick) { stepFeedback }` on the body
-  covers both steppers.
-- **Lesson**: value-keyed `sensoryFeedback` is only right when the value
-  moves *because* of the user. Anything that seeds, syncs or resets the
-  value under the view needs a tap-keyed trigger instead.
+- **What happened**: the build keyed each control's haptic on the value
+  it shows (`state.valueToday`, `todayValue`), as the plan said. The
+  first crack showed during build: `DayEditPopover` seeds its value in
+  `.onAppear`, so it would have ticked on open — patched locally with a
+  tap counter. The review then found the same fault everywhere else, in
+  four shapes: a new day zeroes every row's value on the first
+  foreground → N ticks on launch (the old `.success` edge never fired on
+  value → 0, so this was a regression, not the "same exposure" the plan
+  claimed); a not-scheduled row that gets logged moves to the other
+  `ForEach`, a new identity that sees no old → new → the first tap on it
+  was silent, the very #81 class; a popover step on today also moved the
+  quick-log control's value → two haptics; and the log sheets stacked
+  their save `.success` on the row's tick.
+- **What we did**: hoisted the haptic to the mutation sites. They know
+  `(old, new, target)` exactly — the step is a fixed `+1`, `−1` floored
+  at zero, `+300`, or the explicit value — so each records a sequenced
+  `QuickLogEvent` and one `.quickLogFeedback(_:)` on a stable ancestor
+  plays it. Every control-level haptic went away, the popover patch
+  included (it is byte-identical to `main` again).
+- **Lesson**: a haptic answers *"did my tap land?"*, so it must be keyed
+  on the tap. Displayed state moves for many reasons — seed, rollover,
+  sync, container swap, a re-created row — and a trigger on it can't
+  tell them apart. Record the event where the write happens.
 
 ### The Dynamic Type regression the preview couldn't show
 
@@ -114,16 +134,21 @@ SDK's swiftinterface doesn't carry and only Apple's doc page states.
 
 ## For the next person
 
-- `QuickLogFeedback` is the single place the haptic rule lives. If a new
-  quick-log control appears (a watch complication, a widget intent's
-  in-app echo), apply it there; don't add a `.success` edge beside it.
-- The Today row keys on `state.valueToday`, so a value that moves under
-  the row — CloudKit sync, the midnight rollover — ticks once. The
-  `.success` edge already had that exposure. If it is ever reported,
-  the plan's Risks section describes the tap-keyed swap; the rule
-  doesn't change.
-- The popover is tap-keyed **on purpose**; #80 (its stuck display) can
-  change the popover's state model without touching the trigger.
+- `QuickLogFeedback` is the single place the haptic rule lives, and
+  `QuickLogEvent.next(after:type:oldValue:newValue:)` is how a mutation
+  reports itself. A new quick-log path (a watch action, an intent's
+  in-app echo) records an event in the function that writes the value;
+  it does **not** put a `.sensoryFeedback` on the control.
+- The value *after* is derived from the step, never read back: after
+  `context.delete` the relationship can still hold the record until the
+  save lands, so a read-back would say `1` where the user sees `0`.
+- The binary / negative toggles still key `.success` on `state.status`
+  in `HabitRowView` — untouched by this PR, and they carry the same
+  rollover exposure (a completed row goes `.complete → .none` on the
+  first foreground of a new day). Moving toggles onto the same event is
+  a small follow-up; it needs a decision on what un-ticking plays.
+- `DayEditPopover` is untouched relative to `main`; #80 can restructure
+  it freely.
 - The count label is `.fixedSize(horizontal:)`. It's short by nature; if
   a count ever reaches four digits at AX5 it overflows rather than wraps,
   which is the right failure.
@@ -153,20 +178,27 @@ SDK's swiftinterface doesn't carry and only Apple's doc page states.
   is the preview's `.accessibility3`; `accessibility-extra-extra-extra-large`
   is the ceiling; `large` is default). XcodeBuildMCP can't set it, and a
   preview only covers the row types it holds.
-- **[→ CLAUDE.md]** A value-keyed `.sensoryFeedback` on a view that
-  seeds its own `@State` in `.onAppear` ticks on appear. Key such views
-  on the tap.
+- **[→ CLAUDE.md]** Key a tap haptic on the **mutation**, not on the
+  state a control displays. `.sensoryFeedback(trigger: displayedValue)`
+  fires on seed-on-appear, the day rollover, a CloudKit sync, a
+  container swap, and misses a tap that re-creates the view (a row moving
+  between `ForEach`es). Pattern: the function that writes records a
+  sequenced event in `@State`; one `.sensoryFeedback(trigger:)` on a
+  stable ancestor plays it (`QuickLogEvent` / `.quickLogFeedback(_:)`).
+- **[→ CLAUDE.md]** Run `/code-review` before the on-device check, not
+  after. It found four wiring faults in a build that had green unit and
+  UI suites and a clean screenshot pass — none of which can see a haptic.
 - **[local]** The row's ring-only design is reverted; the count is back
   by decision, not by accident.
 
 ## Metrics
 
-- Tasks completed: 5 of 5
-- Tests added: 9 (`QuickLogFeedbackTests`)
-- Commits: 6 on the branch (plan, four tasks, compound)
-- Files touched: 7 (`QuickLogFeedback.swift`, its tests, `HabitRowView`,
-  `CounterQuickLogView`, `DayEditPopover`, `Localizable.xcstrings`, the
-  plan)
+- Tasks completed: 5 of 5, plus one review pass
+- Tests added: 12 (`QuickLogFeedbackTests`)
+- Commits: 7 on the branch (plan, four tasks, compound, review fix)
+- Files touched: 9 (`QuickLogFeedback.swift`, its tests, `HabitRowView`,
+  `CounterQuickLogView`, `TodayView`, `HabitDetailView`,
+  `CompletionLogger`, `Localizable.xcstrings`, the plan)
 
 ## References
 
