@@ -1,7 +1,7 @@
 # Plan — Widget day rollover
 
 **Date**: 2026-09-11
-**Status**: draft
+**Status**: ready to build
 **Research**: none — planned from
 [issue #82](https://github.com/scastiel/kado/issues/82), whose analysis
 was verified line by line against the code (see *Verified premises*).
@@ -349,12 +349,14 @@ closes #82.**
 
 ## Open questions
 
-- [ ] Confirm the approach — pre-computed days + timeline entries —
-  over shipping raw data to the widget.
-- [ ] Confirm the 7-day horizon (vs. 2–3 days if the Task 6
-  measurement is unkind).
-- [ ] Confirm `BGAppRefreshTask` stays out of scope.
-- [ ] Open a draft PR on `feature/widget-day-rollover` now?
+All four resolved on 2026-09-11 with the plan's recommendations:
+
+- [x] Approach — pre-computed days + timeline entries, not raw data
+  in the widget.
+- [x] Horizon — 7 days (Task 6 still measures; drop to 3 only if the
+  numbers are unkind).
+- [x] `BGAppRefreshTask` — out of scope.
+- [x] Draft PR — opened on `feature/widget-day-rollover`.
 
 ## Out of scope
 
