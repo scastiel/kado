@@ -355,4 +355,31 @@ struct StreakCalculatorTests {
         let calc = calculator()
         #expect(calc.current(for: h, completions: completions, asOf: asOf) == 4)
     }
+
+    // MARK: - DST
+
+    @Test("A perfect run across a midnight DST transition is one streak, walking either way")
+    func perfectRunAcrossMidnightTransition() {
+        // America/Havana springs forward *at* midnight on 2026-03-08, so
+        // that day's first instant is 01:00. `current` walks backward
+        // and `best` forward, both a day at a time; a step that keeps
+        // the 01:00 stops matching the completed-day set, which is
+        // bucketed at true midnights, and the run reads as broken at
+        // the transition.
+        let havana = TestCalendar.havana
+        let start = TestCalendar.instant(havana, 2026, 3, 1, 9)
+        let days = (0..<14).map { havana.date(byAdding: .day, value: $0, to: start)! }
+        let h = Habit(
+            id: UUID(),
+            name: "Test",
+            frequency: .daily,
+            type: .binary,
+            createdAt: start
+        )
+        let completions = days.map { Completion(id: UUID(), habitID: h.id, date: $0) }
+        let calc = DefaultStreakCalculator(calendar: havana)
+
+        #expect(calc.current(for: h, completions: completions, asOf: days.last!) == 14)
+        #expect(calc.best(for: h, completions: completions, asOf: days.last!) == 14)
+    }
 }

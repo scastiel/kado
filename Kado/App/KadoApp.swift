@@ -140,11 +140,27 @@ struct KadoApp: App {
             // to the foreground — handles clock-drift, day-rollover,
             // and cases where a background reminder fired while
             // the app was suspended.
-            if newPhase == .active {
+            guard newPhase == .active else { return }
+            guard !boundary.isDate(clockMark, inSameDayAs: .now) else {
                 RemindersSync.rescheduleAll(using: container.mainContext)
-                if !boundary.isDate(clockMark, inSameDayAs: .now) {
-                    clockMark = .now
-                }
+                return
+            }
+            // A new day since the app was last awake. The edge task that
+            // was sleeping towards it either never woke (the process was
+            // frozen, then resumed just now) or is waking at this very
+            // moment — and bumping `clockMark` *first* is what settles
+            // it: the bump restarts that task for the next edge,
+            // cancelling a waking one before it reaches its own reload,
+            // so the rebuild below happens exactly once. Reorder these
+            // two and a resumed task and this branch can both run a
+            // multi-second series build back to back (#82).
+            clockMark = .now
+            // Deferred a tick so the resumed frame renders first — the
+            // series build is synchronous on MainActor and, for a long
+            // history, not instant. `reloadAll` reschedules reminders
+            // too, so the branch above's call is not repeated here.
+            Task { @MainActor in
+                WidgetReloader.reloadAll(using: container.mainContext)
             }
         }
         .onChange(of: dayStartHour) { _, _ in

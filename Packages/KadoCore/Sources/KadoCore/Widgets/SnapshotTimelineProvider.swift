@@ -2,9 +2,15 @@ import Foundation
 @preconcurrency import WidgetKit
 
 /// Static-configuration provider for widgets that just read the
-/// current `WidgetSnapshot`. Each reload re-reads the App Group
+/// current `WidgetSnapshotSeries`. Each reload re-reads the App Group
 /// JSON file the main app writes on mutations, so the widget
 /// reflects the latest state without ever opening SwiftData.
+///
+/// The timeline carries one entry per pre-computed day, dated at that
+/// day's rollover — under the user's "Day starts at" hour, read from
+/// the same App Group suite the app writes — so the widget shows the
+/// fresh day the moment it begins, app asleep or not. The hourly
+/// reload is the safety net, not the rollover.
 public struct SnapshotTimelineProvider: TimelineProvider, Sendable {
     public init() {}
 
@@ -18,12 +24,9 @@ public struct SnapshotTimelineProvider: TimelineProvider, Sendable {
     }
 
     public func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<SnapshotEntry>) -> Void) {
-        let now = Date.now
-        let snapshot = WidgetSnapshotStore.read()
-        let entry = SnapshotEntry(date: now, snapshot: snapshot)
-        let nextRefresh = Calendar.current.date(byAdding: .hour, value: 1, to: now)
-            ?? now.addingTimeInterval(3600)
-        completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
+        let plan = WidgetTimelinePlan.make(series: WidgetSnapshotStore.readSeries())
+        let entries = plan.slots.map { SnapshotEntry(date: $0.date, snapshot: $0.snapshot) }
+        completion(Timeline(entries: entries, policy: .after(plan.reloadAfter)))
     }
 }
 

@@ -1,11 +1,11 @@
 import Foundation
 import SwiftData
-import WidgetKit
 import KadoCore
 
-/// Rebuilds the App Group JSON snapshot the widget reads, then
-/// asks WidgetKit to reload all timelines so the changes surface
-/// within a second or two.
+/// The app's "after a habit mutation" postamble: rebuild the App Group
+/// snapshot the widget reads (which reloads the timelines itself, so
+/// the change surfaces within a second or two) and reconcile the
+/// pending reminders.
 ///
 /// The widget extension can't safely open SwiftData (two
 /// processes can't both attach CloudKit to the same store), so
@@ -15,7 +15,6 @@ import KadoCore
 enum WidgetReloader {
     static func reloadAll(using context: ModelContext) {
         WidgetSnapshotBuilder.rebuildAndWrite(using: context)
-        WidgetCenter.shared.reloadAllTimelines()
         // Reminders share the same "after a habit mutation" cadence
         // as widgets. Piggyback here so callers don't have to
         // remember two sync calls.

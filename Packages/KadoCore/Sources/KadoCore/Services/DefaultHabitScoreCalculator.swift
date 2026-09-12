@@ -76,7 +76,12 @@ public struct DefaultHabitScoreCalculator: HabitScoreCalculating {
                 score = (1 - alpha) * score + alpha * value
             }
             result.append(DailyScore(date: day, score: score))
-            day = calendar.date(byAdding: .day, value: 1, to: day)!
+            // Re-anchored, because adding a day to a midnight does not
+            // always land on one: in a zone whose DST transition happens
+            // *at* 00:00 (America/Havana) the day's first instant is
+            // 01:00, and every step after keeps that hour — while the
+            // completions being scored are bucketed at true midnights.
+            day = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: day)!)
         }
         return result
     }

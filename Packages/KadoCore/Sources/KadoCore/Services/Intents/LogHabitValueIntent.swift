@@ -1,7 +1,6 @@
 import AppIntents
 import Foundation
 import SwiftData
-import WidgetKit
 
 /// Logs a numeric value for a counter or timer habit. Spoken from
 /// Siri as "Log 2 for Water" or "Log 15 for Read"; the value's
@@ -82,7 +81,6 @@ public struct LogHabitValueIntent: AppIntent {
         )
         if case .logged = outcome {
             WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
-            WidgetCenter.shared.reloadAllTimelines()
         }
         return .result(dialog: Self.dialog(for: outcome, habitName: habit.name))
     }

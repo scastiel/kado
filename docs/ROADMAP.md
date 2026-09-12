@@ -100,6 +100,9 @@ flow genuinely can't serve.
       there is no official export)
 
 ### Quality
+- [x] Rollover-aware widgets — the app pre-computes the week ahead and
+      the widget turns the page at the day boundary on its own, app
+      asleep or not (#82; `docs/plans/2026-09/widget-day-rollover/`)
 - [ ] Unit test suite with >80% coverage on business logic
 - [x] UI tests on the critical flows — `KadoUITests` target added,
       `make e2e` runs it
@@ -320,12 +323,6 @@ noted inline.
 ## Later — to be decided after user listening
 
 **To consider based on feedback**:
-- **Rollover-aware widget refresh** — `SnapshotTimelineProvider` asks
-  for a reload every hour and the snapshot is only rebuilt on app
-  mutation, so a widget can show a stale "today" across a day
-  boundary. Pre-existing (true at midnight today), surfaced while
-  building the day-start hour. See
-  `docs/plans/2026-08/day-start-hour/compound.md`.
 - **iCloud-sync the "Day starts at" hour** via
   `NSUbiquitousKeyValueStore` so iPhone and iPad don't each need it
   set. Device-local today; disagreement causes no corruption, since a

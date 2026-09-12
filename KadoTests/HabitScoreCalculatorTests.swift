@@ -762,4 +762,39 @@ struct HabitScoreCalculatorTests {
             createdAt: TestCalendar.day(createdOffset)
         )
     }
+
+    // MARK: DST
+
+    @Test("A perfect run across a midnight DST transition scores as it would anywhere else")
+    func perfectRunAcrossMidnightTransition() {
+        // America/Havana springs forward *at* midnight on 2026-03-08, so
+        // that day's first instant is 01:00. A walk that steps forward
+        // with `date(byAdding: .day)` keeps that 01:00 for every day
+        // after, and stops matching the completions it is scoring —
+        // which are bucketed at true midnights. Paris cannot catch this:
+        // its transitions are at 02:00.
+        let havana = TestCalendar.havana
+        let start = TestCalendar.instant(havana, 2026, 3, 1, 9)
+        let days = (0..<14).map { havana.date(byAdding: .day, value: $0, to: start)! }
+        let habit = Habit(
+            id: UUID(),
+            name: "Test",
+            frequency: .daily,
+            type: .binary,
+            createdAt: start
+        )
+        let completions = days.map { Completion(habitID: habit.id, date: $0) }
+        let scored = DefaultHabitScoreCalculator(alpha: 0.05, calendar: havana)
+            .currentScore(for: habit, completions: completions, asOf: days.last!)
+
+        // Same fourteen perfect days in a zone with nothing to trip over.
+        let plain = makeHabit(createdOffset: 0)
+        let expected = calculator.currentScore(
+            for: plain,
+            completions: (0..<14).map { Completion(habitID: plain.id, date: TestCalendar.day($0)) },
+            asOf: TestCalendar.day(13)
+        )
+        #expect(scored == expected)
+        #expect(scored > 0.5)
+    }
 }
