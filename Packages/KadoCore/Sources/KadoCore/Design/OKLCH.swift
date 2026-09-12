@@ -145,4 +145,19 @@ nonisolated public struct SRGB: Hashable, Sendable {
         func byte(_ c: Double) -> Int { Int((max(0, min(1, c)) * 255).rounded()) }
         return String(format: "#%02X%02X%02X", byte(red), byte(green), byte(blue))
     }
+
+    /// WCAG relative luminance, 0 for black to 1 for white.
+    public var relativeLuminance: Double {
+        func linear(_ c: Double) -> Double {
+            c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
+    }
+
+    /// WCAG contrast ratio, 1…21. Text wants 4.5:1; glyphs and other
+    /// non-text UI, 3:1.
+    public func contrastRatio(with other: SRGB) -> Double {
+        let a = relativeLuminance, b = other.relativeLuminance
+        return (max(a, b) + 0.05) / (min(a, b) + 0.05)
+    }
 }

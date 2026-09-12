@@ -130,6 +130,23 @@ struct OKLCHTests {
         #expect(Oklab(l: 0, a: 0, b: 0).srgb.isWithinOneStep(of: "#000000"))
     }
 
+    // MARK: - Contrast
+
+    @Test("Contrast ratio follows WCAG")
+    func contrast() {
+        let white = SRGB(red: 1, green: 1, blue: 1)
+        let black = SRGB(red: 0, green: 0, blue: 0)
+        #expect(abs(white.contrastRatio(with: black) - 21) < 1e-9)
+        #expect(abs(black.contrastRatio(with: white) - 21) < 1e-9)
+        #expect(white.contrastRatio(with: white) == 1)
+        // The paper secondary ink on the page: the number the handoff
+        // is asking every text colour to clear.
+        let (r, g, b) = SRGB.channels(of: "#605B51")
+        let (pr, pg, pb) = SRGB.channels(of: "#FBF8F2")
+        let ratio = SRGB(red: r, green: g, blue: b).contrastRatio(with: SRGB(red: pr, green: pg, blue: pb))
+        #expect(abs(ratio - 6.36) < 0.01, "\(ratio)")
+    }
+
     // MARK: - UIKit bridge
 
     @Test("The UIColor carries the same channels, opaque")
