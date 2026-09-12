@@ -61,12 +61,14 @@ public extension View {
     }
 
     /// Uppercase mono micro-label — "MORNING", "SYNC", etc. Kept on
-    /// SF Pro monospaced.
+    /// SF Pro monospaced. Secondary ink, not tertiary: a section label
+    /// is text that has to be read, and the tertiary ink sits at 3:1
+    /// on paper.
     func kadoEyebrow() -> some View {
         self
             .font(.system(size: 11, weight: .semibold, design: .monospaced))
             .textCase(.uppercase)
             .tracking(1.4)
-            .foregroundStyle(Color.kadoForegroundTertiary)
+            .foregroundStyle(Color.kadoForegroundSecondary)
     }
 }

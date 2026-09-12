@@ -357,12 +357,12 @@ struct HabitDetailView: View {
                 Label(typeLabel, systemImage: typeIcon)
             }
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.kadoForegroundSecondary)
 
             if let trackingSince = trackingSinceLabel {
                 Label(trackingSince, systemImage: "calendar")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .padding(.top, 2)
             }
 
@@ -374,7 +374,7 @@ struct HabitDetailView: View {
                     .background(
                         Capsule().fill(Color.kadoHairline)
                     )
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .padding(.top, 4)
             }
         }
@@ -399,10 +399,10 @@ struct HabitDetailView: View {
                 HStack(spacing: 4) {
                     Label("Score", systemImage: "chart.line.uptrend.xyaxis")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                     Image(systemName: "info.circle")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                         .accessibilityHidden(true)
                 }
                 Text(scorePercent)
@@ -430,7 +430,7 @@ struct HabitDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: systemImage)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
             Text(value)
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.primary)

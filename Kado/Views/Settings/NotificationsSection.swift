@@ -48,7 +48,7 @@ struct NotificationsSection: View {
                     .foregroundStyle(.primary)
                 Text(subtitle(for: status))
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -135,7 +135,7 @@ private struct NotificationsSectionPreview: View {
                             .font(.body)
                         Text(subtitle(for: status))
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.kadoForegroundSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

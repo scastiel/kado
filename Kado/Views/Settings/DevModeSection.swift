@@ -24,7 +24,7 @@ struct DevModeSection: View {
                         .font(.body)
                     Text("Use a demo dataset instead of your own data.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }

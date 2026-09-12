@@ -1,4 +1,5 @@
 import SwiftUI
+import KadoCore
 
 /// Plain-English explanation of how the habit score is calculated,
 /// shown as a medium sheet when the user taps the Score card in the
@@ -36,7 +37,7 @@ struct ScoreExplanationSheet: View {
     private func bullet(_ text: LocalizedStringKey) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             Text("•")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .accessibilityHidden(true)
             Text(text)
                 .fixedSize(horizontal: false, vertical: true)

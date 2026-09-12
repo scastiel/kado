@@ -64,7 +64,7 @@ struct DayEditPopover: View {
             }
             Text(formattedDate)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }
 
@@ -308,7 +308,7 @@ struct DayEditPopover: View {
                 HStack {
                     Text("\(noteText.count)/\(noteCharLimit)")
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                     Spacer()
                     Button(String(localized: "Done")) { commitNote() }
                         .font(.caption.weight(.medium))

@@ -43,7 +43,7 @@ struct BackupSection: View {
             if lastExportAt > 0 {
                 Text("Last export: \(lastExportDisplay)")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
 
             Button {
@@ -236,7 +236,7 @@ private struct ImportConfirmSheet: View {
             Text(title)
             Spacer()
             Text("\(total) (\(new) new, \(updated) updated)")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .monospacedDigit()
         }
     }
