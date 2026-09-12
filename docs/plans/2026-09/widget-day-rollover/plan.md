@@ -169,7 +169,7 @@ single-day snapshot.
 
 ---
 
-### Task 3: Timeline plan — tests
+### Task 3: Timeline plan — tests ✅
 
 **Goal**: Spec the entries the providers hand WidgetKit, across day
 starts and DST shapes, before writing the planner.
@@ -197,7 +197,7 @@ starts and DST shapes, before writing the planner.
 
 ---
 
-### Task 4: `WidgetTimelinePlan` and the two providers
+### Task 4: `WidgetTimelinePlan` and the two providers ✅
 
 **Goal**: Both providers emit one entry per pre-computed day, dated at
 the day's rollover, using the user's day-start hour.

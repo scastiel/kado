@@ -5,6 +5,9 @@ import Foundation
 /// `AppIntentTimelineProvider` for the lock widgets that pick a
 /// single habit. Emits an entry with the snapshot + the configured
 /// habit ID; the view plucks the matching row out of the snapshot.
+///
+/// Same timeline shape as `SnapshotTimelineProvider`: one entry per
+/// pre-computed day at its rollover, hourly reload as the safety net.
 public struct PickedSnapshotProvider: AppIntentTimelineProvider {
     public typealias Intent = PickHabitIntent
     public typealias Entry = PickedSnapshotEntry
@@ -24,15 +27,12 @@ public struct PickedSnapshotProvider: AppIntentTimelineProvider {
     }
 
     public func timeline(for configuration: PickHabitIntent, in context: Context) async -> Timeline<PickedSnapshotEntry> {
-        let now = Date.now
-        let entry = PickedSnapshotEntry(
-            date: now,
-            snapshot: WidgetSnapshotStore.read(),
-            habitID: configuration.habit?.id
-        )
-        let nextRefresh = Calendar.current.date(byAdding: .hour, value: 1, to: now)
-            ?? now.addingTimeInterval(3600)
-        return Timeline(entries: [entry], policy: .after(nextRefresh))
+        let plan = WidgetTimelinePlan.make(series: WidgetSnapshotStore.readSeries())
+        let habitID = configuration.habit?.id
+        let entries = plan.slots.map {
+            PickedSnapshotEntry(date: $0.date, snapshot: $0.snapshot, habitID: habitID)
+        }
+        return Timeline(entries: entries, policy: .after(plan.reloadAfter))
     }
 }
 
