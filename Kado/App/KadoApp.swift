@@ -140,11 +140,19 @@ struct KadoApp: App {
             // to the foreground — handles clock-drift, day-rollover,
             // and cases where a background reminder fired while
             // the app was suspended.
-            if newPhase == .active {
+            guard newPhase == .active else { return }
+            if boundary.isDate(clockMark, inSameDayAs: .now) {
                 RemindersSync.rescheduleAll(using: container.mainContext)
-                if !boundary.isDate(clockMark, inSameDayAs: .now) {
-                    clockMark = .now
-                }
+            } else {
+                clockMark = .now
+                // A new day since the app was last awake. Bumping
+                // `clockMark` restarts the day-edge task, but for the
+                // *next* edge — the one that just passed fired into a
+                // suspended process and never ran. Rebuild now, or the
+                // widget's pre-computed days run out with nothing to
+                // replace them until the next habit mutation (#82).
+                // `reloadAll` reschedules reminders too.
+                WidgetReloader.reloadAll(using: container.mainContext)
             }
         }
         .onChange(of: dayStartHour) { _, _ in

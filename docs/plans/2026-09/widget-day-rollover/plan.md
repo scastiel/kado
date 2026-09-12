@@ -286,7 +286,7 @@ closes #82.**
 
 ---
 
-### Task 7: Foreground on a new day reloads; ROADMAP
+### Task 7: Foreground on a new day reloads; ROADMAP ✅
 
 **Goal**: The app side of the issue, and the docs that pointed at it.
 
