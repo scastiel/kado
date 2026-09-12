@@ -1433,7 +1433,7 @@
       }
     },
     "Delete" : {
-      "comment" : "Swipe action in the completion history list that removes a completion.",
+      "comment" : "Long-press menu action and VoiceOver action on a completion history row that removes the completion.",
       "localizations" : {
         "en" : {
           "stringUnit" : {

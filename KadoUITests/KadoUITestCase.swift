@@ -198,6 +198,55 @@ class KadoUITestCase: XCTestCase {
         )
     }
 
+    /// Pushes the detail of the seeded counter habit.
+    @MainActor
+    func openCounterHabitDetail(in app: XCUIApplication) {
+        openHabitDetail(showing: AccessibilityID.HabitDetail.quickLogIncrement, in: app)
+    }
+
+    /// Pushes the detail of the seeded timer habit.
+    @MainActor
+    func openTimerHabitDetail(in app: XCUIApplication) {
+        openHabitDetail(showing: AccessibilityID.HabitDetail.logSessionButton, in: app)
+    }
+
+    /// Pushes Today rows in turn until the detail shows the button with
+    /// `marker`, and stays there.
+    ///
+    /// Today rows are keyed by a `UUID` the seed draws fresh each run,
+    /// so a habit can't be addressed by identifier from the list. Each
+    /// row is pushed and asked what it is; the seed has one habit of
+    /// each type among a handful, so this is a few pushes at most.
+    @MainActor
+    func openHabitDetail(
+        showing marker: String,
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let rows = todayRows(in: app)
+        let scoreCard = app.buttons[AccessibilityID.HabitDetail.scoreCard]
+        let markerButton = app.buttons[marker]
+        for index in 0..<rows.count {
+            rows.element(boundBy: index).tap()
+            XCTAssertTrue(
+                scoreCard.waitForExistence(timeout: 10),
+                "Tapping a Today row should push its detail.",
+                file: file, line: line
+            )
+            if markerButton.waitForExistence(timeout: 2) {
+                return
+            }
+            app.navigationBars.buttons.firstMatch.tap()
+            XCTAssertTrue(
+                scoreCard.waitForNonExistence(timeout: 10),
+                "Popping the detail should return to Today.",
+                file: file, line: line
+            )
+        }
+        XCTFail("No Today row pushed a detail showing \(marker).", file: file, line: line)
+    }
+
     /// Saves a screenshot into the result bundle, so a failing run can
     /// be looked at without re-running it.
     @MainActor

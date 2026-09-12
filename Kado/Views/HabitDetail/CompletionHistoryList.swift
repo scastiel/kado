@@ -3,10 +3,12 @@ import SwiftUI
 import KadoCore
 
 /// Scrollable list of completions for a habit, sorted newest first.
-/// Deleting a row hands the completion back through `onDelete` — but
-/// note the gesture wired to it is `swipeActions` on a `LazyVStack`
-/// row, which SwiftUI ignores outside a `List`; nothing reaches
-/// `onDelete` today (issue #87). Empty state shows a neutral "No
+/// A row's long-press menu holds a destructive **Delete**, which hands
+/// the completion back through `onDelete`. A context menu rather than
+/// `swipeActions`, which SwiftUI only honours on the rows of a `List`
+/// — on a `LazyVStack` row it compiles, looks wired, and never fires
+/// (issue #87). Every row also exposes Delete as a VoiceOver action,
+/// the same way the Today row does. Empty state shows a neutral "No
 /// history yet" row.
 ///
 /// Takes value-type snapshots for the same reason `HabitDetailView`
@@ -91,12 +93,21 @@ struct CompletionHistoryList: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .contentShape(Rectangle())
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+        .contextMenu {
             Button(role: .destructive) {
                 onDelete(completion)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.historyDeleteButton)
+        }
+        .accessibilityElement(children: .combine)
+        // On a leaf: `.combine` has already collapsed the row to one
+        // element. Keyed by the completion's id rather than its date,
+        // which is localized.
+        .accessibilityIdentifier(AccessibilityID.HabitDetail.historyRow(completion.id))
+        .accessibilityAction(named: Text("Delete")) {
+            onDelete(completion)
         }
     }
 

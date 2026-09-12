@@ -340,7 +340,7 @@ struct HabitDetailView: View {
         WidgetReloader.reloadAll(using: modelContext)
     }
 
-    /// Swipe-to-delete from the history list.
+    /// Delete from a History row's long-press menu.
     private func deleteCompletion(_ snapshot: Completion) {
         guard let existing = completionRecord(for: snapshot) else { return }
         CompletionLogger(calendar: calendar).delete(existing, in: modelContext)

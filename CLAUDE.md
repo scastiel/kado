@@ -351,6 +351,15 @@ repo. Guard against that with an explicit
   `Button { guard !flag else { return }; flag = true; Task { await work() } }`.
   Pattern: `TipJarView.tierButton` sets `purchasingTier` in the action,
   not inside `tip(_:)`, to block a double-tap double-purchase.
+- **`.swipeActions` only fires on the rows of a `List`.** On a row in
+  a `LazyVStack` / `VStack` it compiles, reads as wired, and never
+  fires — no warning, no log line. The History list on the detail
+  screen shipped that way for five months and survived a rewire
+  that described it as working (issue #87). Rows outside a `List`
+  get a `.contextMenu` instead, with the same action exposed through
+  `.accessibilityAction` so VoiceOver reaches it (pattern:
+  `CompletionHistoryList`, `HabitRowView`). Any gesture wired for
+  the first time gets tried once, by hand or in `KadoUITests`.
 
 ### Widget colours
 
@@ -897,7 +906,7 @@ nothing inside a test can change the simulator's appearance, and
 `simctl ui <udid> appearance` can, so the script sets it between the
 two passes.
 
-Four findings, each of which cost a cycle:
+Five findings, each of which cost a cycle:
 
 - **Never build the UI suite with `CODE_SIGNING_ALLOWED=NO`.** Kadō's
   app target carries the iCloud and App Group entitlements, and an
@@ -925,6 +934,14 @@ Four findings, each of which cost a cycle:
   watches for something that cannot appear until something scrolls.
   Scroll first (`KadoUITestCase.scrollTo`). The Dev mode toggle, last
   section in Settings, looked missing for a full 30s timeout this way.
+- **A context menu opened from a row half under the floating tab bar
+  drops the tap on its item.** `scrollTo` stops as soon as the row's
+  *centre* is hittable, which can leave its lower half beneath the
+  bar. A tap there works; a long-press opens the menu, and the tap on
+  Delete then lands dead centre on the item and does nothing — menu
+  still up, row still there. One more swipe, same tap, goes through.
+  Scroll a row wholly clear of the bar before long-pressing it
+  (`CompletionHistoryTests.scrollClearOfTabBar`).
 
 **Apply accessibility identifiers in the same commit as the view.**
 Retrofitting them across a grown app is what makes UI suites get
