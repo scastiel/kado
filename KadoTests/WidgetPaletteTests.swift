@@ -33,7 +33,8 @@ struct WidgetPaletteTests {
 
     /// The `.partial` curve is the one arm that was physically moved
     /// out of `HabitWidgetCell.background`, so it is the one most
-    /// exposed to a transcription slip.
+    /// exposed to a transcription slip. The ramp is an Oklab mix now,
+    /// so it is compared by resolved channels rather than identity.
     @Test("Full colour keeps the habit hue and the 0.3 + 0.4p partial ramp")
     func fullColourHabitFills() {
         let palette = WidgetPalette(renderingMode: .fullColor)
@@ -41,23 +42,47 @@ struct WidgetPaletteTests {
             #expect(palette.habitFill(color, status: .complete, progress: 1) == color.color)
             #expect(palette.habitFill(color, status: .none, progress: 0) == .kadoHairline)
             for (progress, expected) in [(0.0, 0.3), (0.5, 0.5), (1.0, 0.7)] {
-                #expect(
-                    palette.habitFill(color, status: .partial, progress: progress)
-                        == color.color.opacity(expected)
-                )
+                for style in [UIUserInterfaceStyle.light, .dark] {
+                    #expect(
+                        channels(of: palette.habitFill(color, status: .partial, progress: progress), style)
+                            == channels(of: color.tint(expected), style),
+                        "\(color) \(progress) \(style)"
+                    )
+                }
             }
         }
     }
 
-    @Test("Full colour knocks the label out to white only once complete")
+    @Test("Full colour knocks the label out to the page only once complete")
     func fullColourGlyphAndLabel() {
         let palette = WidgetPalette(renderingMode: .fullColor)
         for color in HabitColor.allCases {
-            #expect(palette.glyphColor(color, status: .complete) == .white)
-            #expect(palette.labelColor(color, status: .complete) == .white)
+            #expect(palette.glyphColor(color, status: .complete) == color.onFill)
+            #expect(palette.labelColor(color, status: .complete) == color.onFill)
             for status in [WidgetStatus.none, .partial] {
                 #expect(palette.glyphColor(color, status: status) == color.color)
                 #expect(palette.labelColor(color, status: status) == .kadoForeground)
+            }
+        }
+    }
+
+    /// The weekly matrix's cells are the one place a habit's hue
+    /// survives the tint, and only because they carry their value as
+    /// alpha. In full colour the same value is an opaque Oklab mix.
+    @Test("Matrix cells carry their value as alpha under the tint and as an opaque mix in full colour")
+    func matrixTintSplitsByMode() {
+        let full = WidgetPalette(renderingMode: .fullColor)
+        for color in HabitColor.allCases {
+            for amount in [0.2, 0.6, 1.0] {
+                #expect(opacity(of: full.matrixTint(color, amount: amount)) == 1)
+                #expect(
+                    channels(of: full.matrixTint(color, amount: amount), .light)
+                        == channels(of: color.tint(amount), .light)
+                )
+                for mode in tinted {
+                    let cell = WidgetPalette(renderingMode: mode).matrixTint(color, amount: amount)
+                    #expect(abs(opacity(of: cell) - amount) < 0.001, "\(mode) \(color) \(amount)")
+                }
             }
         }
     }
@@ -170,8 +195,16 @@ struct WidgetPaletteTests {
             let palette = WidgetPalette(renderingMode: mode)
             let low = palette.habitFill(.green, status: .partial, progress: -3)
             let high = palette.habitFill(.green, status: .partial, progress: 12)
-            #expect(low == palette.habitFill(.green, status: .partial, progress: 0))
-            #expect(high == palette.habitFill(.green, status: .partial, progress: 1))
+            for style in [UIUserInterfaceStyle.light, .dark] {
+                #expect(
+                    channels(of: low, style)
+                        == channels(of: palette.habitFill(.green, status: .partial, progress: 0), style)
+                )
+                #expect(
+                    channels(of: high, style)
+                        == channels(of: palette.habitFill(.green, status: .partial, progress: 1), style)
+                )
+            }
         }
     }
 
@@ -181,5 +214,16 @@ struct WidgetPaletteTests {
         let resolved = UIColor(color)
             .resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
         return Double(resolved.cgColor.alpha)
+    }
+
+    /// The habit tints are dynamic colours too, and two of them built
+    /// from the same inputs are distinct objects — compare what they
+    /// resolve to, rounded to 8-bit.
+    private func channels(of color: Color, _ style: UIUserInterfaceStyle) -> [Int] {
+        let resolved = UIColor(color)
+            .resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        resolved.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return [r, g, b, a].map { Int(($0 * 255).rounded()) }
     }
 }

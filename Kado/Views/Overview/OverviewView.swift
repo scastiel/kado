@@ -180,6 +180,7 @@ struct OverviewView: View {
                         .foregroundStyle(row.habit.color.color)
                     Text(row.habit.name)
                         .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Color.kadoForeground)
                         .lineLimit(1)
                         .truncationMode(.tail)
                         // On the `Text` rather than the enclosing

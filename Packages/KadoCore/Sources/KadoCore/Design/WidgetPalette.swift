@@ -98,9 +98,11 @@ public struct WidgetPalette {
 
     /// Fill for a habit row, given its status for today.
     ///
-    /// Full colour keeps the habit's own hue. Under the tint the hue
-    /// is gone, so the three states are separated by alpha alone —
-    /// and every one of them stays well below the label above it.
+    /// Full colour keeps the habit's own hue, the partial ramp mixed
+    /// over the page in Oklab like every other habit tint. Under the
+    /// tint the hue is gone, so the three states are separated by
+    /// alpha alone — and every one of them stays well below the label
+    /// above it.
     public func habitFill(
         _ color: HabitColor,
         status: WidgetStatus,
@@ -110,7 +112,7 @@ public struct WidgetPalette {
         guard isTinted else {
             switch status {
             case .complete: return color.color
-            case .partial: return color.color.opacity(0.3 + clamped * 0.4)
+            case .partial: return color.tint(0.3 + clamped * 0.4)
             case .none: return restingFill
             }
         }
@@ -124,11 +126,13 @@ public struct WidgetPalette {
     /// Colour for the icon and the trailing indicator, which sit on
     /// top of `habitFill`.
     ///
-    /// In full colour they carry the habit's hue, knocked out to white
-    /// once the row is complete and its fill is saturated.
+    /// In full colour they carry the habit's hue, knocked out to the
+    /// page colour once the row is complete and its fill is the full
+    /// base — the page rather than white, because white sits under
+    /// 3:1 on the lifted dark-mode bases.
     public func glyphColor(_ color: HabitColor, status: WidgetStatus) -> Color {
         guard isTinted else {
-            return status == .complete ? .white : color.color
+            return status == .complete ? color.onFill : color.color
         }
         return .primary
     }
@@ -138,14 +142,26 @@ public struct WidgetPalette {
     /// incomplete — hence a second accessor rather than one shared
     /// with `glyphColor`.
     ///
-    /// Under the tint both collapse to `.primary`: the white knockout
-    /// would otherwise be re-tinted to exactly the colour of the block
+    /// Under the tint both collapse to `.primary`: the knockout would
+    /// otherwise be re-tinted to exactly the colour of the block
     /// beneath it and the name would vanish. Contrast comes from
     /// `habitFill` staying translucent underneath.
     public func labelColor(_ color: HabitColor, status: WidgetStatus) -> Color {
         guard isTinted else {
-            return status == .complete ? .white : .kadoForeground
+            return status == .complete ? color.onFill : .kadoForeground
         }
         return .primary
+    }
+
+    /// The habit's hue at `amount`, for one cell of the weekly matrix
+    /// — the scored ramp, the off-schedule wash and its border.
+    ///
+    /// Full colour mixes the hue over the page in Oklab, exactly as
+    /// the app's `MatrixCell` does. Under the tint the cell has to
+    /// carry its value as *alpha*, because alpha is the one thing the
+    /// tint preserves: an opaque mixed colour, whatever its value,
+    /// would flatten into the same solid block as every other.
+    public func matrixTint(_ color: HabitColor, amount: Double) -> Color {
+        isTinted ? color.color.opacity(amount) : color.tint(amount)
     }
 }

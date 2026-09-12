@@ -267,7 +267,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     private func fill(for state: CellState) -> Color {
         switch state {
         case .future: Color.kadoHairline
-        case .completed: habit.color.color.opacity(0.9)
+        case .completed: habit.color.tint(0.9)
         case .missed: Color.kadoPaper200
         case .nonDue: Color.kadoHairline.opacity(0.4)
         }

@@ -1,9 +1,10 @@
 import SwiftUI
 
 /// One cell in the Overview matrix. Fills with the habit's color at
-/// an opacity derived from the day's value. Non-scored cells render
-/// neutral placeholders (tertiary fill for not-due days, empty for
-/// future days).
+/// an amount derived from the day's value, mixed over the page in
+/// Oklab (`HabitColor.tint(_:)`) rather than composited at an opacity.
+/// Non-scored cells render neutral placeholders (the hairline paper
+/// for not-due days, empty for future days).
 ///
 /// Off-schedule completions render **hollow** — the same color as a
 /// solid completion, but as a border around a pale interior. The grid
@@ -34,7 +35,7 @@ public struct MatrixCell: View {
                 if let borderOpacity = state.borderOpacity {
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .strokeBorder(
-                            color.color.opacity(borderOpacity),
+                            color.tint(borderOpacity),
                             lineWidth: 2
                         )
                 }
@@ -47,12 +48,14 @@ public struct MatrixCell: View {
         case .future:
             Color.clear
         case .notDue:
-            Color(.tertiarySystemFill)
+            // The same warm fill the widget uses for a never-due day;
+            // the system's tertiary fill is a cool grey on this paper.
+            Color.kadoHairline
         case .scored:
-            color.color.opacity(state.colorOpacity ?? 0)
+            color.tint(state.colorOpacity ?? 0)
         case .offSchedule:
             // Pale interior so the border carries the signal.
-            color.color.opacity(state.offScheduleFillOpacity ?? 0)
+            color.tint(state.offScheduleFillOpacity ?? 0)
         }
     }
 }
