@@ -157,7 +157,7 @@ the row.
 
 ---
 
-### Task 4: Show the count in the Today row
+### Task 4: Show the count in the Today row ✅
 
 **Goal**: `− 3 +` on counter rows and `12m +5m` on timer rows, at every
 value, so the number past the target — and every tap's effect — is visible.
@@ -276,6 +276,21 @@ value, so the number past the target — and every tap's effect — is visible.
   section describes for the row, needed here for a different reason. If
   #80 moves the popover off local state, the trigger stays where it is —
   it never depended on the state.
+- **Task 4**: the Dynamic Type pass caught a real regression the XXXL
+  preview couldn't (it holds no timer row): at AX3 the timer row's `35m`
+  and its `+5m` chip both wrapped mid-token — `35 / m`, `+5 / m` — because
+  the count now shares the trailing space with the chip. Fixed with the
+  same `ViewThatFits` fallback the counter already had (`35m +5m`, then
+  the chip alone) and `.fixedSize(horizontal:)` on the count so it can
+  never split. Verified at AX3 and AX5 on the simulator via
+  `simctl ui <udid> content_size`, which the run tools can't set. Seen
+  alongside, **pre-existing** and untouched: the binary checkmark glyph
+  overflows its 28pt circle at AX sizes, the "Slipped" pill breaks into
+  three lines at AX5, and the habit name is a fixed 15pt system font.
+- **Task 4**: to see the complete and over-target rows without tap
+  primitives, the screenshot seed's today values were bumped locally
+  (water 5 → 12, read nil → 2100s), photographed, and `git checkout`-ed
+  back. Nothing of it is committed.
 
 ## Open questions
 
