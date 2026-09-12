@@ -1,7 +1,7 @@
 # Plan — Colour update (design handoff)
 
 **Date**: 2026-09-12
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md) ·
 **Spec**: [handoff/README.md](./handoff/README.md)
 
@@ -53,7 +53,7 @@ built.
 
 ## Task list
 
-### Task 1: OKLCH colour math
+### Task 1: OKLCH colour math ✅
 
 **Goal**: `OKLCH` → `Oklab` → sRGB with gamut clipping, and an Oklab
 mix, as a `nonisolated` value type in `KadoCore/Design`, tests first.
@@ -73,7 +73,7 @@ mix, as a `nonisolated` value type in `KadoCore/Design`, tests first.
 
 ---
 
-### Task 2: Habit hues on OKLCH bases
+### Task 2: Habit hues on OKLCH bases ✅
 
 **Goal**: `HabitColor` exposes `base`, `darkBase`, `color`, `onTint`,
 `onFill`, `tint(_:)` and the `HabitTint` constants; every consumer
@@ -97,7 +97,7 @@ already renders the new base hue after this task, still with its old
 
 ---
 
-### Task 3: Today row through the derivations
+### Task 3: Today row through the derivations ✅
 
 **Goal**: the row's five habit-coloured surfaces come from `tint(_:)` /
 `onTint` / `onFill`; nothing changes size.
@@ -119,7 +119,7 @@ complete, dark); `screenshot` on iPhone 17 Pro in light and dark.
 
 ---
 
-### Task 4: Overview matrix and widgets
+### Task 4: Overview matrix and widgets ✅
 
 **Goal**: the scored ramp, off-schedule wash and border mix in Oklab;
 the not-due tile is warm; the widget's full-colour branch matches.
@@ -148,7 +148,7 @@ widget under Tinted / Clear (should be unchanged — nothing in
 
 ---
 
-### Task 5: Secondary-text contrast on Today and Overview
+### Task 5: Secondary-text contrast on Today and Overview ✅
 
 **Goal**: every body / meta / caption text on the two screens clears
 4.5:1 on both grounds; only the weekday initials stay light.
@@ -171,7 +171,7 @@ off a fresh `screenshot`: expect `#605B51` light / `#A9A093` dark.
 
 ---
 
-### Task 6: the same rule on every other screen
+### Task 6: the same rule on every other screen ✅
 
 **Goal**: the ~25 remaining `.foregroundStyle(.secondary)` /
 `Color.secondary` sites (Detail, Settings, sheets, calendar) take
@@ -191,7 +191,7 @@ light and dark.
 
 ---
 
-### Task 7: the streak flame
+### Task 7: the streak flame ✅
 
 **Goal**: `MetricsChip`'s flame and the widget's `streakAccent` use the
 palette's orange base instead of system `.orange`.
@@ -203,13 +203,42 @@ palette's orange base instead of system `.orange`.
 
 ---
 
-### Task 8: Verify, compound, PR
+### Task 8: Verify, compound, PR ✅
 
 - `build_sim` iPhone 17 Pro and iPad Air (M4); `test_sim`.
 - `screenshot` Today and Overview, light and dark, iPhone; Dynamic Type
   XXXL once.
 - Home Screen widget under Clear / Tinted by hand (no change expected).
 - `compound.md`; PR `feat(theme): author the habit hues in OKLCH and lift secondary-text contrast`.
+
+## Notes during build
+
+- **Teal at C 0.105, not 0.11.** The README's chroma is a hair outside
+  sRGB at h 180 / L 0.58 (linear R −0.008); 0.105 is the last value
+  inside and renders one 8-bit step apart. `OKLCHTests.gamutClipping`
+  pins both facts.
+- **Yellow at L 0.64, not 0.70.** At 0.70 a cream glyph on its fill
+  is 2.5:1; 0.64 — the same lift the README gives orange — reaches
+  3.2:1 and still reads as an ochre yellow. The light band is
+  0.58…0.64 as a result, tighter than planned.
+- **The widget cannot take an opaque mix under the tint.** The plan
+  had the weekly grid's cells on `tint(_:)` everywhere; under Tinted /
+  Clear that would flatten every scored cell to one block, because
+  alpha is all that rendering keeps. `WidgetPalette.matrixTint`
+  splits by mode: Oklab mix in full colour, hue-at-alpha under the
+  tint. Pinned in `WidgetPaletteTests.matrixTintSplitsByMode`.
+- **Form section headers were a second source of the same grey.**
+  Task 6's sweep covered explicit `.secondary` styles; the eleven
+  string-titled `Section("…")`s in Settings and the New Habit form
+  are drawn by the system in the same colour. They take the closure
+  form with a styled header `Text`, and the custom footers follow —
+  one more commit than planned.
+- **Colour identity in tests bit once**, exactly as the risk said:
+  `WidgetPaletteTests.progressIsClamped` compared two separately
+  built dynamic colours with `==`. Tests now compare resolved 8-bit
+  channels in both schemes.
+- Dev mode's demo dataset, the confetti and the sage accent were
+  untouched and unaffected.
 
 ## Risks and mitigation
 
