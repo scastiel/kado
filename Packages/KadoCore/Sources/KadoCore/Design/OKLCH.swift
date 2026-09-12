@@ -30,6 +30,23 @@ nonisolated public struct OKLCH: Hashable, Sendable {
         let radians = h * .pi / 180
         return Oklab(l: l, a: c * cos(radians), b: c * sin(radians))
     }
+
+    /// The same lightness and hue at the largest chroma sRGB can show,
+    /// if this one is outside the gamut; unchanged if it is inside.
+    /// Reducing chroma keeps the colour's identity — per-channel
+    /// clipping, which is what `Oklab.srgb` falls back to, shifts the
+    /// hue and lightness instead.
+    public func fittedToSRGBGamut() -> OKLCH {
+        guard !oklab.isInSRGBGamut else { return self }
+        var low = 0.0, high = c
+        // Chroma 0 is a grey and always displayable; bisect towards
+        // the boundary to well under an 8-bit step.
+        for _ in 0..<24 {
+            let mid = (low + high) / 2
+            if OKLCH(l: l, c: mid, h: h).oklab.isInSRGBGamut { low = mid } else { high = mid }
+        }
+        return OKLCH(l: l, c: low, h: h)
+    }
 }
 
 /// Oklab — Björn Ottosson's perceptual space. Rectangular, so mixing
@@ -93,14 +110,29 @@ nonisolated public struct Oklab: Hashable, Sendable {
         )
     }
 
-    /// `true` when every channel lands inside 0…1 (to within a
-    /// quarter of an 8-bit step). A palette entry that fails this
-    /// renders clipped — still a colour, but not the one that was
+    /// `true` when every channel lands inside 0…1, to within a quarter
+    /// of an 8-bit step measured in the *encoded* channel — the one
+    /// the display quantises — so the slack means the same thing in
+    /// the shadows as near white. A palette entry that fails this
+    /// renders clipped: still a colour, but not the one that was
     /// authored.
     public var isInSRGBGamut: Bool {
         let (r, g, b) = linearSRGB
         let slack = 0.25 / 255
-        return [r, g, b].allSatisfy { $0 >= -slack && $0 <= 1 + slack }
+        return [r, g, b].allSatisfy { abs(Self.encodedOvershoot($0)) <= slack }
+    }
+
+    /// How far a linear channel lands outside 0…1, in encoded units:
+    /// negative below black, positive above white, zero inside.
+    private static func encodedOvershoot(_ c: Double) -> Double {
+        if c < 0 { return -encodedMagnitude(-c) }
+        if c > 1 { return encodedMagnitude(c) - 1 }
+        return 0
+    }
+
+    /// The sRGB transfer function without the clip, for measuring.
+    private static func encodedMagnitude(_ c: Double) -> Double {
+        c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1 / 2.4) - 0.055
     }
 
     /// Gamma-encoded sRGB, each channel clipped to 0…1. Clipping is

@@ -12,8 +12,9 @@ import UIKit
 ///   icon beside a habit's name.
 /// - `tint(_:)` — the base mixed over the page ground in Oklab, by a
 ///   named `HabitTint` amount. Marks, chips, tiles, rings.
-/// - `onTint` — text or a glyph *on* one of those tints: same hue and
-///   chroma, darker (lighter in dark mode).
+/// - `onTint` — text or a glyph *on* one of those tints: same hue,
+///   darker (lighter in dark mode), chroma reduced only where sRGB
+///   cannot show the base's at that lightness.
 /// - `onFill` — text or a glyph on the filled base: the page colour.
 ///   Not white — on the lifted dark bases white sits under 3:1.
 ///
@@ -58,6 +59,18 @@ nonisolated public enum HabitColor: String, Codable, Sendable, Hashable, CaseIte
         OKLCH(l: Palette.darkLightness, c: base.c, h: base.h)
     }
 
+    /// The light-mode ink for text on this hue's tints: L 0.46 at the
+    /// base's hue, with chroma reduced only where sRGB cannot show the
+    /// base's at that lightness (yellow, orange, teal and mint clip).
+    public var ink: OKLCH {
+        OKLCH(l: Palette.lightInkLightness, c: base.c, h: base.h).fittedToSRGBGamut()
+    }
+
+    /// The dark-mode ink: L 0.78, fitted the same way.
+    public var darkInk: OKLCH {
+        OKLCH(l: Palette.darkInkLightness, c: base.c, h: base.h).fittedToSRGBGamut()
+    }
+
     // MARK: - Derived colours
 
     /// The base, full.
@@ -73,14 +86,16 @@ nonisolated public enum HabitColor: String, Codable, Sendable, Hashable, CaseIte
     /// page, mixed in Oklab. Table-backed, so the same surface is the
     /// same `Color` every time it is read.
     public func tint(_ surface: HabitTint) -> Color {
-        Palette.tints[self]![surface]!
+        tint(surface.amount)
     }
 
-    /// The base at an arbitrary amount over the page, for ramps whose
-    /// amount is data (`DayCell.colorOpacity`). Built on each call;
-    /// prefer `tint(_ surface:)` for the fixed surfaces.
+    /// The base at an amount over the page, for ramps whose amount is
+    /// data (`DayCell.colorOpacity`). Quantised to hundredths and read
+    /// from a table resolved once, so a matrix of cells hands SwiftUI
+    /// the same `Color` for the same value on every render instead of
+    /// a fresh dynamic colour it can never compare equal.
     public func tint(_ amount: Double) -> Color {
-        Palette.mix(self, amount: amount)
+        Palette.ramp[self]![Palette.step(for: amount)]
     }
 
     // MARK: - Resolution
@@ -103,18 +118,23 @@ nonisolated public enum HabitColor: String, Codable, Sendable, Hashable, CaseIte
         }
 
         static let onTint: [HabitColor: Color] = table { color in
-            let light = OKLCH(l: lightInkLightness, c: color.base.c, h: color.base.h)
-            let dark = OKLCH(l: darkInkLightness, c: color.base.c, h: color.base.h)
-            return Color(light: light.oklab.uiColor, dark: dark.oklab.uiColor)
+            Color(light: color.ink.oklab.uiColor, dark: color.darkInk.oklab.uiColor)
         }
 
-        static let tints: [HabitColor: [HabitTint: Color]] = table { color in
-            Dictionary(uniqueKeysWithValues: HabitTint.allCases.map { surface in
-                (surface, mix(color, amount: surface.amount))
-            })
+        /// One entry per hundredth of the ramp. Every `HabitTint`
+        /// amount is a whole hundredth, so the named surfaces are
+        /// exact entries rather than nearest neighbours.
+        static let steps = 100
+
+        static let ramp: [HabitColor: [Color]] = table { color in
+            (0...steps).map { mix(color, amount: Double($0) / Double(steps)) }
         }
 
-        static func mix(_ color: HabitColor, amount: Double) -> Color {
+        static func step(for amount: Double) -> Int {
+            Int((max(0, min(1, amount)) * Double(steps)).rounded())
+        }
+
+        private static func mix(_ color: HabitColor, amount: Double) -> Color {
             Color(
                 light: color.base.oklab.mixed(over: ground.light, amount: amount).uiColor,
                 dark: color.darkBase.oklab.mixed(over: ground.dark, amount: amount).uiColor

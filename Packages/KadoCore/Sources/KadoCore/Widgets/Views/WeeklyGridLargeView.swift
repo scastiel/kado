@@ -183,6 +183,12 @@ struct WidgetMatrixCell: View {
                             palette.matrixTint(color, amount: borderOpacity),
                             lineWidth: 1.5
                         )
+                } else if cell == .notDue {
+                    // The app's MatrixCell draws the same ring: it is
+                    // what tells a never-due day from a missed one
+                    // now that both fills are warm.
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .strokeBorder(palette.notDueRing, lineWidth: 1)
                 }
             }
             .frame(height: size)

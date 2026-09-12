@@ -145,6 +145,19 @@ struct WidgetPaletteTests {
     /// scored ramp floors at 0.2, so the not-due wash has to clear it
     /// downwards — pulled from `WidgetDayCell` rather than retyped, so
     /// that moving the ramp fails this test.
+    /// The ring around a never-due day is the second thing that can
+    /// outweigh a missed one; in full colour it is the divider paper,
+    /// and under the tint it stays under the ramp's 0.2 floor.
+    @Test("The not-due ring is the divider in full colour and stays under the floor when tinted")
+    func notDueRing() {
+        #expect(WidgetPalette(renderingMode: .fullColor).notDueRing == .kadoDivider)
+        for mode in tinted {
+            let palette = WidgetPalette(renderingMode: mode)
+            #expect(opacity(of: palette.notDueRing) < 0.2, "\(mode)")
+            #expect(opacity(of: palette.notDueRing) > opacity(of: palette.notDueFill), "\(mode)")
+        }
+    }
+
     @Test("Not-due sits clear of the scored ramp's floor under the tint")
     func notDueClearsTheScoredFloor() throws {
         let scoredFloor = try #require(WidgetDayCell.scored(0).colorOpacity)

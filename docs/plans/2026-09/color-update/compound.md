@@ -113,6 +113,44 @@ was what kept the work to colours only.
 - **Lesson**: `#expect(colorA == colorB)` only means something for
   colours that come from the same table cell.
 
+### The review round
+
+`/code-review` on the branch returned ten findings; six were applied,
+two were left as deliberate:
+
+- **The warm not-due tile was within a JND of the warm hues' 20%
+  floor** (orange `#F0DFCD` beside paper `#E9E1D2`, Oklab ΔE ≈ 0.01).
+  The hairline swap in Task 4 had quietly recreated the collapse the
+  0.2 floor exists to prevent — for warm hues only, which is why the
+  Overview screenshot (purple, green, blue, red) looked fine. The
+  handoff's own neutrals table has the answer: the not-scheduled tile
+  is a lighter paper *inside a 1pt hairline ring*. `MatrixCell` and
+  the widget both draw it now; `notDueIsQuietest` pins the fill under
+  the floor in both schemes.
+- **The ink clipped for six of sixteen hue/scheme pairs** — L 0.46 at
+  the base's chroma is outside sRGB for yellow, orange, teal and mint,
+  and per-channel clipping had shifted their hue. `OKLCH.fittedToSRGBGamut()`
+  gives up chroma instead; `inkIsDisplayable` pins hue and lightness.
+- **The calendar's completed cell used an ad-hoc `tint(0.9)` under
+  `onFill`**, which is only tested against the full base — 2.8:1 for
+  yellow. It is the base now.
+- **Unselected icon-picker glyphs drew the base on the hairline**,
+  under 3:1 for half the palette. They are `onTint` now.
+- **`tint(_ amount:)` built a new dynamic colour per call.** The ramp
+  is a 101-entry table per hue; every `HabitTint` amount is a whole
+  hundredth, so a named surface and its amount are the same entry and
+  `==` holds again.
+- The yellow reference in `OKLCHTests` said L 0.70; the gamut check's
+  slack is measured in encoded units now; the two pickers have dark
+  previews.
+- **Left as is**: the weekday initials at 3.25:1 (the handoff keeps
+  them light; `CLAUDE.md`'s AA rule argues the other way — a product
+  call), and **Increase Contrast**, which the habit hues no longer
+  honour because `Color(light:dark:)` branches on style only. The
+  paper / ink tokens never did either; proper support is a four-way
+  provider (light / dark × normal / high) and is recorded here as a
+  known gap rather than bolted on.
+
 ## What worked well
 
 - **Computing the whole contrast table before writing the plan.** The
@@ -148,6 +186,10 @@ was what kept the work to colours only.
   is ever wanted, that is a hand-rolled capsule and a resize.
 - The App Store captures and the marketing site are now stale:
   `make screenshots` regenerates both.
+- The habit palette does not respond to Increase Contrast (see the
+  review round above). If that is picked up, the place is
+  `Color(light:dark:)` in `Theme.swift` growing a high-contrast pair,
+  and `Palette` in `HabitColor` resolving a second ink / ramp for it.
 
 ## Generalizable lessons
 

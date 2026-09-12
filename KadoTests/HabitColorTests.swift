@@ -63,6 +63,21 @@ struct HabitColorTests {
         }
     }
 
+    /// The ink is the base's hue at L 0.46 / 0.78, and for four hues
+    /// sRGB cannot show the base's chroma there. It gives up chroma,
+    /// never hue or lightness — clipping per channel would shift both.
+    @Test("Ink is displayable at the base's hue and its own lightness")
+    func inkIsDisplayable() {
+        for color in HabitColor.allCases {
+            for (ink, lightness) in [(color.ink, 0.46), (color.darkInk, 0.78)] {
+                #expect(ink.oklab.isInSRGBGamut, "\(color) ink clips")
+                #expect(ink.h == color.base.h, "\(color) ink changes hue")
+                #expect(ink.l == lightness, "\(color) ink changes lightness")
+                #expect(ink.c <= color.base.c && ink.c > 0.05, "\(color) ink C \(ink.c)")
+            }
+        }
+    }
+
     @Test("Chroma stays in the handoff's 0.10…0.14 band")
     func matchedChroma() {
         for color in HabitColor.allCases {
@@ -137,17 +152,37 @@ struct HabitColorTests {
         }
     }
 
-    /// Named surfaces are handed out from a table so two reads of the
-    /// same one are the *same* `Color` — a dynamic colour compares by
-    /// identity, and views and tests both compare colours with `==`.
-    @Test("The same surface is the same Color")
+    /// Every derived colour is handed out from a table so two reads of
+    /// the same one are the *same* `Color` — a dynamic colour compares
+    /// by identity, and a matrix of cells hands SwiftUI one per render.
+    /// The ramp is quantised to hundredths, and every named amount is
+    /// a whole hundredth, so a surface and its amount are one entry.
+    @Test("The same surface or ramp value is the same Color")
     func derivedColorsAreStable() {
         for color in HabitColor.allCases {
             #expect(color.color == color.color)
             #expect(color.onTint == color.onTint)
             for surface in HabitTint.allCases {
                 #expect(color.tint(surface) == color.tint(surface))
+                #expect(color.tint(surface) == color.tint(surface.amount))
             }
+            #expect(color.tint(0.37) == color.tint(0.37))
+            #expect(color.tint(0.371) == color.tint(0.37))
+            #expect(color.tint(0.2 + 0.8 * 0.5) == color.tint(0.6))
+        }
+    }
+
+    /// A never-due tile is the card paper inside a hairline ring; the
+    /// ring tells it from a missed day, and this keeps it the quietest
+    /// fill in the row — lighter than the ramp's floor in light mode,
+    /// darker in dark — so an empty day never outweighs a missed one.
+    @Test("The not-due fill is quieter than the ramp's floor")
+    func notDueIsQuietest() {
+        for color in HabitColor.allCases {
+            let floorLight = oklab(color.tint(.tileLight), .light).l
+            let floorDark = oklab(color.tint(.tileLight), .dark).l
+            #expect(oklab(Color.kadoBackgroundSecondary, .light).l > floorLight, "\(color) light")
+            #expect(oklab(Color.kadoBackgroundSecondary, .dark).l < floorDark, "\(color) dark")
         }
     }
 

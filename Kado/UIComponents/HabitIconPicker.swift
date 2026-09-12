@@ -3,7 +3,8 @@ import KadoCore
 
 /// Grid of curated SF Symbols. The selected icon renders on a fill in
 /// the habit's hue, its glyph in the page colour; others sit in a
-/// neutral fill.
+/// neutral fill with the glyph in the hue's ink — the base itself is
+/// under 3:1 on the hairline for half the palette.
 struct HabitIconPicker: View {
     @Binding var selection: String
     var tint: HabitColor
@@ -33,7 +34,7 @@ struct HabitIconPicker: View {
             .font(.title3)
             .frame(maxWidth: .infinity)
             .frame(height: 40)
-            .foregroundStyle(selection == icon ? tint.onFill : tint.color)
+            .foregroundStyle(selection == icon ? tint.onFill : tint.onTint)
             .background {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(selection == icon ? tint.color : Color.kadoHairline)
@@ -48,4 +49,14 @@ struct HabitIconPicker: View {
             HabitIconPicker(selection: $icon, tint: .mint)
         }
     }
+}
+
+#Preview("Dark") {
+    @Previewable @State var icon: String = "book.fill"
+    return Form {
+        Section("Icon") {
+            HabitIconPicker(selection: $icon, tint: .yellow)
+        }
+    }
+    .preferredColorScheme(.dark)
 }

@@ -51,3 +51,13 @@ struct HabitColorPicker: View {
         }
     }
 }
+
+#Preview("Dark") {
+    @Previewable @State var color: HabitColor = .yellow
+    return Form {
+        Section("Color") {
+            HabitColorPicker(selection: $color)
+        }
+    }
+    .preferredColorScheme(.dark)
+}

@@ -96,6 +96,15 @@ public struct WidgetPalette {
         isTinted ? .primary.opacity(0.08) : .kadoHairline
     }
 
+    /// The 1pt ring around a never-due day, one paper step darker than
+    /// `notDueFill` — the same treatment the app's `MatrixCell` gives
+    /// it, and what keeps it tellable from the scored ramp's warm
+    /// floor in full colour. Under the tint it stays under that floor
+    /// too, so a ringed empty tile never outweighs a missed one.
+    public var notDueRing: Color {
+        isTinted ? .primary.opacity(0.14) : .kadoDivider
+    }
+
     /// Fill for a habit row, given its status for today.
     ///
     /// Full colour keeps the habit's own hue, the partial ramp mixed

@@ -23,7 +23,8 @@ struct OKLCHTests {
         (OKLCH(l: 0.60, c: 0.14, h: 30), "#C65B4C"),    // red
         (OKLCH(l: 0.58, c: 0.12, h: 250), "#3C7EBE"),   // blue
         (OKLCH(l: 0.64, c: 0.12, h: 65), "#BE7B32"),    // orange
-        (OKLCH(l: 0.70, c: 0.12, h: 95), "#B69D3A"),    // yellow
+        (OKLCH(l: 0.64, c: 0.12, h: 95), "#A38B23"),    // yellow
+        (OKLCH(l: 0.70, c: 0.12, h: 95), "#B69D3A"),    // yellow, lifted further
         (OKLCH(l: 0.60, c: 0.12, h: 145), "#4D9351"),   // green
         (OKLCH(l: 0.60, c: 0.11, h: 165), "#2D9570"),   // mint
     ])
@@ -122,6 +123,27 @@ struct OKLCHTests {
         // The README's teal chroma is a hair outside — the reason the
         // palette uses 0.105.
         #expect(OKLCH(l: 0.58, c: 0.11, h: 180).oklab.isInSRGBGamut == false)
+    }
+
+    /// The slack is a quarter of an 8-bit step in the *encoded*
+    /// channel, so it means the same near white as in the shadows.
+    @Test("The gamut check measures its slack in encoded units")
+    func gamutSlackIsEncoded() {
+        #expect(Oklab(l: 1.0005, a: 0, b: 0).isInSRGBGamut)      // ≈ 0.17/255 over white
+        #expect(Oklab(l: 1.003, a: 0, b: 0).isInSRGBGamut == false) // ≈ 0.95/255 over
+    }
+
+    @Test("Fitting to the gamut lowers chroma and keeps lightness and hue")
+    func gamutFitting() {
+        let teal = OKLCH(l: 0.58, c: 0.11, h: 180)
+        let fitted = teal.fittedToSRGBGamut()
+        #expect(fitted.oklab.isInSRGBGamut)
+        #expect(fitted.l == teal.l)
+        #expect(fitted.h == teal.h)
+        #expect(fitted.c < teal.c && fitted.c > 0.10, "\(fitted.c)")
+
+        let purple = OKLCH(l: 0.58, c: 0.14, h: 305)
+        #expect(purple.fittedToSRGBGamut() == purple)
     }
 
     @Test("White and black are the ends of the L axis")
