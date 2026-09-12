@@ -23,6 +23,12 @@ struct DayEditPopover: View {
 
     @State private var counterValue: Int = 0
     @State private var timerMinutes: Int = 0
+    /// Bumped by every stepper tap; `stepFeedback` is the haptic that
+    /// tap earned. Keyed on the tap rather than on the value because
+    /// `seedLocalState()` moves the value too, on appear, and opening
+    /// the popover must not tick.
+    @State private var stepTick: Int = 0
+    @State private var stepFeedback: SensoryFeedback? = nil
     @State private var noteText: String = ""
     @State private var isNoteExpanded: Bool = false
     @FocusState private var isNoteFocused: Bool
@@ -37,6 +43,7 @@ struct DayEditPopover: View {
         }
         .padding()
         .frame(minWidth: 260, idealWidth: 300, maxWidth: 340)
+        .sensoryFeedback(trigger: stepTick) { stepFeedback }
         .onAppear { seedLocalState() }
     }
 
@@ -125,6 +132,7 @@ struct DayEditPopover: View {
                 value: Binding(
                     get: { counterValue },
                     set: { newValue in
+                        recordStep(from: counterValue, to: newValue, target: target)
                         counterValue = newValue
                         onSetCounter(Double(newValue))
                     }
@@ -147,6 +155,7 @@ struct DayEditPopover: View {
                 value: Binding(
                     get: { timerMinutes },
                     set: { newValue in
+                        recordStep(from: timerMinutes, to: newValue, target: targetMinutes)
                         timerMinutes = newValue
                         onSetTimerSeconds(TimeInterval(newValue) * 60)
                     }
@@ -226,6 +235,15 @@ struct DayEditPopover: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    private func recordStep(from old: Int, to new: Int, target: Int) {
+        stepFeedback = QuickLogFeedback.feedback(
+            oldValue: Double(old),
+            newValue: Double(new),
+            target: Double(target)
+        )
+        stepTick += 1
     }
 
     private func commitNote() {

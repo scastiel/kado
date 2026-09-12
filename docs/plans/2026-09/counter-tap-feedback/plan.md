@@ -126,7 +126,7 @@ plays `.success`.
 
 ---
 
-### Task 3: Wire the Detail screen — quick-log control and calendar popover
+### Task 3: Wire the Detail screen — quick-log control and calendar popover ✅
 
 **Goal**: the detail quick-log and the calendar day popover feel the same as
 the row.
@@ -262,6 +262,20 @@ value, so the number past the target — and every tap's effect — is visible.
   — 200 ms ease-out is below the threshold where Reduce Motion matters —
   but the count's transition is gated because it's a new, more visible
   motion.
+
+## Notes during build
+
+- **Task 3**: `DayEditPopover` can't key its haptic on the value the
+  label reads, as the plan said. The popover seeds `counterValue` /
+  `timerMinutes` in `.onAppear` (0 → today's value), so a value-keyed
+  trigger would tick — or play `.success` on a done day — every time the
+  popover *opens*. The popover keys on the tap instead: the `Binding`
+  setter (the only user-driven path) computes the feedback from old → new
+  and bumps a `stepTick`; one `.sensoryFeedback(trigger: stepTick)` on the
+  body covers both steppers. That's the "tap-keyed" alternative the Risks
+  section describes for the row, needed here for a different reason. If
+  #80 moves the popover off local state, the trigger stays where it is —
+  it never depended on the state.
 
 ## Open questions
 
