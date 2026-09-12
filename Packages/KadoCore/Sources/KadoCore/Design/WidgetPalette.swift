@@ -64,14 +64,14 @@ public struct WidgetPalette {
 
     /// The streak flame in the weekly widget's per-row metrics.
     ///
-    /// Orange in full colour so a row reads the same as the app's
-    /// `MetricsChip`, where the flame is deliberately off-palette —
-    /// it means "streak" regardless of the habit's own accent. Under
+    /// The palette's orange in full colour so a row reads the same as
+    /// the app's `MetricsChip`, where the flame is always that one hue
+    /// — it means "streak" regardless of the habit's own accent. Under
     /// the tint that second hue buys nothing (every opaque pixel
     /// arrives the same colour), so it collapses onto the secondary
     /// text it sits beside and keeps the row to one weight.
     public var streakAccent: Color {
-        isTinted ? foregroundSecondary : .orange
+        isTinted ? foregroundSecondary : HabitColor.orange.color
     }
 
     // MARK: - Fills

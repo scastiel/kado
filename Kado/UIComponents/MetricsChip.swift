@@ -4,8 +4,10 @@ import KadoCore
 /// `🔥 streak · score%` caption used wherever a habit's current
 /// situational state is surfaced inline (Today row, Overview label
 /// overlay). Streak hidden when zero so calm rows stay calm. Caption2
-/// + monospaced digits keep it dense; flame uses `.orange` so it
-/// reads consistently regardless of the habit's accent color.
+/// + monospaced digits keep it dense; the flame is always orange so
+/// it reads consistently regardless of the habit's accent colour —
+/// the palette's orange, not the system's, so it sits at the same
+/// weight as the hues around it.
 struct MetricsChip: View {
     let streak: Int
     let scorePercent: Int
@@ -21,7 +23,7 @@ struct MetricsChip: View {
                     Text("\(streak)")
                 }
                 .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Color.orange)
+                .foregroundStyle(HabitColor.orange.color)
                 Text("·")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(Color.kadoForegroundSecondary)

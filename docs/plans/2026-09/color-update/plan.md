@@ -1,7 +1,7 @@
 # Plan — Colour update (design handoff)
 
 **Date**: 2026-09-12
-**Status**: draft
+**Status**: in progress
 **Research**: [research.md](./research.md) ·
 **Spec**: [handoff/README.md](./handoff/README.md)
 
@@ -171,7 +171,7 @@ off a fresh `screenshot`: expect `#605B51` light / `#A9A093` dark.
 
 ---
 
-### Task 6 (if agreed): the same rule on every other screen
+### Task 6: the same rule on every other screen
 
 **Goal**: the ~25 remaining `.foregroundStyle(.secondary)` /
 `Color.secondary` sites (Detail, Settings, sheets, calendar) take
@@ -191,7 +191,7 @@ light and dark.
 
 ---
 
-### Task 7 (if agreed): the streak flame
+### Task 7: the streak flame
 
 **Goal**: `MetricsChip`'s flame and the widget's `streakAccent` use the
 palette's orange base instead of system `.orange`.
@@ -234,10 +234,11 @@ palette's orange base instead of system `.orange`.
 
 ## Open questions
 
-- [ ] Streak flame: palette orange or system orange? (Task 7)
-- [ ] Missed tile: keep the 20% hue per the README's derivation, or go
-      neutral per the mockup legend?
-- [ ] Sweep `.secondary` beyond Today / Overview? (Task 6)
+Resolved 2026-09-12, all three the recommended way:
+
+- [x] Streak flame → the palette's orange base (Task 7 is in).
+- [x] Missed tile keeps the 20% hue per the README's derivation table.
+- [x] `.secondary` is swept on every screen (Task 6 is in).
 
 ## Out of scope
 

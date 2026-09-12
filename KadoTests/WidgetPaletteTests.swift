@@ -178,7 +178,7 @@ struct WidgetPaletteTests {
     /// read a whole step louder than the percentage beside it.
     @Test("The streak flame keeps its orange in full colour and folds into secondary under the tint")
     func streakAccentFoldsIntoSecondary() {
-        #expect(WidgetPalette(renderingMode: .fullColor).streakAccent == .orange)
+        #expect(WidgetPalette(renderingMode: .fullColor).streakAccent == HabitColor.orange.color)
         for mode in tinted {
             let palette = WidgetPalette(renderingMode: mode)
             #expect(palette.streakAccent == palette.foregroundSecondary)
