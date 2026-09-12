@@ -193,6 +193,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement()
+        .accessibilityIdentifier(AccessibilityID.HabitDetail.calendarDay(dayNumber))
         .accessibilityLabel(accessibilityLabel(for: day, state: state, isToday: isToday))
 
         if isInteractive {

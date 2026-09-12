@@ -36,6 +36,7 @@ struct CounterQuickLogView: View {
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(targetReached ? Color.accentColor : Color.primary)
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.quickLogValue)
                 Text(String(localized: "of \(Int(target))"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -53,6 +54,7 @@ struct CounterQuickLogView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(String(localized: "Increment"))
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.quickLogIncrement)
         }
         .padding()
         .background(

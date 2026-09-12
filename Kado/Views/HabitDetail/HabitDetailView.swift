@@ -15,10 +15,31 @@ import KadoCore
 /// reading `habit.name` off an invalidated object traps inside
 /// SwiftData. Holding only structs means there is nothing left to
 /// invalidate; mutations resolve the record by id against the current
-/// context (issue #63).
+/// `@Query` (issue #63).
+///
+/// **A view that mutates records holds its own `@Query` and resolves
+/// them from it — `TodayView`'s shape.** The first cut of #63 gave
+/// this view no query and resolved the record with a
+/// `modelContext.fetch(…)` inside each mutation, and the screen
+/// stopped following its own edits: a counter stepped a second time,
+/// a timer re-logged — any value-only save — landed in the store and
+/// never re-rendered `HabitDetailLoader`. Only an insert or delete,
+/// which changes the query's result set, woke it up (issue #80: the
+/// popover, the quick-log, score, streak and history all froze
+/// together). Two things were measured, and both halves of the rule
+/// come from them: a fetch between a view's tracked read and the
+/// mutation leaves the observer un-notified even for the same instance
+/// (`ObservationAfterFetchTests`), and with `allHabits` in place the
+/// loader re-renders on every save. Keep both.
 struct HabitDetailView: View {
     let habit: Habit
     let completions: [Completion]
+
+    /// Read only from mutations, never from `body`. Unfiltered for
+    /// the same reasons as `HabitDetailLoader`'s query, and so an
+    /// archived habit stays resolvable while its screen is up. Its
+    /// presence is load-bearing — see the type comment.
+    @Query(sort: \HabitRecord.sortOrder) private var allHabits: [HabitRecord]
 
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
@@ -47,9 +68,16 @@ struct HabitDetailView: View {
 
     /// The live record behind this screen, resolved against the store
     /// that is mounted now. Called from mutations only — never from a
-    /// `body`, which is the whole point.
+    /// `body`, which is the whole point. A Swift-side lookup in the
+    /// query's array, never a `fetch` — see the type comment.
     private var record: HabitRecord? {
-        modelContext.habitRecord(id: habit.id)
+        allHabits.first { $0.id == habit.id }
+    }
+
+    /// The live record behind one snapshotted completion, walked from
+    /// `record`'s relationship for the same reason.
+    private func completionRecord(for snapshot: Completion) -> CompletionRecord? {
+        record?.completions?.first { $0.id == snapshot.id }
     }
 
     private var trackingSinceLabel: String? {
@@ -94,7 +122,11 @@ struct HabitDetailView: View {
                         .presentationCompactAdaptation(.popover)
                     }
                 )
-                CompletionHistoryList(habitType: habit.type, completions: completions)
+                CompletionHistoryList(
+                    habitType: habit.type,
+                    completions: completions,
+                    onDelete: deleteCompletion
+                )
             }
             .padding()
         }
@@ -192,6 +224,7 @@ struct HabitDetailView: View {
             }
             .buttonStyle(.plain)
             .disabled(isArchived)
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.logSessionButton)
         case .binary, .negative:
             EmptyView()
         }
@@ -291,11 +324,10 @@ struct HabitDetailView: View {
     }
 
     private func clear(on day: Date) {
-        // Resolved from the snapshot's id rather than by walking the
-        // record's relationship, so the day being cleared is the one
-        // the user was actually looking at.
+        // Matched on the snapshot's id rather than re-derived from the
+        // day, so the record cleared is the one the user was looking at.
         guard let snapshot = completion(on: day),
-              let existing = modelContext.completionRecord(id: snapshot.id)
+              let existing = completionRecord(for: snapshot)
         else { return }
         let before = existing.value
         if existing.note != nil {
@@ -304,6 +336,14 @@ struct HabitDetailView: View {
             CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
         }
         recordQuickLog(from: before, to: 0)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    /// Swipe-to-delete from the history list.
+    private func deleteCompletion(_ snapshot: Completion) {
+        guard let existing = completionRecord(for: snapshot) else { return }
+        CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

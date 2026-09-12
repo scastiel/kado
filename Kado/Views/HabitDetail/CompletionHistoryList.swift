@@ -3,19 +3,25 @@ import SwiftUI
 import KadoCore
 
 /// Scrollable list of completions for a habit, sorted newest first.
-/// Swipe-to-delete removes a completion. Empty state shows a neutral
-/// "No history yet" row.
+/// Deleting a row hands the completion back through `onDelete` — but
+/// note the gesture wired to it is `swipeActions` on a `LazyVStack`
+/// row, which SwiftUI ignores outside a `List`; nothing reaches
+/// `onDelete` today (issue #87). Empty state shows a neutral "No
+/// history yet" row.
 ///
 /// Takes value-type snapshots for the same reason `HabitDetailView`
 /// does: its `ForEach` would otherwise hold `CompletionRecord`s from
 /// a store a dev-mode swap has already replaced, and re-reading one
-/// during an update pass traps inside SwiftData (issue #63). Deletion
-/// resolves the record by id against the current context.
+/// during an update pass traps inside SwiftData (issue #63). The
+/// deletion itself lives on `HabitDetailView`, which owns the `@Query`
+/// the record has to be resolved against — a fetch-based lookup in a
+/// view without one is the shape that left the detail screen stale
+/// (issue #80).
 struct CompletionHistoryList: View {
     let habitType: HabitType
     let completions: [Completion]
+    var onDelete: (Completion) -> Void = { _ in }
 
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
 
@@ -87,18 +93,11 @@ struct CompletionHistoryList: View {
         .contentShape(Rectangle())
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                delete(completion)
+                onDelete(completion)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
         }
-    }
-
-    private func delete(_ completion: Completion) {
-        guard let record = modelContext.completionRecord(id: completion.id) else { return }
-        CompletionLogger(calendar: calendar).delete(record, in: modelContext)
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
     }
 
     /// Relative labels are anchored to the **logical** today, not

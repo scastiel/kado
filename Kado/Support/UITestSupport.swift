@@ -117,6 +117,12 @@ nonisolated enum UITestSupport {
         // so a week start set by hand once would otherwise reorder
         // every capture taken after it.
         WeekStartDefaults.sharedDefaults.removeObject(forKey: WeekStartDefaults.key)
+        // Same for the day-start hour: the seed and the calendar follow
+        // the logical day, and a suite that computes "two days ago"
+        // with the wall clock has to be looking at the same day they
+        // are. A 4 AM day start left on the simulator would shift the
+        // seed by one at 1:30 in the morning.
+        DayStartDefaults.sharedDefaults.removeObject(forKey: DayStartDefaults.key)
         applyTipNudgeState(arguments)
     }
 

@@ -105,6 +105,37 @@ enum AccessibilityID {
         /// photographs is a whole one — a capture taken on the 5th
         /// otherwise shows five filled days and twenty-five empty.
         static let previousMonthButton = "habitDetail.previousMonth"
+        /// One cell of the monthly calendar, by day-of-month. The cell
+        /// collapses to a single element already, so this lands on a
+        /// leaf. Unique only within the month on screen — a test that
+        /// wants a day in another month navigates there first.
+        static func calendarDay(_ day: Int) -> String {
+            "habitDetail.calendar.day.\(day)"
+        }
+        /// The `+` of the counter quick-log card. What a test looks for
+        /// to know it has pushed a *counter* habit's detail: the seeded
+        /// Today rows are keyed by a `UUID` the seed draws fresh each
+        /// run, so a test walks them and asks each screen what it is.
+        static let quickLogIncrement = "habitDetail.quickLog.increment"
+        /// The quick-log card's big number.
+        static let quickLogValue = "habitDetail.quickLog.value"
+        /// The timer habit's "Log a session" button — what a test looks
+        /// for to know it has pushed a *timer* habit's detail.
+        static let logSessionButton = "habitDetail.logSession"
+
+        /// The popover that edits one calendar day (`DayEditPopover`).
+        enum DayEdit {
+            /// The "3 of 8" / "3 sur 8" text. A test reads the number
+            /// off the label — the run pins English — rather than off
+            /// a separate `accessibilityValue`, which would have
+            /// VoiceOver say "3 of 8, 3".
+            static let value = "habitDetail.dayEdit.value"
+            /// The `−` and `+` beside the value, and the Clear button
+            /// below it.
+            static let decrement = "habitDetail.dayEdit.decrement"
+            static let increment = "habitDetail.dayEdit.increment"
+            static let clear = "habitDetail.dayEdit.clear"
+        }
     }
 
     enum Overview {
