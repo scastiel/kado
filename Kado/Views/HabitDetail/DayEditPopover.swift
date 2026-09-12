@@ -38,6 +38,11 @@ struct DayEditPopover: View {
 
     private let noteCharLimit = 500
 
+    /// The `−` / `+` circles follow Dynamic Type with the glyph inside
+    /// them; a fixed 36pt left the symbol spilling past its fill at the
+    /// accessibility sizes.
+    @ScaledMetric(relativeTo: .body) private var stepButtonSize: CGFloat = 36
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
@@ -222,7 +227,7 @@ struct DayEditPopover: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.body.weight(.semibold))
-                .frame(width: 36, height: 36)
+                .frame(width: stepButtonSize, height: stepButtonSize)
                 .background(Circle().fill(fill))
                 .foregroundStyle(enabled ? tint : Color.kadoForegroundSecondary)
         }

@@ -120,6 +120,9 @@ enum AccessibilityID {
         /// The quick-log card's big number. Its `accessibilityValue` is
         /// the bare count, for the same reason as `DayEdit.value`.
         static let quickLogValue = "habitDetail.quickLog.value"
+        /// The timer habit's "Log a session" button — what a test looks
+        /// for to know it has pushed a *timer* habit's detail.
+        static let logSessionButton = "habitDetail.logSession"
 
         /// The popover that edits one calendar day (`DayEditPopover`).
         enum DayEdit {

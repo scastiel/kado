@@ -73,30 +73,79 @@ final class DayEditPopoverTests: KadoUITestCase {
         )
     }
 
+    /// The timer control, and stepping back down: `−` from one minute
+    /// hands zero seconds to the parent, which routes it through
+    /// `clear`, and the popover has to read 0 afterwards.
+    @MainActor
+    func testSteppingATimerDayUpAndBackToZero() {
+        let app = launchApp(devMode: true)
+
+        tapTab(.today, in: app)
+        waitForTodayRows(in: app)
+        openTimerHabitDetail(in: app)
+
+        openDayEditPopover(daysAgo: 2, in: app)
+        let value = app.staticTexts[AccessibilityID.HabitDetail.DayEdit.value]
+        XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
+        XCTAssertEqual(value.value as? String, "0")
+
+        tapIncrement(in: app)
+        tapIncrement(in: app)
+        XCTAssertTrue(
+            waited(for: value, toRead: "2"),
+            "Two taps on + should read 2 minutes; it shows \(value.value ?? "nil")."
+        )
+
+        let minus = app.buttons[AccessibilityID.HabitDetail.DayEdit.decrement].firstMatch
+        minus.tap()
+        minus.tap()
+        capture(app, "timer-day-back-to-zero")
+        XCTAssertTrue(
+            waited(for: value, toRead: "0"),
+            "Two taps on − should read 0; it shows \(value.value ?? "nil")."
+        )
+        XCTAssertFalse(
+            app.buttons[AccessibilityID.HabitDetail.DayEdit.clear].exists,
+            "Clear should go away once the day is empty again."
+        )
+    }
+
     // MARK: - Driving
 
     /// Pushes the detail of the seeded counter habit.
-    ///
-    /// Today rows are keyed by a `UUID` the seed draws fresh each run,
-    /// so the habit can't be addressed by identifier. Each row is
-    /// pushed in turn and asked whether it shows the counter quick-log;
-    /// the seed has one counter habit among a handful, so this is a
-    /// few pushes at most.
     @MainActor
     private func openCounterHabitDetail(in app: XCUIApplication) {
+        openHabitDetail(showing: AccessibilityID.HabitDetail.quickLogIncrement, in: app)
+    }
+
+    /// Pushes the detail of the seeded timer habit.
+    @MainActor
+    private func openTimerHabitDetail(in app: XCUIApplication) {
+        openHabitDetail(showing: AccessibilityID.HabitDetail.logSessionButton, in: app)
+    }
+
+    /// Pushes Today rows in turn until the detail shows the button with
+    /// `marker`, and stays there.
+    ///
+    /// Today rows are keyed by a `UUID` the seed draws fresh each run,
+    /// so a habit can't be addressed by identifier from the list. Each
+    /// row is pushed and asked what it is; the seed has one habit of
+    /// each type among a handful, so this is a few pushes at most.
+    @MainActor
+    private func openHabitDetail(showing marker: String, in app: XCUIApplication) {
         let rows = todayRows(in: app)
         let scoreCard = app.buttons[AccessibilityID.HabitDetail.scoreCard]
-        let quickLogIncrement = app.buttons[AccessibilityID.HabitDetail.quickLogIncrement]
+        let markerButton = app.buttons[marker]
         for index in 0..<rows.count {
             rows.element(boundBy: index).tap()
             XCTAssertTrue(scoreCard.waitForExistence(timeout: 10), "Tapping a Today row should push its detail.")
-            if quickLogIncrement.waitForExistence(timeout: 2) {
+            if markerButton.waitForExistence(timeout: 2) {
                 return
             }
             app.navigationBars.buttons.firstMatch.tap()
             XCTAssertTrue(scoreCard.waitForNonExistence(timeout: 10), "Popping the detail should return to Today.")
         }
-        XCTFail("No Today row pushed a counter habit's detail.")
+        XCTFail("No Today row pushed a detail showing \(marker).")
     }
 
     /// Taps the calendar cell for the given day, navigating back a

@@ -219,6 +219,7 @@ struct HabitDetailView: View {
             }
             .buttonStyle(.plain)
             .disabled(isArchived)
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.logSessionButton)
         case .binary, .negative:
             EmptyView()
         }
