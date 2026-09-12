@@ -372,6 +372,38 @@ closes #82.**
   before the autosave timer fires). Deleted, as it always was going to
   be; noted so nobody spends a cycle on it again.
 
+- **Code review (8 findings, 7 acted on, 1 disproved).**
+  - *Confirmed, pre-existing, fixed*: the score walk steps with
+    `date(byAdding: .day)` and never re-anchors, so in a
+    midnight-transition zone every entry after the edge sits at 01:00
+    while completions are bucketed at true midnights — a perfect run
+    in Havana scored 0.26 instead of 0.51. The streak walks (`current`
+    backward, `best` forward, and both week walks) had the same shape:
+    14 days read as 7. One-line re-anchors, each with a Havana test.
+    The series now keys its lookup through `startOfDay` on both sides
+    as well.
+  - *Confirmed, fixed*: a cold launch past the horizon wrote the file
+    without a reload. `rebuildAndWrite` reloads timelines itself now;
+    `WidgetReloader` and the two intents drop their hand-paired calls.
+  - *Confirmed, fixed*: the new-day rebuild ran synchronously inside
+    the scene-phase callback; deferred one tick. The comment now states
+    the real ordering dependency — bumping `clockMark` first cancels a
+    waking edge task, so the rebuild runs once.
+  - *Confirmed, fixed*: the planner chained its edge off the previous
+    accepted slot, so one mismatch dropped every later day. Slots are
+    dated from their own day via `DayBoundary.rollover(into:)`.
+  - *Confirmed, fixed*: builder tests were UTC-only; the parity test
+    now sweeps UTC / Paris (both edges) / Havana with histories and
+    series straddling each transition. The legacy decode fallback takes
+    its calendar from the decoder.
+  - **Disproved**: "the best streak is invariant across the horizon,
+    hoist it." It is for binary, counter, timer, every frequency —
+    and *not* for a negative habit, where an unlogged day is a clean
+    day and two of them raise the maximum. The zone-swept parity test
+    failed on exactly that (1 hoisted vs 2 standalone) and the hoist
+    was reverted. Worth remembering: "nothing logged can't change X"
+    is false for negatives by definition.
+
 ## Risks and mitigation
 
 - **7× build cost on MainActor per mutation.** Measured in Task 6;
