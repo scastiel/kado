@@ -33,6 +33,10 @@ struct HabitDetailView: View {
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
     @State private var editingDay: Date? = nil
+    /// The latest quick-log or popover step, for the haptic — one seam
+    /// for both, so a popover step on today doesn't also tick through
+    /// the quick-log control that displays the same value.
+    @State private var quickLog: QuickLogEvent?
     /// Seeded in `.onAppear` rather than defaulted to `.now`: `@State`
     /// is initialised before the environment is injected, so a wall-clock
     /// default would leak in ahead of `\.today` and open the grid on the
@@ -96,6 +100,7 @@ struct HabitDetailView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
+        .quickLogFeedback(quickLog)
         .onAppear { if displayedMonth == nil { displayedMonth = today } }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -198,16 +203,31 @@ struct HabitDetailView: View {
 
     private func incrementCounter() {
         guard let record else { return }
-        CompletionLogger(calendar: calendar).incrementCounter(for: record, on: loggingInstant, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: loggingInstant)
+        logger.incrementCounter(for: record, on: loggingInstant, in: modelContext)
+        recordQuickLog(from: before, to: before + 1)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
 
     private func decrementCounter() {
         guard let record else { return }
-        CompletionLogger(calendar: calendar).decrementCounter(for: record, on: loggingInstant, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: loggingInstant)
+        logger.decrementCounter(for: record, on: loggingInstant, in: modelContext)
+        recordQuickLog(from: before, to: max(0, before - 1))
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
+    }
+
+    /// Derived from the mutation, not read back: the store may still
+    /// hold a just-deleted record until the save lands.
+    private func recordQuickLog(from old: Double, to new: Double) {
+        guard let event = QuickLogEvent.next(after: quickLog, type: habit.type, oldValue: old, newValue: new) else {
+            return
+        }
+        quickLog = event
     }
 
     // MARK: - Past-day popover mutations
@@ -234,7 +254,10 @@ struct HabitDetailView: View {
 
     private func setCounter(_ value: Double, on day: Date) {
         guard let record else { return }
-        CompletionLogger(calendar: calendar).setCounter(for: record, on: day, to: value, in: modelContext)
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: day)
+        logger.setCounter(for: record, on: day, to: value, in: modelContext)
+        recordQuickLog(from: before, to: max(0, value))
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
@@ -247,12 +270,15 @@ struct HabitDetailView: View {
             return
         }
         guard let record else { return }
-        CompletionLogger(calendar: calendar).logTimerSession(
+        let logger = CompletionLogger(calendar: calendar)
+        let before = logger.value(for: record, on: day)
+        logger.logTimerSession(
             for: record,
             seconds: seconds,
             on: day,
             in: modelContext
         )
+        recordQuickLog(from: before, to: seconds)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }
@@ -271,11 +297,13 @@ struct HabitDetailView: View {
         guard let snapshot = completion(on: day),
               let existing = modelContext.completionRecord(id: snapshot.id)
         else { return }
+        let before = existing.value
         if existing.note != nil {
             existing.value = 0
         } else {
             CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
         }
+        recordQuickLog(from: before, to: 0)
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
     }

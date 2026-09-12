@@ -10,11 +10,15 @@ import KadoCore
 ///   lived on Detail.
 /// - **Trailing**: type-aware control. Binary, counter, and timer
 ///   share a 28pt-circle icon vocabulary (checkmark, `−` / `+`,
-///   `+5m`). Negative is the deliberate exception — it keeps a
-///   text "Slipped" pill so a slip never reads as a "done"
-///   achievement at a glance. In every case the *filled* variant
-///   is the recorded state and the tinted / outlined variant is
-///   the ready-to-record state.
+///   `+5m`). Counter and timer also carry the day's count
+///   (`− 3 +`, `12m +5m`): the ring says how far toward the target,
+///   the count says how many — and past the target, where the ring
+///   is already full, it is the one thing a tap still moves.
+///   Negative is the deliberate exception — it keeps a text
+///   "Slipped" pill so a slip never reads as a "done" achievement
+///   at a glance. In every case the *filled* variant is the
+///   recorded state and the tinted / outlined variant is the
+///   ready-to-record state.
 struct HabitRowView: View {
     let habit: Habit
     let state: HabitRowState
@@ -34,6 +38,8 @@ struct HabitRowView: View {
     var onOpenDetail: (() -> Void)? = nil
     var onEdit: (() -> Void)? = nil
     var onArchive: (() -> Void)? = nil
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isComplete: Bool { state.status == .complete }
 
@@ -164,39 +170,49 @@ struct HabitRowView: View {
             binaryCheckButton
         case .negative:
             negativePill
-        case .counter(let target):
-            counterStepper(target: target)
-        case .timer(let targetSeconds):
-            timerAddFiveChip(target: targetSeconds)
+        case .counter:
+            counterStepper
+        case .timer:
+            timerAddFiveChip
         }
     }
 
     // MARK: - Timer chip
 
-    /// Trailing `+5m` quick-log chip. Tap adds five minutes to today's
-    /// session — the fast-path power-user action. The leading ring
-    /// communicates progress; the full session editor (existing
-    /// `TimerLogSheet`) is reachable from the row's context menu via
-    /// "Log specific value…".
+    /// Trailing `12m +5m`: today's minutes, then the quick-log chip.
+    /// Tap adds five minutes to today's session — the fast-path
+    /// power-user action. Collapses to the chip alone when the row
+    /// can't host both — Dynamic Type AX sizes — since a chip that
+    /// wraps to `+5 / m` is worse than a count VoiceOver still reads.
+    /// The leading ring communicates progress toward the target; the
+    /// full session editor (existing `TimerLogSheet`) is reachable
+    /// from the row's context menu via "Log specific value…".
     @ViewBuilder
-    private func timerAddFiveChip(target: TimeInterval) -> some View {
+    private var timerAddFiveChip: some View {
         if let onTimerAddFiveMinutes {
-            Button(action: onTimerAddFiveMinutes) {
-                Text("+5m")
-                    .font(.callout.weight(.semibold).monospacedDigit())
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 10)
-                    .background(
-                        Capsule().fill(habit.color.color.opacity(0.15))
-                    )
-                    .foregroundStyle(habit.color.color)
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(String(localized: "Add 5 minutes"))
-            .sensoryFeedback(.success, trigger: isComplete) { old, new in
-                !old && new
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    countLabel(timerCountText)
+                    timerChip(action: onTimerAddFiveMinutes)
+                }
+                timerChip(action: onTimerAddFiveMinutes)
             }
         }
+    }
+
+    private func timerChip(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text("+5m")
+                .font(.callout.weight(.semibold).monospacedDigit())
+                .padding(.vertical, 4)
+                .padding(.horizontal, 10)
+                .background(
+                    Capsule().fill(habit.color.color.opacity(0.15))
+                )
+                .foregroundStyle(habit.color.color)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(String(localized: "Add 5 minutes"))
     }
 
     @ViewBuilder
@@ -258,48 +274,48 @@ struct HabitRowView: View {
 
     // MARK: - Counter stepper
 
-    /// Inline `−  value/target  +` stepper. Collapses to `value/target +`
-    /// (no minus) when the row width can't host both buttons — the
-    /// usual case at Dynamic Type XXL+ where the labels grow large.
-    /// Decrement is disabled at zero so "no completion" stays equivalent
-    /// to "not started today" (matches CompletionLogger semantics).
-    @ViewBuilder
-    private func counterStepper(target: Double) -> some View {
+    /// Inline `− value +` stepper. Collapses to `value +` (no minus)
+    /// when the row width can't host both buttons — the usual case at
+    /// Dynamic Type XXL+ where the labels grow large; the count is the
+    /// point, so it is the minus that gives way. Decrement is disabled
+    /// at zero so "no completion" stays equivalent to "not started
+    /// today" (matches CompletionLogger semantics).
+    private var counterStepper: some View {
         ViewThatFits(in: .horizontal) {
-            counterStepperFull(target: target)
-            counterStepperPlusOnly(target: target)
-        }
-        .sensoryFeedback(.success, trigger: isComplete) { old, new in
-            !old && new
+            counterStepperFull
+            counterStepperPlusOnly
         }
     }
 
-    private func counterStepperFull(target: Double) -> some View {
+    private var counterStepperFull: some View {
         HStack(spacing: 8) {
-            Button(action: { onCounterDecrement?() }) {
-                Image(systemName: "minus")
-                    .font(.callout.weight(.semibold))
-                    .frame(width: 28, height: 28)
-                    .background(Circle().fill(Color.kadoPaper200))
-                    .foregroundStyle(canDecrement ? Color.kadoForeground : Color.kadoForegroundSecondary)
-            }
-            .buttonStyle(.borderless)
-            .disabled(!canDecrement)
-            .accessibilityLabel(String(localized: "Decrement"))
-
-            Button(action: { onCounterIncrement?() }) {
-                Image(systemName: "plus")
-                    .font(.callout.weight(.semibold))
-                    .frame(width: 28, height: 28)
-                    .background(Circle().fill(habit.color.color.opacity(0.15)))
-                    .foregroundStyle(habit.color.color)
-            }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(String(localized: "Increment"))
+            counterMinusButton
+            countLabel(counterCountText)
+            counterPlusButton
         }
     }
 
-    private func counterStepperPlusOnly(target: Double) -> some View {
+    private var counterStepperPlusOnly: some View {
+        HStack(spacing: 8) {
+            countLabel(counterCountText)
+            counterPlusButton
+        }
+    }
+
+    private var counterMinusButton: some View {
+        Button(action: { onCounterDecrement?() }) {
+            Image(systemName: "minus")
+                .font(.callout.weight(.semibold))
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(Color.kadoPaper200))
+                .foregroundStyle(canDecrement ? Color.kadoForeground : Color.kadoForegroundSecondary)
+        }
+        .buttonStyle(.borderless)
+        .disabled(!canDecrement)
+        .accessibilityLabel(String(localized: "Decrement"))
+    }
+
+    private var counterPlusButton: some View {
         Button(action: { onCounterIncrement?() }) {
             Image(systemName: "plus")
                 .font(.callout.weight(.semibold))
@@ -313,6 +329,38 @@ struct HabitRowView: View {
 
     private var canDecrement: Bool {
         (state.valueToday ?? 0) > 0
+    }
+
+    // MARK: - Count label
+
+    /// The day's recorded value, beside the stepper or chip. Plain
+    /// foreground until the target is met, the habit colour after —
+    /// the same rule as `CounterQuickLogView`'s big number. Digits
+    /// roll on change so a tap past the target still visibly lands;
+    /// Reduce Motion swaps the roll for a plain replace.
+    private func countLabel(_ text: Text) -> some View {
+        text
+            .font(.callout.weight(.semibold).monospacedDigit())
+            .foregroundStyle(isComplete ? habit.color.color : Color.kadoForeground)
+            // A count is one short token; it must never split into
+            // `35 / m` across lines at large Dynamic Type.
+            .fixedSize(horizontal: true, vertical: false)
+            .contentTransition(.numericText(value: state.valueToday ?? 0))
+            .animation(reduceMotion ? nil : KadoMotion.fast, value: state.valueToday)
+    }
+
+    private var counterCountText: Text {
+        Text(Int(state.valueToday ?? 0), format: .number)
+    }
+
+    private var timerCountText: Text {
+        Text("\(todayMinutes)m")
+    }
+
+    /// Whole minutes, floored. Both the visual count and the VoiceOver
+    /// phrase read this, so the two can't disagree.
+    private var todayMinutes: Int {
+        Int((state.valueToday ?? 0) / 60)
     }
 
     // MARK: - Formatting helpers
@@ -342,9 +390,8 @@ struct HabitRowView: View {
 
     /// Value-only progress phrase for counter / timer rows. Empty for
     /// binary / negative (their state lives in `accessibilityLabel`).
-    /// Surfaced here because the visual `value/target` text was
-    /// removed in favor of the leading progress ring — VoiceOver
-    /// users still need the numbers.
+    /// The row shows the value but not the target — the ring carries
+    /// that — so VoiceOver gets both numbers here.
     private var accessibilityProgressText: String {
         switch habit.type {
         case .binary, .negative:
@@ -353,9 +400,8 @@ struct HabitRowView: View {
             let v = Int(state.valueToday ?? 0)
             return String(localized: "\(v) of \(Int(target))")
         case .timer(let targetSeconds):
-            let v = Int((state.valueToday ?? 0) / 60)
             let t = Int(targetSeconds / 60)
-            return String(localized: "\(v) of \(t) minutes")
+            return String(localized: "\(todayMinutes) of \(t) minutes")
         }
     }
 
@@ -454,15 +500,21 @@ private extension HabitRowView {
         HabitRowView(habit: counter, state: HabitRowView.previewState(for: counter.type, value: 3), streak: 2, scorePercent: 55, onToggle: nil)
         HabitRowView(habit: counter, state: HabitRowView.previewState(for: counter.type, value: 12), streak: 7, scorePercent: 92, onToggle: nil)
         HabitRowView(habit: timer, state: HabitRowView.previewState(for: timer.type, value: 750), streak: 3, scorePercent: 60, onToggle: nil)
+        HabitRowView(habit: timer, state: HabitRowView.previewState(for: timer.type, value: 2100), streak: 9, scorePercent: 88, onToggle: nil)
     }
 }
 
+// The timer row is here on purpose: at AX sizes its count and chip
+// once wrapped to `35 / m` `+5 / m`, and this preview held no timer to
+// show it. Keep every trailing control represented.
 #Preview("Dynamic Type XXXL") {
     let binary = Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now)
     let counter = Habit(name: "Drink water", frequency: .daily, type: .counter(target: 8), createdAt: .now)
+    let timer = Habit(name: "Read", frequency: .daily, type: .timer(targetSeconds: 1800), createdAt: .now)
     return List {
         HabitRowView(habit: binary, state: HabitRowView.previewState(for: binary.type, value: 1), streak: 6, scorePercent: 78, onToggle: {})
         HabitRowView(habit: counter, state: HabitRowView.previewState(for: counter.type, value: 3), streak: 2, scorePercent: 55, onToggle: nil)
+        HabitRowView(habit: timer, state: HabitRowView.previewState(for: timer.type, value: 2100), streak: 9, scorePercent: 88, onToggle: nil)
     }
     .environment(\.dynamicTypeSize, .accessibility3)
 }

@@ -957,6 +957,23 @@
         }
       }
     },
+    "%lldm" : {
+      "comment" : "Minutes logged today, before the +5m chip on a timer Today row. Argument is whole minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldm"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
     "A few times a week" : {
       "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
       "localizations" : {
