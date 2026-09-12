@@ -66,7 +66,7 @@ watchOS"*), so that's what every tap uses.
 
 ## Task list
 
-### Task 1: `QuickLogFeedback` rule (tests first)
+### Task 1: `QuickLogFeedback` rule (tests first) ✅
 
 **Goal**: one tested function that says which haptic a change of the day's
 recorded value plays.
