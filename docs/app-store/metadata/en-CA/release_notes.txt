@@ -1,5 +1,10 @@
-Version 1.8 — Weeks that start where you do, and widgets worth a second look.
+Version 1.9 — A little celebration when the day is done, a ring on your Lock Screen, and a fresh coat of colour.
 
-• Calendars and week grids now start on the day your region starts its week — Sunday across the Americas and much of Asia, Monday across Europe — instead of always Monday. Kadō follows the First Day of Week you have set in iOS Settings if you have set one, and Settings → Week lets you choose for yourself. Streaks for "days per week" habits are counted over the same week you are looking at.
-• The large Home Screen widget now shows each habit's current streak and score next to its name, so the week's grid arrives with the numbers behind it rather than seven squares on their own.
-• Home Screen widgets stay readable under the Clear and Tinted appearances. The "Today" and "This week" headlines used to disappear into the tile once iOS re-tinted the widget.
+• Finish the last habit on your list and Kadō throws confetti — a quick burst from both sides of the screen, in the app's own sage and paper, with "All done for today" on top. It plays wherever you happen to be in the app, and it never gets in the way of a tap. With Reduce Motion on, the confetti stays home and only the caption appears; VoiceOver announces the moment either way.
+• A new "Daily Progress" Lock Screen widget: a ring that closes as today's habits get done, with the Kadō mark at its centre. On a rest day it shows a dash instead of an empty ring.
+• The habit colours have been redrawn so all eight carry the same weight on Kadō's paper — no one hue shouting over the others — and every secondary label, from section headers to footers, is darker and easier to read. Dark Mode gets its own lift of each hue.
+• On Today, counter and timer habits show the day's total between the − and + buttons, so a tap past the target visibly lands. Every tap answers with a small haptic tick; the one that meets the target still gets the firmer one.
+• Widgets turn the page to the new day on their own — at midnight, or at your "Day starts at" hour — without the app having to be opened. They used to keep showing yesterday's ticks until the first habit was logged.
+• A habit's detail screen follows every tap again. Stepping a counter from the calendar popover updated once and then looked stuck while the taps were quietly saved, and the score, streak and history stopped moving with it. The popover's counter and timer now step with the same − and + as the Today row.
+• Long-press an entry under History on a habit's detail screen to delete it. Swiping the row had never done anything.
+• A slip on a "don't" habit no longer counts as done in the day's tally, so the Home Screen widget's count — and now the celebration — only add up habits you actually kept.

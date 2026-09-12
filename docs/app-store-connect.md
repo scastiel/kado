@@ -14,7 +14,7 @@ supports it).
 
 | Field                  | Limit          | Where           | Status  |
 |------------------------|----------------|-----------------|---------|
-| App Name               | 30 chars       | App Information | ✅ 4    |
+| App Name               | 30 chars       | App Information | ✅ 24   |
 | Subtitle               | 30 chars       | App Information | ✅ 28   |
 | Promotional Text       | 170 chars      | Version (any)   | ✅ <170 |
 | Description            | 4000 chars     | Version (any)   | ✅ <4k  |
@@ -36,7 +36,21 @@ review — useful to tweak messaging between builds.
 
 ### Name
 
-> Kadō
+> Kadō — Habit Tracker
+
+(20 chars)
+
+### Name — FR
+
+> Kadō — Suivi d'habitudes
+
+(24 chars)
+
+The brand alone said nothing in a results list, and "tracker" only
+lived in the keyword field — the lightest-weighted one. The name is the
+heaviest, so the category goes there and the subtitle stays the pitch.
+The device keeps `CFBundleDisplayName = Kadō`; only the store name
+carries the descriptor.
 
 ### Subtitle — EN
 
@@ -398,9 +412,9 @@ added. Use:
 
 ### Keywords — EN (100 chars, comma-separated, no spaces after commas)
 
-> habit,tracker,streak,routine,goals,productivity,health,watch,widget,privacy,open source,loop
+> streak,routine,goals,productivity,health,watch,widget,privacy,open source,loop
 
-(94 chars)
+(78 chars — `habit` and `tracker` moved into the name)
 
 Do not repeat words already in the app name or title. Do not use
 plurals and singulars together — App Store Search handles
@@ -408,9 +422,9 @@ stemming.
 
 ### Keywords — FR (100 chars)
 
-> habitude,suivi,routine,série,objectif,productivité,santé,widget,confidentialité,open source
+> routine,série,objectif,productivité,santé,widget,confidentialité,open source
 
-(94 chars)
+(76 chars — `habitude` et `suivi` sont dans le nom)
 
 ### What's New — first public release (EN)
 
@@ -673,6 +687,96 @@ tooling and documentation — invisible from the App Store.
 >   apparences Claire et Teintée. Les titres « Aujourd'hui » et
 >   « Cette semaine » disparaissaient dans la tuile dès qu'iOS
 >   reteintait le widget.
+
+### What's New — 1.9
+
+Build 17 was submitted from #78 alone and pulled back; build 18 carries
+everything on `main` since 1.8, so the notes cover the whole range —
+#78 (the daily completion reward: confetti, the "Daily Progress" Lock
+Screen ring, and the negative-habit tally fix), #86 (the confetti in
+sage and paper), #89 (the OKLCH habit hues and the secondary-text
+contrast lift), #85 (the day's count on Today rows and a haptic tick
+per tap), #84 (widgets roll over to the new day on their own), #83 (the
+detail screen following value-only edits), and #88 (deleting a History
+row from its long-press menu). #79 (the widgets screenshot) changes
+nothing a customer sees, so the notes don't mention it.
+
+> Version 1.9 — A little celebration when the day is done, a ring on
+> your Lock Screen, and a fresh coat of colour.
+>
+> • Finish the last habit on your list and Kadō throws confetti — a
+>   quick burst from both sides of the screen, in the app's own sage
+>   and paper, with "All done for today" on top. It plays wherever you
+>   happen to be in the app, and it never gets in the way of a tap.
+>   With Reduce Motion on, the confetti stays home and only the
+>   caption appears; VoiceOver announces the moment either way.
+> • A new "Daily Progress" Lock Screen widget: a ring that closes as
+>   today's habits get done, with the Kadō mark at its centre. On a
+>   rest day it shows a dash instead of an empty ring.
+> • The habit colours have been redrawn so all eight carry the same
+>   weight on Kadō's paper — no one hue shouting over the others — and
+>   every secondary label, from section headers to footers, is darker
+>   and easier to read. Dark Mode gets its own lift of each hue.
+> • On Today, counter and timer habits show the day's total between
+>   the − and + buttons, so a tap past the target visibly lands. Every
+>   tap answers with a small haptic tick; the one that meets the
+>   target still gets the firmer one.
+> • Widgets turn the page to the new day on their own — at midnight,
+>   or at your "Day starts at" hour — without the app having to be
+>   opened. They used to keep showing yesterday's ticks until the
+>   first habit was logged.
+> • A habit's detail screen follows every tap again. Stepping a
+>   counter from the calendar popover updated once and then looked
+>   stuck while the taps were quietly saved, and the score, streak and
+>   history stopped moving with it. The popover's counter and timer
+>   now step with the same − and + as the Today row.
+> • Long-press an entry under History on a habit's detail screen to
+>   delete it. Swiping the row had never done anything.
+> • A slip on a "don't" habit no longer counts as done in the day's
+>   tally, so the Home Screen widget's count — and now the celebration
+>   — only add up habits you actually kept.
+
+> Version 1.9 — Une petite fête quand la journée est bouclée, un
+> anneau sur ton écran verrouillé, et un coup de neuf sur les
+> couleurs.
+>
+> • Termine la dernière habitude de ta liste et Kadō lance des
+>   confettis — une courte salve depuis les deux côtés de l'écran,
+>   dans les tons sauge et papier de l'app, avec « Tout est fait pour
+>   aujourd'hui » par-dessus. Ça s'affiche où que tu sois dans l'app,
+>   sans jamais bloquer un tap. Avec Réduire les animations, les
+>   confettis restent au placard et seule la légende apparaît ;
+>   VoiceOver annonce le moment dans les deux cas.
+> • Un nouveau widget d'écran verrouillé « Progression du jour » : un
+>   anneau qui se referme à mesure que les habitudes du jour sont
+>   faites, avec le symbole de Kadō au centre. Un jour de repos, il
+>   affiche un tiret plutôt qu'un anneau vide.
+> • Les couleurs des habitudes ont été redessinées pour que les huit
+>   aient le même poids sur le papier de Kadō — plus une teinte qui
+>   crie plus fort que les autres — et tous les textes secondaires,
+>   des en-têtes de section aux notes de bas de page, sont plus foncés
+>   et plus lisibles. Le mode sombre a ses propres teintes, éclaircies
+>   pour l'occasion.
+> • Sur Aujourd'hui, les habitudes à compteur et à minuteur affichent
+>   le total du jour entre les boutons − et + : un tap au-delà de
+>   l'objectif se voit. Chaque tap répond par une petite vibration, et
+>   celui qui atteint l'objectif garde la plus franche.
+> • Les widgets passent au jour suivant tout seuls — à minuit, ou à
+>   l'heure où ta journée commence si tu l'as réglée — sans que l'app
+>   ait besoin d'être ouverte. Ils continuaient d'afficher les coches
+>   de la veille jusqu'à la première habitude notée.
+> • L'écran d'une habitude suit de nouveau chaque tap. Incrémenter un
+>   compteur depuis la fenêtre du calendrier ne se mettait à jour
+>   qu'une fois puis semblait bloqué, alors que les taps étaient bien
+>   enregistrés ; le score, la série et l'historique restaient figés
+>   avec lui. Le compteur et le minuteur de cette fenêtre s'ajustent
+>   maintenant avec les mêmes − et + que la ligne d'Aujourd'hui.
+> • Maintiens une ligne de l'historique d'une habitude pour la
+>   supprimer. Le balayage de la ligne n'avait jamais rien fait.
+> • Un écart sur une habitude « à éviter » ne compte plus comme fait
+>   dans le bilan de la journée : le compteur du widget d'écran
+>   d'accueil — et maintenant la fête — n'additionnent que les
+>   habitudes que tu as vraiment tenues.
 
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
