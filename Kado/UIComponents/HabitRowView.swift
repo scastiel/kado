@@ -193,8 +193,8 @@ struct HabitRowView: View {
             }
             .buttonStyle(.borderless)
             .accessibilityLabel(String(localized: "Add 5 minutes"))
-            .sensoryFeedback(.success, trigger: isComplete) { old, new in
-                !old && new
+            .sensoryFeedback(trigger: state.valueToday ?? 0) { old, new in
+                QuickLogFeedback.feedback(oldValue: old, newValue: new, target: target)
             }
         }
     }
@@ -269,8 +269,8 @@ struct HabitRowView: View {
             counterStepperFull(target: target)
             counterStepperPlusOnly(target: target)
         }
-        .sensoryFeedback(.success, trigger: isComplete) { old, new in
-            !old && new
+        .sensoryFeedback(trigger: state.valueToday ?? 0) { old, new in
+            QuickLogFeedback.feedback(oldValue: old, newValue: new, target: target)
         }
     }
 

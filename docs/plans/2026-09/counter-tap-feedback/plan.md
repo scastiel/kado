@@ -98,7 +98,7 @@ recorded value plays.
 
 ---
 
-### Task 2: Wire the Today row — counter stepper and timer chip
+### Task 2: Wire the Today row — counter stepper and timer chip ✅
 
 **Goal**: every `+` / `−` / `+5m` tap on Today ticks; the target edge still
 plays `.success`.
