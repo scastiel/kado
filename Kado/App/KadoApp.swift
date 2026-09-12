@@ -141,17 +141,25 @@ struct KadoApp: App {
             // and cases where a background reminder fired while
             // the app was suspended.
             guard newPhase == .active else { return }
-            if boundary.isDate(clockMark, inSameDayAs: .now) {
+            guard !boundary.isDate(clockMark, inSameDayAs: .now) else {
                 RemindersSync.rescheduleAll(using: container.mainContext)
-            } else {
-                clockMark = .now
-                // A new day since the app was last awake. Bumping
-                // `clockMark` restarts the day-edge task, but for the
-                // *next* edge — the one that just passed fired into a
-                // suspended process and never ran. Rebuild now, or the
-                // widget's pre-computed days run out with nothing to
-                // replace them until the next habit mutation (#82).
-                // `reloadAll` reschedules reminders too.
+                return
+            }
+            // A new day since the app was last awake. The edge task that
+            // was sleeping towards it either never woke (the process was
+            // frozen, then resumed just now) or is waking at this very
+            // moment — and bumping `clockMark` *first* is what settles
+            // it: the bump restarts that task for the next edge,
+            // cancelling a waking one before it reaches its own reload,
+            // so the rebuild below happens exactly once. Reorder these
+            // two and a resumed task and this branch can both run a
+            // multi-second series build back to back (#82).
+            clockMark = .now
+            // Deferred a tick so the resumed frame renders first — the
+            // series build is synchronous on MainActor and, for a long
+            // history, not instant. `reloadAll` reschedules reminders
+            // too, so the branch above's call is not repeated here.
+            Task { @MainActor in
                 WidgetReloader.reloadAll(using: container.mainContext)
             }
         }
