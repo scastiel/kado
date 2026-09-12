@@ -4,7 +4,7 @@
 **Status**: complete
 **Research**: [research.md](./research.md)
 **Plan**: [plan.md](./plan.md)
-**Branch / PR**: `worktree-color-update` (PR link in the final report)
+**Branch / PR**: `feature/color-update` — after-captures in [`after/`](./after/)
 
 ## Summary
 
