@@ -1,7 +1,8 @@
 # Plan — Counter tap feedback
 
 **Date**: 2026-09-11
-**Status**: ready to build
+**Status**: done
+**Compound**: [compound.md](./compound.md)
 **Research**: none — planned directly from
 [#81](https://github.com/scastiel/kado/issues/81), which already names the
 code sites and the cause. Assumptions are called out inline.
@@ -208,7 +209,7 @@ value, so the number past the target — and every tap's effect — is visible.
 
 ---
 
-### Task 5: Visual and accessibility pass, then compound
+### Task 5: Visual and accessibility pass, then compound ✅
 
 **Goal**: the definition of done, on the two surfaces that changed.
 
@@ -296,8 +297,9 @@ value, so the number past the target — and every tap's effect — is visible.
 
 - [ ] `0` at rest, or hide the count until something is logged? The plan
   shows `0` (the classic stepper; a disabled `−` beside it reads as
-  "nothing yet"). Decide on the screenshot in Task 4 if `0m +5m` looks
-  noisy on a fresh Today.
+  "nothing yet"). Shipped as `0` / `0m` — on the seeded Today the timer
+  row reads `0m +5m`, which scans as "0 minutes, add 5". Hiding it is a
+  one-line `if` in `countLabel` if it grates.
 
 ## Out of scope
 
