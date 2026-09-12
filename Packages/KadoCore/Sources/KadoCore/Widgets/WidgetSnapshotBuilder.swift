@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import WidgetKit
 
 /// Builds a `WidgetSnapshot` from SwiftData state. Called on the
 /// app side (main process) after every mutation so the widget
@@ -67,10 +68,14 @@ public enum WidgetSnapshotBuilder {
     /// Costs about one `build`, not seven. The store is read once, and
     /// the score — an EMA walked day by day from the habit's first
     /// completion, by far the expensive part — is walked once per habit
-    /// to the last day, each day reading its own value off that walk.
+    /// to the last day, each day reading its own value off that walk;
     /// `currentScore(asOf:)` is the prefix of the same fold, so the
-    /// numbers are identical; only the streaks, rows and matrix are
-    /// re-derived per day, and those are cheap.
+    /// numbers are identical. Everything else is re-derived per day,
+    /// the best streak included: it looks like a maximum nothing
+    /// unlogged could raise, but for a negative habit an unlogged day
+    /// is a clean one, and two of them in a row *do* raise it.
+    /// `seriesDaysMatchStandaloneBuilds` holds every day of a series to
+    /// a standalone build of that day, across DST shapes.
     public static func buildSeries(
         from context: ModelContext,
         asOf reference: Date = .now,
@@ -103,7 +108,13 @@ public enum WidgetSnapshotBuilder {
                 from: habit.effectiveStart(completions: completions, calendar: calendar),
                 to: last
             )
-            let byDay = Dictionary(history.map { ($0.date, $0.score) }, uniquingKeysWith: { $1 })
+            // Keyed through `startOfDay` on both sides so the match does
+            // not ride on the walk and the series agreeing about which
+            // instant a day begins at.
+            let byDay = Dictionary(
+                history.map { (calendar.startOfDay(for: $0.date), $0.score) },
+                uniquingKeysWith: { $1 }
+            )
             for day in days {
                 // A day before the habit existed has no entry, and
                 // `currentScore` answers zero for it too.
@@ -125,16 +136,20 @@ public enum WidgetSnapshotBuilder {
         )
     }
 
-    /// Convenience: build from the production container and write
-    /// to the App Group JSON in one shot. Safe to call from any
-    /// mutation site.
+    /// Convenience: build from the production container, write to the
+    /// App Group JSON, and tell WidgetKit — in one shot. Safe to call
+    /// from any mutation site.
     ///
-    /// Also where the day-complete celebration is fed. This is the one
-    /// call every mutation path already makes — the views through
-    /// `WidgetReloader`, the intents directly, the app at launch and
-    /// at the day edge — so reporting the day's progress here means no
-    /// surface can complete the day without the confetti hearing about
-    /// it, and none has to remember a second call.
+    /// The reload lives here, not with the callers, for the same reason
+    /// the day-complete celebration does: this is the one call every
+    /// path already makes — the views through `WidgetReloader`, the
+    /// intents directly, the app at launch, at the day edge and on
+    /// foregrounding into a new day. A file written without a reload
+    /// leaves the Home Screen on the old one for up to an hour, and
+    /// with the reload paired by hand at each site that is exactly what
+    /// the launch path did. Reporting the day's progress here likewise
+    /// means no surface can complete the day without the confetti
+    /// hearing about it.
     public static func rebuildAndWrite(using context: ModelContext) {
         // Widgets render a pre-computed snapshot and never ask what day
         // it is — nor which day a week opens on — so both preferences
@@ -148,6 +163,7 @@ public enum WidgetSnapshotBuilder {
             calendar: WeekStartDefaults.calendar()
         )
         WidgetSnapshotStore.write(series)
+        WidgetCenter.shared.reloadAllTimelines()
         // Today's progress only: the days after it are computed with
         // nothing logged, and a day that hasn't started can't be done.
         if let today = series.days.first {

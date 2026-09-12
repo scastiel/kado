@@ -1,7 +1,6 @@
 import AppIntents
 import Foundation
 import SwiftData
-import WidgetKit
 
 /// Toggles today's completion for a binary or negative habit.
 /// Counter and timer habits need the app's per-type input UI, so
@@ -54,7 +53,6 @@ public struct CompleteHabitIntent: AppIntent {
         // so the snapshot is already current.
         if outcome != .opensApp {
             WidgetSnapshotBuilder.rebuildAndWrite(using: container.mainContext)
-            WidgetCenter.shared.reloadAllTimelines()
         }
         return .result(dialog: Self.dialog(for: outcome, habitName: habit.name))
     }
