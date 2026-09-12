@@ -126,6 +126,18 @@ nonisolated public struct DayBoundary: Equatable, Sendable {
         return rolloverInstant(onDayStartingAt: nextMidnight) ?? nextMidnight
     }
 
+    /// The wall-clock instant at which the logical day `day` begins —
+    /// its midnight under the default hour, its `startHour` otherwise.
+    ///
+    /// `day` names a day, not an instant: it is a calendar midnight as
+    /// ``startOfDay(for:)`` returns them, so under a 4 AM start the
+    /// answer for `D 00:00` is `D 04:00`, the first instant of logical
+    /// day D. What a widget timeline dates a day's entry at.
+    public func rollover(into day: Date) -> Date {
+        let midnight = calendar.startOfDay(for: day)
+        return rolloverInstant(onDayStartingAt: midnight) ?? midnight
+    }
+
     // MARK: - Internals
 
     /// The wall-clock rollover instant on the calendar day starting at

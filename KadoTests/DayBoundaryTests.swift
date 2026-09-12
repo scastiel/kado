@@ -366,6 +366,37 @@ struct DayBoundaryTests {
         }
     }
 
+    /// `rollover(into:)` is the inverse of `startOfDay(for:)` at the
+    /// day's first instant, and agrees with `nextRollover(after:)` day
+    /// by day. A widget timeline dates each day's entry with it, so an
+    /// instant a second off puts yesterday on the Home Screen for a day.
+    @Test("rollover(into:) begins its own day and chains through nextRollover", arguments: dstZones)
+    func rolloverIntoBeginsItsOwnDay(zone: String) throws {
+        let cal = try #require(Self.calendar(zone))
+
+        for hour in DayStartDefaults.allowedHours {
+            let boundary = DayBoundary(calendar: cal, startHour: hour)
+            for start in Self.transitionWindows(cal) {
+                var day = boundary.startOfDay(for: start)
+                for _ in 0..<5 {
+                    let begins = boundary.rollover(into: day)
+                    #expect(
+                        boundary.startOfDay(for: begins) == day,
+                        "\(zone) hour \(hour): \(begins) does not open \(day)"
+                    )
+                    #expect(
+                        boundary.nextRollover(after: begins) == boundary.rollover(into: cal.date(byAdding: .day, value: 1, to: day)!),
+                        "\(zone) hour \(hour): the rollover after \(begins) is not the next day's"
+                    )
+                    if hour == 0 {
+                        #expect(begins == day, "\(zone): under midnight the day begins at its midnight")
+                    }
+                    day = boundary.startOfDay(for: boundary.nextRollover(after: begins))
+                }
+            }
+        }
+    }
+
     /// The other half of the contract: what a write lands on is the
     /// same day the read reports. If these two ever disagree, a user
     /// taps a habit and watches the tick appear on a different day.

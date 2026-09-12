@@ -107,6 +107,55 @@ struct WidgetTimelinePlanTests {
         #expect(plan.slots[2].date == day(2, 4))
     }
 
+    @Test("A gap in the series costs nothing: the days after it are still dated on their own midnights")
+    func gapDoesNotDropLaterDays() {
+        let boundary = DayBoundary(calendar: utc, startHour: 0)
+        let full = series(from: d0, calendar: utc)
+        // Drop D2: the builder never writes a gap, but a slot placed
+        // relative to its neighbour would slide every later day back.
+        let gapped = WidgetSnapshotSeries(
+            generatedAt: full.generatedAt,
+            days: full.days.filter { $0.completedToday != 2 }
+        )
+        let plan = WidgetTimelinePlan.make(series: gapped, now: day(0, 10), boundary: boundary)
+
+        #expect(plan.slots.map(\.snapshot.completedToday) == [0, 1, 3, 4, 5, 6])
+        #expect(plan.slots[2].date == day(3))
+        #expect(plan.slots[5].date == day(6))
+    }
+
+    @Test("A day whose logicalDay isn't a midnight here is left out, and only that day")
+    func misalignedDayIsDroppedAlone() {
+        // Written in one zone, read in another: the stored midnight is
+        // some afternoon here. Placing it on the calendar day it falls
+        // in would collide with the real entry for that day.
+        let boundary = DayBoundary(calendar: utc, startHour: 0)
+        let full = series(from: d0, calendar: utc)
+        let skewed = full.days.map { snapshot -> WidgetSnapshot in
+            guard snapshot.completedToday == 3 else { return snapshot }
+            return WidgetSnapshot(
+                generatedAt: snapshot.generatedAt,
+                habits: [],
+                today: [],
+                totalDueToday: 3,
+                completedToday: 3,
+                matrix: [],
+                matrixDays: snapshot.matrixDays,
+                logicalDay: snapshot.logicalDay.addingTimeInterval(-6 * 3600)
+            )
+        }
+        let plan = WidgetTimelinePlan.make(
+            series: WidgetSnapshotSeries(generatedAt: full.generatedAt, days: skewed),
+            now: day(0, 10),
+            boundary: boundary
+        )
+
+        #expect(plan.slots.map(\.snapshot.completedToday) == [0, 1, 2, 4, 5, 6])
+        for (previous, next) in zip(plan.slots, plan.slots.dropFirst()) {
+            #expect(next.date > previous.date)
+        }
+    }
+
     @Test("The reload lands one hour after now — the safety net the providers always had")
     func reloadAfterIsOneHour() {
         let boundary = DayBoundary(calendar: utc, startHour: 0)

@@ -32,18 +32,17 @@ public struct WidgetTimelinePlan: Sendable {
         let current = boundary.startOfDay(for: now)
         var slots = [Slot(date: now, snapshot: series.snapshot(on: now, boundary: boundary))]
 
-        // The series is consecutive, so each day after the current one
-        // begins at the next rollover. A day that does not line up with
-        // its edge — a zone change between write and read — is left
-        // out rather than shown on the wrong date.
-        var edge = boundary.nextRollover(after: now)
+        // Each later day is dated from its own `logicalDay`, never
+        // relative to its neighbours, so a gap in the series costs
+        // nothing and a day that isn't a midnight in this zone — a zone
+        // change between write and read — costs only that day, rather
+        // than landing on a neighbour's date.
+        let calendar = boundary.calendar
         for day in series.days where day.logicalDay > current {
-            guard boundary.startOfDay(for: edge) == day.logicalDay else { continue }
-            slots.append(Slot(date: edge, snapshot: day))
-            edge = boundary.nextRollover(after: edge)
+            guard calendar.startOfDay(for: day.logicalDay) == day.logicalDay else { continue }
+            slots.append(Slot(date: boundary.rollover(into: day.logicalDay), snapshot: day))
         }
 
-        let calendar = boundary.calendar
         let reloadAfter = calendar.date(byAdding: .hour, value: 1, to: now)
             ?? now.addingTimeInterval(3600)
         return WidgetTimelinePlan(slots: slots, reloadAfter: reloadAfter)
