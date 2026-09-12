@@ -136,7 +136,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
         // regardless of how many completions have landed.
         streak += 1
 
-        var weekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: endWeek.start)!
+        var weekStart = self.weekStart(-1, from: endWeek.start)
 
         while weekStart >= startDay ||
               calendar.dateInterval(of: .weekOfYear, for: startDay)!.start == weekStart {
@@ -147,7 +147,7 @@ public struct DefaultStreakCalculator: StreakCalculating {
             } else {
                 break
             }
-            weekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: weekStart)!
+            weekStart = self.weekStart(-1, from: weekStart)
         }
         return streak
     }
@@ -182,19 +182,30 @@ public struct DefaultStreakCalculator: StreakCalculating {
             } else {
                 run = 0
             }
-            weekStart = calendar.date(byAdding: .weekOfYear, value: 1, to: weekStart)!
+            weekStart = self.weekStart(1, from: weekStart)
         }
         return best
     }
 
     // MARK: - Day helpers
 
+    /// Both re-anchored, because stepping a day from a midnight does not
+    /// always land on one: in a zone whose DST transition happens *at*
+    /// 00:00 (America/Havana) the day's first instant is 01:00, and every
+    /// step after keeps that hour — while `completedDaySet` is bucketed
+    /// at true midnights, so the walk would stop matching it at the
+    /// transition and read a perfect run as broken.
     private func previousDay(_ day: Date) -> Date {
-        calendar.date(byAdding: .day, value: -1, to: day)!
+        calendar.startOfDay(for: calendar.date(byAdding: .day, value: -1, to: day)!)
     }
 
     private func nextDay(_ day: Date) -> Date {
-        calendar.date(byAdding: .day, value: 1, to: day)!
+        calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: day)!)
+    }
+
+    /// Same re-anchoring for the week walks.
+    private func weekStart(_ weeks: Int, from weekStart: Date) -> Date {
+        calendar.startOfDay(for: calendar.date(byAdding: .weekOfYear, value: weeks, to: weekStart)!)
     }
 
     /// Deliberately **not** delegated to the shared
