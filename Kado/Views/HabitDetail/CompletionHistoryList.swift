@@ -3,13 +3,16 @@ import SwiftUI
 import KadoCore
 
 /// Scrollable list of completions for a habit, sorted newest first.
-/// A row's long-press menu holds a destructive **Delete**, which hands
-/// the completion back through `onDelete`. A context menu rather than
-/// `swipeActions`, which SwiftUI only honours on the rows of a `List`
-/// — on a `LazyVStack` row it compiles, looks wired, and never fires
-/// (issue #87). Every row also exposes Delete as a VoiceOver action,
-/// the same way the Today row does. Empty state shows a neutral "No
-/// history yet" row.
+/// When `onDelete` is given, a row's long-press menu holds a
+/// destructive **Delete** that hands the completion back through it,
+/// and a footer says so — a long-press is invisible until someone
+/// tells you it's there. A context menu rather than `swipeActions`,
+/// which SwiftUI only honours on the rows of a `List` — on a
+/// `LazyVStack` row it compiles, looks wired, and never fires (issue
+/// #87). Every row also exposes Delete as a VoiceOver action, the same
+/// way the Today row does. Without `onDelete` the list is read-only:
+/// no menu, no action, no footer — the archived habit's case. Empty
+/// state shows a neutral "No history yet" row.
 ///
 /// Takes value-type snapshots for the same reason `HabitDetailView`
 /// does: its `ForEach` would otherwise hold `CompletionRecord`s from
@@ -22,7 +25,8 @@ import KadoCore
 struct CompletionHistoryList: View {
     let habitType: HabitType
     let completions: [Completion]
-    var onDelete: (Completion) -> Void = { _ in }
+    /// `nil` renders the list read-only.
+    var onDelete: ((Completion) -> Void)? = nil
 
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
@@ -60,12 +64,50 @@ struct CompletionHistoryList: View {
                     RoundedRectangle(cornerRadius: KadoRadius.card)
                         .fill(Color.kadoBackgroundSecondary)
                 )
+                if onDelete != nil {
+                    // Same job as the Today list's footer: the one
+                    // gesture on this list is the one nobody can see.
+                    Text("Long-press a row to delete it.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 16)
+                }
             }
         }
     }
 
+    /// The row, with its menu and VoiceOver action when the list is
+    /// editable. Branched rather than fed an empty `contextMenu`, so a
+    /// read-only row has no interaction at all — nothing to long-press
+    /// into and nothing in the Actions rotor.
     @ViewBuilder
     private func row(for completion: Completion) -> some View {
+        if let onDelete {
+            rowContent(for: completion)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        onDelete(completion)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.historyDeleteButton)
+                }
+                .accessibilityElement(children: .combine)
+                // On a leaf: `.combine` has already collapsed the row
+                // to one element. Keyed by the completion's id rather
+                // than its date, which is localized.
+                .accessibilityIdentifier(AccessibilityID.HabitDetail.historyRow(completion.id))
+                .accessibilityAction(named: Text("Delete")) {
+                    onDelete(completion)
+                }
+        } else {
+            rowContent(for: completion)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityID.HabitDetail.historyRow(completion.id))
+        }
+    }
+
+    private func rowContent(for completion: Completion) -> some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(relativeDate(for: completion.date))
@@ -93,22 +135,6 @@ struct CompletionHistoryList: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .contentShape(Rectangle())
-        .contextMenu {
-            Button(role: .destructive) {
-                onDelete(completion)
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-            .accessibilityIdentifier(AccessibilityID.HabitDetail.historyDeleteButton)
-        }
-        .accessibilityElement(children: .combine)
-        // On a leaf: `.combine` has already collapsed the row to one
-        // element. Keyed by the completion's id rather than its date,
-        // which is localized.
-        .accessibilityIdentifier(AccessibilityID.HabitDetail.historyRow(completion.id))
-        .accessibilityAction(named: Text("Delete")) {
-            onDelete(completion)
-        }
     }
 
     /// Relative labels are anchored to the **logical** today, not
@@ -172,6 +198,11 @@ struct CompletionHistoryList: View {
         .modelContainer(PreviewContainer.shared)
 }
 
+#Preview("Read-only (archived)") {
+    CompletionHistoryListPreviewWrapper(habitName: "Morning meditation", editable: false)
+        .modelContainer(PreviewContainer.shared)
+}
+
 #Preview("Empty") {
     ScrollView {
         CompletionHistoryList(habitType: .binary, completions: [])
@@ -187,11 +218,13 @@ struct CompletionHistoryList: View {
 
 private struct CompletionHistoryListPreviewWrapper: View {
     let habitName: String
+    var editable = true
 
     @Query private var habits: [HabitRecord]
 
-    init(habitName: String) {
+    init(habitName: String, editable: Bool = true) {
         self.habitName = habitName
+        self.editable = editable
         _habits = Query(filter: #Predicate<HabitRecord> { $0.name == habitName })
     }
 
@@ -200,7 +233,8 @@ private struct CompletionHistoryListPreviewWrapper: View {
             if let habit = habits.first {
                 CompletionHistoryList(
                     habitType: habit.type,
-                    completions: (habit.completions ?? []).compactMap(\.snapshot)
+                    completions: (habit.completions ?? []).compactMap(\.snapshot),
+                    onDelete: editable ? { _ in } : nil
                 )
                 .padding()
             } else {

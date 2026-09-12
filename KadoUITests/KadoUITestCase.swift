@@ -169,6 +169,48 @@ class KadoUITestCase: XCTestCase {
         )
     }
 
+    /// Scrolls until `element` sits wholly above the floating tab bar.
+    ///
+    /// `scrollTo` stops as soon as the element's *centre* can be tapped,
+    /// which leaves a row at the bottom of the screen with its lower
+    /// half under the bar. That is enough for a tap, but not for a
+    /// long-press: the menu opens, and then the tap on its item is
+    /// dropped — reproduced on the first run of `CompletionHistoryTests`,
+    /// with the tap landing dead centre on Delete and the menu staying
+    /// up. One swipe further and the same tap goes through. iPad has no
+    /// bar at the bottom, so there is nothing to clear there.
+    @MainActor
+    func scrollClearOfTabBar(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let bar = app.tabBars.firstMatch
+        guard bar.exists else { return }
+        var swipes = 0
+        while element.frame.maxY > bar.frame.minY && swipes < 3 {
+            app.swipeUp(velocity: .slow)
+            swipes += 1
+        }
+        XCTAssertTrue(
+            element.exists && element.frame.maxY <= bar.frame.minY,
+            "Never scrolled \(element) clear of the tab bar.",
+            file: file, line: line
+        )
+    }
+
+    /// The elements on screen whose identifier starts with `prefix`.
+    ///
+    /// For the identifier families keyed by a `UUID` the seed draws
+    /// fresh each run — a test can't know the id ahead of time, so it
+    /// asks for "any of them" and reads the id back off the element.
+    @MainActor
+    func elements(withIdentifierPrefix prefix: String, in app: XCUIApplication) -> XCUIElementQuery {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix))
+    }
+
     /// The Today rows currently on screen, addressed by the identifier
     /// prefix rather than by habit name.
     ///
@@ -178,8 +220,7 @@ class KadoUITestCase: XCTestCase {
     /// which is what these tests actually mean.
     @MainActor
     func todayRows(in app: XCUIApplication) -> XCUIElementQuery {
-        app.descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "today.row."))
+        elements(withIdentifierPrefix: "today.row.", in: app)
     }
 
     /// Waits for the Today list to have rows in it.
@@ -200,14 +241,26 @@ class KadoUITestCase: XCTestCase {
 
     /// Pushes the detail of the seeded counter habit.
     @MainActor
-    func openCounterHabitDetail(in app: XCUIApplication) {
-        openHabitDetail(showing: AccessibilityID.HabitDetail.quickLogIncrement, in: app)
+    func openCounterHabitDetail(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        openHabitDetail(
+            showing: AccessibilityID.HabitDetail.quickLogIncrement, in: app, file: file, line: line
+        )
     }
 
     /// Pushes the detail of the seeded timer habit.
     @MainActor
-    func openTimerHabitDetail(in app: XCUIApplication) {
-        openHabitDetail(showing: AccessibilityID.HabitDetail.logSessionButton, in: app)
+    func openTimerHabitDetail(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        openHabitDetail(
+            showing: AccessibilityID.HabitDetail.logSessionButton, in: app, file: file, line: line
+        )
     }
 
     /// Pushes Today rows in turn until the detail shows the button with

@@ -357,9 +357,11 @@ repo. Guard against that with an explicit
   screen shipped that way for five months and survived a rewire
   that described it as working (issue #87). Rows outside a `List`
   get a `.contextMenu` instead, with the same action exposed through
-  `.accessibilityAction` so VoiceOver reaches it (pattern:
-  `CompletionHistoryList`, `HabitRowView`). Any gesture wired for
-  the first time gets tried once, by hand or in `KadoUITests`.
+  `.accessibilityAction` and a footer line saying the menu exists —
+  `CompletionHistoryList` is the outside-a-`List` case; `HabitRowView`
+  (inside Today's `List`) is the older context-menu + Actions-rotor
+  precedent it copies. Any gesture wired for the first time gets
+  tried once, by hand or in `KadoUITests`.
 
 ### Widget colours
 
@@ -941,7 +943,7 @@ Five findings, each of which cost a cycle:
   Delete then lands dead centre on the item and does nothing — menu
   still up, row still there. One more swipe, same tap, goes through.
   Scroll a row wholly clear of the bar before long-pressing it
-  (`CompletionHistoryTests.scrollClearOfTabBar`).
+  (`KadoUITestCase.scrollClearOfTabBar`, beside `scrollTo`).
 
 **Apply accessibility identifiers in the same commit as the view.**
 Retrofitting them across a grown app is what makes UI suites get
