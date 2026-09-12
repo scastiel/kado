@@ -117,6 +117,9 @@ enum AccessibilityID {
         /// Today rows are keyed by a `UUID` the seed draws fresh each
         /// run, so a test walks them and asks each screen what it is.
         static let quickLogIncrement = "habitDetail.quickLog.increment"
+        /// The quick-log card's big number. Its `accessibilityValue` is
+        /// the bare count, for the same reason as `DayEdit.value`.
+        static let quickLogValue = "habitDetail.quickLog.value"
 
         /// The popover that edits one calendar day (`DayEditPopover`).
         enum DayEdit {
