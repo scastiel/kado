@@ -117,8 +117,7 @@ enum AccessibilityID {
         /// Today rows are keyed by a `UUID` the seed draws fresh each
         /// run, so a test walks them and asks each screen what it is.
         static let quickLogIncrement = "habitDetail.quickLog.increment"
-        /// The quick-log card's big number. Its `accessibilityValue` is
-        /// the bare count, for the same reason as `DayEdit.value`.
+        /// The quick-log card's big number.
         static let quickLogValue = "habitDetail.quickLog.value"
         /// The timer habit's "Log a session" button — what a test looks
         /// for to know it has pushed a *timer* habit's detail.
@@ -126,9 +125,10 @@ enum AccessibilityID {
 
         /// The popover that edits one calendar day (`DayEditPopover`).
         enum DayEdit {
-            /// The "3 of 8" / "3 sur 8" text. Its `accessibilityValue`
-            /// carries the bare number, so a test reads `.value` and
-            /// never parses the localized label around it.
+            /// The "3 of 8" / "3 sur 8" text. A test reads the number
+            /// off the label — the run pins English — rather than off
+            /// a separate `accessibilityValue`, which would have
+            /// VoiceOver say "3 of 8, 3".
             static let value = "habitDetail.dayEdit.value"
             /// The `−` and `+` beside the value, and the Clear button
             /// below it.

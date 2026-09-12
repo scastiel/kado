@@ -32,7 +32,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         let value = app.staticTexts[AccessibilityID.HabitDetail.DayEdit.value]
         XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
         XCTAssertEqual(
-            value.value as? String, "0",
+            number(in: value), "0",
             "Day \(day) should start empty — the seed leaves even days-ago without a record."
         )
 
@@ -43,7 +43,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         capture(app, "day-edit-after-three-taps")
         XCTAssertTrue(
             waited(for: value, toRead: "3"),
-            "Three taps on + should read 3; the popover shows \(value.value ?? "nil") — this is issue #80."
+            "Three taps on + should read 3; the popover shows \(value.label) — this is issue #80."
         )
     }
 
@@ -59,7 +59,7 @@ final class DayEditPopoverTests: KadoUITestCase {
 
         let value = app.staticTexts[AccessibilityID.HabitDetail.quickLogValue]
         XCTAssertTrue(value.waitForExistence(timeout: 10))
-        XCTAssertEqual(value.value as? String, "0", "Today should start empty in the seed.")
+        XCTAssertEqual(number(in: value), "0", "Today should start empty in the seed.")
 
         let plus = app.buttons[AccessibilityID.HabitDetail.quickLogIncrement].firstMatch
         for _ in 0..<3 {
@@ -69,7 +69,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         capture(app, "quick-log-after-three-taps")
         XCTAssertTrue(
             waited(for: value, toRead: "3"),
-            "Three taps on the quick-log + should read 3; it shows \(value.value ?? "nil")."
+            "Three taps on the quick-log + should read 3; it shows \(value.label)."
         )
     }
 
@@ -87,13 +87,13 @@ final class DayEditPopoverTests: KadoUITestCase {
         openDayEditPopover(daysAgo: 2, in: app)
         let value = app.staticTexts[AccessibilityID.HabitDetail.DayEdit.value]
         XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
-        XCTAssertEqual(value.value as? String, "0")
+        XCTAssertEqual(number(in: value), "0")
 
         tapIncrement(in: app)
         tapIncrement(in: app)
         XCTAssertTrue(
             waited(for: value, toRead: "2"),
-            "Two taps on + should read 2 minutes; it shows \(value.value ?? "nil")."
+            "Two taps on + should read 2 minutes; it shows \(value.label)."
         )
 
         let minus = app.buttons[AccessibilityID.HabitDetail.DayEdit.decrement].firstMatch
@@ -102,7 +102,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         capture(app, "timer-day-back-to-zero")
         XCTAssertTrue(
             waited(for: value, toRead: "0"),
-            "Two taps on − should read 0; it shows \(value.value ?? "nil")."
+            "Two taps on − should read 0; it shows \(value.label)."
         )
         XCTAssertFalse(
             app.buttons[AccessibilityID.HabitDetail.DayEdit.clear].exists,
@@ -178,15 +178,26 @@ final class DayEditPopoverTests: KadoUITestCase {
         plus.tap()
     }
 
-    /// Whether a text's accessibility value came to read `value` within
-    /// the timeout. Re-read rather than compared once, because the
-    /// read straight after a tap races the update.
+    /// The number a value text leads with — "3" out of "3 of 8", or the
+    /// whole of the quick-log's "3".
+    ///
+    /// Read off the label rather than a separate `accessibilityValue`:
+    /// giving the text one would have VoiceOver announce "3 of 8, 3".
+    /// The run pins English, so the number does lead.
+    @MainActor
+    private func number(in element: XCUIElement) -> String {
+        String(element.label.prefix { $0.isNumber })
+    }
+
+    /// Whether a text came to lead with `number` within the timeout.
+    /// Re-read rather than compared once, because the read straight
+    /// after a tap races the update.
     @MainActor
     private func waited(
-        for element: XCUIElement, toRead value: String, timeout: TimeInterval = 5
+        for element: XCUIElement, toRead number: String, timeout: TimeInterval = 5
     ) -> Bool {
         let expectation = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "value == %@", value),
+            predicate: NSPredicate(format: "label MATCHES %@", "^\(number)(\\D.*)?$"),
             object: element
         )
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed

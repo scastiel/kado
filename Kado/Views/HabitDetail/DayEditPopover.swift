@@ -192,7 +192,6 @@ struct DayEditPopover: View {
                 .monospacedDigit()
                 .foregroundStyle(reached ? Color.accentColor : Color.primary)
                 .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
-                .accessibilityValue("\(value)")
             Spacer(minLength: 0)
             stepButton(
                 systemImage: "minus",
