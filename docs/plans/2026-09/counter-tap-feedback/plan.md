@@ -326,7 +326,7 @@ value, so the number past the target — and every tap's effect — is visible.
 
 ## Open questions
 
-- [ ] `0` at rest, or hide the count until something is logged? The plan
+- [x] `0` at rest, or hide the count until something is logged? The plan
   shows `0` (the classic stepper; a disabled `−` beside it reads as
   "nothing yet"). Shipped as `0` / `0m` — on the seeded Today the timer
   row reads `0m +5m`, which scans as "0 minutes, add 5". Hiding it is a
