@@ -75,15 +75,18 @@ struct NewHabitFormView: View {
     }
 
     private var appearanceSection: some View {
-        Section(String(localized: "Appearance")) {
+        Section {
             HabitColorPicker(selection: $model.color)
             HabitIconPicker(selection: $model.icon, tint: model.color)
+        } header: {
+            Text("Appearance")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var frequencySection: some View {
-        Section(String(localized: "Frequency")) {
+        Section {
             Picker(String(localized: "Repeats"), selection: $model.frequencyKind) {
                 Text("Every day").tag(NewHabitFormModel.FrequencyKind.daily)
                 Text("A few times a week").tag(NewHabitFormModel.FrequencyKind.daysPerWeek)
@@ -110,12 +113,15 @@ struct NewHabitFormView: View {
                     in: 1...60
                 )
             }
+        } header: {
+            Text("Frequency")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }
 
     private var typeSection: some View {
-        Section(String(localized: "Type")) {
+        Section {
             Picker(String(localized: "How is it measured?"), selection: $model.typeKind) {
                 Text("Yes / no").tag(NewHabitFormModel.HabitTypeKind.binary)
                 Text("Counter").tag(NewHabitFormModel.HabitTypeKind.counter)
@@ -140,6 +146,9 @@ struct NewHabitFormView: View {
                     in: 1...240
                 )
             }
+        } header: {
+            Text("Type")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }
@@ -156,9 +165,11 @@ struct NewHabitFormView: View {
             }
         } header: {
             Text("Reminder")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         } footer: {
             if model.remindersEnabled {
                 Text(String(localized: "Fires on \(frequencyFooter)"))
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
         }
         .listRowBackground(Color.kadoBackgroundSecondary)

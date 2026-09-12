@@ -13,7 +13,7 @@ struct SyncStatusSection: View {
     @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
 
     var body: some View {
-        Section("iCloud") {
+        Section {
             if isDevMode {
                 devModePausedRow
             } else if observer.status == .available && observer.syncHealth == .failing {
@@ -30,6 +30,9 @@ struct SyncStatusSection: View {
                     }
                 }
             }
+        } header: {
+            Text("iCloud")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }

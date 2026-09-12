@@ -33,8 +33,10 @@ private struct DayStartPicker: View {
             }
         } header: {
             Text("Day")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         } footer: {
             Text(footer)
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)

@@ -6,7 +6,7 @@ import KadoCore
 /// the Feedback section — so tipping carries its own visual weight.
 struct TipJarSection: View {
     var body: some View {
-        Section("Support Kadō") {
+        Section {
             NavigationLink {
                 TipJarView()
             } label: {
@@ -16,6 +16,9 @@ struct TipJarSection: View {
                     .foregroundStyle(Color.kadoAccent)
             }
             .listRowBackground(Color.kadoBackgroundSecondary)
+        } header: {
+            Text("Support Kadō")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }
 }
