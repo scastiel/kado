@@ -136,6 +136,8 @@ struct DayEditPopover: View {
                     .font(.title3.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(counterValue >= target ? Color.accentColor : Color.primary)
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
+                    .accessibilityValue("\(counterValue)")
             }
             clearButton(shown: counterValue > 0)
         }
@@ -158,6 +160,8 @@ struct DayEditPopover: View {
                     .font(.title3.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(timerMinutes >= targetMinutes ? Color.accentColor : Color.primary)
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
+                    .accessibilityValue("\(timerMinutes)")
             }
             clearButton(shown: timerMinutes > 0)
         }

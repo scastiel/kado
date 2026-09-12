@@ -1,7 +1,7 @@
 # Plan — Day-edit popover stepper freezes after the first tap
 
 **Date**: 2026-09-11
-**Status**: ready to build
+**Status**: in progress
 **Research**: none — [issue #80](https://github.com/scastiel/kado/issues/80)
 carries the code-level analysis, and a read of the code (below)
 supports it. Planned directly from the issue by decision.
@@ -85,7 +85,7 @@ go stale.
 
 ## Task list
 
-### Task 1: Identifiers on the leaves that already exist
+### Task 1: Identifiers on the leaves that already exist ✅
 
 **Goal**: give the UI test locale-independent handles on the calendar
 day cells, the counter quick-log's `+`, and the popover's value text —
@@ -326,6 +326,6 @@ mark the PR ready.
   perf nicety, not part of this bug.
 - Changing `CompletionLogger` semantics (`−` at 0, `Clear` vs delete).
 
-## Build notes
+## Notes during build
 
-_Filled in during build. Task 2's findings go here first._
+- **Task 1**: no surprises. A fresh worktree simulator logs a wall of `CoreData: error: Failed to stat path …/Kado.sqlite` on the first unit run — that is the App Group directory being created under the store, ends in "Recovery attempt … was successful!", and is not a failure.

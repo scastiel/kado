@@ -51,6 +51,7 @@ struct CounterQuickLogView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(String(localized: "Increment"))
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.quickLogIncrement)
         }
         .padding()
         .background(
