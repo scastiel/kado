@@ -122,6 +122,20 @@ enum AccessibilityID {
         /// The timer habit's "Log a session" button — what a test looks
         /// for to know it has pushed a *timer* habit's detail.
         static let logSessionButton = "habitDetail.logSession"
+        /// One row of the History list, keyed by the completion's
+        /// `UUID`: its date is localized, and the seed draws ids fresh
+        /// each run, so a test matches on the prefix and reads the id
+        /// back off the element. The row collapses to a single element
+        /// already, so this lands on a leaf.
+        static func historyRow(_ completionID: UUID) -> String {
+            historyRowPrefix + completionID.uuidString
+        }
+        /// What `historyRow` builds on, for an "any History row" query.
+        static let historyRowPrefix = "habitDetail.history.row."
+        /// The destructive Delete in a History row's long-press menu.
+        /// Identified rather than matched on its label, which is
+        /// "Supprimer" on the French simulator.
+        static let historyDeleteButton = "habitDetail.history.delete"
 
         /// The popover that edits one calendar day (`DayEditPopover`).
         enum DayEdit {

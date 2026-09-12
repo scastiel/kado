@@ -1433,7 +1433,7 @@
       }
     },
     "Delete" : {
-      "comment" : "Swipe action in the completion history list that removes a completion.",
+      "comment" : "History row long-press / VoiceOver action that removes the completion.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2229,6 +2229,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saisir une valeur…"
+          }
+        }
+      }
+    },
+    "Long-press a row to delete it." : {
+      "comment" : "Footer under the detail's History list, telling the user the rows have a long-press menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Long-press a row to delete it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintiens une ligne pour la supprimer."
           }
         }
       }

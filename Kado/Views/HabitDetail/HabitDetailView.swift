@@ -125,7 +125,7 @@ struct HabitDetailView: View {
                 CompletionHistoryList(
                     habitType: habit.type,
                     completions: completions,
-                    onDelete: deleteCompletion
+                    onDelete: historyDelete
                 )
             }
             .padding()
@@ -340,7 +340,19 @@ struct HabitDetailView: View {
         WidgetReloader.reloadAll(using: modelContext)
     }
 
-    /// Swipe-to-delete from the history list.
+    /// What the History list gets to delete with: nothing once the
+    /// habit is archived, like every other mutation on this screen.
+    /// A `guard` rather than `isArchived ? nil : deleteCompletion` —
+    /// the ternary over a `@MainActor` method reference is one the
+    /// compiler can't type ("failed to produce diagnostic"), and
+    /// inline in the body it surfaces as "ambiguous use of 'init'" on
+    /// the enclosing `ScrollView`.
+    private var historyDelete: ((Completion) -> Void)? {
+        guard !isArchived else { return nil }
+        return { deleteCompletion($0) }
+    }
+
+    /// Delete from a History row's long-press menu.
     private func deleteCompletion(_ snapshot: Completion) {
         guard let existing = completionRecord(for: snapshot) else { return }
         CompletionLogger(calendar: calendar).delete(existing, in: modelContext)

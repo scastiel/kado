@@ -127,7 +127,8 @@ struct CompletionLogger {
         }
     }
 
-    /// Removes a specific completion (used by history-list swipes).
+    /// Removes a specific completion: the History list's Delete, and the
+    /// day popover's Clear when the record carries no note.
     func delete(_ completion: CompletionRecord, in context: ModelContext) {
         context.delete(completion)
     }
