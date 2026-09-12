@@ -3,8 +3,11 @@ import SwiftUI
 import KadoCore
 
 /// Scrollable list of completions for a habit, sorted newest first.
-/// Swipe-to-delete hands the completion back through `onDelete`.
-/// Empty state shows a neutral "No history yet" row.
+/// Deleting a row hands the completion back through `onDelete` — but
+/// note the gesture wired to it is `swipeActions` on a `LazyVStack`
+/// row, which SwiftUI ignores outside a `List`; nothing reaches
+/// `onDelete` today (issue #87). Empty state shows a neutral "No
+/// history yet" row.
 ///
 /// Takes value-type snapshots for the same reason `HabitDetailView`
 /// does: its `ForEach` would otherwise hold `CompletionRecord`s from

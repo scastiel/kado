@@ -177,6 +177,13 @@ struct DayEditPopover: View {
     /// language at popover scale. `label` is built by the caller so the
     /// two catalog keys ("%lld of %lld", "%lld of %lld min") stay where
     /// they were.
+    ///
+    /// Side by side while it fits; once the scaled circles and a large
+    /// label outgrow the popover's width, the pair drops under the
+    /// value instead of clipping. The value itself is VoiceOver
+    /// adjustable — focus "3 of 8", swipe up or down — which is what
+    /// the `Stepper` used to give for free; the buttons stay separate
+    /// elements for Switch Control and the UI suite.
     private func stepRow(
         label: Text,
         value: Int,
@@ -186,13 +193,19 @@ struct DayEditPopover: View {
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) -> some View {
-        HStack(spacing: 10) {
-            label
-                .font(.title3.weight(.semibold))
-                .monospacedDigit()
-                .foregroundStyle(reached ? Color.accentColor : Color.primary)
-                .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
-            Spacer(minLength: 0)
+        let valueText = label
+            .font(.title3.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(reached ? Color.accentColor : Color.primary)
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment: if canIncrement { onIncrement() }
+                case .decrement: if canDecrement { onDecrement() }
+                @unknown default: break
+                }
+            }
+        let buttons = HStack(spacing: 4) {
             stepButton(
                 systemImage: "minus",
                 enabled: canDecrement,
@@ -212,8 +225,22 @@ struct DayEditPopover: View {
                 action: onIncrement
             )
         }
+        return ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                valueText
+                Spacer(minLength: 0)
+                buttons
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                valueText
+                buttons
+            }
+        }
     }
 
+    /// A 36pt circle (scaled) inside a hit area that never drops below
+    /// the 44pt HIG minimum — the quick-log's circles are 44pt outright;
+    /// here the popover is tighter, so the target is padding.
     private func stepButton(
         systemImage: String,
         enabled: Bool,
@@ -229,6 +256,8 @@ struct DayEditPopover: View {
                 .frame(width: stepButtonSize, height: stepButtonSize)
                 .background(Circle().fill(fill))
                 .foregroundStyle(enabled ? tint : Color.kadoForegroundSecondary)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(!enabled)

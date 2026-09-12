@@ -68,7 +68,7 @@ struct ObservationAfterFetchTests {
         try context.save()
 
         #expect(fired.value)
-        #expect(record.completions?.first?.value == 5)
+        #expect(record.completions?.first?.value == 5.0)
     }
 
     @Test("A fetch between the tracked read and the mutation detaches the observer (known SwiftData behaviour)")
@@ -91,7 +91,7 @@ struct ObservationAfterFetchTests {
         try context.save()
 
         // …the write lands…
-        #expect(record.completions?.first?.value == 5)
+        #expect(record.completions?.first?.value == 5.0)
         // …and nobody is told. If this starts passing, SwiftData fixed
         // it: re-evaluate whether the no-fetch rule is still needed.
         withKnownIssue("SwiftData detaches Observation across a fetch (Xcode 26.x, iOS 18.1 and 26.5 simulators)") {

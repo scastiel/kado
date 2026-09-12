@@ -32,7 +32,10 @@ assumption" step is what turned a wrong fix into the right one.
   shape that caused this.
 - **`CompletionHistoryList` hands deletion up through `onDelete`**
   rather than resolving a record itself, so resolution lives in one
-  place.
+  place. The review of the PR then found the gesture behind it —
+  `swipeActions` on a `LazyVStack` row — has never fired: SwiftUI
+  ignores it outside a `List`. Pre-existing since #7, rewired here
+  without being tried; now #87.
 - **Stateless popover, plain `Button`s** — as planned; now justified
   as "two sources of truth for one number", not as the fix.
 - **Pin the SwiftData behaviour with `withKnownIssue`** in
@@ -154,7 +157,17 @@ assumption" step is what turned a wrong fix into the right one.
   value.
 - **[local]** The popover is stateless except for the note draft; the
   `−` / `+` circles use `@ScaledMetric`.
-- **[follow-ups, not in this PR]** The calendar cell shows any
+- **[→ CLAUDE.md, Accessibility]** Replacing a system `Stepper` with
+  two `Button`s drops the single VoiceOver-adjustable element and
+  press-and-hold repeat. Put `.accessibilityAdjustableAction` on the
+  value; repeat is the accepted loss. Keep hit areas at 44pt even when
+  the visual is smaller.
+- **[from the review]** Lesson for the lesson-taker: a refactor that
+  rewires a code path should exercise it once. The swipe-to-delete
+  path was described as working in three places without a single
+  swipe.
+- **[follow-ups, not in this PR]** #87 (swipe-to-delete on the
+  History list never fires). The calendar cell shows any
   `value > 0` as complete (noted in #80); the popover header truncates
   at AX text sizes; the App Intents' fetch-then-mutate shape; #81
   (haptics).

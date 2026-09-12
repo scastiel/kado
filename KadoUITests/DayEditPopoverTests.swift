@@ -158,7 +158,11 @@ final class DayEditPopoverTests: KadoUITestCase {
         let today = calendar.startOfDay(for: .now)
         let target = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
         if !calendar.isDate(target, equalTo: today, toGranularity: .month) {
-            app.buttons[AccessibilityID.HabitDetail.previousMonthButton].firstMatch.tap()
+            // Below the fold on a short device or at a large text size;
+            // `tap()` on an existing-but-not-hittable element fails.
+            let previous = app.buttons[AccessibilityID.HabitDetail.previousMonthButton].firstMatch
+            scrollTo(previous, in: app)
+            previous.tap()
         }
         let day = calendar.component(.day, from: target)
         let cell = app.descendants(matching: .any)[AccessibilityID.HabitDetail.calendarDay(day)]
