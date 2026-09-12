@@ -77,7 +77,7 @@ struct NewHabitFormView: View {
     private var appearanceSection: some View {
         Section(String(localized: "Appearance")) {
             HabitColorPicker(selection: $model.color)
-            HabitIconPicker(selection: $model.icon, tint: model.color.color)
+            HabitIconPicker(selection: $model.icon, tint: model.color)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }

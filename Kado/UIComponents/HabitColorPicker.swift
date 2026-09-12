@@ -30,7 +30,7 @@ struct HabitColorPicker: View {
                 if selection == color {
                     Image(systemName: "checkmark")
                         .font(.footnote.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(color.onFill)
                 }
             }
             .overlay {
