@@ -310,23 +310,32 @@ closes #82.**
 
 ---
 
-### Task 8: Definition of done
+### Task 8: Definition of done ✅ (automated) / ⏳ (by hand)
 
 **Goal**: Close out per CLAUDE.md before review.
 
 **Tests / verification**:
-- `build_sim` iPhone 17 Pro and iPad Air (M4), no new warnings — the
-  planner and series are `nonisolated`; the Swift 6 isolation
-  warnings from a `@MainActor`-defaulted type used in the extension
-  are the likely trip-wire.
-- `test_sim` green.
-- Widget gallery still renders (`-uiTestWidgetGallery`) — it builds
-  one day directly and wraps it in a `SnapshotEntry`, so nothing
-  should change; confirm with one screenshot.
-- Overnight on-device check before marking the PR ready: complete a
-  habit in the evening, do not open the app, confirm the widget shows
-  the new day in the morning. This is the reporter's exact scenario
-  and the only end-to-end proof.
+- [x] `build_sim` iPhone 17 Pro and iPad Air 11-inch (M4), no new
+  warnings — verified by touching every changed file and rebuilding
+  with `-quiet`, which re-emits their diagnostics: none.
+- [x] `test_sim` green — 588 tests, 21 of them new.
+- [x] Widget gallery still renders (`-uiTestWidgetGallery`) — one
+  screenshot on the seeded data, every tile as before.
+- [x] The running app writes the series: launched on the seeded
+  store, `widget-snapshot.json` in the App Group holds seven
+  consecutive days (40 KB for seven habits), the due set moves day to
+  day, daily streaks read 0 from tomorrow because today isn't logged,
+  the negative habit stays done, scores decay.
+- [ ] **By hand — the host-clock flip.** With a widget placed, set the
+  Mac clock (System Settings → General → Date & Time, "set
+  automatically" off) to 23:59, reload the widget, watch it turn the
+  page at 00:00 with the app killed; once more with "Day starts at"
+  04:00 and the clock at 03:59. Restore the clock. Not runnable from
+  a background session (no admin, no taps).
+- [ ] **By hand — overnight on-device** before marking the PR ready:
+  complete a habit in the evening, do not open the app, confirm the
+  widget shows the new day in the morning. This is the reporter's
+  exact scenario and the only end-to-end proof.
 
 ## Notes during build
 
