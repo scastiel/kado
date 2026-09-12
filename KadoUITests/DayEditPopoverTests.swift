@@ -124,9 +124,7 @@ final class DayEditPopoverTests: KadoUITestCase {
     /// ever re-presented under a tap, a held element would go stale.
     @MainActor
     private func tapIncrement(in app: XCUIApplication) {
-        // Task 3 replaces the Stepper with a Button carrying
-        // `AccessibilityID.HabitDetail.DayEdit.increment`.
-        let plus = app.steppers.firstMatch.buttons["Increment"]
+        let plus = app.buttons[AccessibilityID.HabitDetail.DayEdit.increment].firstMatch
         XCTAssertTrue(plus.waitForExistence(timeout: 5), "The popover's + never appeared.")
         plus.tap()
     }

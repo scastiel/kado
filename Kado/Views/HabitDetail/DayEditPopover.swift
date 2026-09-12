@@ -3,10 +3,21 @@ import KadoCore
 
 /// Anchored popover that edits one day's completion for a habit from
 /// the detail view's monthly calendar. Branches on `habit.type`:
-/// single toggle for binary / negative, stepper for counter, minute
-/// stepper for timer. Counter / timer also offer a `Clear` action
-/// that sets the value to 0 (deleting the record via the logger).
-/// All types show an optional note field below the main control.
+/// single toggle for binary / negative, `−` / `+` for counter, the
+/// same in minutes for timer. Counter / timer also offer a `Clear`
+/// action that sets the value to 0 (deleting the record via the
+/// logger). All types show an optional note field below the main
+/// control.
+///
+/// The value is rendered straight from `currentValue` and stepped
+/// through the callbacks — no local copy. The first version mirrored
+/// it into `@State` seeded once in `.onAppear` and drove that through a
+/// `Stepper`, which meant two sources of truth for one number; when the
+/// detail screen behind it stopped refreshing (issue #80) the mirror
+/// was all that kept the display moving, and nothing said they had
+/// drifted. `CounterQuickLogView` and the Today row have always been
+/// stateless like this. The note *is* a local draft the user is typing,
+/// so `noteText` stays.
 struct DayEditPopover: View {
     let habit: Habit
     let date: Date
@@ -21,8 +32,6 @@ struct DayEditPopover: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.dismiss) private var dismiss
 
-    @State private var counterValue: Int = 0
-    @State private var timerMinutes: Int = 0
     @State private var noteText: String = ""
     @State private var isNoteExpanded: Bool = false
     @FocusState private var isNoteFocused: Bool
@@ -118,53 +127,109 @@ struct DayEditPopover: View {
             .foregroundStyle(active ? Color.white : Color.primary)
     }
 
+    /// Same ceiling the `Stepper` used to enforce: well past any
+    /// sensible target, but bounded.
     private func counterControl(target: Int) -> some View {
+        let value = Int(currentValue.rounded())
         let maxValue = max(target * 3, 99)
         return VStack(alignment: .leading, spacing: 12) {
-            Stepper(
-                value: Binding(
-                    get: { counterValue },
-                    set: { newValue in
-                        counterValue = newValue
-                        onSetCounter(Double(newValue))
-                    }
-                ),
-                in: 0...maxValue,
-                step: 1
-            ) {
-                Text("\(counterValue) of \(target)")
-                    .font(.title3.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(counterValue >= target ? Color.accentColor : Color.primary)
-                    .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
-                    .accessibilityValue("\(counterValue)")
-            }
-            clearButton(shown: counterValue > 0)
+            stepRow(
+                label: Text("\(value) of \(target)"),
+                value: value,
+                reached: value >= target,
+                canDecrement: value > 0,
+                canIncrement: value < maxValue,
+                onDecrement: { onSetCounter(Double(value - 1)) },
+                onIncrement: { onSetCounter(Double(value + 1)) }
+            )
+            clearButton(shown: value > 0)
         }
     }
 
+    /// Minutes, rounded the way the old seeding did: anything logged
+    /// reads as at least one minute, nothing logged reads as zero.
     private func timerControl(targetMinutes: Int) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Stepper(
-                value: Binding(
-                    get: { timerMinutes },
-                    set: { newValue in
-                        timerMinutes = newValue
-                        onSetTimerSeconds(TimeInterval(newValue) * 60)
-                    }
-                ),
-                in: 0...480,
-                step: 1
-            ) {
-                Text("\(timerMinutes) of \(targetMinutes) min")
-                    .font(.title3.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(timerMinutes >= targetMinutes ? Color.accentColor : Color.primary)
-                    .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
-                    .accessibilityValue("\(timerMinutes)")
-            }
-            clearButton(shown: timerMinutes > 0)
+        let minutes = currentValue > 0
+            ? max(1, Int((currentValue / 60).rounded()))
+            : 0
+        return VStack(alignment: .leading, spacing: 12) {
+            stepRow(
+                label: Text("\(minutes) of \(targetMinutes) min"),
+                value: minutes,
+                reached: minutes >= targetMinutes,
+                canDecrement: minutes > 0,
+                canIncrement: minutes < 480,
+                // The parent routes zero seconds through `clear`, so
+                // stepping down from one minute empties the day.
+                onDecrement: { onSetTimerSeconds(TimeInterval(minutes - 1) * 60) },
+                onIncrement: { onSetTimerSeconds(TimeInterval(minutes + 1) * 60) }
+            )
+            clearButton(shown: minutes > 0)
         }
+    }
+
+    /// The value with `−` and `+` beside it — `CounterQuickLogView`'s
+    /// language at popover scale. `label` is built by the caller so the
+    /// two catalog keys ("%lld of %lld", "%lld of %lld min") stay where
+    /// they were.
+    private func stepRow(
+        label: Text,
+        value: Int,
+        reached: Bool,
+        canDecrement: Bool,
+        canIncrement: Bool,
+        onDecrement: @escaping () -> Void,
+        onIncrement: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 10) {
+            label
+                .font(.title3.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(reached ? Color.accentColor : Color.primary)
+                .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
+                .accessibilityValue("\(value)")
+            Spacer(minLength: 0)
+            stepButton(
+                systemImage: "minus",
+                enabled: canDecrement,
+                fill: Color.kadoPaper200,
+                tint: Color.kadoForeground,
+                label: String(localized: "Decrement"),
+                identifier: AccessibilityID.HabitDetail.DayEdit.decrement,
+                action: onDecrement
+            )
+            stepButton(
+                systemImage: "plus",
+                enabled: canIncrement,
+                fill: Color.accentColor.opacity(0.15),
+                tint: Color.accentColor,
+                label: String(localized: "Increment"),
+                identifier: AccessibilityID.HabitDetail.DayEdit.increment,
+                action: onIncrement
+            )
+        }
+    }
+
+    private func stepButton(
+        systemImage: String,
+        enabled: Bool,
+        fill: Color,
+        tint: Color,
+        label: String,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.body.weight(.semibold))
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(fill))
+                .foregroundStyle(enabled ? tint : Color.kadoForegroundSecondary)
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(identifier)
     }
 
     @ViewBuilder
@@ -181,6 +246,7 @@ struct DayEditPopover: View {
             }
             .buttonStyle(.bordered)
             .tint(.red)
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.clear)
         }
     }
 
@@ -246,17 +312,8 @@ struct DayEditPopover: View {
         return formatter.string(from: date)
     }
 
+    /// Only the note draft is local state — see the type comment.
     private func seedLocalState() {
-        switch habit.type {
-        case .counter:
-            counterValue = Int(currentValue.rounded())
-        case .timer:
-            timerMinutes = currentValue > 0
-                ? max(1, Int((currentValue / 60).rounded()))
-                : 0
-        case .binary, .negative:
-            break
-        }
         noteText = currentNote ?? ""
         isNoteExpanded = currentNote != nil
     }
