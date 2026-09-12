@@ -24,7 +24,7 @@ struct BackupSection: View {
     @State private var presentedAlert: PresentedAlert?
 
     var body: some View {
-        Section("Data") {
+        Section {
             Menu {
                 Button {
                     performExport(format: .json)
@@ -43,7 +43,7 @@ struct BackupSection: View {
             if lastExportAt > 0 {
                 Text("Last export: \(lastExportDisplay)")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
 
             Button {
@@ -51,6 +51,9 @@ struct BackupSection: View {
             } label: {
                 Label("Import Data", systemImage: "square.and.arrow.down")
             }
+        } header: {
+            Text("Data")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
         .fileImporter(
@@ -236,7 +239,7 @@ private struct ImportConfirmSheet: View {
             Text(title)
             Spacer()
             Text("\(total) (\(new) new, \(updated) updated)")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .monospacedDigit()
         }
     }

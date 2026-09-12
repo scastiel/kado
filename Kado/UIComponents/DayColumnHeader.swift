@@ -15,7 +15,7 @@ struct DayColumnHeader: View {
         VStack(spacing: 2) {
             Text(weekdayLetter)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundTertiary)
             Text("\(calendar.component(.day, from: date))")
                 .font(.caption.weight(.semibold).monospacedDigit())
                 .foregroundStyle(isToday ? Color.accentColor : .primary)

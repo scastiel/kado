@@ -3,8 +3,9 @@ import KadoCore
 
 /// A single row in the Today list. Three regions:
 /// - **Leading**: 38pt circular badge — fills with the habit color when
-///   the day's target is met; otherwise shows an outlined ring with a
-///   trim arc representing today's progress (counter/timer only).
+///   the day's target is met; otherwise a tinted disc inside an
+///   outlined ring, with a trim arc representing today's progress
+///   (counter/timer only).
 /// - **Center**: habit name on top; below, a "🔥 streak · score%"
 ///   caption that surfaces the per-row metrics that previously only
 ///   lived on Detail.
@@ -19,6 +20,11 @@ import KadoCore
 ///   at a glance. In every case the *filled* variant is the
 ///   recorded state and the tinted / outlined variant is the
 ///   ready-to-record state.
+///
+/// Every habit-coloured surface here is one of `HabitColor`'s
+/// derivations — `color`, `tint(_:)`, `onTint`, `onFill` — never the
+/// hue at an opacity, so the row matches the handoff's tint table and
+/// mixes in Oklab rather than sRGB.
 struct HabitRowView: View {
     let habit: Habit
     let state: HabitRowState
@@ -137,8 +143,9 @@ struct HabitRowView: View {
             if isComplete {
                 Circle().fill(habit.color.color)
             } else {
+                Circle().fill(habit.color.tint(.mark))
                 Circle()
-                    .strokeBorder(habit.color.color.opacity(0.25), lineWidth: 2)
+                    .strokeBorder(habit.color.tint(.outline), lineWidth: 2)
                 Circle()
                     .trim(from: 0, to: state.progress)
                     .stroke(
@@ -149,7 +156,7 @@ struct HabitRowView: View {
             }
             Image(systemName: habit.icon)
                 .font(.callout.weight(.semibold))
-                .foregroundStyle(isComplete ? Color.white : habit.color.color)
+                .foregroundStyle(isComplete ? habit.color.onFill : habit.color.onTint)
         }
         .animation(KadoMotion.base, value: state.progress)
         .animation(KadoMotion.base, value: isComplete)
@@ -207,9 +214,9 @@ struct HabitRowView: View {
                 .padding(.vertical, 4)
                 .padding(.horizontal, 10)
                 .background(
-                    Capsule().fill(habit.color.color.opacity(0.15))
+                    Capsule().fill(habit.color.tint(.timerPill))
                 )
-                .foregroundStyle(habit.color.color)
+                .foregroundStyle(habit.color.onTint)
         }
         .buttonStyle(.borderless)
         .accessibilityLabel(String(localized: "Add 5 minutes"))
@@ -219,11 +226,7 @@ struct HabitRowView: View {
     private var binaryCheckButton: some View {
         if let onToggle {
             Button(action: onToggle) {
-                checkCircle(
-                    icon: "checkmark",
-                    tint: habit.color.color,
-                    filled: isComplete
-                )
+                checkCircle(icon: "checkmark", filled: isComplete)
             }
             .buttonStyle(.borderless)
             .sensoryFeedback(.success, trigger: state.status)
@@ -246,9 +249,9 @@ struct HabitRowView: View {
                     Text("Slipped")
                 }
             }
-            // Outlined when *not* slipped (calm, ready); filled red
-            // with a checkmark when slipped today (recorded).
-            .modifier(NegativePillStyleModifier(isSlipped: isComplete))
+            // Outlined when *not* slipped (calm, ready); filled in the
+            // habit's hue with a checkmark when slipped today (recorded).
+            .modifier(NegativePillStyleModifier(color: habit.color, isSlipped: isComplete))
             .controlSize(.small)
             .sensoryFeedback(.success, trigger: state.status)
             .accessibilityLabel(
@@ -260,16 +263,16 @@ struct HabitRowView: View {
     }
 
     /// Shared 28pt-circle treatment for the binary trailing button.
-    /// Tinted-fill background when the day isn't recorded yet;
-    /// full-saturation fill with white icon when it is. Matches the
+    /// Tinted-fill background when the day isn't recorded yet; the
+    /// full base with a page-coloured icon when it is. Matches the
     /// counter `+` button styling exactly so the row's trailing
     /// region reads as one cohesive icon strip.
-    private func checkCircle(icon: String, tint: Color, filled: Bool) -> some View {
+    private func checkCircle(icon: String, filled: Bool) -> some View {
         Image(systemName: icon)
             .font(.callout.weight(.semibold))
             .frame(width: 28, height: 28)
-            .background(Circle().fill(filled ? tint : tint.opacity(0.15)))
-            .foregroundStyle(filled ? Color.white : tint)
+            .background(Circle().fill(filled ? habit.color.color : habit.color.tint(.counterPill)))
+            .foregroundStyle(filled ? habit.color.onFill : habit.color.onTint)
     }
 
     // MARK: - Counter stepper
@@ -320,8 +323,8 @@ struct HabitRowView: View {
             Image(systemName: "plus")
                 .font(.callout.weight(.semibold))
                 .frame(width: 28, height: 28)
-                .background(Circle().fill(habit.color.color.opacity(0.15)))
-                .foregroundStyle(habit.color.color)
+                .background(Circle().fill(habit.color.tint(.counterPill)))
+                .foregroundStyle(habit.color.onTint)
         }
         .buttonStyle(.borderless)
         .accessibilityLabel(String(localized: "Increment"))
@@ -423,17 +426,26 @@ struct HabitRowView: View {
 /// Conditional style swap — `.bordered` vs `.borderedProminent` aren't
 /// the same opaque type, so a plain ternary doesn't compile. Using a
 /// `ViewModifier` keeps the call site flat.
+///
+/// The system button styles keep the pill's metrics; only the tint is
+/// the habit's. `.bordered` draws its fill at the system's own alpha,
+/// so this is the one habit-coloured surface that is "about" the
+/// handoff's 20% rather than exactly it — the label, at least, is the
+/// palette's ink-on-tint.
 private struct NegativePillStyleModifier: ViewModifier {
+    let color: HabitColor
     let isSlipped: Bool
     func body(content: Content) -> some View {
         if isSlipped {
             content
                 .buttonStyle(.borderedProminent)
-                .tint(.red)
+                .tint(color.color)
+                .foregroundStyle(color.onFill)
         } else {
             content
                 .buttonStyle(.bordered)
-                .tint(.red)
+                .tint(color.color)
+                .foregroundStyle(color.onTint)
         }
     }
 }

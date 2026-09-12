@@ -123,7 +123,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
             ForEach(weekdayDisplayOrder, id: \.self) { weekday in
                 Text(weekday.localizedShort)
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundTertiary)
                     .frame(maxWidth: .infinity)
             }
         }
@@ -186,7 +186,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                     .font(.caption.weight(state == .completed ? .bold : .regular))
                     .foregroundStyle(foreground(for: state))
                 Circle()
-                    .fill(Color.secondary)
+                    .fill(Color.kadoForegroundSecondary)
                     .frame(width: 4, height: 4)
                     .opacity(hasNote(on: day) ? 1 : 0)
             }
@@ -267,7 +267,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     private func fill(for state: CellState) -> Color {
         switch state {
         case .future: Color.kadoHairline
-        case .completed: habit.color.color.opacity(0.9)
+        case .completed: habit.color.color
         case .missed: Color.kadoPaper200
         case .nonDue: Color.kadoHairline.opacity(0.4)
         }
@@ -275,10 +275,10 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
 
     private func foreground(for state: CellState) -> Color {
         switch state {
-        case .future: .secondary
-        case .completed: .white
-        case .missed: .primary
-        case .nonDue: .secondary
+        case .future: .kadoForegroundSecondary
+        case .completed: habit.color.onFill
+        case .missed: .kadoForeground
+        case .nonDue: .kadoForegroundSecondary
         }
     }
 

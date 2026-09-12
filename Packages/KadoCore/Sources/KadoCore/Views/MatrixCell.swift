@@ -1,9 +1,17 @@
 import SwiftUI
 
 /// One cell in the Overview matrix. Fills with the habit's color at
-/// an opacity derived from the day's value. Non-scored cells render
-/// neutral placeholders (tertiary fill for not-due days, empty for
-/// future days).
+/// an amount derived from the day's value, mixed over the page in
+/// Oklab (`HabitColor.tint(_:)`) rather than composited at an opacity.
+/// Non-scored cells render neutral placeholders: a not-due day is the
+/// card paper inside a 1pt hairline ring, a future day is empty.
+///
+/// The ring is what keeps "never due" tellable from "due and missed"
+/// now that both are warm: the scored ramp's 0.2 floor is, for the
+/// warm hues, within a just-noticeable difference of any paper we
+/// could fill the tile with. The design handoff draws the same ring.
+/// The fill is a step *lighter* than the floor so the not-due tile is
+/// always the quietest thing in the row.
 ///
 /// Off-schedule completions render **hollow** — the same color as a
 /// solid completion, but as a border around a pale interior. The grid
@@ -34,9 +42,12 @@ public struct MatrixCell: View {
                 if let borderOpacity = state.borderOpacity {
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .strokeBorder(
-                            color.color.opacity(borderOpacity),
+                            color.tint(borderOpacity),
                             lineWidth: 2
                         )
+                } else if state == .notDue {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(Color.kadoHairline, lineWidth: 1)
                 }
             }
             .frame(width: size, height: size)
@@ -47,12 +58,12 @@ public struct MatrixCell: View {
         case .future:
             Color.clear
         case .notDue:
-            Color(.tertiarySystemFill)
+            Color.kadoBackgroundSecondary
         case .scored:
-            color.color.opacity(state.colorOpacity ?? 0)
+            color.tint(state.colorOpacity ?? 0)
         case .offSchedule:
             // Pale interior so the border carries the signal.
-            color.color.opacity(state.offScheduleFillOpacity ?? 0)
+            color.tint(state.offScheduleFillOpacity ?? 0)
         }
     }
 }

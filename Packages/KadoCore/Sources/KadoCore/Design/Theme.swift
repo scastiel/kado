@@ -73,8 +73,10 @@ private func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> UIColor {
     UIColor(red: r, green: g, blue: b, alpha: 1)
 }
 
-private extension Color {
+extension Color {
     /// Dynamic color that resolves light vs. dark on every trait change.
+    /// Module-internal so the habit palette can vend its derived
+    /// colours the same way.
     init(light: UIColor, dark: UIColor) {
         self = Color(UIColor { trait in
             trait.userInterfaceStyle == .dark ? dark : light

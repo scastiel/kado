@@ -30,7 +30,7 @@ struct HabitColorPicker: View {
                 if selection == color {
                     Image(systemName: "checkmark")
                         .font(.footnote.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(color.onFill)
                 }
             }
             .overlay {
@@ -50,4 +50,14 @@ struct HabitColorPicker: View {
             HabitColorPicker(selection: $color)
         }
     }
+}
+
+#Preview("Dark") {
+    @Previewable @State var color: HabitColor = .yellow
+    return Form {
+        Section("Color") {
+            HabitColorPicker(selection: $color)
+        }
+    }
+    .preferredColorScheme(.dark)
 }

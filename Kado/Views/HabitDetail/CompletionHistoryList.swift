@@ -38,7 +38,7 @@ struct CompletionHistoryList: View {
             if sortedCompletions.isEmpty {
                 Text("No history yet.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
                     .background(
@@ -71,11 +71,11 @@ struct CompletionHistoryList: View {
                     .foregroundStyle(.primary)
                 Text(absoluteDate(for: completion.date))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                 if let note = completion.note, !note.isEmpty {
                     Label(note, systemImage: "note.text")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                         .lineLimit(2)
                         .padding(.top, 2)
                         .accessibilityLabel(String(localized: "Note: \(note)"))
@@ -85,7 +85,7 @@ struct CompletionHistoryList: View {
             if completion.value > 0 {
                 Text(valueLabel(for: completion))
                     .font(.callout.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
         }
         .padding(.horizontal, 16)

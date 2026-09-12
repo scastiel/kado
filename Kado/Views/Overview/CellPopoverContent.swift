@@ -21,7 +21,7 @@ struct CellPopoverContent: View {
             }
             Text(formattedDate)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
             Text(statusLabel)
                 .font(.callout.weight(.medium))
         }

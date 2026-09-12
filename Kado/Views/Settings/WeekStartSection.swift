@@ -48,8 +48,10 @@ private struct WeekStartPicker: View {
             .accessibilityIdentifier(AccessibilityID.Settings.weekStartPicker)
         } header: {
             Text("Week")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         } footer: {
             Text("Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region.")
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)

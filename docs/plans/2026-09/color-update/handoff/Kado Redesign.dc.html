@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #E9E4DA; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #24402E; text-decoration: none; border-bottom: 1px solid rgba(36,64,46,.35); }
+  a:hover { color: #0F2A1B; border-bottom-color: #0F2A1B; }
+</style>
+</helmet>
+
+<section style="padding: 56px 56px 80px; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; flex-direction: column; gap: 6px; max-width: 760px">
+    <div style="font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: #8A8375">Turn 1 · Kado</div>
+    <h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-weight: 500; font-size: 34px; line-height: 1.1; color: #191712">Two screens, reworked</h1>
+    <p style="margin: 4px 0 0; font-size: 15px; line-height: 1.5; color: #5F5A4E; text-wrap: pretty">Today (<a href="#1a">1a</a>) fixes the row control system, adds day progress and moves the add button into thumb reach. Overview (<a href="#1b">1b</a>) turns the checkerboard into a readable single-hue ramp with a legend and aligned columns. Habit marks are monogram placeholders standing in for your icon set.</p>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+
+    <div id="1a" style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 6px; background: #24402E; color: #F7F3EA; font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em">1a</span>
+        <span style="font-size: 13px; color: #5F5A4E">Today</span>
+      </div>
+
+      <div style="width: 393px; height: 852px; border-radius: 44px; background: #FAF6EE; box-shadow: 0 0 0 10px #1A1814, 0 26px 60px rgba(26,24,20,.28); overflow: hidden; position: relative; display: flex; flex-direction: column">
+
+        <div style="height: 54px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; font-size: 15px; font-weight: 600; color: #191712">
+          <span>16:49</span>
+          <span style="display: flex; gap: 5px; align-items: center; color: #191712">
+            <span style="width: 17px; height: 11px; border-radius: 3px; background: #191712; display: inline-block"></span>
+            <span style="width: 24px; height: 12px; border-radius: 4px; border: 1.5px solid #191712; display: inline-block"></span>
+          </span>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 22px">
+
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-weight: 500; font-size: 40px; line-height: 1; color: #191712">Today</h2>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="flex: 1; height: 4px; border-radius: 2px; background: #E4DDCF; overflow: hidden; display: flex">
+                <div style="width: 60%; background: #24402E"></div>
+              </div>
+              <span style="font-size: 12px; font-weight: 600; letter-spacing: .01em; color: #4E4938; font-variant-numeric: tabular-nums">3 of 5 done</span>
+            </div>
+            <div style="font-size: 12px; color: #5F5849">Percentages show habit strength.</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5F5849; padding-left: 2px">Scheduled today</div>
+            <div style="background: #F1ECE2; border-radius: 22px; padding: 4px 14px">
+
+              <div style="display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; padding: 13px 0">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: color-mix(in oklab, oklch(0.58 0.14 305) 16%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: oklch(0.48 0.14 305)">M</div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+                  <div style="font-size: 17px; font-weight: 600; color: #191712; letter-spacing: -.01em">Morning meditation</div>
+                  <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">2-day streak · 43%</div>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: oklch(0.58 0.14 305); display: flex; align-items: center; justify-content: center">
+                  <span style="display: block; width: 13px; height: 7px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: rotate(-45deg) translate(1px, -2px)"></span>
+                </div>
+              </div>
+
+              <div style="height: 1px; background: #E4DDCF; margin-left: 50px"></div>
+
+              <div style="display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; padding: 13px 0">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: color-mix(in oklab, oklch(0.58 0.11 180) 16%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: oklch(0.46 0.11 180)">R</div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+                  <div style="font-size: 17px; font-weight: 600; color: #191712; letter-spacing: -.01em">Read</div>
+                  <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">20/30 min · 35%</div>
+                </div>
+                <div style="height: 44px; min-width: 62px; padding: 0 16px; border-radius: 22px; background: color-mix(in oklab, oklch(0.58 0.11 180) 18%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: oklch(0.44 0.11 180); font-variant-numeric: tabular-nums">+5m</div>
+              </div>
+
+              <div style="height: 1px; background: #E4DDCF; margin-left: 50px"></div>
+
+              <div style="display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; padding: 13px 0">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: color-mix(in oklab, oklch(0.60 0.14 30) 16%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: oklch(0.48 0.14 30)">N</div>
+                <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span style="font-size: 17px; font-weight: 600; color: #191712; letter-spacing: -.01em">No social media</span>
+                    <span style="font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: oklch(0.46 0.14 30); background: color-mix(in oklab, oklch(0.60 0.14 30) 20%, #FAF6EE); border-radius: 5px; padding: 2px 6px">Slipped</span>
+                  </div>
+                  <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">Streak reset · 41%</div>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid color-mix(in oklab, oklch(0.60 0.14 30) 36%, #FAF6EE); box-sizing: border-box"></div>
+              </div>
+
+              <div style="height: 1px; background: #E4DDCF; margin-left: 50px"></div>
+
+              <div style="display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; padding: 13px 0">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: color-mix(in oklab, oklch(0.58 0.12 250) 16%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: oklch(0.48 0.12 250)">D</div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+                  <div style="font-size: 17px; font-weight: 600; color: #191712; letter-spacing: -.01em">Drink water</div>
+                  <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">4/8 glasses · 30%</div>
+                </div>
+                <div style="height: 44px; border-radius: 22px; background: color-mix(in oklab, oklch(0.58 0.12 250) 14%, #FAF6EE); display: flex; align-items: center; gap: 2px; padding: 0 4px">
+                  <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center"><span style="display: block; width: 13px; height: 2.5px; background: oklch(0.48 0.12 250); border-radius: 2px"></span></div>
+                  <span style="font-size: 15px; font-weight: 700; color: oklch(0.42 0.12 250); font-variant-numeric: tabular-nums; min-width: 12px; text-align: center">4</span>
+                  <div style="width: 36px; height: 36px; border-radius: 50%; background: oklch(0.58 0.12 250); display: flex; align-items: center; justify-content: center; position: relative">
+                    <span style="position: absolute; width: 13px; height: 2.5px; background: #fff; border-radius: 2px"></span>
+                    <span style="position: absolute; width: 2.5px; height: 13px; background: #fff; border-radius: 2px"></span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #5F5849; padding-left: 2px">Not scheduled today</div>
+            <div style="background: #F1ECE2; border-radius: 22px; padding: 4px 14px">
+              <div style="display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 12px; padding: 13px 0">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: color-mix(in oklab, oklch(0.64 0.12 65) 16%, #FAF6EE); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: oklch(0.50 0.12 65)">G</div>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+                  <div style="font-size: 17px; font-weight: 600; color: #191712; letter-spacing: -.01em">Gym</div>
+                  <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">Next Monday · 21%</div>
+                </div>
+                <div style="width: 44px; height: 44px; border-radius: 50%; border: 2px dashed color-mix(in oklab, oklch(0.64 0.12 65) 40%, #FAF6EE); box-sizing: border-box"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="position: absolute; right: 20px; bottom: 108px; width: 58px; height: 58px; border-radius: 50%; background: #24402E; box-shadow: 0 10px 24px rgba(26,24,20,.26); display: flex; align-items: center; justify-content: center">
+          <span style="position: absolute; width: 20px; height: 2.5px; background: #F7F3EA; border-radius: 2px"></span>
+          <span style="position: absolute; width: 2.5px; height: 20px; background: #F7F3EA; border-radius: 2px"></span>
+        </div>
+
+        <div style="flex: none; padding: 0 20px 26px; display: flex; justify-content: center">
+          <div style="display: flex; gap: 4px; background: #FFFDF8; border-radius: 30px; padding: 7px; box-shadow: 0 4px 18px rgba(26,24,20,.10)">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px; background: #E7E1D4">
+              <span style="width: 18px; height: 18px; border-radius: 5px; background: #24402E; display: block"></span>
+              <span style="font-size: 11px; font-weight: 700; color: #24402E">Today</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px">
+              <span style="width: 18px; height: 18px; border-radius: 5px; border: 2px solid #8A8375; box-sizing: border-box; display: block"></span>
+              <span style="font-size: 11px; font-weight: 600; color: #8A8375">Overview</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px">
+              <span style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #8A8375; box-sizing: border-box; display: block"></span>
+              <span style="font-size: 11px; font-weight: 600; color: #8A8375">Settings</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="1b" style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 6px; background: #24402E; color: #F7F3EA; font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em">1b</span>
+        <span style="font-size: 13px; color: #5F5A4E">Overview</span>
+      </div>
+
+      <div style="width: 393px; height: 852px; border-radius: 44px; background: #FAF6EE; box-shadow: 0 0 0 10px #1A1814, 0 26px 60px rgba(26,24,20,.28); overflow: hidden; position: relative; display: flex; flex-direction: column">
+
+        <div style="height: 54px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; font-size: 15px; font-weight: 600; color: #191712">
+          <span>16:51</span>
+          <span style="display: flex; gap: 5px; align-items: center">
+            <span style="width: 17px; height: 11px; border-radius: 3px; background: #191712; display: inline-block"></span>
+            <span style="width: 24px; height: 12px; border-radius: 4px; border: 1.5px solid #191712; display: inline-block"></span>
+          </span>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 14px 20px 0; display: flex; flex-direction: column; gap: 18px">
+
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-weight: 500; font-size: 40px; line-height: 1; color: #191712">Overview</h2>
+            <div style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">Last 10 days · 34 of 47 scheduled days logged</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">F<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">10</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">S<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">11</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">S<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">12</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">M<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">13</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">T<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">14</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">W<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">15</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">T<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">16</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">F<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">17</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #8A8375">S<div style="font-size: 12px; color: #5F5A4E; font-variant-numeric: tabular-nums">18</div></div>
+            <div style="text-align: center; font-size: 10px; font-weight: 700; color: #24402E">S<div style="font-size: 12px; font-weight: 700; color: #24402E; font-variant-numeric: tabular-nums">19</div></div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px">
+
+            <div style="display: flex; flex-direction: column; gap: 7px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.58 0.14 305); display: block"></span>
+                  <span style="font-size: 15px; font-weight: 600; color: #191712">Morning meditation</span>
+                </div>
+                <span style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">43%</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.14 305) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.14 305) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.14 305)"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 7px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.58 0.11 180); display: block"></span>
+                  <span style="font-size: 15px; font-weight: 600; color: #191712">Read</span>
+                </div>
+                <span style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">35%</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.11 180) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.11 180)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.11 180) 20%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.11 180)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.11 180) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.11 180)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.11 180)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.11 180) 20%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.11 180) 45%, #FAF6EE)"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 7px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.60 0.14 30); display: block"></span>
+                  <span style="font-size: 15px; font-weight: 600; color: #191712">No social media</span>
+                </div>
+                <span style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">41%</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.60 0.14 30)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.60 0.14 30)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.60 0.14 30)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.60 0.14 30) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.60 0.14 30)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.60 0.14 30)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 7px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.58 0.12 250); display: block"></span>
+                  <span style="font-size: 15px; font-weight: 600; color: #191712">Drink water</span>
+                </div>
+                <span style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">30%</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 20%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.12 250)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 20%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.58 0.12 250)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.58 0.12 250) 20%, #FAF6EE)"></div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 7px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 2px">
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <span style="width: 9px; height: 9px; border-radius: 50%; background: oklch(0.64 0.12 65); display: block"></span>
+                  <span style="font-size: 15px; font-weight: 600; color: #191712">Gym</span>
+                </div>
+                <span style="font-size: 13px; color: #605949; white-space: nowrap; font-variant-numeric: tabular-nums">21%</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 0 2px">
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.64 0.12 65)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: color-mix(in oklab, oklch(0.64 0.12 65) 45%, #FAF6EE)"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #E7E1D4"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF"></div>
+                <div style="aspect-ratio: 1; border-radius: 7px; background: oklch(0.64 0.12 65)"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 14px; padding: 14px 2px 0; border-top: 1px solid #E4DDCF; flex-wrap: wrap">
+            <div style="display: flex; align-items: center; gap: 7px">
+              <span style="width: 13px; height: 13px; border-radius: 4px; background: #E7E1D4; display: block"></span>
+              <span style="font-size: 11px; color: #5F5849">Missed</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px">
+              <span style="width: 13px; height: 13px; border-radius: 4px; background: color-mix(in oklab, #8A8375 45%, #FAF6EE); display: block"></span>
+              <span style="font-size: 11px; color: #5F5849">Partial</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px">
+              <span style="width: 13px; height: 13px; border-radius: 4px; background: #6C6558; display: block"></span>
+              <span style="font-size: 11px; color: #5F5849">Complete</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px">
+              <span style="width: 13px; height: 13px; border-radius: 4px; background: #EFEAE0; box-shadow: inset 0 0 0 1px #E4DDCF; display: block"></span>
+              <span style="font-size: 11px; color: #5F5849">Not scheduled</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="flex: none; padding: 18px 20px 26px; display: flex; justify-content: center">
+          <div style="display: flex; gap: 4px; background: #FFFDF8; border-radius: 30px; padding: 7px; box-shadow: 0 4px 18px rgba(26,24,20,.10)">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px">
+              <span style="width: 18px; height: 18px; border-radius: 5px; border: 2px solid #8A8375; box-sizing: border-box; display: block"></span>
+              <span style="font-size: 11px; font-weight: 600; color: #8A8375">Today</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px; background: #E7E1D4">
+              <span style="width: 18px; height: 18px; border-radius: 5px; background: #24402E; display: block"></span>
+              <span style="font-size: 11px; font-weight: 700; color: #24402E">Overview</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 24px">
+              <span style="width: 18px; height: 18px; border-radius: 50%; border: 2px solid #8A8375; box-sizing: border-box; display: block"></span>
+              <span style="font-size: 11px; font-weight: 600; color: #8A8375">Settings</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

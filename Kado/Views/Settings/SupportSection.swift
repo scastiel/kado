@@ -3,13 +3,16 @@ import KadoCore
 
 struct SupportSection: View {
     var body: some View {
-        Section("Feedback") {
+        Section {
             Link(destination: Self.appStoreReviewURL) {
                 Label("Rate Kado on the App Store", systemImage: "star.bubble")
             }
             Link(destination: Self.feedbackURL) {
                 Label("Send Feedback", systemImage: "envelope")
             }
+        } header: {
+            Text("Feedback")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }

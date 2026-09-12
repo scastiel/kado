@@ -86,7 +86,7 @@ private struct StatefulPreview: View {
                 .padding(.horizontal)
             Text("Selected: \(selection.count) days")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }
 }

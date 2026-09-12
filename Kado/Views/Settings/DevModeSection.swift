@@ -24,7 +24,7 @@ struct DevModeSection: View {
                         .font(.body)
                     Text("Use a demo dataset instead of your own data.")
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.kadoForegroundSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -38,8 +38,10 @@ struct DevModeSection: View {
             }
         } header: {
             Text("Developer")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         } footer: {
             Text("Replaces your data with a demo dataset. Your real data is safe and returns when you turn this off. Edits made while dev mode is on are discarded the next time you turn it on.")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
         .alert("Enable dev mode?", isPresented: $showingConfirmation) {

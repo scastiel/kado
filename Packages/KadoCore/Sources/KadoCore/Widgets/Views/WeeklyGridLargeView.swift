@@ -180,26 +180,34 @@ struct WidgetMatrixCell: View {
                 if let borderOpacity = cell.borderOpacity {
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .strokeBorder(
-                            color.color.opacity(borderOpacity),
+                            palette.matrixTint(color, amount: borderOpacity),
                             lineWidth: 1.5
                         )
+                } else if cell == .notDue {
+                    // The app's MatrixCell draws the same ring: it is
+                    // what tells a never-due day from a missed one
+                    // now that both fills are warm.
+                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        .strokeBorder(palette.notDueRing, lineWidth: 1)
                 }
             }
             .frame(height: size)
     }
 
-    /// `.scored` / `.offSchedule` already carry their own alpha, so
-    /// they survive the tint untouched. `.notDue` is the one opaque
-    /// fill here, and an opaque fill is exactly what gets flattened
-    /// into a solid block under Tinted / Clear — route it through the
-    /// palette, which keeps it under the scored ramp's 0.2 floor so
-    /// "never due" stays tellable from "due and missed".
+    /// Every fill goes through the palette. In full colour the scored
+    /// ramp is the hue mixed over the page in Oklab, like the app's
+    /// `MatrixCell`; under Tinted / Clear it has to be the hue at an
+    /// *alpha*, because alpha is all the tint keeps — an opaque mixed
+    /// colour would flatten into one solid block whatever its value.
+    /// `.notDue` is opaque paper in full colour and a wash under the
+    /// tint that stays below the scored ramp's 0.2 floor, so "never
+    /// due" stays tellable from "due and missed".
     private var fill: Color {
         switch cell {
         case .future: Color.clear
         case .notDue: palette.notDueFill
-        case .scored: color.color.opacity(cell.colorOpacity ?? 0)
-        case .offSchedule: color.color.opacity(cell.offScheduleFillOpacity ?? 0)
+        case .scored: palette.matrixTint(color, amount: cell.colorOpacity ?? 0)
+        case .offSchedule: palette.matrixTint(color, amount: cell.offScheduleFillOpacity ?? 0)
         }
     }
 }

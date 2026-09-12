@@ -15,7 +15,7 @@ struct NotificationsSection: View {
     @State private var status: UNAuthorizationStatus = .notDetermined
 
     var body: some View {
-        Section("Notifications") {
+        Section {
             row(for: status)
             if status == .denied {
                 Button {
@@ -24,6 +24,9 @@ struct NotificationsSection: View {
                     Label("Open Settings", systemImage: "arrow.up.right.square")
                 }
             }
+        } header: {
+            Text("Notifications")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
         .task { await refreshStatus() }
@@ -48,7 +51,7 @@ struct NotificationsSection: View {
                     .foregroundStyle(.primary)
                 Text(subtitle(for: status))
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -135,7 +138,7 @@ private struct NotificationsSectionPreview: View {
                             .font(.body)
                         Text(subtitle(for: status))
                             .font(.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.kadoForegroundSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

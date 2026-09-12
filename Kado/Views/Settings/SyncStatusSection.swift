@@ -13,7 +13,7 @@ struct SyncStatusSection: View {
     @AppStorage(DevModeDefaults.key, store: DevModeDefaults.sharedDefaults) private var isDevMode = false
 
     var body: some View {
-        Section("iCloud") {
+        Section {
             if isDevMode {
                 devModePausedRow
             } else if observer.status == .available && observer.syncHealth == .failing {
@@ -30,6 +30,9 @@ struct SyncStatusSection: View {
                     }
                 }
             }
+        } header: {
+            Text("iCloud")
+                .foregroundStyle(Color.kadoForegroundSecondary)
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
     }
@@ -47,7 +50,7 @@ struct SyncStatusSection: View {
                     .foregroundStyle(.primary)
                 Text("Your habits are safe on this device, but recent changes aren’t reaching iCloud.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -59,7 +62,7 @@ struct SyncStatusSection: View {
         HStack(spacing: 12) {
             Image(systemName: "pause.circle.fill")
                 .font(.title3)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.kadoForegroundSecondary)
                 .frame(width: 28)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
@@ -68,7 +71,7 @@ struct SyncStatusSection: View {
                     .foregroundStyle(.primary)
                 Text("Your real habits are safe in iCloud. Turn dev mode off to resume syncing.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -90,7 +93,7 @@ struct SyncStatusSection: View {
                     .foregroundStyle(.primary)
                 Text(subtitle(for: status))
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

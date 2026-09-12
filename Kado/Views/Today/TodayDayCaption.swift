@@ -36,7 +36,7 @@ struct TodayDayCaption: View {
                 Image(systemName: "moon.stars")
             }
             .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Color.kadoForegroundSecondary)
             .accessibilityElement(children: .combine)
         }
     }

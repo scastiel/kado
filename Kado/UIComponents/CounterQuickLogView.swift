@@ -39,7 +39,7 @@ struct CounterQuickLogView: View {
                     .accessibilityIdentifier(AccessibilityID.HabitDetail.quickLogValue)
                 Text(String(localized: "of \(Int(target))"))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
             .frame(maxWidth: .infinity)
 

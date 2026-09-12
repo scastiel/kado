@@ -190,6 +190,7 @@ struct TodayView: View {
                             .onMove { moveHabits(due, from: $0, to: $1) }
                     } header: {
                         Text("Scheduled")
+                            .foregroundStyle(Color.kadoForegroundSecondary)
                     }
                 }
                 if !other.isEmpty {
@@ -198,8 +199,10 @@ struct TodayView: View {
                             .onMove { moveHabits(other, from: $0, to: $1) }
                     } header: {
                         Text("Not scheduled today")
+                            .foregroundStyle(Color.kadoForegroundSecondary)
                     } footer: {
                         Text("Tap to open detail, or long-press to edit or archive.")
+                            .foregroundStyle(Color.kadoForegroundSecondary)
                     }
                 }
                 if showsTipNudge == true {
