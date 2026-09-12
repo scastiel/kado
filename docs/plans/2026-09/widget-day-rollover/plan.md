@@ -1,7 +1,7 @@
 # Plan — Widget day rollover
 
 **Date**: 2026-09-11
-**Status**: ready to build
+**Status**: in progress
 **Research**: none — planned from
 [issue #82](https://github.com/scastiel/kado/issues/82), whose analysis
 was verified line by line against the code (see *Verified premises*).
@@ -111,7 +111,7 @@ Each claim in the issue, checked against `main` (32e79f9):
 
 ## Task list
 
-### Task 1: Series and `logicalDay` — tests
+### Task 1: Series and `logicalDay` — tests ✅
 
 **Goal**: Pin the on-disk shape and the day-selection rule before
 touching the store.
@@ -139,7 +139,7 @@ touching the store.
 
 ---
 
-### Task 2: `WidgetSnapshot.logicalDay` + `WidgetSnapshotSeries` + store
+### Task 2: `WidgetSnapshot.logicalDay` + `WidgetSnapshotSeries` + store ✅
 
 **Goal**: The file carries a list of days; every reader still gets a
 single-day snapshot.

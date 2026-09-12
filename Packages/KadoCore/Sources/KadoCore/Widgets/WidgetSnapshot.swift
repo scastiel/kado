@@ -1,12 +1,22 @@
 import Foundation
 
-/// The data the widget extension reads. Two SwiftData processes
+/// One logical day as the widgets render it. Two SwiftData processes
 /// can't both attach CloudKit to the same store, so widgets stop
-/// using SwiftData altogether. The main app builds this snapshot
-/// after every mutation and writes it as JSON into the App Group;
-/// widgets just decode it.
+/// using SwiftData altogether. The main app builds this after every
+/// mutation and writes it as JSON into the App Group; widgets just
+/// decode it.
+///
+/// A snapshot describes exactly one day — `today`, the counts and the
+/// matrix are all "as of `logicalDay`". The file on disk is a
+/// `WidgetSnapshotSeries`: this day and the ones after it, each
+/// computed as if nothing further were logged, so the widget can turn
+/// the page at the day boundary without either process being awake.
 public struct WidgetSnapshot: Codable, Sendable {
     public let generatedAt: Date
+    /// Midnight of the day this snapshot describes — the logical day
+    /// under the user's "Day starts at" hour, so under a 4 AM start
+    /// a snapshot built at 02:00 names the previous calendar day.
+    public let logicalDay: Date
     public let habits: [WidgetHabit]
     public let today: [WidgetTodayRow]
     public let totalDueToday: Int
@@ -14,6 +24,9 @@ public struct WidgetSnapshot: Codable, Sendable {
     public let matrix: [WidgetMatrixRow]
     public let matrixDays: [Date]
 
+    /// `logicalDay` defaults to the trailing matrix day, which the
+    /// builder already anchors to the logical day — one fewer thing
+    /// for previews and tests to spell out.
     public init(
         generatedAt: Date,
         habits: [WidgetHabit],
@@ -21,7 +34,8 @@ public struct WidgetSnapshot: Codable, Sendable {
         totalDueToday: Int,
         completedToday: Int,
         matrix: [WidgetMatrixRow],
-        matrixDays: [Date]
+        matrixDays: [Date],
+        logicalDay: Date? = nil
     ) {
         self.generatedAt = generatedAt
         self.habits = habits
@@ -30,6 +44,8 @@ public struct WidgetSnapshot: Codable, Sendable {
         self.completedToday = completedToday
         self.matrix = matrix
         self.matrixDays = matrixDays
+        self.logicalDay = logicalDay
+            ?? Self.impliedLogicalDay(matrixDays: matrixDays, generatedAt: generatedAt)
     }
 
     public static var empty: WidgetSnapshot {
@@ -42,6 +58,32 @@ public struct WidgetSnapshot: Codable, Sendable {
             matrix: [],
             matrixDays: []
         )
+    }
+
+    // Backward-compatible decoding: a file written before the series
+    // existed carries no `logicalDay`. Its trailing matrix day *is*
+    // the logical day it was built for (the builder has always ended
+    // the window there), so the fallback loses nothing.
+    private enum CodingKeys: String, CodingKey {
+        case generatedAt, logicalDay, habits, today
+        case totalDueToday, completedToday, matrix, matrixDays
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.generatedAt = try c.decode(Date.self, forKey: .generatedAt)
+        self.habits = try c.decode([WidgetHabit].self, forKey: .habits)
+        self.today = try c.decode([WidgetTodayRow].self, forKey: .today)
+        self.totalDueToday = try c.decode(Int.self, forKey: .totalDueToday)
+        self.completedToday = try c.decode(Int.self, forKey: .completedToday)
+        self.matrix = try c.decode([WidgetMatrixRow].self, forKey: .matrix)
+        self.matrixDays = try c.decode([Date].self, forKey: .matrixDays)
+        self.logicalDay = try c.decodeIfPresent(Date.self, forKey: .logicalDay)
+            ?? Self.impliedLogicalDay(matrixDays: matrixDays, generatedAt: generatedAt)
+    }
+
+    private static func impliedLogicalDay(matrixDays: [Date], generatedAt: Date) -> Date {
+        matrixDays.last ?? Calendar.current.startOfDay(for: generatedAt)
     }
 
     /// The two counts as one value, so the lock-screen ring and the

@@ -166,7 +166,8 @@ public enum WidgetSnapshotBuilder {
             totalDueToday: todayRows.count,
             completedToday: completed,
             matrix: widgetMatrix,
-            matrixDays: matrixDays
+            matrixDays: matrixDays,
+            logicalDay: today
         )
     }
 
@@ -192,7 +193,9 @@ public enum WidgetSnapshotBuilder {
             asOf: day,
             calendar: WeekStartDefaults.calendar()
         )
-        WidgetSnapshotStore.write(snapshot)
+        WidgetSnapshotStore.write(
+            WidgetSnapshotSeries(generatedAt: snapshot.generatedAt, days: [snapshot])
+        )
         DayCompletionCelebration.shared.observe(snapshot.dayProgress, on: day)
     }
 
