@@ -1,7 +1,7 @@
 # Plan — Day-edit popover stepper freezes after the first tap
 
 **Date**: 2026-09-11
-**Status**: in progress
+**Status**: done
 **Research**: none — [issue #80](https://github.com/scastiel/kado/issues/80)
 carries the code-level analysis, and a read of the code (below)
 supports it. Planned directly from the issue by decision.
@@ -242,7 +242,7 @@ Observation reaches the loader and the whole screen follows every tap.
 
 ---
 
-### Task 3: Render the popover from the store, not a local copy
+### Task 3: Render the popover from the store, not a local copy ✅
 
 **Goal**: replace the `Stepper` + `@State` pair with stateless
 `−` / `+` controls for counter and timer, apply the remaining
@@ -293,7 +293,7 @@ only ever drift — rather than the fix itself.
 
 ---
 
-### Task 4: Visual and accessibility pass
+### Task 4: Visual and accessibility pass ✅
 
 **Goal**: satisfy the definition of done for a visual change on a
 surface `test_sim` cannot see.
@@ -319,7 +319,7 @@ surface `test_sim` cannot see.
 
 ---
 
-### Task 5: Compound and PR
+### Task 5: Compound and PR ✅
 
 **Goal**: capture what Task 2 revealed about the popover's identity,
 mark the PR ready.
@@ -430,6 +430,25 @@ mark the PR ready.
   `TodayView`'s exact shape — and wrote the comments to say what was
   measured rather than a mechanism I can't see. Open question for
   compound: *why* a child's `@Query` re-renders the parent loader.
+- **Task 3**: as planned. Stateless `−` / `+` in
+  `CounterQuickLogView`'s language; the two catalog keys stay where
+  they were, so no localization change.
+- **Task 4**: light and dark captured through the UI test's own
+  `capture` (a pinned `-resultBundlePath` on a direct `xcodebuild`
+  run, then `xcresulttool export attachments` — the MCP tool's bundles
+  aren't kept). Dynamic Type via `simctl ui <udid> content_size`:
+  at `extra-extra-extra-large` everything fits and the header wraps;
+  at `accessibility-extra-extra-extra-large` the fixed 36pt circles
+  let the glyph spill, fixed with `@ScaledMetric`. At that AX size the
+  Today rows expose their inner pill as a separate element and the
+  driver's row tap stops pushing — a limitation of the suite at AX
+  sizes, not of the change; the header ("Drink w…") and the calendar
+  cells also crowd there, both pre-existing and untouched. iPad Air
+  11" (M4) build succeeds. VoiceOver: the `accessibilityValue`
+  Task 1 added to the value texts read as "3 of 8, 3" — removed; the
+  suite reads the leading number off the label instead. A third UI
+  test covers the timer control and `−` back to zero (the `clear`
+  route).
 - **Task 2 — probe pitfall**: a `let _ = { counter += 1 }()` statement
   at the top of a `body` compiled and *silently broke the
   NavigationStack push* to that screen on both OS versions. Increment
