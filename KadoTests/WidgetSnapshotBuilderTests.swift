@@ -540,6 +540,63 @@ struct WidgetSnapshotBuilderTests {
         #expect(kept.days[1].today.first?.streak == 2)
     }
 
+    @Test("Every day of a series is exactly what a build of that day would be")
+    func seriesDaysMatchStandaloneBuilds() throws {
+        // The series shares one score walk per habit across its days
+        // rather than re-walking from the first completion seven
+        // times. That is only a shortcut if the numbers are the same —
+        // and they are by construction, since `currentScore` is the
+        // prefix of the same fold. Pinned here across every frequency
+        // shape, with the rest of the day's derivation for company.
+        let container = try makeContainer()
+        let calendar = TestCalendar.utc
+        let shapes: [(String, Frequency, HabitType)] = [
+            ("Daily", .daily, .binary),
+            ("Weekly", .daysPerWeek(3), .binary),
+            ("Tue/Thu", .specificDays([.tuesday, .thursday]), .counter(target: 5)),
+            ("Cycle", .everyNDays(3), .binary),
+            ("No sugar", .daily, .negative),
+        ]
+        for (name, frequency, type) in shapes {
+            let habit = HabitRecord(
+                name: name,
+                frequency: frequency,
+                type: type,
+                createdAt: TestCalendar.day(-40)
+            )
+            container.mainContext.insert(habit)
+            // A patchy history, so scores are mid-range and streaks
+            // have somewhere to break.
+            for daysAgo in stride(from: 0, through: 39, by: 1) where daysAgo % 5 != 2 {
+                container.mainContext.insert(
+                    CompletionRecord(date: TestCalendar.day(-daysAgo), value: 5, habit: habit)
+                )
+            }
+        }
+        try container.mainContext.save()
+
+        let series = WidgetSnapshotBuilder.buildSeries(
+            from: container.mainContext,
+            asOf: TestCalendar.day(0),
+            calendar: calendar,
+            horizonDays: 7
+        )
+        #expect(series.days.count == 7)
+        for (offset, day) in series.days.enumerated() {
+            let single = WidgetSnapshotBuilder.build(
+                from: container.mainContext,
+                asOf: TestCalendar.day(offset),
+                calendar: calendar
+            )
+            #expect(day.habits.map(\.currentScore) == single.habits.map(\.currentScore), "day \(offset) scores")
+            #expect(day.habits.map(\.currentStreak) == single.habits.map(\.currentStreak), "day \(offset) streaks")
+            #expect(day.habits.map(\.bestStreak) == single.habits.map(\.bestStreak), "day \(offset) best")
+            #expect(day.today.map(\.id) == single.today.map(\.id), "day \(offset) due set")
+            #expect(day.completedToday == single.completedToday, "day \(offset) completed")
+            #expect(day.matrix.map(\.cells) == single.matrix.map(\.cells), "day \(offset) matrix")
+        }
+    }
+
     @Test("A negative habit is done tomorrow until it slips, as on Today")
     func negativeHabitIsDoneTomorrow() throws {
         let container = try makeContainer()

@@ -224,7 +224,7 @@ the day's rollover, using the user's day-start hour.
 
 ---
 
-### Task 5: Series builder — tests
+### Task 5: Series builder — tests ✅
 
 **Goal**: Pin what "tomorrow morning, nothing logged" means for each
 habit shape before the builder writes it.
@@ -253,7 +253,7 @@ habit shape before the builder writes it.
 
 ---
 
-### Task 6: `buildSeries` + `rebuildAndWrite` writes the horizon
+### Task 6: `buildSeries` + `rebuildAndWrite` writes the horizon ✅
 
 **Goal**: Every mutation writes seven days. **This is the commit that
 closes #82.**
@@ -327,6 +327,41 @@ closes #82.**
   habit in the evening, do not open the app, confirm the widget shows
   the new day in the morning. This is the reporter's exact scenario
   and the only end-to-end proof.
+
+## Notes during build
+
+- **Task 6 — the 7× estimate was wrong by an order of magnitude.** A
+  throwaway timing test on 20 habits × 730 days (10,960 completions,
+  Debug, in-memory SwiftData) put a *single* `build` at **8.8 s** and
+  a naive `buildSeries(7)` at **63.7 s**. Breakdown: score **7.5 s**,
+  first-time SwiftData extraction 1.2 s (0.02 s once faulted), streak
+  `current` and `best` 0.3 s each, rows and matrix negligible. The
+  score is O(days × completions): `scoreHistory` walks every day from
+  the first completion and, per day, `.daysPerWeek` reduces over every
+  completion with a `Calendar` call and `.everyNDays` rescans for its
+  anchor. That cost predates this work — the app pays it on every
+  mutation today — but seven of it was not shippable.
+- **What changed**: `buildSeries` reads the store once (`Source`) and
+  walks the score **once per habit to the last day**, each day reading
+  its value off that walk — `currentScore(asOf:)` is the prefix of the
+  same fold, so the numbers are identical, pinned by
+  `seriesDaysMatchStandaloneBuilds` across all five habit shapes.
+  Streaks, rows and matrix stay per day. Result: **12.2 s** for the
+  extreme dataset (1.5× a single build, not 7.3×) and **0.76 s vs
+  0.51 s** for 5 habits × 365 days. Horizon stays 7; it no longer
+  drives the cost.
+- **Follow-up, not this PR**: the score calculator's per-day evaluator
+  calls are the elephant for *every* caller, not just the widget. The
+  streak calculator already avoids the evaluator for exactly this
+  reason (see its "Deliberately not delegated" note); the score should
+  do the same, or the evaluator should grow a prepared per-habit form.
+  Filed as a next step on the PR.
+- **The throwaway bench crashed the suite** — `EXC_BREAKPOINT` in
+  SwiftData from a Foundation timer on the main run loop, after the
+  bench's 11k-row in-memory container was torn down while other tests
+  kept running. It never crashed when run alone (the process exits
+  before the autosave timer fires). Deleted, as it always was going to
+  be; noted so nobody spends a cycle on it again.
 
 ## Risks and mitigation
 
