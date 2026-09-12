@@ -540,16 +540,36 @@ struct WidgetSnapshotBuilderTests {
         #expect(kept.days[1].today.first?.streak == 2)
     }
 
-    @Test("Every day of a series is exactly what a build of that day would be")
-    func seriesDaysMatchStandaloneBuilds() throws {
+    /// Reference instants whose forty-day history and seven-day series
+    /// straddle a DST transition, one per shape that breaks naive day
+    /// arithmetic: the ordinary 02:00 case (Paris, both ways) and the
+    /// midnight case (Havana), plus a plain UTC control. The series
+    /// keys per-day lookups by `Date`, which is exactly what CLAUDE.md
+    /// says needs a midnight-transition fixture — and the score walk's
+    /// drift after Havana's 2026-03-08 was invisible in UTC.
+    nonisolated private static let parityProbes: [(String, Calendar, Date)] = [
+        ("UTC", TestCalendar.utc, TestCalendar.day(0)),
+        ("Paris, series after spring-forward", TestCalendar.paris, TestCalendar.instant(TestCalendar.paris, 2026, 3, 31, 12)),
+        ("Paris, series across fall-back", TestCalendar.paris, TestCalendar.instant(TestCalendar.paris, 2026, 10, 22, 12)),
+        ("Havana, series after the midnight transition", TestCalendar.havana, TestCalendar.instant(TestCalendar.havana, 2026, 3, 10, 12)),
+        ("Havana, series across the midnight transition", TestCalendar.havana, TestCalendar.instant(TestCalendar.havana, 2026, 3, 6, 12)),
+    ]
+
+    @Test("Every day of a series is exactly what a build of that day would be", arguments: parityProbes)
+    func seriesDaysMatchStandaloneBuilds(zone: String, calendar: Calendar, reference: Date) throws {
         // The series shares one score walk per habit across its days
         // rather than re-walking from the first completion seven
         // times. That is only a shortcut if the numbers are the same —
         // and they are by construction, since `currentScore` is the
         // prefix of the same fold. Pinned here across every frequency
-        // shape, with the rest of the day's derivation for company.
+        // shape, with the rest of the day's derivation for company:
+        // this is also what showed the best streak *cannot* be shared
+        // the same way — for a negative habit, two unlogged days are
+        // two clean days, and its best grows.
         let container = try makeContainer()
-        let calendar = TestCalendar.utc
+        func daysAgo(_ n: Int) -> Date {
+            calendar.date(byAdding: .day, value: -n, to: reference)!
+        }
         let shapes: [(String, Frequency, HabitType)] = [
             ("Daily", .daily, .binary),
             ("Weekly", .daysPerWeek(3), .binary),
@@ -562,14 +582,14 @@ struct WidgetSnapshotBuilderTests {
                 name: name,
                 frequency: frequency,
                 type: type,
-                createdAt: TestCalendar.day(-40)
+                createdAt: daysAgo(40)
             )
             container.mainContext.insert(habit)
             // A patchy history, so scores are mid-range and streaks
             // have somewhere to break.
-            for daysAgo in stride(from: 0, through: 39, by: 1) where daysAgo % 5 != 2 {
+            for n in 0...39 where n % 5 != 2 {
                 container.mainContext.insert(
-                    CompletionRecord(date: TestCalendar.day(-daysAgo), value: 5, habit: habit)
+                    CompletionRecord(date: daysAgo(n), value: 5, habit: habit)
                 )
             }
         }
@@ -577,26 +597,31 @@ struct WidgetSnapshotBuilderTests {
 
         let series = WidgetSnapshotBuilder.buildSeries(
             from: container.mainContext,
-            asOf: TestCalendar.day(0),
+            asOf: reference,
             calendar: calendar,
             horizonDays: 7
         )
-        #expect(series.days.count == 7)
+        #expect(series.days.count == 7, "\(zone)")
         for (offset, day) in series.days.enumerated() {
             let single = WidgetSnapshotBuilder.build(
                 from: container.mainContext,
-                asOf: TestCalendar.day(offset),
+                asOf: calendar.date(byAdding: .day, value: offset, to: reference)!,
                 calendar: calendar
             )
-            #expect(day.habits.map(\.currentScore) == single.habits.map(\.currentScore), "day \(offset) scores")
-            #expect(day.habits.map(\.currentStreak) == single.habits.map(\.currentStreak), "day \(offset) streaks")
-            #expect(day.habits.map(\.bestStreak) == single.habits.map(\.bestStreak), "day \(offset) best")
-            #expect(day.today.map(\.id) == single.today.map(\.id), "day \(offset) due set")
-            #expect(day.completedToday == single.completedToday, "day \(offset) completed")
-            #expect(day.matrix.map(\.cells) == single.matrix.map(\.cells), "day \(offset) matrix")
+            let label = "\(zone), day \(offset)"
+            #expect(day.logicalDay == single.logicalDay, "\(label) logical day")
+            #expect(day.habits.map(\.currentScore) == single.habits.map(\.currentScore), "\(label) scores")
+            #expect(day.habits.map(\.currentStreak) == single.habits.map(\.currentStreak), "\(label) streaks")
+            #expect(day.habits.map(\.bestStreak) == single.habits.map(\.bestStreak), "\(label) best")
+            #expect(day.today.map(\.id) == single.today.map(\.id), "\(label) due set")
+            #expect(day.completedToday == single.completedToday, "\(label) completed")
+            #expect(day.matrix.map(\.cells) == single.matrix.map(\.cells), "\(label) matrix")
+            // And none of it is degenerate: a lookup that silently
+            // missed would agree with a standalone build that also
+            // missed, at zero.
+            #expect(day.habits.contains { $0.currentScore > 0 }, "\(label) has live scores")
         }
     }
-
     @Test("A negative habit is done tomorrow until it slips, as on Today")
     func negativeHabitIsDoneTomorrow() throws {
         let container = try makeContainer()

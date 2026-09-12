@@ -56,9 +56,12 @@ public enum WidgetSnapshotStore {
     /// Decodes a series, or a file written before the series existed —
     /// a bare `WidgetSnapshot` object — as a one-day series. Nil for
     /// anything else; never traps on what another build wrote.
-    public static func decode(_ data: Data) -> WidgetSnapshotSeries? {
+    /// `calendar` only matters for a legacy file with no matrix days,
+    /// whose day is taken from `generatedAt`.
+    public static func decode(_ data: Data, calendar: Calendar = .current) -> WidgetSnapshotSeries? {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        decoder.userInfo[WidgetSnapshot.calendarUserInfoKey] = calendar
         if let series = try? decoder.decode(WidgetSnapshotSeries.self, from: data) {
             return series
         }

@@ -103,8 +103,8 @@ struct WidgetSnapshotSeriesTests {
         object.removeValue(forKey: "logicalDay")
         let data = try JSONSerialization.data(withJSONObject: object)
 
-        let decoded = try #require(WidgetSnapshotStore.decode(data))
-        #expect(decoded.days.first?.logicalDay == Calendar.current.startOfDay(for: generatedAt))
+        let decoded = try #require(WidgetSnapshotStore.decode(data, calendar: calendar))
+        #expect(decoded.days.first?.logicalDay == calendar.startOfDay(for: generatedAt))
     }
 
     @Test("Bytes that are neither shape decode to nil, not to a trap")

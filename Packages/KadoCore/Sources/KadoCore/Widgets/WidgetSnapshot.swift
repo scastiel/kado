@@ -60,6 +60,12 @@ public struct WidgetSnapshot: Codable, Sendable {
         )
     }
 
+    /// The calendar a decoder falls back on for a legacy file's
+    /// `logicalDay` when it has no matrix days to anchor on, passed in
+    /// `Decoder.userInfo`. `WidgetSnapshotStore.decode` sets it; without
+    /// it the device calendar is used.
+    public static let calendarUserInfoKey = CodingUserInfoKey(rawValue: "dev.scastiel.kado.calendar")!
+
     // Backward-compatible decoding: a file written before the series
     // existed carries no `logicalDay`. Its trailing matrix day *is*
     // the logical day it was built for (the builder has always ended
@@ -78,12 +84,17 @@ public struct WidgetSnapshot: Codable, Sendable {
         self.completedToday = try c.decode(Int.self, forKey: .completedToday)
         self.matrix = try c.decode([WidgetMatrixRow].self, forKey: .matrix)
         self.matrixDays = try c.decode([Date].self, forKey: .matrixDays)
+        let calendar = decoder.userInfo[Self.calendarUserInfoKey] as? Calendar ?? .current
         self.logicalDay = try c.decodeIfPresent(Date.self, forKey: .logicalDay)
-            ?? Self.impliedLogicalDay(matrixDays: matrixDays, generatedAt: generatedAt)
+            ?? Self.impliedLogicalDay(matrixDays: matrixDays, generatedAt: generatedAt, calendar: calendar)
     }
 
-    private static func impliedLogicalDay(matrixDays: [Date], generatedAt: Date) -> Date {
-        matrixDays.last ?? Calendar.current.startOfDay(for: generatedAt)
+    private static func impliedLogicalDay(
+        matrixDays: [Date],
+        generatedAt: Date,
+        calendar: Calendar = .current
+    ) -> Date {
+        matrixDays.last ?? calendar.startOfDay(for: generatedAt)
     }
 
     /// The two counts as one value, so the lock-screen ring and the
