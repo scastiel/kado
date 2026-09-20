@@ -138,8 +138,8 @@ struct CompletionLogger {
         }
     }
 
-    /// Removes a specific completion: the History list's Delete, and the
-    /// day popover's Clear when the record carries no note.
+    /// Removes a specific completion: the History list's Delete, which
+    /// addresses a record by identity rather than by day.
     func delete(_ completion: CompletionRecord, in context: ModelContext) {
         context.delete(completion)
     }
