@@ -16,13 +16,15 @@ import Foundation
 nonisolated public enum DayStartDefaults {
     public static let key = "kado.dayStartHour"
 
-    /// Hours the Settings picker offers. Capped at 6 AM because the
-    /// whole premise is that the cutoff sits inside the user's sleep —
-    /// past that, a completion could plausibly land on the wrong day.
+    /// Hours the Settings picker offers — every hour of the day.
     ///
-    /// ``DayBoundary`` itself accepts any hour, so widening this range
-    /// is a one-line change with no downstream consequences.
-    public static let allowedHours = 0...6
+    /// The first cut stopped at 6 AM on the premise that the cutoff
+    /// sits inside the user's sleep. An overnight worker's sleep is in
+    /// the daytime and their day starts when they wake, mid-afternoon,
+    /// so the cap was exactly wrong for the person it was meant to
+    /// serve (#93). ``DayBoundary`` clamps to the same `0...23`, so the
+    /// two can't disagree.
+    public static let allowedHours = 0...23
 
     /// Midnight — today's behaviour, and what every user gets until
     /// they deliberately change it.
@@ -36,9 +38,8 @@ nonisolated public enum DayStartDefaults {
     }()
 
     /// Reads the stored hour, clamped into ``allowedHours``. An unset
-    /// key, a value written by a future build with a wider range, or
-    /// anything nonsensical all resolve to a usable hour rather than
-    /// trapping.
+    /// key, a stray write from another process, or anything nonsensical
+    /// all resolve to a usable hour rather than trapping.
     public static func hour(in defaults: UserDefaults = sharedDefaults) -> Int {
         guard defaults.object(forKey: key) != nil else { return defaultHour }
         return clamp(defaults.integer(forKey: key))

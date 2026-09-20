@@ -48,21 +48,23 @@ struct DayStartDefaultsTests {
         let (suite, name) = makeSuite()
         defer { tearDown(name) }
 
-        DayStartDefaults.setHour(19, in: suite)
+        DayStartDefaults.setHour(DayStartDefaults.allowedHours.upperBound + 1, in: suite)
         #expect(DayStartDefaults.hour(in: suite) == DayStartDefaults.allowedHours.upperBound)
 
         DayStartDefaults.setHour(-2, in: suite)
         #expect(DayStartDefaults.hour(in: suite) == DayStartDefaults.allowedHours.lowerBound)
     }
 
-    /// A future build could widen `allowedHours`; downgrading must not
-    /// leave the app resolving days against an hour it can't display.
+    /// The App Group suite is writable by any process, and a value it
+    /// holds may predate whatever range the running build offers. A
+    /// nonsense hour must clamp to something the picker can show, not
+    /// leave the app resolving days against a value it can't display.
     @Test("A value written outside the range clamps on read")
     func clampsOnRead() {
         let (suite, name) = makeSuite()
         defer { tearDown(name) }
 
-        suite.set(22, forKey: DayStartDefaults.key)
+        suite.set(DayStartDefaults.allowedHours.upperBound + 1, forKey: DayStartDefaults.key)
 
         #expect(DayStartDefaults.hour(in: suite) == DayStartDefaults.allowedHours.upperBound)
     }
@@ -70,5 +72,15 @@ struct DayStartDefaultsTests {
     @Test("The allowed range starts at midnight so the default is always offerable")
     func rangeIncludesDefault() {
         #expect(DayStartDefaults.allowedHours.contains(DayStartDefaults.defaultHour))
+    }
+
+    /// The first release capped the picker at 6 AM on the assumption
+    /// that the rollover sits inside a night-time sleep. That shut out
+    /// the overnight worker whose day starts mid-afternoon (#93). Every
+    /// hour is offerable now, and this pins it so the range doesn't
+    /// quietly narrow again.
+    @Test("Every hour of the day is offerable")
+    func everyHourIsOfferable() {
+        #expect(DayStartDefaults.allowedHours == 0...23)
     }
 }

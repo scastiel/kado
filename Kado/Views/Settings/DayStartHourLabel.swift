@@ -29,9 +29,9 @@ enum DayStartHourLabel {
 
     /// `DateFormatter` is the most expensive Foundation object to build,
     /// and `setLocalizedDateFormatFromTemplate` runs ICU pattern
-    /// negotiation on top. The Settings picker asks for seven labels per
-    /// body evaluation, so the formatter is cached and only rebuilt when
-    /// the locale or time zone actually changes.
+    /// negotiation on top. The hour list in Settings asks for two dozen
+    /// labels per body evaluation, so the formatter is cached and only
+    /// rebuilt when the locale or time zone actually changes.
     private static var cached: (key: String, formatter: DateFormatter)?
 
     private static func formatter(for calendar: Calendar) -> DateFormatter {

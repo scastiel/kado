@@ -162,7 +162,7 @@ struct DayBoundaryTests {
         // land on different days depending on the current setting —
         // i.e. the user's history would move under them.
         let bucketsIfNormalisedOnRead = Set(
-            (0...6).map { DayBoundary(calendar: cal, startHour: $0).startOfDay(for: loggedAt) }
+            DayStartDefaults.allowedHours.map { DayBoundary(calendar: cal, startHour: $0).startOfDay(for: loggedAt) }
         )
         #expect(bucketsIfNormalisedOnRead.count > 1)
 
@@ -210,7 +210,7 @@ struct DayBoundaryTests {
     @Test("nextRollover is always in the future")
     func nextRolloverIsStrictlyAhead() {
         let cal = TestCalendar.utc
-        for hour in 0...6 {
+        for hour in DayStartDefaults.allowedHours {
             let boundary = DayBoundary(calendar: cal, startHour: hour)
             for clock in 0..<24 {
                 let now = TestCalendar.instant(cal, 2026, 8, 11, clock, 30)
