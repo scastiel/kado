@@ -1,8 +1,10 @@
 import SwiftUI
 import KadoCore
 
-/// Anchored popover that edits one day's completion for a habit from
-/// the detail view's monthly calendar. Branches on `habit.type`:
+/// Anchored popover that edits one day's completion for a habit, from
+/// the detail view's monthly calendar and from the Overview matrix —
+/// both hand it a value snapshot and route its callbacks through
+/// `DayCompletionEditor`. Branches on `habit.type`:
 /// single toggle for binary / negative, `−` / `+` for counter, the
 /// same in minutes for timer. Counter / timer also offer a `Clear`
 /// action that sets the value to 0 (deleting the record via the
@@ -100,6 +102,7 @@ struct DayEditPopover: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(AccessibilityID.DayEdit.toggle)
     }
 
     private var negativeToggle: some View {
@@ -118,6 +121,7 @@ struct DayEditPopover: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(AccessibilityID.DayEdit.toggle)
     }
 
     private func toggleLabel(title: String, systemImage: String, active: Bool) -> some View {
@@ -197,7 +201,7 @@ struct DayEditPopover: View {
             .font(.title3.weight(.semibold))
             .monospacedDigit()
             .foregroundStyle(reached ? Color.accentColor : Color.primary)
-            .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.value)
+            .accessibilityIdentifier(AccessibilityID.DayEdit.value)
             .accessibilityAdjustableAction { direction in
                 switch direction {
                 case .increment: if canIncrement { onIncrement() }
@@ -212,7 +216,7 @@ struct DayEditPopover: View {
                 fill: Color.kadoPaper200,
                 tint: Color.kadoForeground,
                 label: String(localized: "Decrement"),
-                identifier: AccessibilityID.HabitDetail.DayEdit.decrement,
+                identifier: AccessibilityID.DayEdit.decrement,
                 action: onDecrement
             )
             stepButton(
@@ -221,7 +225,7 @@ struct DayEditPopover: View {
                 fill: Color.accentColor.opacity(0.15),
                 tint: Color.accentColor,
                 label: String(localized: "Increment"),
-                identifier: AccessibilityID.HabitDetail.DayEdit.increment,
+                identifier: AccessibilityID.DayEdit.increment,
                 action: onIncrement
             )
         }
@@ -279,7 +283,7 @@ struct DayEditPopover: View {
             }
             .buttonStyle(.bordered)
             .tint(.red)
-            .accessibilityIdentifier(AccessibilityID.HabitDetail.DayEdit.clear)
+            .accessibilityIdentifier(AccessibilityID.DayEdit.clear)
         }
     }
 

@@ -239,56 +239,66 @@ class KadoUITestCase: XCTestCase {
         )
     }
 
-    /// Pushes the detail of the seeded counter habit.
+    /// Pushes the detail of the seeded counter habit, and returns its id.
     @MainActor
+    @discardableResult
     func openCounterHabitDetail(
         in app: XCUIApplication,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) -> UUID? {
         openHabitDetail(
             showing: AccessibilityID.HabitDetail.quickLogIncrement, in: app, file: file, line: line
         )
     }
 
-    /// Pushes the detail of the seeded timer habit.
+    /// Pushes the detail of the seeded timer habit, and returns its id.
     @MainActor
+    @discardableResult
     func openTimerHabitDetail(
         in app: XCUIApplication,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) -> UUID? {
         openHabitDetail(
             showing: AccessibilityID.HabitDetail.logSessionButton, in: app, file: file, line: line
         )
     }
 
     /// Pushes Today rows in turn until the detail shows the button with
-    /// `marker`, and stays there.
+    /// `marker`, stays there, and returns the habit's id — read off the
+    /// row's identifier before the push, since that is the only place
+    /// the suite can learn it.
     ///
     /// Today rows are keyed by a `UUID` the seed draws fresh each run,
     /// so a habit can't be addressed by identifier from the list. Each
     /// row is pushed and asked what it is; the seed has one habit of
-    /// each type among a handful, so this is a few pushes at most.
+    /// each type among a handful, so this is a few pushes at most. The
+    /// id is what lets a later screen address the same habit — the
+    /// Overview matrix keys its cells by it, and its row order is not
+    /// something a test can rely on.
     @MainActor
+    @discardableResult
     func openHabitDetail(
         showing marker: String,
         in app: XCUIApplication,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) {
+    ) -> UUID? {
         let rows = todayRows(in: app)
         let scoreCard = app.buttons[AccessibilityID.HabitDetail.scoreCard]
         let markerButton = app.buttons[marker]
         for index in 0..<rows.count {
-            rows.element(boundBy: index).tap()
+            let row = rows.element(boundBy: index)
+            let habitID = UUID(uuidString: String(row.identifier.dropFirst("today.row.".count)))
+            row.tap()
             XCTAssertTrue(
                 scoreCard.waitForExistence(timeout: 10),
                 "Tapping a Today row should push its detail.",
                 file: file, line: line
             )
             if markerButton.waitForExistence(timeout: 2) {
-                return
+                return habitID
             }
             app.navigationBars.buttons.firstMatch.tap()
             XCTAssertTrue(
@@ -298,6 +308,51 @@ class KadoUITestCase: XCTestCase {
             )
         }
         XCTFail("No Today row pushed a detail showing \(marker).", file: file, line: line)
+        return nil
+    }
+
+    // MARK: - The day-edit popover
+
+    /// Taps the day-edit popover's `+`, from whichever screen opened it.
+    ///
+    /// Re-queried on every call rather than held: if the popover were
+    /// ever re-presented under a tap, a held element would go stale.
+    @MainActor
+    func tapDayEditIncrement(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let plus = app.buttons[AccessibilityID.DayEdit.increment].firstMatch
+        XCTAssertTrue(
+            plus.waitForExistence(timeout: 5), "The popover's + never appeared.", file: file, line: line
+        )
+        plus.tap()
+    }
+
+    /// The number a value text leads with — "3" out of "3 of 8", or the
+    /// whole of the quick-log's "3".
+    ///
+    /// Read off the label rather than a separate `accessibilityValue`:
+    /// giving the text one would have VoiceOver announce "3 of 8, 3".
+    /// The run pins English, so the number does lead.
+    @MainActor
+    func number(in element: XCUIElement) -> String {
+        String(element.label.prefix { $0.isNumber })
+    }
+
+    /// Whether a text came to lead with `number` within the timeout.
+    /// Re-read rather than compared once, because the read straight
+    /// after a tap races the update.
+    @MainActor
+    func waited(
+        for element: XCUIElement, toRead number: String, timeout: TimeInterval = 5
+    ) -> Bool {
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label MATCHES %@", "^\(number)(\\D.*)?$"),
+            object: element
+        )
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 
     /// Saves a screenshot into the result bundle, so a failing run can

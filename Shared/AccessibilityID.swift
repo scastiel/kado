@@ -136,20 +136,27 @@ enum AccessibilityID {
         /// Identified rather than matched on its label, which is
         /// "Supprimer" on the French simulator.
         static let historyDeleteButton = "habitDetail.history.delete"
+    }
 
-        /// The popover that edits one calendar day (`DayEditPopover`).
-        enum DayEdit {
-            /// The "3 of 8" / "3 sur 8" text. A test reads the number
-            /// off the label — the run pins English — rather than off
-            /// a separate `accessibilityValue`, which would have
-            /// VoiceOver say "3 of 8, 3".
-            static let value = "habitDetail.dayEdit.value"
-            /// The `−` and `+` beside the value, and the Clear button
-            /// below it.
-            static let decrement = "habitDetail.dayEdit.decrement"
-            static let increment = "habitDetail.dayEdit.increment"
-            static let clear = "habitDetail.dayEdit.clear"
-        }
+    /// The popover that edits one day (`DayEditPopover`). Its own
+    /// namespace rather than `HabitDetail`'s because the detail
+    /// calendar and the Overview matrix present the same popover: a
+    /// test that opened it from either screen reads the same ids.
+    enum DayEdit {
+        /// The "3 of 8" / "3 sur 8" text. A test reads the number
+        /// off the label — the run pins English — rather than off
+        /// a separate `accessibilityValue`, which would have
+        /// VoiceOver say "3 of 8, 3".
+        static let value = "dayEdit.value"
+        /// The `−` and `+` beside the value, and the Clear button
+        /// below it.
+        static let decrement = "dayEdit.decrement"
+        static let increment = "dayEdit.increment"
+        static let clear = "dayEdit.clear"
+        /// The single "Mark as done" / "Mark as slipped" button a binary
+        /// or negative habit gets instead of a stepper. A leaf `Button`;
+        /// its label is localized, hence the identifier.
+        static let toggle = "dayEdit.toggle"
     }
 
     enum Overview {

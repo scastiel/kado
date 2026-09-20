@@ -122,7 +122,7 @@ final class DevModeSwapTests: KadoUITestCase {
         // matters: a dead app can't move a switch either, and "the
         // toggle never turned off" would send the next reader looking in
         // entirely the wrong place.
-        if !waited(for: toggle, toRead: "0") {
+        if !waited(for: toggle, toHaveValue: "0") {
             XCTAssertEqual(
                 app.state, .runningForeground,
                 "The app crashed during the dev-mode container swap — this is issue #63."
@@ -140,7 +140,7 @@ final class DevModeSwapTests: KadoUITestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        XCTAssertTrue(waited(for: toggle, toRead: value), message, file: file, line: line)
+        XCTAssertTrue(waited(for: toggle, toHaveValue: value), message, file: file, line: line)
     }
 
     /// Whether a switch came to read a given value within the timeout.
@@ -150,7 +150,7 @@ final class DevModeSwapTests: KadoUITestCase {
     /// re-reads rather than a single comparison.
     @MainActor
     private func waited(
-        for toggle: XCUIElement, toRead value: String, timeout: TimeInterval = 30
+        for toggle: XCUIElement, toHaveValue value: String, timeout: TimeInterval = 30
     ) -> Bool {
         let expectation = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", value),
