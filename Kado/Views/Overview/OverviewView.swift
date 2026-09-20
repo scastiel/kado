@@ -15,6 +15,15 @@ import KadoCore
 ///   scroll + cell taps still reach the layer below.
 /// - Outer `ScrollView(.vertical)` keeps the "Overview" title
 ///   collapsing like Today and Settings.
+///
+/// Tapping a cell opens `DayEditPopover` on that (habit × day). The
+/// popover is fed value snapshots — the same `Completion` array the
+/// matrix is computed from — and its callbacks resolve the live
+/// `HabitRecord` from `records` only inside the mutation, never a
+/// fetch. That is what keeps the matrix following its own edits: a
+/// view mutating through its own `@Query` re-renders on a value-only
+/// save (issue #80), and nothing retained across renders holds a
+/// record that a container swap could invalidate (issue #63).
 struct OverviewView: View {
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -27,9 +36,13 @@ struct OverviewView: View {
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
     @Environment(\.streakCalculator) private var streakCalculator
     @Environment(\.habitScoreCalculator) private var scoreCalculator
+    @Environment(\.modelContext) private var modelContext
 
     @State private var selection: CellSelection?
     @State private var showingNewHabit = false
+    /// The latest popover step, for the haptic — recorded at the
+    /// mutation site, as on the detail screen.
+    @State private var quickLog: QuickLogEvent?
 
     private static let dayWindow = 30
     private static let cellSize: CGFloat = 36
@@ -39,12 +52,12 @@ struct OverviewView: View {
     private static let rowGap: CGFloat = 12
     private static let headerHeight: CGFloat = 40
 
-    struct CellSelection: Identifiable, Equatable {
-        let habit: Habit
+    /// The cell whose popover is up. Addressed by id and day only: the
+    /// popover reads its value from the current render, so nothing
+    /// captured at tap time can go stale under it.
+    struct CellSelection: Equatable {
+        let habitID: UUID
         let date: Date
-        let cell: DayCell
-
-        var id: String { "\(habit.id)-\(date.timeIntervalSince1970)" }
     }
 
     var body: some View {
@@ -104,40 +117,49 @@ struct OverviewView: View {
             let score = scoreCalculator.currentScore(for: habit, completions: comps, asOf: now)
             return (habit.id, (streak: streak, scorePercent: Int((score * 100).rounded())))
         })
+        // What the popover reads its value from — the same snapshots the
+        // cells were drawn from, so the two can't disagree.
+        let completionsByHabit = Dictionary(uniqueKeysWithValues: snapshots.map { ($0.id, $1) })
 
         return ScrollView(.vertical) {
             ZStack(alignment: .topLeading) {
-                scrollingCells(rows: rows, days: days)
+                scrollingCells(rows: rows, days: days, completionsByHabit: completionsByHabit)
                 labelsOverlay(rows: rows, metrics: metrics)
             }
             .padding(.vertical, 8)
         }
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
+        .quickLogFeedback(quickLog)
     }
 
     /// Binding that reflects whether a specific (habit, date) cell is
     /// the currently selected one. Used to attach `.popover` per-cell
     /// so the popover anchors to the tapped button rather than the
-    /// whole matrix.
-    private func selectionBinding(habit: Habit, date: Date) -> Binding<Bool> {
+    /// whole matrix. Days compare by calendar day, as the detail
+    /// calendar's binding does, not by instant.
+    private func selectionBinding(habitID: UUID, date: Date) -> Binding<Bool> {
         Binding(
             get: {
                 guard let sel = selection else { return false }
-                return sel.habit.id == habit.id && sel.date == date
+                return sel.habitID == habitID && calendar.isDate(sel.date, inSameDayAs: date)
             },
             set: { newValue in
                 if !newValue,
                    let sel = selection,
-                   sel.habit.id == habit.id,
-                   sel.date == date {
+                   sel.habitID == habitID,
+                   calendar.isDate(sel.date, inSameDayAs: date) {
                     selection = nil
                 }
             }
         )
     }
 
-    private func scrollingCells(rows: [MatrixRow], days: [Date]) -> some View {
+    private func scrollingCells(
+        rows: [MatrixRow],
+        days: [Date],
+        completionsByHabit: [UUID: [Completion]]
+    ) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
                 // Date column headers — scroll horizontally with the cells.
@@ -153,7 +175,7 @@ struct OverviewView: View {
                 ForEach(rows, id: \.habit.id) { row in
                     // Transparent spacer where the label + padding overlay.
                     Color.clear.frame(height: Self.labelHeight + Self.labelBottomPadding)
-                    cellRow(row, days: days)
+                    cellRow(row, days: days, completions: completionsByHabit[row.habit.id] ?? [])
                     if row.habit.id != rows.last?.habit.id {
                         Color.clear.frame(height: Self.rowGap)
                     }
@@ -210,12 +232,16 @@ struct OverviewView: View {
         .allowsHitTesting(false)
     }
 
-    private func cellRow(_ row: MatrixRow, days: [Date]) -> some View {
+    /// Every cell opens the editor, grey ones included — a day the
+    /// schedule didn't ask for can still be logged, as on the detail
+    /// calendar. The window ends today, so `.future` never reaches
+    /// this row and needs no gate.
+    private func cellRow(_ row: MatrixRow, days: [Date], completions: [Completion]) -> some View {
         HStack(spacing: Self.cellSpacing) {
-            ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { _, pair in
+            ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { offset, pair in
                 let (day, cell) = pair
                 Button {
-                    selection = CellSelection(habit: row.habit, date: day, cell: cell)
+                    selection = CellSelection(habitID: row.habit.id, date: day)
                 } label: {
                     MatrixCell(
                         state: cell,
@@ -232,13 +258,95 @@ struct OverviewView: View {
                         calendar: calendar
                     )
                 )
-                .popover(isPresented: selectionBinding(habit: row.habit, date: day)) {
-                    CellPopoverContent(habit: row.habit, date: day, cell: cell)
-                        .presentationCompactAdaptation(.popover)
+                .accessibilityHint(Text("Double-tap to edit this day."))
+                .accessibilityIdentifier(
+                    AccessibilityID.Overview.cell(row.habit.id, daysAgo: days.count - 1 - offset)
+                )
+                .popover(isPresented: selectionBinding(habitID: row.habit.id, date: day)) {
+                    dayEditPopover(for: row.habit, on: day, cell: cell, completions: completions)
                 }
             }
         }
         .frame(height: Self.cellSize)
+    }
+
+    /// The editor for one cell, fed from the render's value snapshots.
+    /// Kept out of `cellRow` so the type-checker has one closure fewer
+    /// to fit inside the `ForEach`.
+    private func dayEditPopover(
+        for habit: Habit,
+        on day: Date,
+        cell: DayCell,
+        completions: [Completion]
+    ) -> some View {
+        let completion = completions.first { calendar.isDate($0.date, inSameDayAs: day) }
+        let notScheduled: Bool
+        switch cell {
+        case .notDue, .offSchedule:
+            notScheduled = true
+        case .future, .scored:
+            notScheduled = false
+        }
+        return DayEditPopover(
+            habit: habit,
+            date: day,
+            currentValue: completion?.value ?? 0,
+            currentNote: completion?.note,
+            onToggle: { toggle(habit, on: day) },
+            onSetCounter: { value in setCounter(value, for: habit, on: day) },
+            onSetTimerSeconds: { seconds in setTimerSeconds(seconds, for: habit, on: day) },
+            onClear: { clear(habit, on: day) },
+            onNoteChanged: { note in setNote(note, for: habit, on: day) },
+            notScheduled: notScheduled
+        )
+        .presentationCompactAdaptation(.popover)
+    }
+
+    // MARK: - Cell popover mutations
+
+    private var dayEditor: DayCompletionEditor { DayCompletionEditor(calendar: calendar) }
+
+    /// The live record behind a cell, resolved against the query that
+    /// is mounted now. Called from the mutations only, never from a
+    /// render — see the type comment.
+    private func record(for habit: Habit) -> HabitRecord? {
+        records.first { $0.id == habit.id }
+    }
+
+    private func recordQuickLog(_ change: DayCompletionEditor.Change, type: HabitType) {
+        guard let event = QuickLogEvent.next(
+            after: quickLog, type: type, oldValue: change.before, newValue: change.after
+        ) else { return }
+        quickLog = event
+    }
+
+    private func toggle(_ habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        let change = dayEditor.toggle(for: record, on: day, in: modelContext)
+        recordQuickLog(change, type: habit.type)
+    }
+
+    private func setCounter(_ value: Double, for habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        let change = dayEditor.setCounter(value, for: record, on: day, in: modelContext)
+        recordQuickLog(change, type: habit.type)
+    }
+
+    private func setTimerSeconds(_ seconds: TimeInterval, for habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        let change = dayEditor.setTimerSeconds(seconds, for: record, on: day, in: modelContext)
+        recordQuickLog(change, type: habit.type)
+    }
+
+    private func clear(_ habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        let change = dayEditor.clear(for: record, on: day, in: modelContext)
+        recordQuickLog(change, type: habit.type)
+    }
+
+    private func setNote(_ note: String?, for habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        dayEditor.setNote(note, for: record, on: day, in: modelContext)
     }
 
     private func dayRange(endingAt today: Date) -> [Date] {

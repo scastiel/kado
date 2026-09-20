@@ -278,66 +278,38 @@ struct HabitDetailView: View {
         completion(on: day)?.note
     }
 
+    /// The popover's mutations, shared with the Overview matrix. Each
+    /// wrapper resolves the record here — from this view's own query —
+    /// and hands the editor's `Change` to the haptic.
+    private var dayEditor: DayCompletionEditor { DayCompletionEditor(calendar: calendar) }
+
     private func toggle(on day: Date) {
         guard let record else { return }
-        CompletionToggler(calendar: calendar).toggleToday(for: record, on: day, in: modelContext)
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
+        let change = dayEditor.toggle(for: record, on: day, in: modelContext)
+        recordQuickLog(from: change.before, to: change.after)
     }
 
     private func setCounter(_ value: Double, on day: Date) {
         guard let record else { return }
-        let logger = CompletionLogger(calendar: calendar)
-        let before = logger.value(for: record, on: day)
-        logger.setCounter(for: record, on: day, to: value, in: modelContext)
-        recordQuickLog(from: before, to: max(0, value))
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
+        let change = dayEditor.setCounter(value, for: record, on: day, in: modelContext)
+        recordQuickLog(from: change.before, to: change.after)
     }
 
     private func setTimerSeconds(_ seconds: TimeInterval, on day: Date) {
-        // logTimerSession would create a zero-value record for 0 seconds;
-        // route "stepped to 0" through clear() so the day returns to missed.
-        if seconds <= 0 {
-            clear(on: day)
-            return
-        }
         guard let record else { return }
-        let logger = CompletionLogger(calendar: calendar)
-        let before = logger.value(for: record, on: day)
-        logger.logTimerSession(
-            for: record,
-            seconds: seconds,
-            on: day,
-            in: modelContext
-        )
-        recordQuickLog(from: before, to: seconds)
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
+        let change = dayEditor.setTimerSeconds(seconds, for: record, on: day, in: modelContext)
+        recordQuickLog(from: change.before, to: change.after)
     }
 
     private func setNote(_ note: String?, on day: Date) {
         guard let record else { return }
-        CompletionLogger(calendar: calendar).setNote(for: record, on: day, to: note, in: modelContext)
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
+        dayEditor.setNote(note, for: record, on: day, in: modelContext)
     }
 
     private func clear(on day: Date) {
-        // Matched on the snapshot's id rather than re-derived from the
-        // day, so the record cleared is the one the user was looking at.
-        guard let snapshot = completion(on: day),
-              let existing = completionRecord(for: snapshot)
-        else { return }
-        let before = existing.value
-        if existing.note != nil {
-            existing.value = 0
-        } else {
-            CompletionLogger(calendar: calendar).delete(existing, in: modelContext)
-        }
-        recordQuickLog(from: before, to: 0)
-        try? modelContext.save()
-        WidgetReloader.reloadAll(using: modelContext)
+        guard let record else { return }
+        let change = dayEditor.clear(for: record, on: day, in: modelContext)
+        recordQuickLog(from: change.before, to: change.after)
     }
 
     /// What the History list gets to delete with: nothing once the

@@ -29,7 +29,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         // the one step that used to refresh the screen. The taps after
         // it are the ones that didn't.
         let day = openDayEditPopover(daysAgo: 2, in: app)
-        let value = app.staticTexts[AccessibilityID.HabitDetail.DayEdit.value]
+        let value = app.staticTexts[AccessibilityID.DayEdit.value]
         XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
         XCTAssertEqual(
             number(in: value), "0",
@@ -37,7 +37,7 @@ final class DayEditPopoverTests: KadoUITestCase {
         )
 
         for _ in 0..<3 {
-            tapIncrement(in: app)
+            tapDayEditIncrement(in: app)
         }
 
         capture(app, "day-edit-after-three-taps")
@@ -85,18 +85,18 @@ final class DayEditPopoverTests: KadoUITestCase {
         openTimerHabitDetail(in: app)
 
         openDayEditPopover(daysAgo: 2, in: app)
-        let value = app.staticTexts[AccessibilityID.HabitDetail.DayEdit.value]
+        let value = app.staticTexts[AccessibilityID.DayEdit.value]
         XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
         XCTAssertEqual(number(in: value), "0")
 
-        tapIncrement(in: app)
-        tapIncrement(in: app)
+        tapDayEditIncrement(in: app)
+        tapDayEditIncrement(in: app)
         XCTAssertTrue(
             waited(for: value, toRead: "2"),
             "Two taps on + should read 2 minutes; it shows \(value.label)."
         )
 
-        let minus = app.buttons[AccessibilityID.HabitDetail.DayEdit.decrement].firstMatch
+        let minus = app.buttons[AccessibilityID.DayEdit.decrement].firstMatch
         minus.tap()
         minus.tap()
         capture(app, "timer-day-back-to-zero")
@@ -105,7 +105,7 @@ final class DayEditPopoverTests: KadoUITestCase {
             "Two taps on − should read 0; it shows \(value.label)."
         )
         XCTAssertFalse(
-            app.buttons[AccessibilityID.HabitDetail.DayEdit.clear].exists,
+            app.buttons[AccessibilityID.DayEdit.clear].exists,
             "Clear should go away once the day is empty again."
         )
     }
@@ -133,41 +133,5 @@ final class DayEditPopoverTests: KadoUITestCase {
         scrollTo(cell, in: app)
         cell.tap()
         return day
-    }
-
-    /// Taps the popover's `+`.
-    ///
-    /// Re-queried on every call rather than held: if the popover were
-    /// ever re-presented under a tap, a held element would go stale.
-    @MainActor
-    private func tapIncrement(in app: XCUIApplication) {
-        let plus = app.buttons[AccessibilityID.HabitDetail.DayEdit.increment].firstMatch
-        XCTAssertTrue(plus.waitForExistence(timeout: 5), "The popover's + never appeared.")
-        plus.tap()
-    }
-
-    /// The number a value text leads with — "3" out of "3 of 8", or the
-    /// whole of the quick-log's "3".
-    ///
-    /// Read off the label rather than a separate `accessibilityValue`:
-    /// giving the text one would have VoiceOver announce "3 of 8, 3".
-    /// The run pins English, so the number does lead.
-    @MainActor
-    private func number(in element: XCUIElement) -> String {
-        String(element.label.prefix { $0.isNumber })
-    }
-
-    /// Whether a text came to lead with `number` within the timeout.
-    /// Re-read rather than compared once, because the read straight
-    /// after a tap races the update.
-    @MainActor
-    private func waited(
-        for element: XCUIElement, toRead number: String, timeout: TimeInterval = 5
-    ) -> Bool {
-        let expectation = XCTNSPredicateExpectation(
-            predicate: NSPredicate(format: "label MATCHES %@", "^\(number)(\\D.*)?$"),
-            object: element
-        )
-        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }

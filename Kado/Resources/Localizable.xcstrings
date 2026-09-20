@@ -371,23 +371,6 @@
         }
       }
     },
-    "%@ — not scheduled that day" : {
-      "comment" : "Status label in the Overview cell popover for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'Completed'.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ — not scheduled that day"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ — jour non prévu"
-          }
-        }
-      }
-    },
     "%@, off schedule" : {
       "comment" : "VoiceOver state for an Overview cell logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'.",
       "localizations" : {
@@ -894,7 +877,7 @@
       }
     },
     "%lld%% complete" : {
-      "comment" : "Status label for an Overview cell that shows partial completion (counter or timer between 0 and target). Used in the cell popover and in the VoiceOver label. %lld is the percentage 0-100.",
+      "comment" : "VoiceOver state for an Overview cell that shows partial completion (counter or timer between 0 and target). %lld is the percentage 0-100.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1262,23 +1245,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "fait"
-          }
-        }
-      }
-    },
-    "Completed" : {
-      "comment" : "Status label in the Overview cell popover for a fully-completed day.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completed"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fait"
           }
         }
       }
@@ -2400,23 +2366,6 @@
         }
       }
     },
-    "Missed" : {
-      "comment" : "Status label in the Overview cell popover for a scheduled day with no completion logged.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Missed"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manqué"
-          }
-        }
-      }
-    },
     "New habit" : {
       "comment" : "Toolbar button on the Today view that opens the new-habit sheet. Note: lower-case 'habit' distinguishes it from the 'New Habit' form title.",
       "localizations" : {
@@ -2606,7 +2555,7 @@
       }
     },
     "Not scheduled" : {
-      "comment" : "Status label in the Overview cell popover when a day is off-schedule for the habit.",
+      "comment" : "Caption under the date in the day-edit popover when the habit's schedule didn't ask for that day (Overview matrix).",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3791,23 +3740,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "à venir"
-          }
-        }
-      }
-    },
-    "Upcoming" : {
-      "comment" : "Status label in the Overview cell popover for a future day.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upcoming"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "À venir"
           }
         }
       }
