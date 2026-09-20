@@ -2,17 +2,16 @@ import SwiftUI
 import WidgetKit
 
 /// The medium home widget's content — a two-column habit grid plus a
-/// progress summary. `TodayProgressMediumWidget` in the extension
+/// progress summary, narrowed to the habits the user picked in the
+/// widget-edit sheet. `TodayProgressMediumWidget` in the extension
 /// wraps it; the app draws it directly for the listing's widget
 /// screenshot.
 public struct TodayProgressMediumView: View {
-    let entry: SnapshotEntry
+    let entry: SelectedSnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
 
-    private let limit = 8
-
-    public init(entry: SnapshotEntry) {
+    public init(entry: SelectedSnapshotEntry) {
         self.entry = entry
     }
 
@@ -20,11 +19,19 @@ public struct TodayProgressMediumView: View {
         WidgetPalette(renderingMode: renderingMode)
     }
 
+    private var rows: [WidgetTodayRow] {
+        entry.todayRows(limit: WidgetHabitLimit.medium)
+    }
+
+    private var isFilteredOut: Bool {
+        entry.isFilteredOut(limit: WidgetHabitLimit.medium)
+    }
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             header
-            if entry.snapshot.today.isEmpty {
-                TodayEmptyPlaceholder()
+            if rows.isEmpty {
+                TodayEmptyPlaceholder(isFilteredOut: isFilteredOut)
             } else {
                 cellGrid
             }
@@ -33,20 +40,28 @@ public struct TodayProgressMediumView: View {
     }
 
     private var header: some View {
-        HStack {
+        // Counts the pick when there is one, the whole day when there
+        // isn't — otherwise the summary describes habits this tile
+        // deliberately hides. And no count at all when the pick has
+        // nothing to show: "0 / 0 done" over the placeholder says
+        // nothing the placeholder doesn't.
+        let progress = entry.progress(limit: WidgetHabitLimit.medium)
+        return HStack {
             Text("Today")
                 .font(.headline)
                 .foregroundStyle(palette.foreground)
                 .widgetAccentable()
             Spacer()
-            Text(
-                String(
-                    localized: "\(entry.snapshot.completedToday) / \(entry.snapshot.totalDueToday) done",
-                    comment: "Widget progress summary. Arg 1 is completed count, arg 2 is total count."
+            if !isFilteredOut {
+                Text(
+                    String(
+                        localized: "\(progress.completed) / \(progress.total) done",
+                        comment: "Widget progress summary. Arg 1 is completed count, arg 2 is total count."
+                    )
                 )
-            )
-            .font(.caption.monospacedDigit())
-            .foregroundStyle(palette.foregroundSecondary)
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(palette.foregroundSecondary)
+            }
         }
     }
 
@@ -58,7 +73,7 @@ public struct TodayProgressMediumView: View {
             ],
             spacing: 4
         ) {
-            ForEach(entry.snapshot.today.prefix(limit)) { row in
+            ForEach(rows) { row in
                 HabitWidgetCell(row: row)
             }
         }
