@@ -166,6 +166,17 @@ enum AccessibilityID {
         static func habitLabel(_ habitID: UUID) -> String {
             "overview.label.\(habitID.uuidString)"
         }
+        /// One cell of the matrix: the habit's `UUID` and how many
+        /// days back the column is, today being 0. The suite can't know
+        /// the app's logical "today", but it does know today is the
+        /// last column, which is all a test needs. The cell is a
+        /// `Button` whose label is a shape, so it is one element and
+        /// this lands on a leaf.
+        static func cell(_ habitID: UUID, daysAgo: Int) -> String {
+            "\(cellPrefix)\(habitID.uuidString).\(daysAgo)"
+        }
+        /// What `cell` builds on, for an "any cell" query.
+        static let cellPrefix = "overview.cell."
     }
 
     enum NewHabit {
