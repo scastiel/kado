@@ -217,6 +217,24 @@ public struct WidgetTodayRow: Codable, Sendable, Identifiable, Hashable {
         self.streak = streak
         self.scorePercent = scorePercent
     }
+
+    /// Whether the day counts as done for this row — the widget-side
+    /// twin of `HabitRowState.isDone(for:)`, which built
+    /// `WidgetSnapshot.completedToday` in the first place.
+    ///
+    /// `status` describes what was *recorded*, and for a negative habit
+    /// a record is a slip: `.complete` means the user gave in. Any
+    /// widget that tallies a subset of these rows must count by this
+    /// and not by `status == .complete`, or the picked summary
+    /// congratulates a slip.
+    public var isDone: Bool {
+        switch habit.typeKind {
+        case .negative:
+            return status != .complete
+        case .binary, .counter, .timer:
+            return status == .complete
+        }
+    }
 }
 
 /// One row of the weekly matrix. Cells carry the raw daily value
