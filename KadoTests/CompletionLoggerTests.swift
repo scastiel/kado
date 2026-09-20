@@ -431,4 +431,52 @@ struct CompletionLoggerTests {
         #expect(habit.completions?.first?.value == 0)
         #expect(habit.completions?.first?.note == "Important")
     }
+
+    @Test("clear deletes the day's completion when it carries no note")
+    func clearDeletesWithoutNote() throws {
+        let habit = HabitRecord(type: .timer(targetSeconds: 1800))
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 600, habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.clear(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
+    @Test("clear zeroes the day's completion and keeps its note")
+    func clearKeepsNoteRecord() throws {
+        let habit = HabitRecord(type: .binary)
+        container.mainContext.insert(habit)
+        let existing = CompletionRecord(date: TestCalendar.day(0), value: 1, note: "Important", habit: habit)
+        container.mainContext.insert(existing)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.clear(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 0)
+        #expect(habit.completions?.first?.note == "Important")
+    }
+
+    @Test("clear on a day with no completion inserts nothing")
+    func clearOnEmptyDayIsNoOp() throws {
+        let habit = HabitRecord(type: .counter(target: 8))
+        container.mainContext.insert(habit)
+        let other = CompletionRecord(date: TestCalendar.day(-1), value: 3, habit: habit)
+        container.mainContext.insert(other)
+        try container.mainContext.save()
+
+        let logger = CompletionLogger(calendar: TestCalendar.utc)
+        logger.clear(for: habit, on: TestCalendar.day(0), in: container.mainContext)
+        try container.mainContext.save()
+
+        #expect(habit.completions?.count == 1)
+        #expect(habit.completions?.first?.value == 3)
+    }
 }

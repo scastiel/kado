@@ -68,22 +68,33 @@ struct CompletionLogger {
         to value: Double,
         in context: ModelContext
     ) {
-        let existing = todayCompletion(for: habit, on: date)
         if value <= 0 {
-            if let existing {
-                if existing.note != nil {
-                    existing.value = 0
-                } else {
-                    context.delete(existing)
-                }
-            }
+            clear(for: habit, on: date, in: context)
             return
         }
-        if let existing {
+        if let existing = todayCompletion(for: habit, on: date) {
             existing.value = value
         } else {
             let completion = CompletionRecord(date: date, value: value, habit: habit)
             context.insert(completion)
+        }
+    }
+
+    /// Empties the day: deletes its record, or zeroes the value when
+    /// the record carries a note the user would otherwise lose. The
+    /// day popover's Clear, `setCounter`'s non-positive branch and a
+    /// timer stepped down to zero are all this one operation. No-op
+    /// when the day has no record.
+    func clear(
+        for habit: HabitRecord,
+        on date: Date = .now,
+        in context: ModelContext
+    ) {
+        guard let existing = todayCompletion(for: habit, on: date) else { return }
+        if existing.note != nil {
+            existing.value = 0
+        } else {
+            context.delete(existing)
         }
     }
 
