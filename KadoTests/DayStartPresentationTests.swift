@@ -46,6 +46,28 @@ struct DayStartPresentationTests {
         #expect(Set(labels).count == labels.count)
     }
 
+    /// The picker used to stop at 6 AM, so no label ever had to say
+    /// "PM" or reach a 24-hour clock's second half. Afternoon hours
+    /// (#93) render through the same locale-negotiated template; this
+    /// pins what that produces in a 12-hour and a 24-hour locale. The
+    /// expected strings are pasted from a run, not hand-derived — which
+    /// is how the `U+202F` narrow no-break space before "PM" got
+    /// noticed: it prints as an ordinary space and fails an ordinary
+    /// space.
+    @Test("An afternoon hour reads as a time of day in both clock styles")
+    func afternoonLabelFollowsTheLocaleClock() {
+        var twelveHour = Calendar(identifier: .gregorian)
+        twelveHour.timeZone = TimeZone(identifier: "UTC")!
+        twelveHour.locale = Locale(identifier: "en_US_POSIX")
+
+        var twentyFourHour = Calendar(identifier: .gregorian)
+        twentyFourHour.timeZone = TimeZone(identifier: "UTC")!
+        twentyFourHour.locale = Locale(identifier: "fr_FR")
+
+        #expect(DayStartHourLabel.text(for: 14, calendar: twelveHour) == "2:00\u{202F}PM")
+        #expect(DayStartHourLabel.text(for: 14, calendar: twentyFourHour) == "14:00")
+    }
+
     // MARK: - The Today caption
 
     @Test("The caption is hidden under the midnight default")
@@ -63,6 +85,19 @@ struct DayStartPresentationTests {
         for hour in 0..<24 {
             let now = TestCalendar.instant(TestCalendar.utc, 2026, 8, 11, hour, 30)
             #expect(TodayDayCaption.isBeforeRollover(boundary, now: now) == (hour < 4))
+        }
+    }
+
+    /// With an afternoon rollover the window is most of the wall-clock
+    /// day rather than a few night hours. The rule doesn't change: the
+    /// caption shows exactly while the logical day trails the calendar
+    /// one, whatever the hour.
+    @Test("The caption window follows an afternoon rollover too")
+    func captionWindowFollowsAnAfternoonRollover() {
+        let boundary = DayBoundary(calendar: TestCalendar.utc, startHour: 14)
+        for hour in 0..<24 {
+            let now = TestCalendar.instant(TestCalendar.utc, 2026, 8, 11, hour, 30)
+            #expect(TodayDayCaption.isBeforeRollover(boundary, now: now) == (hour < 14))
         }
     }
 

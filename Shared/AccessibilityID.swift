@@ -184,6 +184,9 @@ enum AccessibilityID {
         /// "Week starts on" on one simulator and "La semaine commence
         /// le" on the other.
         static let weekStartPicker = "settings.weekStart.picker"
+        /// Same reason: "Day starts at" on one simulator, "La journée
+        /// commence à" on the other.
+        static let dayStartPicker = "settings.dayStart.picker"
     }
 
     /// The tiles of the Debug-only widget gallery the App Store

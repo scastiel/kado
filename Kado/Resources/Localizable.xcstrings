@@ -4009,36 +4009,36 @@
         }
       }
     },
-    "The day rolls over at midnight. Set a later hour if you log habits after midnight and still think of it as the same day." : {
+    "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights." : {
       "comment" : "Settings footer under the day-start picker while it is set to midnight.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The day rolls over at midnight. Set a later hour if you log habits after midnight and still think of it as the same day."
+            "value" : "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La journée change à minuit. Choisis une heure plus tardive si tu notes tes habitudes après minuit et que c'est encore la même journée pour toi."
+            "value" : "La journée change à minuit. Choisis une autre heure si la tienne ne commence pas là : au petit matin si tu veilles après minuit, ou l'après-midi si tu travailles de nuit."
           }
         }
       }
     },
-    "Until this hour, Today still shows the previous day — so a late-night tap lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged." : {
+    "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged." : {
       "comment" : "Settings footer under the day-start picker once a custom hour is set.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Until this hour, Today still shows the previous day — so a late-night tap lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
+            "value" : "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jusqu'à cette heure, Aujourd'hui affiche encore la journée précédente : ce que tu notes tard le soir se range au bon endroit. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée."
+            "value" : "Jusqu'à cette heure, Aujourd'hui affiche encore la journée précédente : ce que tu notes avant se range au bon endroit. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée."
           }
         }
       }
