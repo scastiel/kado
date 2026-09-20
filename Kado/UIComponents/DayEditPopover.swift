@@ -30,6 +30,12 @@ struct DayEditPopover: View {
     let onSetTimerSeconds: (TimeInterval) -> Void
     let onClear: () -> Void
     let onNoteChanged: (String?) -> Void
+    /// Whether the habit's schedule asked for this day. The Overview
+    /// matrix passes it for its grey and off-schedule cells, where the
+    /// tint is the only other hint; a caption under the date carries
+    /// the fact the read-only popover used to state. Editing is the
+    /// same either way — a day logged off schedule still counts.
+    var notScheduled: Bool = false
 
     @Environment(\.calendar) private var calendar
     @Environment(\.dismiss) private var dismiss
@@ -67,6 +73,11 @@ struct DayEditPopover: View {
             Text(formattedDate)
                 .font(.subheadline)
                 .foregroundStyle(Color.kadoForegroundSecondary)
+            if notScheduled {
+                Text("Not scheduled")
+                    .font(.caption)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
+            }
         }
     }
 
@@ -374,6 +385,28 @@ struct DayEditPopover: View {
         onSetTimerSeconds: { _ in },
         onClear: {},
         onNoteChanged: { _ in }
+    )
+}
+
+#Preview("Binary — not scheduled") {
+    DayEditPopover(
+        habit: Habit(
+            name: "Gym",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: .now,
+            color: .orange,
+            icon: "dumbbell.fill"
+        ),
+        date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
+        currentValue: 0,
+        currentNote: nil,
+        onToggle: {},
+        onSetCounter: { _ in },
+        onSetTimerSeconds: { _ in },
+        onClear: {},
+        onNoteChanged: { _ in },
+        notScheduled: true
     )
 }
 

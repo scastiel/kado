@@ -2606,7 +2606,7 @@
       }
     },
     "Not scheduled" : {
-      "comment" : "Status label in the Overview cell popover when a day is off-schedule for the habit.",
+      "comment" : "Caption under the date in the day-edit popover when the habit's schedule didn't ask for that day (Overview matrix).",
       "localizations" : {
         "en" : {
           "stringUnit" : {
