@@ -1,9 +1,50 @@
 # Compound — Widget habit selection
 
-**Date**: 2026-09-07
+**Date**: 2026-09-07 · second attempt 2026-09-20
 **Status**: complete
-**Plan**: [plan.md](./plan.md)
-**Branch / PR**: `worktree-widget-large-metrics` — [#76](https://github.com/scastiel/kado/pull/76)
+**Plan**: [plan.md](./plan.md) · **Research**: [research.md](./research.md)
+**Branch / PR**: first attempt `worktree-widget-large-metrics` — [#76](https://github.com/scastiel/kado/pull/76), reverted; second attempt `feature/widget-habit-selection` for [#77](https://github.com/scastiel/kado/issues/77)
+
+## Second attempt — what changed and what was learned
+
+The first attempt below was reverted the same evening because the widget extension could not read back a stored pick, and the issue that carried the diagnosis pointed at the KadoCore package as the likely cause with "move the entity into the extension" as the next step. The second attempt did not start by building that. It started by asking what "registered" meant inside AppIntents, and found that nothing was wrong with the code.
+
+### The blocker was the simulator's signature, not the package
+
+- **What happened**: the same `SelectHabitsIntent` — `[HabitEntity]?` in KadoCore, per-family `size:` caps — decoded a stored pick on an iOS 27 simulator as-is, cold extension process and warm. On an iOS 26.5 simulator it decoded to an empty array, and AppIntents' own debug log said why: `linkd` had rejected the extension's request for the entity metadata (`Failed to generate bundleIdentity … Unable to get teamId … Rejecting invalid client due to requiresValidBundle`). Xcode signs simulator builds ad hoc, with no team identifier, and refuses any other identity for the simulator SDK. Re-signing the built products with the keychain's Apple Development identity and reinstalling over the same placed widget: `picked=2`.
+- **What we did**: kept every intent and entity in KadoCore, as the project's rule says; added `Scripts/resign-simulator.sh` and made `make run` call it; recorded the trace in `research.md` and the rule in `CLAUDE.md`.
+- **Lesson**: **a "not registered" failure in a system framework is a question about the process, not about the module the type is compiled into.** The DTS answers and forum threads that point at Swift packages are describing a different, build-time failure (metadata never extracted); ours had correct metadata and a runtime daemon saying no. Read the daemon's log before restructuring the code — `com.apple.appintents` at `--level debug` said the whole story in one line, and #76 never streamed it.
+
+### The lock-screen picker was never broken
+
+- **What happened**: #77 suspected `PickHabitIntent` had "never persisted either". Hosting its exact code path on a home widget and reading the log showed `picked=1` on iOS 27, and the same `linkd` rejection on an ad-hoc 26.5 build. Production builds are team-signed. Nothing to fix, and the fear that shaped the issue's priority was a simulator artefact.
+- **Lesson**: before promoting a suspicion to a production bug, reproduce it under the conditions production runs under — here, a signed build — or at least name the condition that differs.
+
+### The reverted summary miscounted negative habits
+
+- **What happened**: `WidgetHabitSelection.progress` counted a pick's done rows as `status == .complete`. `WidgetSnapshotBuilder` builds the whole-day tally with `HabitRowState.isDone`, where a negative habit's `.complete` is a slip. The picked summary would have said "1 / 1 done" for a "don't" habit the user had just given in on.
+- **What we did**: `WidgetTodayRow.isDone`, the rule's widget-side twin; `progress` uses it; a builder test pins `completedToday == today.filter(\.isDone).count` so the two cannot drift.
+- **Lesson**: when a view re-derives a number the model already computes, derive it *through the model's rule* — a twin with a name — not by re-reading the raw status.
+
+### Driving the Home Screen without a human
+
+- **What happened**: XcodeBuildMCP has no taps; its bundled `axe` loads on Xcode 27 only through a symlinked shadow `Xcode.app`, and then reads the tree but drops every tap. A throwaway XCUITest against `com.apple.springboard` placed each widget, opened **Edit Widget**, worked the list editor and picked habits, on both runtimes, with the verdict read from the console log. Two traps: `xcodebuild test` sometimes never exits after the suite (the log is complete; kill it), and tapping the status bar does not dismiss the edit sheet — tap the blurred area below it.
+- **What we did**: kept the driver out of the suite, per the decision to defer a shipped SpringBoard test; wrote the recipe into `CLAUDE.md`.
+
+### `make test` on an iOS 27.0 simulator
+
+- **What happened**: the unit-test host crashed non-deterministically in whichever SwiftData suite was running (`No eligible connection available`), and `-quiet` reported every remaining test as failed. Green on an iOS 26.5 device, twice.
+- **What we did**: ran the suite on 26.5; noted the runtime in `CLAUDE.md`.
+
+### Metrics, second attempt
+
+- Commits: 7 (log line, docs, selection logic, intent + provider, widgets, manifest test, tooling) + this compound.
+- Tests added: 15 (`WidgetHabitSelectionTests`) + 5 (`WidgetIntentManifestTests`) + 1 builder invariant; 655 tests in 67 suites green on iOS 26.5.
+- Verified by log on iOS 27.0 (ad hoc) and iOS 26.5 (re-signed): small `picked=2`, medium `picked=3`, large `picked=3`, cold extension process; the not-due placeholder; dark mode.
+
+---
+
+## First attempt (2026-09-07), as written
 
 ## Summary
 

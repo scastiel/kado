@@ -165,9 +165,12 @@ DNA (habit score, offline, privacy) in place from the start.
 at-a-glance overview, notifications, frictionless data portability.
 
 ### Widgets
-- [x] Small home screen widget: today's grid (5-6 habits max)
-- [x] Medium home screen widget: grid + progress
-- [x] Large home screen widget: weekly view
+- [x] Small home screen widget: today's grid (up to 5 habits)
+- [x] Medium home screen widget: grid + progress (up to 8)
+- [x] Large home screen widget: weekly view (up to 5)
+- [x] Each placed home widget picks its own habits, in pick order,
+      through the widget-edit sheet — see
+      `docs/plans/2026-09/widget-habit-selection/`
 - [x] Lock screen widget (rectangular, circular, inline) — plus a
       "Daily Progress" ring with today's completed / scheduled count,
       see `docs/plans/2026-09/daily-completion-reward/`

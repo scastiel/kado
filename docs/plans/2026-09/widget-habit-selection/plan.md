@@ -1,7 +1,7 @@
 # Plan — Widget habit selection
 
 **Date**: 2026-09-07 · second attempt 2026-09-20
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md) — written for the second attempt; the first was planned directly from the request.
 
 > **Second attempt (#77).** The first attempt built everything below and reverted it, because the widget extension could not decode a stored pick. [research.md](./research.md) traces that to the ad-hoc signature of simulator builds on iOS 26.x, not to the code: the same code decodes on an iOS 27 simulator as-is and on an iOS 26.5 simulator once the build is re-signed. The three tasks below are therefore rebuilt as written, with these additions:
