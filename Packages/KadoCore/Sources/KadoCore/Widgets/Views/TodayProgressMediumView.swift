@@ -42,9 +42,9 @@ public struct TodayProgressMediumView: View {
     private var header: some View {
         // Counts the pick when there is one, the whole day when there
         // isn't — otherwise the summary describes habits this tile
-        // deliberately hides. And no count at all when the pick has
-        // nothing to show: "0 / 0 done" over the placeholder says
-        // nothing the placeholder doesn't.
+        // deliberately hides. And no count at all when nothing in the
+        // pick is due today: "0 / 0 done" over dimmed rows, or over
+        // the placeholder, says nothing they don't.
         let progress = entry.progress(limit: WidgetHabitLimit.medium)
         return HStack {
             Text("Today")
@@ -52,7 +52,7 @@ public struct TodayProgressMediumView: View {
                 .foregroundStyle(palette.foreground)
                 .widgetAccentable()
             Spacer()
-            if !isFilteredOut {
+            if !entry.hasNothingDue(limit: WidgetHabitLimit.medium) {
                 Text(
                     String(
                         localized: "\(progress.completed) / \(progress.total) done",

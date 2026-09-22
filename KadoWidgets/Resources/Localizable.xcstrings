@@ -393,6 +393,23 @@
         }
       }
     },
+    "Not today" : {
+      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas aujourd'hui"
+          }
+        }
+      }
+    },
     "Score %lld percent" : {
       "comment" : "VoiceOver label for a large-widget habit row with no active streak. Arg: EMA score percent (0-100).",
       "localizations" : {

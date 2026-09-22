@@ -26,16 +26,39 @@ public enum WidgetHabitLimit {
 /// renamed, archived and deleted. Everything here is about that gap.
 public enum WidgetHabitSelection {
 
-    /// The today rows a widget should draw. Habits not due today are
-    /// absent from `snapshot.today` and so drop out on their own —
-    /// deliberate, since the small and medium tiles exist to complete
-    /// what's due and a row you can't act on would be noise.
+    /// The today rows a widget should draw.
+    ///
+    /// With no pick, the day's due list, as it always was. With a pick,
+    /// every picked habit the snapshot still knows, in pick order: due
+    /// ones as their row, the others as a fabricated row marked
+    /// `isDueToday == false`, which the tile draws dimmed and inert.
+    /// The first attempt dropped those, and a pick that vanished on the
+    /// days it wasn't scheduled read as a pick that was lost — the
+    /// exact symptom the feature had just been reverted for.
     public static func todayRows(
         from snapshot: WidgetSnapshot,
         selecting ids: [UUID],
         limit: Int
     ) -> [WidgetTodayRow] {
-        pick(snapshot.today, ids: ids, limit: limit, id: \.habit.id)
+        guard !ids.isEmpty else {
+            return pick(snapshot.today, ids: [], limit: limit, id: \.habit.id)
+        }
+        let dueByID = Dictionary(
+            snapshot.today.map { ($0.habit.id, $0) }, uniquingKeysWith: { first, _ in first }
+        )
+        return resolve(ids, in: snapshot.habits)
+            .prefix(max(limit, 0))
+            .map { habit in
+                dueByID[habit.id] ?? WidgetTodayRow(
+                    habit: habit,
+                    status: .none,
+                    progress: 0,
+                    valueToday: nil,
+                    streak: habit.currentStreak,
+                    scorePercent: habit.scorePercent,
+                    isDueToday: false
+                )
+            }
     }
 
     /// The weekly-matrix rows a widget should draw. Unlike the today
@@ -56,8 +79,9 @@ public enum WidgetHabitSelection {
     /// showing the first eight of twelve due habits still reports
     /// progress against all twelve, which is the number the user
     /// actually wants. With a pick it counts only what the tile
-    /// shows, because "2 / 9 done" over three visible rows is a
-    /// summary of something the user can't see.
+    /// shows *and owes*: "2 / 9 done" over three visible rows is a
+    /// summary of something the user can't see, and a picked habit
+    /// that isn't due today is not owed.
     public static func progress(
         from snapshot: WidgetSnapshot,
         selecting ids: [UUID],
@@ -66,11 +90,11 @@ public enum WidgetHabitSelection {
         guard !ids.isEmpty else {
             return (snapshot.completedToday, snapshot.totalDueToday)
         }
-        let rows = todayRows(from: snapshot, selecting: ids, limit: limit)
+        let due = todayRows(from: snapshot, selecting: ids, limit: limit).filter(\.isDueToday)
         // `isDone`, not `status == .complete`: for a negative habit that
         // is a slip, and the whole-day tally above was built by the
         // same rule.
-        return (rows.filter(\.isDone).count, rows.count)
+        return (due.filter(\.isDone).count, due.count)
     }
 
     /// Rehydrates a stored pick — this is what `HabitEntityQuery` runs

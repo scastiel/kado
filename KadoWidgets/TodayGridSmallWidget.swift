@@ -42,7 +42,17 @@ struct TodayGridSmallWidget: Widget {
     )
 }
 
-#Preview("Picked, none due", as: .systemSmall) {
+#Preview("Picked, one not due today", as: .systemSmall) {
+    TodayGridSmallWidget()
+} timeline: {
+    SelectedSnapshotEntry(
+        date: .now,
+        snapshot: PreviewSnapshots.populated,
+        habitIDs: PreviewSnapshots.pickedWithNotDueIDs
+    )
+}
+
+#Preview("Picked, all gone", as: .systemSmall) {
     TodayGridSmallWidget()
 } timeline: {
     SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [UUID()])

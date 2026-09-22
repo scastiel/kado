@@ -202,13 +202,26 @@ public struct WidgetTodayRow: Codable, Sendable, Identifiable, Hashable {
     public let streak: Int
     public let scorePercent: Int
 
+    /// `false` for a row a home widget shows because the user *picked*
+    /// the habit, on a day it isn't scheduled — drawn dimmed, not
+    /// tappable, so a pick never looks lost. Never persisted: the
+    /// builder only writes due-or-logged rows, so anything decoded
+    /// from the App Group file is due, and `WidgetHabitSelection`
+    /// fabricates the not-due rows at read time.
+    public var isDueToday: Bool = true
+
+    private enum CodingKeys: String, CodingKey {
+        case habit, status, progress, valueToday, streak, scorePercent
+    }
+
     public init(
         habit: WidgetHabit,
         status: WidgetStatus,
         progress: Double,
         valueToday: Double?,
         streak: Int,
-        scorePercent: Int
+        scorePercent: Int,
+        isDueToday: Bool = true
     ) {
         self.habit = habit
         self.status = status
@@ -216,6 +229,7 @@ public struct WidgetTodayRow: Codable, Sendable, Identifiable, Hashable {
         self.valueToday = valueToday
         self.streak = streak
         self.scorePercent = scorePercent
+        self.isDueToday = isDueToday
     }
 
     /// Whether the day counts as done for this row — the widget-side

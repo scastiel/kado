@@ -14,6 +14,13 @@ enum PreviewSnapshots {
         return [rows[3].habit.id, rows[0].habit.id]
     }
 
+    /// A pick with one habit the app knows but hasn't scheduled today,
+    /// so the previews show it dimmed with "Not today" rather than
+    /// silently absent.
+    static var pickedWithNotDueIDs: [UUID] {
+        [notDueHabit.id] + Array(pickedTodayIDs.prefix(1))
+    }
+
     /// Same idea for the weekly grid.
     static var pickedMatrixIDs: [UUID] {
         let rows = populated.matrix
@@ -27,12 +34,26 @@ enum PreviewSnapshots {
     /// habits that aren't in the snapshot the preview renders,
     /// silently showing the "nothing picked" placeholder instead of
     /// the pick.
+    /// In `habits` but not in `today`: what a picked habit looks like
+    /// on a day it isn't scheduled.
+    static let notDueHabit = WidgetHabit(
+        id: UUID(),
+        name: "Running",
+        color: .green,
+        icon: "figure.run",
+        typeKind: .binary,
+        target: nil,
+        currentStreak: 5,
+        bestStreak: 12,
+        currentScore: 0.54
+    )
+
     static let populated: WidgetSnapshot = {
         let today = makeTodayRows()
         let (matrix, days) = makeMatrix()
         return WidgetSnapshot(
             generatedAt: .now,
-            habits: today.map(\.habit),
+            habits: today.map(\.habit) + [notDueHabit],
             today: today,
             totalDueToday: today.count,
             completedToday: today.filter { $0.status == .complete }.count,

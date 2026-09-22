@@ -42,7 +42,17 @@ struct TodayProgressMediumWidget: Widget {
     )
 }
 
-#Preview("Picked, none due", as: .systemMedium) {
+#Preview("Picked, one not due today", as: .systemMedium) {
+    TodayProgressMediumWidget()
+} timeline: {
+    SelectedSnapshotEntry(
+        date: .now,
+        snapshot: PreviewSnapshots.populated,
+        habitIDs: PreviewSnapshots.pickedWithNotDueIDs
+    )
+}
+
+#Preview("Picked, all gone", as: .systemMedium) {
     TodayProgressMediumWidget()
 } timeline: {
     SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [UUID()])

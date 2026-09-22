@@ -98,8 +98,9 @@ struct WidgetHabitSelectionTests {
     // MARK: - Stale ids
 
     /// A pick outlives the habits in it. An id with nothing behind it
-    /// — archived, deleted, or simply not due today — closes up rather
-    /// than leaving a gap, and never costs one of the remaining slots.
+    /// — archived, deleted — closes up rather than leaving a gap, and
+    /// never costs one of the remaining slots. (Not due today is a
+    /// different case: the habit still exists, and is kept, dimmed.)
     @Test("Ids with no row behind them are dropped, not left as holes")
     func staleIdsAreDropped() {
         let (snap, habits) = fixture()
@@ -239,6 +240,93 @@ struct WidgetHabitSelectionTests {
         #expect(
             WidgetHabitSelection.progress(from: cleanDay, selecting: [dont.id], limit: 5).completed == 1
         )
+    }
+
+    // MARK: - Picked but not due today
+
+    /// The case that reads as "my pick was lost": a habit chosen in the
+    /// edit sheet that isn't scheduled today. It stays on the tile,
+    /// marked not due, in its picked position — the user asked to see
+    /// it, and a silent gap is indistinguishable from a broken pick.
+    @Test("A picked habit that isn't due today is kept, marked not due, in pick order")
+    func pickedNotDueHabitIsKeptAndMarked() {
+        let (snap, habits) = fixture()
+        let running = habit("Running")
+        let withRunning = WidgetSnapshot(
+            generatedAt: .now,
+            habits: habits + [running],           // known to the app…
+            today: snap.today,                     // …but not due today
+            totalDueToday: snap.totalDueToday,
+            completedToday: 0,
+            matrix: snap.matrix,
+            matrixDays: []
+        )
+        let rows = WidgetHabitSelection.todayRows(
+            from: withRunning,
+            selecting: [running.id, habits[1].id],
+            limit: 5
+        )
+        #expect(rows.map(\.habit.name) == ["Running", "B"])
+        #expect(rows.map(\.isDueToday) == [false, true])
+        #expect(rows[0].status == .none)
+    }
+
+    /// Without a pick the tile is the day's to-do list, as it always
+    /// was: nothing not-due is invented for it.
+    @Test("With no pick, only due habits are shown — not-due ones are not invented")
+    func noPickShowsOnlyDueRows() {
+        let (snap, habits) = fixture()
+        let running = habit("Running")
+        let withRunning = WidgetSnapshot(
+            generatedAt: .now,
+            habits: habits + [running],
+            today: snap.today,
+            totalDueToday: snap.totalDueToday,
+            completedToday: 0,
+            matrix: snap.matrix,
+            matrixDays: []
+        )
+        let rows = WidgetHabitSelection.todayRows(from: withRunning, selecting: [], limit: 8)
+        #expect(rows.map(\.habit.name) == ["A", "B", "C", "D", "E"])
+        #expect(rows.filter { !$0.isDueToday }.isEmpty)
+    }
+
+    /// A not-due pick isn't owed, so it is outside the summary: the
+    /// count is over what is due among the pick, not over the pick.
+    @Test("The picked summary counts only the due rows")
+    func progressCountsOnlyDueRows() {
+        let done = WidgetTodayRow(
+            habit: habit("Done"), status: .complete, progress: 1, valueToday: 1, streak: 1, scorePercent: 100
+        )
+        let running = habit("Running")
+        let snap = WidgetSnapshot(
+            generatedAt: .now,
+            habits: [done.habit, running],
+            today: [done],
+            totalDueToday: 1,
+            completedToday: 1,
+            matrix: [],
+            matrixDays: []
+        )
+        let progress = WidgetHabitSelection.progress(
+            from: snap, selecting: [running.id, done.habit.id], limit: 8
+        )
+        #expect(progress.completed == 1)
+        #expect(progress.total == 1, "a habit that isn't due today is not owed")
+    }
+
+    /// The flag describes the read, not the record. The builder only
+    /// ever writes due-or-logged rows, so a row decoded from the App
+    /// Group file is due by definition — and a not-due row that
+    /// somehow reached an encoder must not come back as not due.
+    @Test("isDueToday is not persisted; a decoded row is due")
+    func isDueTodayIsNotPersisted() throws {
+        var row = todayRow(habit("A"))
+        row.isDueToday = false
+        let data = try JSONEncoder().encode(row)
+        let decoded = try JSONDecoder().decode(WidgetTodayRow.self, from: data)
+        #expect(decoded.isDueToday)
+        #expect(decoded.habit.name == "A")
     }
 
     // MARK: - Resolving a stored pick

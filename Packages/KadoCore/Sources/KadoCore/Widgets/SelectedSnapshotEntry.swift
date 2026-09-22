@@ -35,9 +35,17 @@ public struct SelectedSnapshotEntry: TimelineEntry, Sendable {
     }
 
     /// `true` when the user picked habits and none of them can be
-    /// drawn — not due today, archived, deleted. Distinct from an empty
+    /// drawn any more — archived or deleted, since a pick that merely
+    /// isn't due today is still drawn, dimmed. Distinct from an empty
     /// day: the tile says "no picked habits to show", never "all done".
     public func isFilteredOut(limit: Int) -> Bool {
         !habitIDs.isEmpty && todayRows(limit: limit).isEmpty
+    }
+
+    /// `true` when there is a pick and nothing in it is due today, so
+    /// the medium tile has no summary worth printing over its dimmed
+    /// rows.
+    public func hasNothingDue(limit: Int) -> Bool {
+        !habitIDs.isEmpty && progress(limit: limit).total == 0
     }
 }
