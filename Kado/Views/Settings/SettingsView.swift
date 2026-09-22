@@ -16,6 +16,7 @@ struct SettingsView: View {
                 DayStartSection()
                 WeekStartSection()
                 NotificationsSection()
+                ArchivedSection()
                 BackupSection()
                 SupportSection()
                 TipJarSection()

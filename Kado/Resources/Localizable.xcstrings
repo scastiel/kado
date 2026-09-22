@@ -1382,7 +1382,7 @@
       }
     },
     "Delete" : {
-      "comment" : "History row long-press / VoiceOver action that removes the completion.",
+      "comment" : "Destructive action label: removes a completion (History row menu) or permanently deletes an archived habit (row actions, detail toolbar, confirmation dialog).",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1783,7 +1783,7 @@
       }
     },
     "Habits" : {
-      "comment" : "Label for the habit-count row in the import confirmation sheet.",
+      "comment" : "Label for the habit-count row in the import confirmation sheet, and the Settings section heading above the Archived habits row.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4209,6 +4209,200 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les habitudes archivées quittent l'onglet Aujourd'hui mais gardent leur historique. Tu les retrouveras dans Réglages › Habitudes archivées."
+          }
+        }
+      }
+    },
+    "Archived habits" : {
+      "comment" : "Settings row label and navigation title of the list of archived habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes archivées"
+          }
+        }
+      }
+    },
+    "No archived habits" : {
+      "comment" : "Empty-state title of the Archived habits list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No archived habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude archivée"
+          }
+        }
+      }
+    },
+    "Habits you archive leave Today but keep their history. You can unarchive or delete them from here." : {
+      "comment" : "Empty-state description of the Archived habits list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits you archive leave Today but keep their history. You can unarchive or delete them from here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes que tu archives quittent Aujourd'hui mais gardent leur historique. Tu peux les désarchiver ou les supprimer d'ici."
+          }
+        }
+      }
+    },
+    "Swipe or long-press a habit to unarchive or delete it." : {
+      "comment" : "Footer under the Archived habits list, pointing at the swipe and long-press actions.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe or long-press a habit to unarchive or delete it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balaie ou maintiens une habitude pour la désarchiver ou la supprimer."
+          }
+        }
+      }
+    },
+    "Unarchive" : {
+      "comment" : "Verb. Restores an archived habit to Today: row swipe / long-press menu / VoiceOver action, and the archived detail's toolbar button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unarchive"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désarchiver"
+          }
+        }
+      }
+    },
+    "Archived on %@" : {
+      "comment" : "Subtitle on an Archived habits row; %@ is the date the habit was archived, medium style.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived on %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivée le %@"
+          }
+        }
+      }
+    },
+    "%lld completions" : {
+      "comment" : "Subtitle on an Archived habits row: how many completions the habit carries.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completion"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completions"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld complétion"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld complétions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Delete “%@”?" : {
+      "comment" : "Confirmation dialog title before permanently deleting an archived habit; %@ is its name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer « %@ » ?"
+          }
+        }
+      }
+    },
+    "Delete this habit?" : {
+      "comment" : "Fallback confirmation dialog title before permanently deleting an archived habit, when its name can't be resolved.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this habit?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer cette habitude ?"
+          }
+        }
+      }
+    },
+    "This permanently deletes the habit and all of its history. This can’t be undone." : {
+      "comment" : "Message body in the delete confirmation dialog for an archived habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permanently deletes the habit and all of its history. This can’t be undone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'habitude et tout son historique seront supprimés définitivement. Cette action est irréversible."
           }
         }
       }
