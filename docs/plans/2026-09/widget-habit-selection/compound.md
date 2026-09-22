@@ -26,6 +26,12 @@ The first attempt below was reverted the same evening because the widget extensi
 - **What we did**: `WidgetTodayRow.isDone`, the rule's widget-side twin; `progress` uses it; a builder test pins `completedToday == today.filter(\.isDone).count` so the two cannot drift.
 - **Lesson**: when a view re-derives a number the model already computes, derive it *through the model's rule* — a twin with a name — not by re-reading the raw status.
 
+### "Simply absent" is what a lost pick looks like
+
+- **What happened**: the requirement said a picked habit that isn't due today "is simply absent" from the Today tiles, and the first attempt had filed the alternative as an open question. Running the branch, the author added *Running* to the medium widget on a day it wasn't scheduled, saw the tile not change, and reasonably read it as the bug this feature had been reverted for. The log said `picked=4`; the tile said nothing.
+- **What we did**: the pick is drawn — dimmed on the not-due wash, no button, tagged "Not today" or a calendar-minus glyph where a name wouldn't fit beside the words (`ViewThatFits`) — and left out of the `N / M done` count. `WidgetTodayRow.isDueToday` carries it, unpersisted, on rows `WidgetHabitSelection` fabricates from `snapshot.habits`.
+- **Lesson**: **when a feature has just failed silently, no state it produces may be silent.** An intentional absence and a bug are pixel-identical; after a revert for exactly that, every "correct" empty must say why it is empty. The same holds for the lock widgets, which still show "Tap to pick a habit" for a picked habit that isn't due — filed as a follow-up rather than folded in here.
+
 ### Driving the Home Screen without a human
 
 - **What happened**: XcodeBuildMCP has no taps; its bundled `axe` loads on Xcode 27 only through a symlinked shadow `Xcode.app`, and then reads the tree but drops every tap. A throwaway XCUITest against `com.apple.springboard` placed each widget, opened **Edit Widget**, worked the list editor and picked habits, on both runtimes, with the verdict read from the console log. Two traps: `xcodebuild test` sometimes never exits after the suite (the log is complete; kill it), and tapping the status bar does not dismiss the edit sheet — tap the blurred area below it.
@@ -39,8 +45,8 @@ The first attempt below was reverted the same evening because the widget extensi
 ### Metrics, second attempt
 
 - Commits: 7 (log line, docs, selection logic, intent + provider, widgets, manifest test, tooling) + this compound.
-- Tests added: 15 (`WidgetHabitSelectionTests`) + 5 (`WidgetIntentManifestTests`) + 1 builder invariant; 655 tests in 67 suites green on iOS 26.5.
-- Verified by log on iOS 27.0 (ad hoc) and iOS 26.5 (re-signed): small `picked=2`, medium `picked=3`, large `picked=3`, cold extension process; the not-due placeholder; dark mode.
+- Tests added: 19 (`WidgetHabitSelectionTests`) + 5 (`WidgetIntentManifestTests`) + 1 builder invariant; 659 tests in 67 suites green on iOS 26.5.
+- Verified by log on iOS 27.0 (ad hoc) and iOS 26.5 (re-signed): small `picked=2`, medium `picked=3` then `picked=4` after a live edit, large `picked=3`, cold extension process; the all-gone placeholder; the dimmed not-due row on both tile sizes; dark mode.
 
 ---
 

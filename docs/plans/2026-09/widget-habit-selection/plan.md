@@ -10,6 +10,7 @@
 > - **Task 1** also gives `WidgetTodayRow` an `isDone` that mirrors `HabitRowState.isDone`, so the picked summary doesn't count a negative habit's slip as done; and `HabitEntityQuery` resolves ids in pick order.
 > - **Task 3** hides the medium header's count when a pick resolves to nothing (the placeholder carries the meaning), localizes the intent's own strings and `PickHabitIntent`'s in the widget catalog, and pins the caps and the parameter shape to the extension's compiled manifest from `KadoTests`.
 > - **Not done, on purpose**: moving `HabitEntity` / the configuration intents into the extension target (issue #77's suggested step 2). It would not have addressed the cause.
+> - **Reversed after first use**: a picked habit that isn't due today no longer vanishes from the Today tiles. It is drawn dimmed, inert, tagged "Not today" (a calendar-minus glyph on the small tile), and left out of the `N / M done` count. The open question below was answered the first time the author added a habit in the edit sheet and saw nothing change — which is precisely what a lost pick looks like.
 
 ## Summary
 
@@ -83,7 +84,7 @@ These were judgement calls, not things the request settled. Each is cheap to rev
 
 ## Open questions
 
-- [ ] Should a picked-but-not-due habit appear greyed on the Today widgets instead of vanishing? Decided "vanishes" for now; the lock widgets' `pickedHabit` fallback shows the alternative exists if this feels wrong in use.
+- [x] Should a picked-but-not-due habit appear greyed on the Today widgets instead of vanishing? Decided "vanishes" in the first attempt; **reversed in the second** — it felt wrong in use within minutes (see the note at the top). The lock widgets still show the pick prompt for a picked habit that isn't due; their `pickedHabit` fallback is unused. Follow-up.
 - [ ] Is five the right large-widget capacity now that each row also carries a streak and score? Taken as given from the request.
 
 ## Out of scope
