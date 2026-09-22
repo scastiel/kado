@@ -362,6 +362,17 @@ repo. Guard against that with an explicit
   (inside Today's `List`) is the older context-menu + Actions-rotor
   precedent it copies. Any gesture wired for the first time gets
   tried once, by hand or in `KadoUITests`.
+- **`TextField(value:format:)` commits on submit or focus loss, not
+  per keystroke.** Anything that reads the bound value while the
+  field is still first responder — a toolbar Save's `.disabled`, or
+  the save itself, since tapping a toolbar button doesn't resign
+  focus first — sees the value from before typing started. When a
+  number typed into a field has to be live, bind a `String` and parse
+  it (`WholeNumberEntry`, which also rejects the `25abc` → 25 that
+  `Int(_:format:)` on its own accepts). `CounterLogSheet` /
+  `TimerLogSheet` are the pattern; `WholeNumberField` beside them is
+  the field, with iOS 18's `TextSelection` binding selecting the
+  prefill on focus so typing replaces it rather than appending.
 
 ### Widget colours
 
@@ -908,7 +919,7 @@ nothing inside a test can change the simulator's appearance, and
 `simctl ui <udid> appearance` can, so the script sets it between the
 two passes.
 
-Five findings, each of which cost a cycle:
+Seven findings, each of which cost a cycle:
 
 - **Never build the UI suite with `CODE_SIGNING_ALLOWED=NO`.** Kadō's
   app target carries the iCloud and App Group entitlements, and an
@@ -944,6 +955,24 @@ Five findings, each of which cost a cycle:
   still up, row still there. One more swipe, same tap, goes through.
   Scroll a row wholly clear of the bar before long-pressing it
   (`KadoUITestCase.scrollClearOfTabBar`, beside `scrollTo`).
+- **A `List` row answers to its identifier twice.** The cell and the
+  content inside it both carry it, so
+  `app.descendants(matching: .any)[id]` on a Today row fails every
+  gesture with "Multiple matching elements found" — while the same
+  subscript on a History row, which sits in a `LazyVStack`, resolves
+  cleanly. Reach a `List` row through `.matching(identifier:)`
+  `.firstMatch` for gestures, and match on `identifier` *and* `value`
+  in one predicate to read something back, so it doesn't matter
+  which of the two elements carries it (`LogValueSheetTests`).
+- **A context menu never reports idle to XCUITest on iOS 27.** Every
+  step taken while one is up — the long-press itself, the tap on its
+  item, a tap to dismiss it — waits out a 60s "app animations
+  complete notification not received" timeout, so a loop that opens
+  a menu per row to find the right one takes ten minutes. A sheet
+  with the keyboard up costs nothing (the timer test runs in 33s).
+  Find the row without a menu — push details until the marker
+  shows (`openCounterHabitDetail` returns the id) — and open only
+  the menus the test is about.
 
 **Apply accessibility identifiers in the same commit as the view.**
 Retrofitting them across a grown app is what makes UI suites get
