@@ -7,9 +7,10 @@ import Foundation
 /// `WidgetHabitSelection`.
 ///
 /// One intent serves all three families rather than one apiece: the
-/// `size:` dictionary on `habits` caps the picker per family, and the
 /// number the user needs to know is stated in each widget's own
-/// localized `description`.
+/// localized `description`, which the edit sheet shows above the
+/// picker, and each family's capacity is applied when the rows are
+/// drawn (`WidgetHabitLimit`).
 ///
 /// `habits` is optional, and empty means "no pick yet" — every
 /// freshly added widget starts there, and so does one already on the
@@ -21,28 +22,21 @@ public struct SelectHabitsIntent: WidgetConfigurationIntent {
         "Choose which habits this widget shows. Leave it empty to show them all."
     )
 
-    /// The picker caps the selection per family, so the user can't
-    /// choose eight habits for a tile that draws five.
-    ///
-    /// The numbers are spelled out rather than read from
-    /// `WidgetHabitLimit`: `IntentCollectionSize.init(min:max:)` takes
-    /// `_const Int`, which rejects even a `static let` — "expect a
-    /// compile-time constant literal". They must therefore agree with
-    /// `WidgetHabitLimit` by hand, and
-    /// `SelectHabitsIntentTests.pickerCapsMatchTheRenderLimits` reads
-    /// them back out of the generated AppIntents metadata and fails
-    /// if they ever drift.
-    ///
-    /// `min: 0` is load-bearing: an empty selection has to stay legal,
-    /// because that is what "show every habit" means everywhere else.
-    @Parameter(
-        title: "Habits",
-        size: [
-            .systemSmall: IntentCollectionSize(min: 0, max: 5),
-            .systemMedium: IntentCollectionSize(min: 0, max: 8),
-            .systemLarge: IntentCollectionSize(min: 0, max: 5),
-        ]
-    )
+    /// No `size:` — deliberately. With a per-family
+    /// `IntentCollectionSize` the sheet renders a *list editor*: the
+    /// cap is enforced ("Add New Item" disappears at the limit) and
+    /// rows can be dragged into order, but every "Add New Item" offers
+    /// every habit again, so the same habit can be added twice — drawn
+    /// once, at the cost of a slot. Without it the sheet renders a
+    /// *checklist*: no duplicates by construction, tap order kept, but
+    /// nothing stops checking more than the tile draws. The two cannot
+    /// be combined: `size:` and `optionsProvider:` are separate
+    /// initializers, and a query that depends on the parameter it
+    /// resolves loops the extension forever. The checklist was chosen;
+    /// the family's "Pick up to N." line sits directly above it in the
+    /// sheet, and the tile draws the first N picks
+    /// (`WidgetHabitLimit`, applied in `WidgetHabitSelection`).
+    @Parameter(title: "Habits")
     public var habits: [HabitEntity]?
 
     public init() {}

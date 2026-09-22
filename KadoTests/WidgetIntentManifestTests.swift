@@ -6,50 +6,30 @@ import KadoCore
 /// Reads the AppIntents manifest Xcode compiles into the **widget
 /// extension** and pins the shape the placed widgets depend on.
 ///
-/// Two of these guard invariants that shipped broken once: the picker
-/// let you choose eight habits for a tile that draws five, and silently
-/// threw three away; and a stored pick is rebuilt on every reload from
-/// the manifest's idea of the parameter, so a change in its shape is a
-/// change in what an already-placed widget receives. The caps live in
-/// `SelectHabitsIntent`'s `size:` dictionary as bare literals — the
-/// initializer takes `_const Int` and rejects even a `static let` — so
-/// they are a second copy of `WidgetHabitLimit` with nothing but care
-/// holding them together. This reads them back out and compares.
-///
-/// The manifest is walked, not the types: a unit test can instantiate
-/// the intent, but only the compiled metadata says what the widget-edit
-/// sheet will actually do with it.
+/// A stored pick is rebuilt on every reload from the manifest's idea
+/// of the parameter, so a change in its shape is a change in what an
+/// already-placed widget receives — and the shape also decides which
+/// picker the sheet shows (see `SelectHabitsIntent`). The manifest is
+/// walked, not the types: a unit test can instantiate the intent, but
+/// only the compiled metadata says what the widget-edit sheet will
+/// actually do with it.
 @Suite("Widget intent manifest")
 struct WidgetIntentManifestTests {
 
     // MARK: - SelectHabitsIntent (home widgets)
 
-    @Test("The picker's per-family caps match the limits the widgets render")
-    func pickerCapsMatchTheRenderLimits() throws {
-        let sizes = try Self.collectionSizes(of: Self.habitsParameter())
-        let expected = [
-            "systemSmall": WidgetHabitLimit.small,
-            "systemMedium": WidgetHabitLimit.medium,
-            "systemLarge": WidgetHabitLimit.large,
-        ]
-        for (family, limit) in expected {
-            let size = try #require(
-                sizes[family] as? [String: Any],
-                "no selection cap declared for \(family)"
-            )
-            #expect(
-                size["max"] as? Int == limit,
-                "\(family): the picker allows \(String(describing: size["max"])) habits but the widget draws \(limit)"
-            )
-            // Not decoration: "no pick" is how every widget starts and
-            // how it says "show them all". A minimum above zero would
-            // make that state unreachable.
-            #expect(
-                size["min"] as? Int == 0,
-                "\(family): an empty pick must stay legal — it is what 'show every habit' means"
-            )
-        }
-        #expect(sizes.count == expected.count, "a family gained or lost a cap without this test moving")
+    /// Deliberate, and worth failing over if it drifts: a `size:` on
+    /// this parameter turns the sheet's checklist into a list editor
+    /// that can take the same habit twice. `SelectHabitsIntent`
+    /// explains the trade.
+    @Test("The habit pick carries no collection-size cap")
+    func habitPickIsUncapped() throws {
+        let habits = try Self.habitsParameter()
+        let metadata = habits["typeSpecificMetadata"] as? [Any] ?? []
+        let sizes = metadata
+            .compactMap { $0 as? [String: Any] }
+            .compactMap { $0["collectionSizes"] }
+        #expect(sizes.isEmpty, "a size: cap is back on the pick — the sheet is a list editor again")
     }
 
     /// Every widget starts with a default-initialised intent, and so
@@ -180,25 +160,6 @@ struct WidgetIntentManifestTests {
 
     private static func habitsParameter() throws -> [String: Any] {
         try parameter(named: "habits", of: "SelectHabitsIntent")
-    }
-
-    /// The `sizes` dictionary declared through `@Parameter(size:)`,
-    /// keyed by widget family. `typeSpecificMetadata` is a flat array
-    /// mixing key strings with their payload objects, so pick out the
-    /// one carrying the sizes rather than indexing by position.
-    private static func collectionSizes(of parameter: [String: Any]) throws -> [String: Any] {
-        let metadata = try #require(
-            parameter["typeSpecificMetadata"] as? [Any],
-            "The 'habits' parameter carries no type-specific metadata — the size: cap is gone."
-        )
-        let sizes = metadata
-            .compactMap { $0 as? [String: Any] }
-            .compactMap { $0["collectionSizes"] as? [String: Any] }
-            .first
-        return try #require(
-            sizes?["sizes"] as? [String: Any],
-            "The 'habits' parameter declares no collection sizes — the picker is uncapped again."
-        )
     }
 
     private static func value(at path: [String], in object: [String: Any]) -> Any? {
