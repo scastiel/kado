@@ -1111,23 +1111,6 @@
         }
       }
     },
-    "Archived habits stop appearing on Today but keep their history." : {
-      "comment" : "Message body in the archive confirmation dialog, explaining what archiving does.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archived habits stop appearing on Today but keep their history."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les habitudes archivées disparaissent de l'onglet Aujourd'hui mais gardent leur historique."
-          }
-        }
-      }
-    },
     "Avoid" : {
       "comment" : "Habit type label for negative habits (things the user is trying NOT to do). Used in the new-habit picker and as the type subtitle on habit detail.",
       "localizations" : {
@@ -4209,6 +4192,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tout est fait pour aujourd'hui"
+          }
+        }
+      }
+    },
+    "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits." : {
+      "comment" : "Message body in the archive confirmation dialog: what archiving does and where to find archived habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes archivées quittent l'onglet Aujourd'hui mais gardent leur historique. Tu les retrouveras dans Réglages › Habitudes archivées."
           }
         }
       }

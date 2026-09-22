@@ -177,7 +177,7 @@ struct HabitDetailView: View {
             }
             Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text("Archived habits stop appearing on Today but keep their history.")
+            Text("Archived habits leave Today but keep their history. You can find them in Settings › Archived habits.")
         }
     }
 
@@ -189,8 +189,7 @@ struct HabitDetailView: View {
 
     private func archive() {
         guard let record else { return }
-        record.archivedAt = loggingInstant
-        try? modelContext.save()
+        HabitLifecycle().archive(record, at: loggingInstant, in: modelContext)
         WidgetReloader.reloadAll(using: modelContext)
         dismiss()
     }

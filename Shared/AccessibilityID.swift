@@ -83,6 +83,12 @@ enum AccessibilityID {
         /// the copy and both buttons with one identifier.
         static let tipNudgeTipButton = "today.tipNudge.tip"
         static let tipNudgeHideButton = "today.tipNudge.hide"
+
+        /// The Archive item in a row's long-press menu, and the
+        /// destructive button in the dialog it opens. Both labelled
+        /// "Archiver" on the French simulator.
+        static let archiveButton = "today.archive"
+        static let archiveConfirmButton = "today.archive.confirm"
     }
 
     enum Celebration {
