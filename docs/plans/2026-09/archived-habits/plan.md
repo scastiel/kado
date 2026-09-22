@@ -1,7 +1,7 @@
 # Plan — Archived habits: view, restore, delete
 
 **Date**: 2026-09-21
-**Status**: in progress
+**Status**: done
 **Research**: [research.md](./research.md)
 
 ## Summary
@@ -114,7 +114,7 @@ list; `LocalizationCoverageTests`.
 
 ---
 
-### Task 5: UI tests
+### Task 5 ✅: UI tests
 
 **Goal**: drive the new gestures once, per the CLAUDE.md rule.
 
@@ -122,13 +122,16 @@ list; `LocalizationCoverageTests`.
 - `KadoUITests/ArchivedHabitsTests.swift` — archive → list → unarchive
   → back on Today; archive → list → delete → confirm → gone.
 
-**Tests / verification**: `make e2e` (iPhone), green.
+**Tests / verification**: the class green on the worktree's iPhone
+simulator (run serially, see notes); the detail test also green on
+an iPad Air 13-inch (M4). Full `make e2e` not run here — the
+Makefile's three clones and the disk situation didn't mix.
 
 **Commit message (suggested)**: `test(ui): archive, unarchive and delete a habit end to end`
 
 ---
 
-### Task 6: Docs
+### Task 6 ✅: Docs
 
 **Goal**: `docs/PRODUCT.md` / `ROADMAP.md` mention the archive if they
 describe it; plan boxes ticked; `compound.md`.
