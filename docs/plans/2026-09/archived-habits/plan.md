@@ -164,4 +164,21 @@ None carried forward.
 
 ## Notes during build
 
-_(filled in as tasks complete)_
+- **Task 3 → 5**: `NavigationLink(value: HabitRoute)` rows inside the
+  closure-pushed `ArchivedHabitsView` never held: destination on the
+  view → "declared earlier on the stack", no push; destination at the
+  Settings root → detail pushed, then the list re-pushed over it a
+  beat later (seen on the run's screen recording). Rows are now
+  closure-form `NavigationLink { HabitDetailLoader(habitID:) }`. See
+  compound.
+- **Task 5**: XCUITest stalls 60 s twice per Today context-menu
+  archive; with four tests the run overran the tool's 10-minute cap.
+  Added `-uiTestArchiveFirstHabit` (`UITestSupport`) so three of the
+  four tests start with a habit already archived. Also: the
+  `today.row.` prefix query matches each row twice, so row *counts*
+  are not habit counts — compare sets of ids.
+- **Task 5**: XcodeBuildMCP's `test_sim` deletes its result bundle
+  when it returns, so the captures are gone with it. For a run whose
+  screenshots matter, use `xcodebuild` with `-resultBundlePath` (the
+  `make e2e` recipe's flags) and export attachments with
+  `xcresulttool export attachments`.

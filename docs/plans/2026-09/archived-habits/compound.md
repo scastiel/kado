@@ -57,6 +57,66 @@ in place from day one.
   plus a simulator; `make e2e`'s clones triple the simulator side.
   Check `df` before a UI run when several jobs are up.
 
+### A value-typed push from a closure-pushed screen doesn't hold
+
+- **What happened**: the Archived rows were
+  `NavigationLink(value: HabitRoute(…))`, Today's shape, and tapping
+  one left the app on the list. Two attempts, two different failures.
+  With the `HabitRoute` destination declared on `ArchivedHabitsView`
+  itself, the simulator log said *"A navigationDestination for
+  Kado.HabitRoute was declared earlier on the stack. Only the
+  destination declared closest to the root view of the stack will be
+  used"* and nothing pushed. Declared on `SettingsView` at the root
+  instead, the test's screen recording showed the detail push
+  *succeed* and, a quarter of a second later, the Archived list slide
+  in from the right on top of it — the closure-form link in
+  `ArchivedSection` had fired again — leaving the stack on the list.
+- **What we did**: made the rows closure-form,
+  `NavigationLink { HabitDetailLoader(habitID:) }`, like every other
+  push in Settings (the Tip Jar). No destination registration at all.
+  The loader still takes an id, so nothing about #63 changes.
+- **Lesson**: keep one link style per `NavigationStack`. A value-typed
+  push from inside a screen that a closure-form link presented is
+  unreliable on this toolchain, and the failure is silent — the row
+  looks enabled, the tap fires, and the stack ends where it started.
+  The screen recording in the result bundle is what showed the second
+  push; a hierarchy dump at failure time only shows where the stack
+  ended up.
+
+### XCUITest waits a minute for Today's context menu, twice
+
+- **What happened**: every UI test that archived through Today's
+  long-press menu took ~160 s: "App animations complete notification
+  not received" after the long-press, and again after the tap on the
+  menu item — a 60 s idle timeout each. With four tests that overran
+  the Bash tool's 10-minute cap and the run was killed mid-suite.
+- **What we did**: one test drives that path end to end; the other
+  three launch with `-uiTestArchiveFirstHabit`, which archives the
+  first seeded habit right after the seed, and start on the Archived
+  list. Same shape as `-uiTestSeedProduction`.
+- **Lesson**: a test that opens Today's context menu pays two minutes.
+  Drive a menu-reached gesture once; give the other tests their
+  starting state through `UITestSupport`.
+
+### The unit suite aborted on a simulator the UI suite had used
+
+- **What happened**: after the UI runs, `test_sim -only-testing:KadoTests`
+  on the same simulator reported 300 tests "crashed with signal abrt"
+  — one `SIGABRT` in the test host (an Objective-C exception out of a
+  SwiftData `performAndWait`), which takes every remaining test with
+  it. Suites that had passed an hour earlier, `HabitLifecycleTests`
+  included, now aborted alone too. The crashing tests build in-memory
+  containers; nothing in the diff touches them.
+- **What we did**: `simctl erase` on the worktree's simulator, and
+  the full suite passed (664 / 665, the one expected failure). Not
+  diagnosed further: the likely suspect is the state the UI runs
+  leave in the app's real `UserDefaults` suite (dev mode on, written
+  by `UITestSupport.applyLaunchArguments`), which the unit-test host
+  then launches into, but that was not confirmed.
+- **Lesson**: `make e2e` then `make test` on one simulator is the
+  sequence to be suspicious of. If the unit suite aborts wholesale
+  after a UI run, erase the simulator before reading the code.
+
 ### `.destructive` on a swipe action that only opens a dialog
 
 - **What happened**: a `Button(role: .destructive)` in `.swipeActions`
@@ -84,10 +144,10 @@ in place from day one.
 
 ## For the next person
 
-- `ArchivedHabitsView` declares `.navigationDestination(for:
-  HabitRoute.self)` itself: Settings' `NavigationStack` has no path
-  binding and no route table, so the pushed screen registers the
-  route it needs. Today declares the same destination on its own stack.
+- The Archived rows push with a closure-form `NavigationLink`, not
+  `HabitRoute`; the comment on `ArchivedHabitsView.row` says why. If
+  Settings ever moves to a value-driven stack, move the whole stack
+  (the Tip Jar row included) in one go.
 - A habit unarchived keeps its old `sortOrder`, so it lands wherever
   it used to sit on Today, not at the end. Deliberate; the user can
   drag it.
@@ -97,10 +157,25 @@ in place from day one.
 - The detail's Delete lives in the `.secondaryAction` overflow, like
   Archive before it. The UI suite drives the list's Delete (same
   dialog, same `HabitLifecycle.delete`) and the detail's Unarchive;
-  the detail's Delete was checked by hand in the "Archived" preview.
+  the detail's Delete is **not** driven by the suite — the overflow
+  button has no stable identifier to reach it by — and is on the PR's
+  hands-on checklist.
 
 ## Generalizable lessons
 
+- **[→ CLAUDE.md]** One link style per `NavigationStack`. A
+  `NavigationLink(value:)` inside a screen that a closure-form
+  `NavigationLink { … }` presented either finds no usable destination
+  ("declared earlier on the stack" in the simulator log) or pushes
+  and is immediately covered by the closure link firing again. Push
+  with a closure-form link there, or make the whole stack value-driven.
+- **[→ CLAUDE.md]** When a UI test says a push didn't happen, export
+  the result bundle's screen recording (`xcresulttool export
+  attachments`, then `ffmpeg` a filmstrip) before theorising: the
+  hierarchy dump shows only where the stack ended up.
+- **[→ CLAUDE.md]** A UI test that opens Today's row context menu
+  waits 60 s for the app to idle, twice. Drive it in one test; start
+  the others from a `UITestSupport` launch argument.
 - **[→ CLAUDE.md]** `Button(role: .destructive)` inside `.swipeActions`
   animates the row out on tap; use it only when the action removes
   the row, and `.tint(.red)` without a role when it opens a
@@ -117,7 +192,7 @@ in place from day one.
 - Tasks completed: 6 of 6
 - Tests added: 5 unit (`HabitLifecycleTests`), 4 UI
   (`ArchivedHabitsTests`)
-- Files touched: 16
+- Files touched: 19
 
 ## References
 
