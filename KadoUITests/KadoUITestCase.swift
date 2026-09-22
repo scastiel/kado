@@ -43,6 +43,11 @@ class KadoUITestCase: XCTestCase {
     ///     one. Only the screenshot run wants this.
     ///   - suppressNameAutoFocus: leave the New Habit sheet's name
     ///     field unfocused, so the keyboard stays out of a screenshot.
+    ///   - archiveFirstHabit: start with the first seeded habit already
+    ///     archived, for tests of the Archived list that don't need to
+    ///     drive Today's long-press menu to get one there — see
+    ///     `UITestSupport.Argument.archiveFirstHabit` for what that
+    ///     costs.
     @MainActor
     func launchApp(
         devMode: Bool = false,
@@ -53,7 +58,8 @@ class KadoUITestCase: XCTestCase {
         locale: String? = nil,
         seedForScreenshots: Bool = false,
         suppressNameAutoFocus: Bool = false,
-        widgetGallery: Bool = false
+        widgetGallery: Bool = false,
+        archiveFirstHabit: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -72,6 +78,9 @@ class KadoUITestCase: XCTestCase {
         }
         if widgetGallery {
             app.launchArguments.append("-uiTestWidgetGallery")
+        }
+        if archiveFirstHabit {
+            app.launchArguments.append("-uiTestArchiveFirstHabit")
         }
         app.launchArguments += [
             "-uiTestDevMode", devMode ? "1" : "0",

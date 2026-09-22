@@ -40,9 +40,6 @@ struct ArchivedHabitsView: View {
             .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle(Text("Archived habits"))
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: HabitRoute.self) { route in
-                HabitDetailLoader(habitID: route.id)
-            }
             .confirmationDialog(
                 deleteDialogTitle,
                 isPresented: deleteDialogBinding,
@@ -83,8 +80,21 @@ struct ArchivedHabitsView: View {
         }
     }
 
+    /// A closure-form link, not `NavigationLink(value: HabitRoute(…))`
+    /// as on Today. This screen is itself pushed by a closure-form
+    /// link (`ArchivedSection`), and a value-typed push from inside a
+    /// closure-pushed screen misbehaves on this toolchain: with the
+    /// `HabitRoute` destination declared here it registered twice
+    /// ("declared earlier on the stack") and the tap pushed nothing;
+    /// declared at the stack's root instead, the detail pushed and was
+    /// covered a beat later by a fresh push of this list. Settings'
+    /// stack is closure-form throughout (Tip Jar too), and a nested
+    /// closure link just works. The loader still takes an id, so the
+    /// row holds no record (issue #63).
     private func row(_ item: ArchivedHabitRow) -> some View {
-        NavigationLink(value: HabitRoute(id: item.id)) {
+        NavigationLink {
+            HabitDetailLoader(habitID: item.id)
+        } label: {
             ArchivedHabitRowView(row: item, archivedOn: archivedOnLabel(for: item))
         }
         .listRowBackground(Color.kadoBackgroundSecondary)
@@ -218,24 +228,26 @@ private struct ArchivedHabitRowView: View {
     }
 }
 
-#Preview("Populated") {
-    NavigationStack {
-        ArchivedHabitsView()
+private struct ArchivedHabitsPreview: View {
+    var body: some View {
+        NavigationStack {
+            ArchivedHabitsView()
+        }
     }
-    .modelContainer(PreviewContainer.withArchivedHabits())
+}
+
+#Preview("Populated") {
+    ArchivedHabitsPreview()
+        .modelContainer(PreviewContainer.withArchivedHabits())
 }
 
 #Preview("Empty") {
-    NavigationStack {
-        ArchivedHabitsView()
-    }
-    .modelContainer(PreviewContainer.shared)
+    ArchivedHabitsPreview()
+        .modelContainer(PreviewContainer.shared)
 }
 
 #Preview("Dark") {
-    NavigationStack {
-        ArchivedHabitsView()
-    }
-    .modelContainer(PreviewContainer.withArchivedHabits())
-    .preferredColorScheme(.dark)
+    ArchivedHabitsPreview()
+        .modelContainer(PreviewContainer.withArchivedHabits())
+        .preferredColorScheme(.dark)
 }

@@ -68,6 +68,7 @@ final class DevModeController {
         let count = (try? context.fetchCount(FetchDescriptor<HabitRecord>())) ?? 0
         if count == 0 {
             DevModeSeed.seed(into: context)
+            UITestSupport.archiveFirstHabitIfRequested(using: context)
         }
     }
 
