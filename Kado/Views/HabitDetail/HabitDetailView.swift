@@ -4,8 +4,11 @@ import KadoCore
 
 /// Detail screen for a single habit. Shows score, streak, frequency,
 /// type, and a current-month completion grid. Toolbar actions open
-/// the edit sheet and present an archive confirmation dialog; both
-/// are disabled once the habit is archived.
+/// the edit sheet and present an archive confirmation dialog. Once
+/// the habit is archived the screen is read-only and the toolbar
+/// offers **Unarchive** and a confirmed **Delete** instead — the
+/// only place besides Settings › Archived habits that deletes, by
+/// design (issue #99).
 ///
 /// Renders from value-type snapshots and never stores a
 /// `HabitRecord`. `HabitDetailLoader` re-resolving the id on every
@@ -51,6 +54,7 @@ struct HabitDetailView: View {
 
     @State private var showingEdit = false
     @State private var showingArchiveConfirmation = false
+    @State private var showingDeleteConfirmation = false
     @State private var showingTimerSheet = false
     @State private var showingScoreInfo = false
     @State private var editingDay: Date? = nil
@@ -137,20 +141,40 @@ struct HabitDetailView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button(String(localized: "Edit")) {
-                    showingEdit = true
+            if isArchived {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(
+                        String(localized: "Unarchive"),
+                        systemImage: "arrow.uturn.backward"
+                    ) {
+                        unarchive()
+                    }
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.unarchiveButton)
                 }
-                .disabled(isArchived)
-            }
-            ToolbarItem(placement: .secondaryAction) {
-                Button(
-                    String(localized: "Archive"),
-                    systemImage: "archivebox"
-                ) {
-                    showingArchiveConfirmation = true
+                ToolbarItem(placement: .secondaryAction) {
+                    Button(
+                        String(localized: "Delete"),
+                        systemImage: "trash",
+                        role: .destructive
+                    ) {
+                        showingDeleteConfirmation = true
+                    }
+                    .accessibilityIdentifier(AccessibilityID.HabitDetail.deleteButton)
                 }
-                .disabled(isArchived)
+            } else {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(String(localized: "Edit")) {
+                        showingEdit = true
+                    }
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    Button(
+                        String(localized: "Archive"),
+                        systemImage: "archivebox"
+                    ) {
+                        showingArchiveConfirmation = true
+                    }
+                }
             }
         }
         .sheet(isPresented: $showingEdit) {
@@ -179,6 +203,19 @@ struct HabitDetailView: View {
         } message: {
             Text("Archived habits leave Today but keep their history. You can find them in Settings › Archived habits.")
         }
+        .confirmationDialog(
+            Text("Delete “\(habit.name)”?"),
+            isPresented: $showingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Delete"), role: .destructive) {
+                delete()
+            }
+            .accessibilityIdentifier(AccessibilityID.HabitDetail.deleteConfirmButton)
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text("This permanently deletes the habit and all of its history. This can’t be undone.")
+        }
     }
 
     /// The instant to stamp on anything logged right now — see the
@@ -190,6 +227,24 @@ struct HabitDetailView: View {
     private func archive() {
         guard let record else { return }
         HabitLifecycle().archive(record, at: loggingInstant, in: modelContext)
+        WidgetReloader.reloadAll(using: modelContext)
+        dismiss()
+    }
+
+    /// Pops, like `archive` does: this screen was pushed from the
+    /// Archived list, and the habit has just left it.
+    private func unarchive() {
+        guard let record else { return }
+        HabitLifecycle().unarchive(record, in: modelContext)
+        WidgetReloader.reloadAll(using: modelContext)
+        dismiss()
+    }
+
+    /// Pops before the loader can re-resolve an id that no longer
+    /// exists and swap this screen for `HabitUnavailableView`.
+    private func delete() {
+        guard let record else { return }
+        HabitLifecycle().delete(record, in: modelContext)
         WidgetReloader.reloadAll(using: modelContext)
         dismiss()
     }

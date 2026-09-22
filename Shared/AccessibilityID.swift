@@ -142,6 +142,12 @@ enum AccessibilityID {
         /// Identified rather than matched on its label, which is
         /// "Supprimer" on the French simulator.
         static let historyDeleteButton = "habitDetail.history.delete"
+        /// The archived detail's toolbar: Unarchive replaces Edit as
+        /// the primary action, Delete sits in the overflow menu, and
+        /// the dialog Delete opens has its own destructive button.
+        static let unarchiveButton = "habitDetail.unarchive"
+        static let deleteButton = "habitDetail.delete"
+        static let deleteConfirmButton = "habitDetail.delete.confirm"
     }
 
     /// The popover that edits one day (`DayEditPopover`). Its own
