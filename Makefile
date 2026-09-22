@@ -14,6 +14,7 @@
 #   make listing-info  what App Store Connect currently holds
 #   make listing       upload the copy and the screenshots (needs ASC_ISSUER_ID)
 #
+#   make deployment-check  confirm every target's deployment target is the app's floor
 #   make release-check confirm HEAD contains everything on origin/main
 #   make archive       build a signed App Store archive
 #   make ipa           export that archive as an .ipa
@@ -74,7 +75,7 @@ ASC_ISSUER_ID ?=
 .DEFAULT_GOAL := help
 .PHONY: help build test e2e run shot sim sim-clean clean \
 	screenshots frames site-shots listing-check listing-info listing \
-	archive ipa testflight release-check
+	archive ipa testflight release-check deployment-check
 
 help:
 	@grep -E '^[a-z0-9-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -201,11 +202,30 @@ AUTH := -allowProvisioningUpdates \
 	-authenticationKeyID $(ASC_KEY_ID) \
 	-authenticationKeyIssuerID $(ASC_ISSUER_ID)
 
+# The floor CLAUDE.md promises. Every target in the project must sit on it: an extension with a
+# higher one is not refused at install, it is dropped — installd logs "Ignoring app extension …
+# because it doesn't work on this OS version" and the app runs with no widgets and no way to
+# say why. The widget extension shipped that way for five months (#97): Xcode's "add target"
+# wizard writes the SDK's version, not the app's, and nothing compared the two. Raising the
+# floor is a product decision; make it here, in the same commit as the pbxproj.
+IOS_MIN ?= 18.0
+
+deployment-check: ## Check every target's deployment target is the app's floor (IOS_MIN)
+	@drift="$$(grep -n 'IPHONEOS_DEPLOYMENT_TARGET' $(PROJECT)/project.pbxproj | grep -v '= $(IOS_MIN);')"; \
+	if [ -n "$$drift" ]; then \
+		echo "Deployment targets that are not iOS $(IOS_MIN) in $(PROJECT)/project.pbxproj:"; \
+		echo "$$drift" | sed 's/^/  /'; \
+		echo "A target above the app's floor is silently dropped on devices below it (#97)."; \
+		echo "Set it to $(IOS_MIN) — or change IOS_MIN in the Makefile if the floor is moving on purpose."; \
+		exit 1; \
+	fi
+	@echo "Every target's deployment target is iOS $(IOS_MIN)."
+
 # Build 12 shipped without the fix its own release notes led on: the notes were written from
 # `git log ..origin/main` while the archive was built from a branch that predated the last
 # commit in that range. Two correct operations over two different ranges, and nothing compared
 # them. This does.
-release-check: ## Check the working tree contains everything origin/main does
+release-check: deployment-check ## Check the working tree contains everything origin/main does
 	@git fetch --quiet origin main 2>/dev/null || true
 	@missing="$$(git log --oneline HEAD..origin/main)"; \
 	if [ -n "$$missing" ]; then \

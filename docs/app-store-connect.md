@@ -924,6 +924,13 @@ widget to one from inside the app anyway.
 - [ ] App Icon 1024×1024 present in the build
 - [ ] Encryption declaration: `ITSAppUsesNonExemptEncryption = NO`
   already in Info.plist ✅
+- [ ] Every target's deployment target is iOS 18.0 — `make deployment-check`
+  (`make archive` runs it). The widget extension shipped at 26.4 for five
+  months while the app said 18.0 (#97): Xcode's "add target" wizard writes
+  the SDK's version, and a device below an extension's floor drops it at
+  install with no error the user can see — the app runs, the widget
+  gallery has no Kadō. Any new target (watch, Live Activity, intents) gets
+  the same check the commit it is added.
 - [ ] External group created, testers added by email
 - [ ] First build uploaded and shows "Ready to Submit"
 
