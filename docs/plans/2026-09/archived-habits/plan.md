@@ -31,7 +31,7 @@ already optional and the completions relationship already cascades.
 
 ## Task list
 
-### Task 1: `HabitLifecycle` — tests, then the struct
+### Task 1 ✅: `HabitLifecycle` — tests, then the struct
 
 **Goal**: one tested home for archive / unarchive / delete.
 
@@ -49,7 +49,7 @@ already optional and the completions relationship already cascades.
 
 ---
 
-### Task 2: Route the existing archive through it, reword the confirmation
+### Task 2 ✅: Route the existing archive through it, reword the confirmation
 
 **Goal**: Today and the detail call `HabitLifecycle.archive`; both
 confirmations say where archived habits go.
@@ -72,7 +72,7 @@ confirmations say where archived habits go.
 
 ---
 
-### Task 3: `ArchivedHabitsView` + `ArchivedSection`
+### Task 3 ✅: `ArchivedHabitsView` + `ArchivedSection`
 
 **Goal**: the list, reachable from Settings.
 
@@ -96,7 +96,7 @@ list; `LocalizationCoverageTests`.
 
 ---
 
-### Task 4: Archived detail toolbar — Unarchive / Delete
+### Task 4 ✅: Archived detail toolbar — Unarchive / Delete
 
 **Goal**: the pushed read-only detail can restore or delete the habit.
 
