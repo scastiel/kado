@@ -571,6 +571,18 @@ the one piece of text with no fill of its own to sit on. Rules:
   ```
   Full trace and what was ruled out:
   `docs/plans/2026-09/widget-habit-selection/research.md`.
+- **`@Parameter(size:)` swaps the widget-edit picker, it doesn't
+  validate it.** An entity-array parameter *with* `size:` renders as a
+  list editor — cap enforced, drag-to-reorder, and the same entity can
+  be added twice since every "Add New Item" offers the full list.
+  *Without* it, a checklist — no duplicates, tap order, no cap. The two
+  can't be combined: `size:` and `optionsProvider:` are separate
+  initializers, a provider behind a checklist must return everything or
+  the checked rows vanish, and an `IntentParameterDependency` on the
+  entity's own `defaultQuery` (to hide what's already picked) is a
+  cycle AppIntents doesn't detect — the extension loops on "Building
+  resolver for parameter …" until killed, and its debug log fills the
+  disk. Kadō's home widgets use the checklist (`SelectHabitsIntent`).
 - **`@Model` default-argument values must be fully qualified.**
   `var color: HabitColor = .blue` fails with "A default value
   requires a fully qualified domain named value (from macro
