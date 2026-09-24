@@ -40,10 +40,21 @@ struct CounterLogSheet: View {
         WholeNumberEntry(locale: locale)
     }
 
-    /// Nil while the field holds no number, which is what disables
-    /// Save: an empty field must not quietly save as 0 and clear the day.
-    private var value: Int? {
+    /// What the field spells, whether or not it is in range.
+    private var typedValue: Int? {
         text.flatMap(entry.value(from:))
+    }
+
+    /// What Save writes, and nil whenever Save is disabled: an empty
+    /// or non-numeric field must not quietly save as 0 and clear the
+    /// day, and an out-of-range one must not be silently clamped to a
+    /// number the user never typed.
+    private var value: Int? {
+        typedValue.flatMap { Self.valueRange.contains($0) ? $0 : nil }
+    }
+
+    private var isOutOfRange: Bool {
+        typedValue.map { !Self.valueRange.contains($0) } ?? false
     }
 
     var body: some View {
@@ -66,7 +77,11 @@ struct CounterLogSheet: View {
                 } header: {
                     Text("Today's value")
                 } footer: {
-                    Text("Saves as today's completion. Setting it to 0 clears today's progress.")
+                    if isOutOfRange {
+                        Text("Enter a number no higher than \(Self.valueRange.upperBound).")
+                    } else {
+                        Text("Saves as today's completion. Setting it to 0 clears today's progress.")
+                    }
                 }
                 .listRowBackground(Color.kadoBackgroundSecondary)
             }
@@ -104,11 +119,10 @@ struct CounterLogSheet: View {
 
     private func save() {
         guard let value else { return }
-        let clamped = min(max(value, Self.valueRange.lowerBound), Self.valueRange.upperBound)
         CompletionLogger(calendar: calendar).setCounter(
             for: habit,
             on: dayBoundary.loggingInstant(for: .now, on: today),
-            to: Double(clamped),
+            to: Double(value),
             in: modelContext
         )
         try? modelContext.save()

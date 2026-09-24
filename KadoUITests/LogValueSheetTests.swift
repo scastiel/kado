@@ -33,14 +33,28 @@ final class LogValueSheetTests: KadoUITestCase {
         openLogSheet(fromRow: row, in: app)
         let field = app.textFields[AccessibilityID.LogSheet.counterField]
         XCTAssertTrue(field.waitForExistence(timeout: 10), "The counter sheet never appeared.")
+        // Worth an assertion only because the field's placeholder is no
+        // longer "0": XCUITest reports a *placeholder* as an empty
+        // field's `value`, so while the two matched, this passed whether
+        // or not the prefill had run at all.
         XCTAssertEqual(field.value as? String, "0", "Today is empty in the seed, so the field should prefill with 0.")
 
-        // An empty field must not save as 0 and clear the day. Checked
-        // here, over the 0, where a delete empties the field whether or
-        // not the prefill was selected — the second pass is what tells
-        // those apart, and a delete there would hide the difference.
-        field.typeText(XCUIKeyboardKey.delete.rawValue)
+        // Over the cap: rejected outright, never clamped to a number
+        // nobody typed. The prefill is selected, so this replaces it.
         let save = app.buttons[AccessibilityID.LogSheet.saveButton]
+        field.typeText("1234567")
+        XCTAssertFalse(save.isEnabled, "Save should be disabled while the number is above the cap.")
+
+        // An empty field must not save as 0 and clear the day. Checked
+        // here, where a delete empties the field whether or not the
+        // prefill was selected — the second pass is what tells those
+        // apart, and a delete there would hide the difference.
+        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 7))
+        // Also pins what makes the prefill assertion above mean
+        // anything: an empty field reports its placeholder as its
+        // value, and that placeholder is the title, not "0". The run
+        // pins English, so the literal is safe here.
+        XCTAssertEqual(field.value as? String, "Today's value", "The field should be empty, showing its placeholder.")
         XCTAssertFalse(save.isEnabled, "Save should be disabled while the field is empty.")
 
         field.typeText("3")

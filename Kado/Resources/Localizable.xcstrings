@@ -3120,6 +3120,23 @@
         }
       }
     },
+    "Enter a number no higher than %lld." : {
+      "comment" : "Footer of a log sheet, shown while the typed number is above the field's maximum. Argument is that maximum.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a number no higher than %lld."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisis un nombre inférieur ou égal à %lld."
+          }
+        }
+      }
+    },
     "Session length" : {
       "comment" : "Section header of the timer-log sheet, and VoiceOver label of its minutes field.",
       "localizations" : {

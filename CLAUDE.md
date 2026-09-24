@@ -373,6 +373,21 @@ repo. Guard against that with an explicit
   `TimerLogSheet` are the pattern; `WholeNumberField` beside them is
   the field, with iOS 18's `TextSelection` binding selecting the
   prefill on focus so typing replaces it rather than appending.
+- **Programmatic focus is not portable across iOS versions — don't
+  build a screen that only works if it lands.** `@FocusState` set from
+  `.onAppear` raises the keyboard on iOS 27 and is silently ignored on
+  26.5: the field renders, holds its value, and never becomes first
+  responder (probed live: `keyboards=0`, `hasKeyboardFocus=false`).
+  It is not a race — moving the set into a `.task` behind a 50ms and
+  then a 400ms sleep changed nothing, and *retrying* until
+  `@FocusState` read back true wedged the app on the presenting sheet,
+  so don't reach for that. Set focus for the version that takes it,
+  and make sure the screen still works when it doesn't: in
+  `WholeNumberField` the select-all is keyed on first focus rather
+  than on appear, so the user's own tap gets it on the runtimes that
+  drop the automatic one. A UI test that types into an auto-focused
+  field fails with "neither element nor any descendant has keyboard
+  focus" — that is the app's bug to own, not the test's.
 
 ### Widget colours
 

@@ -17,26 +17,50 @@ import KadoCore
 /// through `WholeNumberEntry`, which is where "what counts as a
 /// number" lives, so it can be unit-tested away from the view.
 struct WholeNumberField: View {
-    /// What VoiceOver calls the field. Also the title SwiftUI keeps for
-    /// the field, which stays invisible because a prompt is set.
+    /// What VoiceOver calls the field, and what it shows while empty.
+    /// Deliberately not a `prompt` of `"0"`: an empty field is not
+    /// zero — Save is disabled on it, while a typed 0 clears the day —
+    /// so a `0` placeholder would show the one value the field can't
+    /// currently save.
     let title: LocalizedStringKey
     @Binding var text: String
 
     @FocusState private var isFocused: Bool
     @State private var selection: TextSelection?
+    /// Whether the prefill has already been selected. The selection is
+    /// a one-time courtesy, not a rule about focus.
+    @State private var hasSelectedPrefill = false
 
     var body: some View {
-        TextField(title, text: $text, selection: $selection, prompt: Text(verbatim: "0"))
+        TextField(title, text: $text, selection: $selection)
             .keyboardType(.numberPad)
             .focused($isFocused)
             .submitLabel(.done)
+            // **Honoured on iOS 27, ignored on 26.5**, where the field
+            // renders its prefill but never becomes first responder, so
+            // the sheet lands with no keyboard and the user taps the
+            // field before typing. Measured, not guessed: a probe read
+            // `keyboards=0 hasKeyboardFocus=false` there. It is not a
+            // timing problem — moving this to a `.task` behind a 50ms
+            // and then a 400ms sleep changed nothing, and retrying
+            // until `@FocusState` read back true wedged the app. Left
+            // as the simplest form that works where it works; the
+            // degraded path is still usable, and `hasSelectedPrefill`
+            // below means the user's own first tap gets the select-all.
             .onAppear { isFocused = true }
             // On focus, not on appear: the selection only takes once the
             // field is first responder, and the text is prefilled by the
             // sheet's own `.onAppear`, which has run by the time focus
             // actually lands.
+            //
+            // **First focus only.** Selecting on every focus gain means
+            // a user who dismissed the keyboard and tapped back in to
+            // fix one digit has their caret replaced by a full
+            // selection, and the next keystroke wipes what they typed.
             .onChange(of: isFocused) { _, focused in
-                if focused { selectAll() }
+                guard focused, !hasSelectedPrefill else { return }
+                hasSelectedPrefill = true
+                selectAll()
             }
     }
 

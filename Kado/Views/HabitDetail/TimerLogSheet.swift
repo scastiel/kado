@@ -31,9 +31,22 @@ struct TimerLogSheet: View {
         WholeNumberEntry(locale: locale)
     }
 
-    /// Nil while the field holds no number, which disables Save.
-    private var minutes: Int? {
+    /// What the field spells, whether or not it is in range.
+    private var typedMinutes: Int? {
         text.flatMap(entry.value(from:))
+    }
+
+    /// What Save writes, and nil whenever Save is disabled — see the
+    /// matching note on `CounterLogSheet`. Rejecting rather than
+    /// clamping also keeps a day that already holds a longer session
+    /// (an import, say) from being truncated to the cap by opening
+    /// this sheet and saving without typing anything.
+    private var minutes: Int? {
+        typedMinutes.flatMap { Self.minutesRange.contains($0) ? $0 : nil }
+    }
+
+    private var isOutOfRange: Bool {
+        typedMinutes.map { !Self.minutesRange.contains($0) } ?? false
     }
 
     var body: some View {
@@ -56,7 +69,11 @@ struct TimerLogSheet: View {
                 } header: {
                     Text("Session length")
                 } footer: {
-                    Text("Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it.")
+                    if isOutOfRange {
+                        Text("Enter a number no higher than \(Self.minutesRange.upperBound).")
+                    } else {
+                        Text("Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it.")
+                    }
                 }
                 .listRowBackground(Color.kadoBackgroundSecondary)
             }
@@ -90,7 +107,12 @@ struct TimerLogSheet: View {
             calendar.isDate($0.date, inSameDayAs: today)
         }
         if let existing {
-            return max(1, Int((existing.value / 60).rounded()))
+            // The day's own value, 0 included — not floored to 1. A
+            // record can hold zero seconds (a standalone note, or a
+            // session shorter than half a minute), and flooring it
+            // meant opening this sheet and saving wrote a minute onto
+            // a day that had none.
+            return Int((existing.value / 60).rounded())
         }
         switch habit.type {
         case .timer(let seconds): return max(1, Int((seconds / 60).rounded()))
@@ -100,17 +122,16 @@ struct TimerLogSheet: View {
 
     private func save() {
         guard let minutes else { return }
-        let clamped = min(max(minutes, Self.minutesRange.lowerBound), Self.minutesRange.upperBound)
         let logger = CompletionLogger(calendar: calendar)
         let instant = dayBoundary.loggingInstant(for: .now, on: today)
-        if clamped == 0 {
+        if minutes == 0 {
             // `logTimerSession` would keep a zero-second record; clearing
             // returns the day to missed, as stepping the popover to 0 does.
             logger.clear(for: habit, on: instant, in: modelContext)
         } else {
             logger.logTimerSession(
                 for: habit,
-                seconds: TimeInterval(clamped) * 60,
+                seconds: TimeInterval(minutes) * 60,
                 on: instant,
                 in: modelContext
             )
