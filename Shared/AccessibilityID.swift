@@ -83,12 +83,31 @@ enum AccessibilityID {
         /// the copy and both buttons with one identifier.
         static let tipNudgeTipButton = "today.tipNudge.tip"
         static let tipNudgeHideButton = "today.tipNudge.hide"
-
+        /// "Log specific value…" in a row's long-press menu, which only
+        /// counter and timer rows carry. Not under the `today.row.`
+        /// prefix, or `todayRows` would count the open menu's item as
+        /// a row.
+        static let logValueMenuItem = "today.menu.logValue"
         /// The Archive item in a row's long-press menu, and the
         /// destructive button in the dialog it opens. Both labelled
         /// "Archiver" on the French simulator.
         static let archiveButton = "today.archive"
         static let archiveConfirmButton = "today.archive.confirm"
+    }
+
+    /// The counter-log and timer-log sheets (`CounterLogSheet`,
+    /// `TimerLogSheet`), which share a shape: one number field, Cancel
+    /// and Save.
+    enum LogSheet {
+        /// The counter sheet's field. Distinct from the timer's so a
+        /// test can tell the two sheets apart, since they share every
+        /// other identifier.
+        static let counterField = "logSheet.counter.field"
+        /// The timer sheet's field.
+        static let timerField = "logSheet.timer.field"
+        static let cancelButton = "logSheet.cancel"
+        /// Disabled while the field holds no number.
+        static let saveButton = "logSheet.save"
     }
 
     enum Celebration {

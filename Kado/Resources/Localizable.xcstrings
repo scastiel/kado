@@ -742,25 +742,8 @@
         }
       }
     },
-    "%lld min" : {
-      "comment" : "Stepper label in the timer-log sheet showing the session length in minutes.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        }
-      }
-    },
     "%lld of %lld" : {
-      "comment" : "Stepper label in the counter-log sheet, and VoiceOver progress fragment for a counter Today row. First arg: current value. Second arg: target.",
+      "comment" : "VoiceOver progress fragment for a counter Today row. First arg: current value. Second arg: target.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2690,7 +2673,7 @@
       }
     },
     "of %lld" : {
-      "comment" : "Caption in the counter quick-log control, under the current value (e.g. '3' 'of 8'). Argument is the daily target count.",
+      "comment" : "Caption under the counter quick-log's current value, and unit label beside the counter-log sheet's field (e.g. '3' 'of 8'). Argument is the daily target count.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3082,23 +3065,6 @@
         }
       }
     },
-    "Saves as today's completion. If you already logged a session today, it will be replaced." : {
-      "comment" : "Footer text in the timer-log sheet clarifying single-completion-per-day semantics.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saves as today's completion. If you already logged a session today, it will be replaced."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistré comme complétion du jour. Si tu as déjà noté une session aujourd'hui, elle sera remplacée."
-          }
-        }
-      }
-    },
     "Saves as today's completion. Setting it to 0 clears today's progress." : {
       "comment" : "Footer text in the counter-log sheet clarifying that 0 deletes the day's completion.",
       "localizations" : {
@@ -3237,8 +3203,25 @@
         }
       }
     },
+    "Enter a number no higher than %lld." : {
+      "comment" : "Footer of a log sheet, shown while the typed number is above the field's maximum. Argument is that maximum.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a number no higher than %lld."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisis un nombre inférieur ou égal à %lld."
+          }
+        }
+      }
+    },
     "Session length" : {
-      "comment" : "Section header in the timer-log sheet.",
+      "comment" : "Section header of the timer-log sheet, and VoiceOver label of its minutes field.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3250,6 +3233,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durée de la session"
+          }
+        }
+      }
+    },
+    "min" : {
+      "comment" : "Unit label beside the minutes field in the timer-log sheet (e.g. '30' 'min').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "min"
+          }
+        }
+      }
+    },
+    "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it." : {
+      "comment" : "Footer text in the timer-log sheet: single-completion-per-day semantics, and that 0 clears the day's session.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistré comme complétion du jour. Si tu as déjà noté une session aujourd'hui, elle sera remplacée. Mettre à 0 l'efface."
           }
         }
       }
@@ -3731,7 +3748,7 @@
       }
     },
     "Today's value" : {
-      "comment" : "Section header in the counter-log sheet, above the value stepper.",
+      "comment" : "Section header of the counter-log sheet, and VoiceOver label of its number field.",
       "localizations" : {
         "en" : {
           "stringUnit" : {

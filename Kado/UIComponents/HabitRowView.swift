@@ -118,6 +118,7 @@ struct HabitRowView: View {
             Button(action: onLogSpecificValue) {
                 Label("Log specific value…", systemImage: "square.and.pencil")
             }
+            .accessibilityIdentifier(AccessibilityID.Today.logValueMenuItem)
         }
         if let onOpenDetail {
             Button(action: onOpenDetail) {
