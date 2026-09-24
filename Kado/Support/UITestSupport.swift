@@ -235,16 +235,29 @@ nonisolated enum UITestSupport {
         archiveFirstHabitIfRequested(using: context)
     }
 
-    /// Archives the first habit by `sortOrder`, if this run asked for
-    /// it. Called right after either seed, on the context that was
-    /// seeded — never on a container of its own, for the reason
+    /// Archives one seeded habit, if this run asked for it. Called
+    /// right after either seed, on the context that was seeded — never
+    /// on a container of its own, for the reason
     /// `seedProductionIfRequested` gives.
+    ///
+    /// Sorted by `sortOrder` *and then* by `createdAt` and `name`,
+    /// because neither seed assigns a `sortOrder`: every record carries
+    /// the default, so `sortOrder` alone leaves the winner to whatever
+    /// order the store hands back. The tests here read the habit's id
+    /// off the row they find and so don't care which one it is — the
+    /// tiebreakers are for the next test, which might.
     @MainActor
     static func archiveFirstHabitIfRequested(using context: ModelContext) {
         guard isRunningUITests,
               ProcessInfo.processInfo.arguments.contains(Argument.archiveFirstHabit)
         else { return }
-        let descriptor = FetchDescriptor<HabitRecord>(sortBy: [SortDescriptor(\.sortOrder)])
+        let descriptor = FetchDescriptor<HabitRecord>(
+            sortBy: [
+                SortDescriptor(\.sortOrder),
+                SortDescriptor(\.createdAt),
+                SortDescriptor(\.name),
+            ]
+        )
         guard let first = try? context.fetch(descriptor).first else { return }
         HabitLifecycle().archive(first, at: .now, in: context)
     }
