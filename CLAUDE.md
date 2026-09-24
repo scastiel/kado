@@ -279,6 +279,20 @@ repo. Guard against that with an explicit
   Include one `#Preview("Dark") { ... .preferredColorScheme(.dark) }`
   per view file — pick a demanding state (accent-on-dark, mixed cell
   states, filled form) rather than a neutral one.
+- **A preview fixture that generates identity is a stored `static let`,
+  not a computed `static var`**, the moment anything derives from it.
+  `PreviewSnapshots.populated` mints a `UUID` per habit; computed, it
+  handed each caller a different set, so a "picked" preview named
+  habits absent from the snapshot it rendered and showed the empty
+  state — plausibly, which is worse than crashing.
+- **Narrowing what a view renders invalidates every aggregate and
+  every empty state on it**, and neither the compiler nor the
+  existing tests will say so. When the home widgets gained a habit
+  pick, the medium tile's `N / M done` kept summarising habits it no
+  longer showed, and "All done" became a lie about habits still
+  owed. Walk each number and each empty state explicitly; an empty
+  state asserts *why* it is empty, so a second way to be empty is a
+  second empty state (`TodayEmptyPlaceholder(isFilteredOut:)`).
 - **Prefer semantic colors; avoid hardcoded literals.** Use
   `Color.primary` / `Color.secondary` for text, `Color.accentColor`
   for tint, `Color(.secondarySystemBackground)` / `.tertiarySystemFill`
@@ -520,7 +534,7 @@ the one piece of text with no fill of its own to sit on. Rules:
   `EXC_BREAKPOINT` on first fetch inside the widget extension on
   this toolchain. Main-app code is fine; extensions should use a
   `FetchDescriptor(sortBy: …)` with a Swift-side `.filter { }`
-  pass. Canonical: `HabitEntity.fetchSuggestions` and
+  pass. Canonical: `CompleteHabitIntent.apply` and
   `WidgetSnapshotBuilder.build`.
 - **AppIntents that mutate SwiftData reuse the app's live
   container.** `CompleteHabitIntent` sets `openAppWhenRun = true`
@@ -531,6 +545,44 @@ the one piece of text with no fill of its own to sit on. Rules:
   CloudKit-attached container in the same process and trap the
   same way two processes would. Every new `AppIntent` that
   mutates state should follow this pattern.
+- **Entity-typed intent parameters need a team-signed build on iOS
+  26.x simulators — verify them by the log, never by the tile.**
+  Xcode signs simulator builds ad hoc (`codesign -dvv`:
+  `TeamIdentifier=not set`) and refuses any other identity for the
+  simulator SDK. On iOS 26.x, `linkd` will not serve AppIntents
+  metadata to a client it cannot attribute to a team —
+  `Rejecting invalid client due to requiresValidBundle` — so a
+  widget's picked habits, a Shortcut's habit, any `AppEntity`
+  parameter decodes to nil or empty, in the extension *and* the app,
+  and nothing looks broken: a widget ignoring its configuration is
+  pixel-identical to one never configured. iOS 27 simulators accept
+  the ad-hoc client; devices and TestFlight are team-signed and never
+  see it. This cost #76 a whole feature, misdiagnosed as "entities in
+  a Swift package don't register". `make run` re-signs the build with
+  the keychain's Apple Development identity
+  (`Scripts/resign-simulator.sh`, a no-op without one); the intents
+  and entities stay in `KadoCore` like everything else. Every
+  `AppIntentTimelineProvider` logs `family= picked= paramNil=` at
+  `.debug`, and AppIntents' own subsystem says why a decode failed:
+  ```
+  xcrun simctl spawn <sim> log config --mode "level:debug" --subsystem com.apple.appintents
+  xcrun simctl spawn <sim> log stream --level debug --style compact \
+    --predicate 'subsystem == "com.apple.appintents" OR subsystem == "dev.scastiel.kado"'
+  ```
+  Full trace and what was ruled out:
+  `docs/plans/2026-09/widget-habit-selection/research.md`.
+- **`@Parameter(size:)` swaps the widget-edit picker, it doesn't
+  validate it.** An entity-array parameter *with* `size:` renders as a
+  list editor — cap enforced, drag-to-reorder, and the same entity can
+  be added twice since every "Add New Item" offers the full list.
+  *Without* it, a checklist — no duplicates, tap order, no cap. The two
+  can't be combined: `size:` and `optionsProvider:` are separate
+  initializers, a provider behind a checklist must return everything or
+  the checked rows vanish, and an `IntentParameterDependency` on the
+  entity's own `defaultQuery` (to hide what's already picked) is a
+  cycle AppIntents doesn't detect — the extension loops on "Building
+  resolver for parameter …" until killed, and its debug log fills the
+  disk. Kadō's home widgets use the checklist (`SelectHabitsIntent`).
 - **`@Model` default-argument values must be fully qualified.**
   `var color: HabitColor = .blue` fails with "A default value
   requires a fully qualified domain named value (from macro
@@ -840,7 +892,34 @@ where you still open Xcode:
   done, plan audits around the single reachable surface + SwiftUI
   previews for the rest, and flag the gap in the finding notes.
   First hit in [kado#5](https://github.com/scastiel/kado/pull/5), hit
-  again in [kado#8](https://github.com/scastiel/kado/pull/8).
+  again in [kado#8](https://github.com/scastiel/kado/pull/8). The
+  bundled `axe` binary (`libexec/bundled/axe` under the xcodebuildmcp
+  prefix) reads the accessibility tree and takes screenshots on iOS 27
+  but its taps never land. What does work, for the Home Screen and
+  the widget-edit sheet specifically, is an XCUITest driving
+  `XCUIApplication(bundleIdentifier: "com.apple.springboard")`:
+  long-press → **Edit** → **Add Widget** → search → the app's cell →
+  `buttons` matching `'Add Widget'` → **Done**; long-press the
+  `icons` matching `label == 'Kadō' AND value == 'Widget'` →
+  **Edit Widget**; an array parameter is a list editor whose
+  `editor.list.add-item` button opens a table of `cells`. Tap
+  *outside* the sheet to commit — the status bar does not count.
+- **`xcodebuild test` on an iOS 27.0 simulator crashes the unit-test
+  host non-deterministically** (`NSInternalInconsistencyException:
+  No eligible connection available` from a SwiftData fetch in
+  whichever suite is running) and `-quiet` then reports every test
+  as failed. The suite is green on an iOS 26.5 device. Run `make
+  test` against a 26.x device until a newer runtime clears it.
+- **AppIntents shape can be verified without UI automation** by
+  reading `Metadata.appintents/extract.actionsdata` out of the built
+  product — `Bundle.main.builtInPlugInsURL/KadoWidgetsExtension.appex/…`
+  from `KadoTests`. `WidgetIntentManifestTests` pins the picker's
+  caps, the parameter's optionality and entity type, and the presence
+  of every string the edit sheet shows. And before recording "the
+  framework can't do X", grep the SDK's `.swiftinterface`
+  (`$(xcrun --sdk iphonesimulator --show-sdk-path)/System/Library/Frameworks/<F>.framework/Modules/<F>.swiftmodule/arm64-apple-ios-simulator.swiftinterface`):
+  "AppIntents has no max-count on an array parameter" survived a
+  plan, a build and a PR before one grep found `@Parameter(size:)`.
 - **Destination resolution flakiness**: `test_sim` and
   `build_run_sim` occasionally fail with `Unable to find a
   destination matching { platform:iOS Simulator, OS:latest, name:… }`

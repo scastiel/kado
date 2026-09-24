@@ -172,19 +172,19 @@
         }
       }
     },
-    "Habits due today with a completion summary." : {
-      "comment" : "Medium home widget description.",
+    "Habits due today with a completion summary. Pick up to 8." : {
+      "comment" : "Medium home widget description, shown in the widget gallery.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habits due today with a completion summary."
+            "value" : "Habits due today with a completion summary. Pick up to 8."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Habitudes prévues aujourd'hui avec un résumé de progression."
+            "value" : "Habitudes prévues aujourd'hui avec un résumé de progression. Choisis-en jusqu'à 8."
           }
         }
       }
@@ -274,19 +274,138 @@
         }
       }
     },
-    "Quick tap-to-complete for the habits due today." : {
-      "comment" : "Small home widget description.",
+    "Quick tap-to-complete for the habits due today. Pick up to 5." : {
+      "comment" : "Small home widget description, shown in the widget gallery.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick tap-to-complete for the habits due today."
+            "value" : "Quick tap-to-complete for the habits due today. Pick up to 5."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valide rapidement les habitudes du jour d'un tap."
+            "value" : "Valide rapidement les habitudes du jour d'un tap. Choisis-en jusqu'à 5."
+          }
+        }
+      }
+    },
+    "Pick which habit this widget shows." : {
+      "comment" : "Description of the lock widgets' configuration intent, under the widget-edit sheet's heading.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick which habit this widget shows."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis l'habitude affichée par ce widget."
+          }
+        }
+      }
+    },
+    "Pick Habit" : {
+      "comment" : "Title of the lock widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick Habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une habitude"
+          }
+        }
+      }
+    },
+    "Habits" : {
+      "comment" : "Title of the `habits` parameter on the home widgets' configuration intent — the row the user taps to pick.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes"
+          }
+        }
+      }
+    },
+    "Choose which habits this widget shows. Leave it empty to show them all." : {
+      "comment" : "Description of the home widgets' configuration intent, under the widget-edit sheet's heading.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose which habits this widget shows. Leave it empty to show them all."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis les habitudes affichées par ce widget. Laisse vide pour toutes les afficher."
+          }
+        }
+      }
+    },
+    "Choose Habits" : {
+      "comment" : "Title of the home widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir des habitudes"
+          }
+        }
+      }
+    },
+    "No picked habits to show" : {
+      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No picked habits to show"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude choisie à afficher"
+          }
+        }
+      }
+    },
+    "Not today" : {
+      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas aujourd'hui"
           }
         }
       }
@@ -461,19 +580,19 @@
         }
       }
     },
-    "Your habit grid for the past seven days." : {
-      "comment" : "Large home widget description.",
+    "Your habit grid for the past seven days. Pick up to 5." : {
+      "comment" : "Large home widget description, shown in the widget gallery.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your habit grid for the past seven days."
+            "value" : "Your habit grid for the past seven days. Pick up to 5."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ta grille d'habitudes sur les sept derniers jours."
+            "value" : "Ta grille d'habitudes sur les sept derniers jours. Choisis-en jusqu'à 5."
           }
         }
       }

@@ -31,8 +31,10 @@ public struct SnapshotTimelineProvider: TimelineProvider, Sendable {
 }
 
 /// Timeline entry wrapping a `WidgetSnapshot` plus the effective
-/// time. Used by every widget that doesn't need intent
-/// configuration (today-grid, weekly, inline).
+/// time. Used by the lock widgets with nothing to configure — the
+/// inline count and the day-progress ring summarise the whole day, so
+/// there is no set of habits to pick. The home widgets moved to
+/// `SelectedSnapshotEntry` when they gained a habit selection.
 public struct SnapshotEntry: TimelineEntry, Sendable {
     public let date: Date
     public let snapshot: WidgetSnapshot

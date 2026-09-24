@@ -11,6 +11,9 @@ import WidgetKit
 /// can't safely open SwiftData, the intent is configured to open
 /// the main app, which performs the toggle. Counter and timer
 /// rows render plain and fall through to the widget's `widgetURL`.
+/// A picked habit that isn't due today (`row.isDueToday == false`)
+/// renders dimmed with "Not today" and no button at all: it is on
+/// the tile because the user asked for it, not because it is owed.
 ///
 /// Colours go through `WidgetPalette` rather than reaching for paper
 /// and ink directly: under the Home Screen's Tinted and Clear
@@ -35,14 +38,72 @@ public struct HabitWidgetCell: View {
     }
 
     public var body: some View {
-        switch row.habit.typeKind {
-        case .binary, .negative:
-            Button(intent: CompleteHabitIntent(habit: HabitEntity(widgetHabit: row.habit))) {
+        if !row.isDueToday {
+            notDueContent
+        } else {
+            switch row.habit.typeKind {
+            case .binary, .negative:
+                Button(intent: CompleteHabitIntent(habit: HabitEntity(widgetHabit: row.habit))) {
+                    content
+                }
+                .buttonStyle(.plain)
+            case .counter, .timer:
                 content
             }
-            .buttonStyle(.plain)
-        case .counter, .timer:
-            content
+        }
+    }
+
+    /// The picked-but-not-scheduled row: secondary ink on the not-due
+    /// wash, the same pairing the weekly grid uses for a day that was
+    /// never due, so it reads as "not owed" rather than "missed".
+    ///
+    /// `ViewThatFits` decides the tag: "Not today" in words where the
+    /// row is wide enough for a name beside it (the medium tile), a
+    /// calendar-minus glyph where it isn't (the small tile — a name
+    /// squeezed to "…" next to a full tag says less than a glyph next
+    /// to a name). The name's ideal width is held at ~six characters
+    /// so the words variant is judged on "does a readable name fit
+    /// beside the tag", not on the longest habit name: on the small
+    /// tile it doesn't, and the glyph wins.
+    private var notDueContent: some View {
+        ViewThatFits(in: .horizontal) {
+            notDueRow {
+                Text("Not today")
+                    .font(.caption2)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            notDueRow {
+                Image(systemName: "calendar.badge.minus")
+                    .font(.caption2)
+            }
+        }
+        // Not `.widgetAccentable()`: the dimmed default group is the
+        // right rank for a row that asks nothing of the user today.
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(palette.notDueFill)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(row.habit.name)
+        .accessibilityValue(String(localized: "Not today", comment: "Widget row for a picked habit that isn't scheduled today"))
+    }
+
+    private func notDueRow<Tag: View>(@ViewBuilder tag: () -> Tag) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: row.habit.icon)
+                .font(.caption)
+                .frame(width: 18)
+                .foregroundStyle(palette.foregroundSecondary)
+            Text(row.habit.name)
+                .font(.caption)
+                .lineLimit(1)
+                .frame(minWidth: 40, idealWidth: 40, maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(palette.foregroundSecondary)
+            tag()
+                .foregroundStyle(palette.foregroundSecondary)
         }
     }
 

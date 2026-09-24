@@ -50,6 +50,14 @@ BUNDLE_ID   := dev.scastiel.kado
 DERIVED     := build
 DESTINATION := platform=iOS Simulator,name=$(SIM_NAME)
 
+# Simulator builds are also re-signed with a development identity before
+# they are installed (`Scripts/resign-simulator.sh`, a no-op without one):
+# Xcode's ad-hoc signature has no team identifier, and on iOS 26.x
+# simulators `linkd` refuses AppIntents metadata to such a client, so a
+# widget's picked habits — any entity-typed intent parameter — silently
+# decode to nothing. Set SIGN_IDENTITY to pick a particular certificate.
+export SIGN_IDENTITY
+
 # Deliberately *not* CODE_SIGNING_ALLOWED=NO, tempting as it is for a
 # simulator build. Kadō's app target carries entitlements — iCloud and
 # the App Group — and an unsigned build has none of them, so
@@ -133,7 +141,11 @@ e2e: sim ## Run the UI suite (KadoUITests) against the simulator
 # would happily install into one of those.
 run: build ## Install and launch the app on this worktree's simulator
 	@xcrun simctl boot '$(SIM_NAME)' 2>/dev/null || true
-	@open -a Simulator
+	@open -a Simulator 2>/dev/null \
+		|| open -a "$$(xcode-select -p)/../Applications/DeviceHub.app" 2>/dev/null \
+		|| true
+	@Scripts/resign-simulator.sh \
+		"$$(find $(DERIVED)/Build/Products -name 'Kado.app' -maxdepth 3 | head -1)"
 	@xcrun simctl install '$(SIM_NAME)' \
 		"$$(find $(DERIVED)/Build/Products -name 'Kado.app' -maxdepth 3 | head -1)"
 	@xcrun simctl launch --console-pty '$(SIM_NAME)' $(BUNDLE_ID)

@@ -70,7 +70,7 @@ public struct CompleteHabitIntent: AppIntent {
         now: Date
     ) throws -> Outcome {
         // Widget extension can't compile `#Predicate` — fetch all
-        // and search in Swift. See HabitEntity.fetchSuggestions.
+        // and search in Swift. See WidgetSnapshotBuilder.build.
         let descriptor = FetchDescriptor<HabitRecord>()
         guard let record = try context.fetch(descriptor).first(where: { $0.id == habitID }) else {
             throw IntentError.habitNotFound

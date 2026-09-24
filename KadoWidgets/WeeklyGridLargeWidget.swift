@@ -2,20 +2,25 @@ import SwiftUI
 import WidgetKit
 import KadoCore
 
-/// Large home widget — habits × last 7 days matrix read from the
-/// App Group snapshot. The content is `WeeklyGridLargeView`, in
+/// Large home widget — habits × last 7 days matrix read from the App
+/// Group snapshot, narrowed to the habits the user picked in the
+/// widget-edit sheet. The content is `WeeklyGridLargeView`, in
 /// `KadoCore`, so the app can draw it too.
 struct WeeklyGridLargeWidget: Widget {
     let kind: String = "dev.scastiel.kado.widget.weeklyLarge"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: SnapshotTimelineProvider()) { entry in
+        AppIntentConfiguration(
+            kind: kind,
+            intent: SelectHabitsIntent.self,
+            provider: SelectedSnapshotProvider()
+        ) { entry in
             WeeklyGridLargeView(entry: entry)
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://overview"))
         }
         .configurationDisplayName(Text("This Week"))
-        .description(Text("Your habit grid for the past seven days."))
+        .description(Text("Your habit grid for the past seven days. Pick up to 5."))
         .supportedFamilies([.systemLarge])
     }
 }
@@ -23,11 +28,27 @@ struct WeeklyGridLargeWidget: Widget {
 #Preview("Populated", as: .systemLarge) {
     WeeklyGridLargeWidget()
 } timeline: {
-    SnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated)
+    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [])
+}
+
+#Preview("Picked three", as: .systemLarge) {
+    WeeklyGridLargeWidget()
+} timeline: {
+    SelectedSnapshotEntry(
+        date: .now,
+        snapshot: PreviewSnapshots.populated,
+        habitIDs: PreviewSnapshots.pickedMatrixIDs
+    )
+}
+
+#Preview("Picked, all gone", as: .systemLarge) {
+    WeeklyGridLargeWidget()
+} timeline: {
+    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [UUID()])
 }
 
 #Preview("Empty", as: .systemLarge) {
     WeeklyGridLargeWidget()
 } timeline: {
-    SnapshotEntry(date: .now, snapshot: .empty)
+    SelectedSnapshotEntry(date: .now, snapshot: .empty, habitIDs: [])
 }

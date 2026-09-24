@@ -2,23 +2,27 @@ import SwiftUI
 import WidgetKit
 
 /// The large home widget's content — habits × last 7 days matrix read
-/// from the App Group snapshot. Layout mirrors the Overview tab: one
-/// row per habit with the name + icon on top and the seven cells
-/// beneath. No horizontal scroll (the widget can't scroll anyway),
-/// so cell width stretches to fill the container.
+/// from the App Group snapshot, narrowed to the habits the user picked
+/// in the widget-edit sheet. Layout mirrors the Overview tab: one row
+/// per habit with the name + icon on top and the seven cells beneath.
+/// No horizontal scroll (the widget can't scroll anyway), so cell
+/// width stretches to fill the container.
 ///
 /// `WeeklyGridLargeWidget` in the extension wraps it; the app draws
 /// it directly for the listing's widget screenshot.
 public struct WeeklyGridLargeView: View {
-    let entry: SnapshotEntry
+    let entry: SelectedSnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
 
-    private let rowLimit = 6
     private static let cellSpacing: CGFloat = 4
 
-    public init(entry: SnapshotEntry) {
+    public init(entry: SelectedSnapshotEntry) {
         self.entry = entry
+    }
+
+    private var rows: [WidgetMatrixRow] {
+        entry.matrixRows(limit: WidgetHabitLimit.large)
     }
 
     private var palette: WidgetPalette {
@@ -31,8 +35,18 @@ public struct WeeklyGridLargeView: View {
                 .font(.headline)
                 .foregroundStyle(palette.foreground)
                 .widgetAccentable()
-            if entry.snapshot.matrix.isEmpty {
-                emptyPlaceholder
+            if rows.isEmpty {
+                // "No habits yet" only when there really are none. A
+                // pick whose habits have all been archived is a
+                // different situation and gets its own wording.
+                //
+                // Which of the two is decided by the pick itself, as on
+                // the today tiles — not by the snapshot still holding
+                // habits. The two agree today (with no pick the rows
+                // are the matrix, capped), but only the pick actually
+                // says whether the user asked for something we can no
+                // longer draw.
+                emptyPlaceholder(isFilteredOut: !entry.habitIDs.isEmpty)
             } else {
                 weekdayStripe
                 habitRows
@@ -66,7 +80,7 @@ public struct WeeklyGridLargeView: View {
 
     private var habitRows: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(entry.snapshot.matrix.prefix(rowLimit), id: \.habit.id) { row in
+            ForEach(rows, id: \.habit.id) { row in
                 habitBlock(for: row)
             }
         }
@@ -125,14 +139,24 @@ public struct WeeklyGridLargeView: View {
         .frame(height: 22)
     }
 
-    private var emptyPlaceholder: some View {
+    private func emptyPlaceholder(isFilteredOut: Bool) -> some View {
         VStack(spacing: 6) {
-            Image(systemName: "square.grid.3x3")
+            Image(systemName: isFilteredOut ? "line.3.horizontal.decrease.circle" : "square.grid.3x3")
                 .font(.title2)
                 .foregroundStyle(palette.foregroundSecondary)
-            Text("No habits yet")
-                .font(.caption)
-                .foregroundStyle(palette.foregroundSecondary)
+            // Two `Text`s rather than a ternary inside one: a
+            // `Text(cond ? "A" : "B")` binds to the `StringProtocol`
+            // overload and neither arm ever reaches the catalog.
+            Group {
+                if isFilteredOut {
+                    Text("No picked habits to show")
+                } else {
+                    Text("No habits yet")
+                }
+            }
+            .font(.caption)
+            .multilineTextAlignment(.center)
+            .foregroundStyle(palette.foregroundSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .widgetAccentable()

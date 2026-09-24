@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import OSLog
 @preconcurrency import WidgetKit
 
 /// `AppIntentTimelineProvider` for the lock widgets that pick a
@@ -29,6 +30,23 @@ public struct PickedSnapshotProvider: AppIntentTimelineProvider {
     public func timeline(for configuration: PickHabitIntent, in context: Context) async -> Timeline<PickedSnapshotEntry> {
         let plan = WidgetTimelinePlan.make(series: WidgetSnapshotStore.readSeries())
         let habitID = configuration.habit?.id
+        // A widget that ignores its configuration and one that was never
+        // configured render identically, and neither the unit suite nor a
+        // screenshot can tell them apart. Counts only — never a habit name —
+        // so the log stays as private as the app.
+        //
+        //   xcrun simctl spawn <sim> log stream --level debug \
+        //     --predicate 'subsystem == "dev.scastiel.kado"'
+        //
+        // Not behind `#if DEBUG`: whether a package target gets `-DDEBUG`
+        // from the app's configuration is not something to bet a diagnostic
+        // on, and `.debug` is dropped unless someone is streaming for it.
+        Logger(subsystem: "dev.scastiel.kado", category: "widget")
+            .debug("""
+                timeline family=\(String(describing: context.family), privacy: .public) \
+                picked=\(habitID == nil ? 0 : 1, privacy: .public) \
+                snapshotHabits=\(plan.slots.first?.snapshot.habits.count ?? 0, privacy: .public)
+                """)
         let entries = plan.slots.map {
             PickedSnapshotEntry(date: $0.date, snapshot: $0.snapshot, habitID: habitID)
         }

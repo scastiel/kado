@@ -76,18 +76,20 @@ struct WidgetGalleryView: View {
     /// safe area with room to spare.
     private func tiles(for snapshot: WidgetSnapshot) -> some View {
         let entry = SnapshotEntry(date: .now, snapshot: snapshot)
+        // No pick: the listing shows each tile as it arrives, full.
+        let picked = SelectedSnapshotEntry(date: .now, snapshot: snapshot, habitIDs: [])
         return VStack(spacing: WidgetTileMetrics.gap) {
             WidgetTile(size: .medium, identifier: AccessibilityID.Screenshot.widgetMedium) {
-                TodayProgressMediumView(entry: entry)
+                TodayProgressMediumView(entry: picked)
             }
             HStack(alignment: .top, spacing: WidgetTileMetrics.gap) {
                 WidgetTile(size: .small, identifier: AccessibilityID.Screenshot.widgetSmall) {
-                    TodayGridSmallView(entry: entry)
+                    TodayGridSmallView(entry: picked)
                 }
                 LockCard(entry: entry)
             }
             WidgetTile(size: .large, identifier: AccessibilityID.Screenshot.widgetLarge) {
-                WeeklyGridLargeView(entry: entry)
+                WeeklyGridLargeView(entry: picked)
             }
         }
         .padding(.top, WidgetTileMetrics.gap)
