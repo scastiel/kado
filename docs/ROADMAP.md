@@ -274,7 +274,11 @@ noted inline.
       lock-screen "Daily Progress" ring. The edge is detected once, in
       the snapshot rebuild every mutation already runs through. See
       `docs/plans/2026-09/daily-completion-reward/`.
-- [x] Habit archive with history preservation
+- [x] Habit archive with history preservation — and, since issue #99,
+      a way back: Settings › Archived habits lists them, each opening
+      its read-only detail, with Unarchive and a confirmed Delete.
+      Delete is offered on archived habits only. See
+      `docs/plans/2026-09/archived-habits/`.
 - [ ] Import from Streaks — still open
 - [ ] Core themes: light, dark, sepia, high contrast — still open
 - [ ] Optional biometrics (Face ID / Touch ID) — still open

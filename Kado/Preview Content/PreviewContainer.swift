@@ -30,6 +30,32 @@ enum PreviewContainer {
         return (try? shared.mainContext.fetch(descriptor))?.first?.id ?? UUID()
     }
 
+    /// In-memory container seeded like `shared`, with two of the habits
+    /// archived — one recently, one a while ago — for the Archived list
+    /// and the archived detail. `DevModeSeed` itself stays at seven
+    /// active habits, which `PreviewContainerTests` pins.
+    static func withArchivedHabits() -> ModelContainer {
+        do {
+            let container = try ModelContainer(
+                for: HabitRecord.self, CompletionRecord.self,
+                configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+            )
+            let context = container.mainContext
+            DevModeSeed.seed(into: context)
+            let calendar = Calendar.current
+            let descriptor = FetchDescriptor<HabitRecord>(sortBy: [SortDescriptor(\.sortOrder)])
+            let habits = (try? context.fetch(descriptor)) ?? []
+            if habits.count >= 2 {
+                habits[0].archivedAt = calendar.date(byAdding: .day, value: -3, to: .now)
+                habits[1].archivedAt = calendar.date(byAdding: .day, value: -40, to: .now)
+                try? context.save()
+            }
+            return container
+        } catch {
+            fatalError("Failed to construct preview ModelContainer: \(error)")
+        }
+    }
+
     /// In-memory container with no habits — exercises the empty state.
     static func emptyContainer() -> ModelContainer {
         do {

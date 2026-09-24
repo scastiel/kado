@@ -110,9 +110,10 @@ struct TodayView: View {
                     Button(String(localized: "Archive"), role: .destructive) {
                         archive(habitID)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Today.archiveConfirmButton)
                     Button(String(localized: "Cancel"), role: .cancel) {}
                 } message: { _ in
-                    Text("Archived habits stop appearing on Today but keep their history.")
+                    Text("Archived habits leave Today but keep their history. You can find them in Settings › Archived habits.")
                 }
         }
     }
@@ -476,8 +477,7 @@ struct TodayView: View {
 
     private func archive(_ habitID: UUID) {
         guard let record = record(for: habitID) else { return }
-        record.archivedAt = loggingInstant
-        try? modelContext.save()
+        HabitLifecycle().archive(record, at: loggingInstant, in: modelContext)
         WidgetReloader.reloadAll(using: modelContext)
     }
 }

@@ -74,6 +74,18 @@ nonisolated enum UITestSupport {
         /// for the screenshot run to photograph tile by tile. Passed
         /// alongside `seedProduction` and `seedForScreenshots`.
         static let widgetGallery = "-uiTestWidgetGallery"
+        /// Archive the first seeded habit as soon as the store is
+        /// seeded, so a test can start on the Archived list without
+        /// driving Today's long-press menu to get there.
+        ///
+        /// Not a shortcut taken lightly: XCUITest waits a full minute
+        /// for the app to idle after that long-press, and another
+        /// after the tap in the menu — the context menu never reports
+        /// its animations complete — so every test that archives
+        /// through the UI costs two minutes before it starts.
+        /// `ArchivedHabitsTests` drives that path once, end to end,
+        /// and starts here for the rest.
+        static let archiveFirstHabit = "-uiTestArchiveFirstHabit"
     }
 
     /// Whether the root view should be the widget gallery.
@@ -220,6 +232,34 @@ nonisolated enum UITestSupport {
         } else {
             DevModeSeed.seed(into: context)
         }
+        archiveFirstHabitIfRequested(using: context)
+    }
+
+    /// Archives one seeded habit, if this run asked for it. Called
+    /// right after either seed, on the context that was seeded — never
+    /// on a container of its own, for the reason
+    /// `seedProductionIfRequested` gives.
+    ///
+    /// Sorted by `sortOrder` *and then* by `createdAt` and `name`,
+    /// because neither seed assigns a `sortOrder`: every record carries
+    /// the default, so `sortOrder` alone leaves the winner to whatever
+    /// order the store hands back. The tests here read the habit's id
+    /// off the row they find and so don't care which one it is — the
+    /// tiebreakers are for the next test, which might.
+    @MainActor
+    static func archiveFirstHabitIfRequested(using context: ModelContext) {
+        guard isRunningUITests,
+              ProcessInfo.processInfo.arguments.contains(Argument.archiveFirstHabit)
+        else { return }
+        let descriptor = FetchDescriptor<HabitRecord>(
+            sortBy: [
+                SortDescriptor(\.sortOrder),
+                SortDescriptor(\.createdAt),
+                SortDescriptor(\.name),
+            ]
+        )
+        guard let first = try? context.fetch(descriptor).first else { return }
+        HabitLifecycle().archive(first, at: .now, in: context)
     }
 
     private static func resetState() {
@@ -243,5 +283,10 @@ nonisolated enum UITestSupport {
 nonisolated enum UITestSupport {
     static var suppressesNameAutoFocus: Bool { false }
     static var showsWidgetGallery: Bool { false }
+    /// `DevModeController` calls this after seeding the dev store, in
+    /// every configuration; a no-op here keeps its call site free of
+    /// a `#if`.
+    @MainActor
+    static func archiveFirstHabitIfRequested(using context: ModelContext) {}
 }
 #endif

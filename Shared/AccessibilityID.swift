@@ -83,6 +83,12 @@ enum AccessibilityID {
         /// the copy and both buttons with one identifier.
         static let tipNudgeTipButton = "today.tipNudge.tip"
         static let tipNudgeHideButton = "today.tipNudge.hide"
+
+        /// The Archive item in a row's long-press menu, and the
+        /// destructive button in the dialog it opens. Both labelled
+        /// "Archiver" on the French simulator.
+        static let archiveButton = "today.archive"
+        static let archiveConfirmButton = "today.archive.confirm"
     }
 
     enum Celebration {
@@ -136,6 +142,12 @@ enum AccessibilityID {
         /// Identified rather than matched on its label, which is
         /// "Supprimer" on the French simulator.
         static let historyDeleteButton = "habitDetail.history.delete"
+        /// The archived detail's toolbar: Unarchive replaces Edit as
+        /// the primary action, Delete sits in the overflow menu, and
+        /// the dialog Delete opens has its own destructive button.
+        static let unarchiveButton = "habitDetail.unarchive"
+        static let deleteButton = "habitDetail.delete"
+        static let deleteConfirmButton = "habitDetail.delete.confirm"
     }
 
     /// The popover that edits one day (`DayEditPopover`). Its own
@@ -205,6 +217,29 @@ enum AccessibilityID {
         /// Same reason: "Day starts at" on one simulator, "La journée
         /// commence à" on the other.
         static let dayStartPicker = "settings.dayStart.picker"
+        /// The row that pushes the Archived habits list. A
+        /// `NavigationLink` in a `Form` is one element already, so this
+        /// lands on a leaf.
+        static let archivedRow = "settings.archived"
+    }
+
+    /// The Archived habits list (`ArchivedHabitsView`).
+    enum Archived {
+        /// One row, keyed by the habit's `UUID` for the same reason
+        /// `Today.row` is. The row collapses to a single element, so
+        /// this lands on a leaf.
+        static func row(_ habitID: UUID) -> String { rowPrefix + habitID.uuidString }
+        /// What `row` builds on, for an "any Archived row" query.
+        static let rowPrefix = "archived.row."
+        /// The two items of a row's long-press menu.
+        static let unarchiveButton = "archived.unarchive"
+        static let deleteButton = "archived.delete"
+        /// The same two, on the row's swipe actions. Distinct from the
+        /// menu's so a test can say which surface it drove.
+        static let swipeUnarchiveButton = "archived.swipe.unarchive"
+        static let swipeDeleteButton = "archived.swipe.delete"
+        /// The destructive button in the dialog Delete opens.
+        static let deleteConfirmButton = "archived.delete.confirm"
     }
 
     /// The tiles of the Debug-only widget gallery the App Store

@@ -133,6 +133,7 @@ struct HabitRowView: View {
             Button(role: .destructive, action: onArchive) {
                 Label("Archive", systemImage: "archivebox")
             }
+            .accessibilityIdentifier(AccessibilityID.Today.archiveButton)
         }
     }
 
