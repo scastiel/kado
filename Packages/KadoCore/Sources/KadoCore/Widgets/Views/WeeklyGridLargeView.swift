@@ -39,7 +39,14 @@ public struct WeeklyGridLargeView: View {
                 // "No habits yet" only when there really are none. A
                 // pick whose habits have all been archived is a
                 // different situation and gets its own wording.
-                emptyPlaceholder(isFilteredOut: !entry.snapshot.matrix.isEmpty)
+                //
+                // Which of the two is decided by the pick itself, as on
+                // the today tiles — not by the snapshot still holding
+                // habits. The two agree today (with no pick the rows
+                // are the matrix, capped), but only the pick actually
+                // says whether the user asked for something we can no
+                // longer draw.
+                emptyPlaceholder(isFilteredOut: !entry.habitIDs.isEmpty)
             } else {
                 weekdayStripe
                 habitRows
