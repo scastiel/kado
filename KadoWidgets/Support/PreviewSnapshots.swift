@@ -5,19 +5,62 @@ import KadoCore
 enum PreviewSnapshots {
     static let firstHabitID = UUID()
 
-    static var populated: WidgetSnapshot {
+    /// A pick for the today widgets, deliberately out of snapshot
+    /// order so the previews show that the widget follows the *pick*
+    /// order rather than the app's.
+    static var pickedTodayIDs: [UUID] {
+        let rows = populated.today
+        guard rows.count >= 4 else { return rows.map(\.habit.id) }
+        return [rows[3].habit.id, rows[0].habit.id]
+    }
+
+    /// A pick with one habit the app knows but hasn't scheduled today,
+    /// so the previews show it dimmed with "Not today" rather than
+    /// silently absent.
+    static var pickedWithNotDueIDs: [UUID] {
+        [notDueHabit.id] + Array(pickedTodayIDs.prefix(1))
+    }
+
+    /// Same idea for the weekly grid.
+    static var pickedMatrixIDs: [UUID] {
+        let rows = populated.matrix
+        guard rows.count >= 6 else { return rows.map(\.habit.id) }
+        return [rows[5].habit.id, rows[1].habit.id, rows[0].habit.id]
+    }
+
+    /// Stored, not computed. Every habit here gets a fresh `UUID` on
+    /// construction, so a computed property would hand each caller a
+    /// different set of ids — and `pickedTodayIDs` would then name
+    /// habits that aren't in the snapshot the preview renders,
+    /// silently showing the "nothing picked" placeholder instead of
+    /// the pick.
+    /// In `habits` but not in `today`: what a picked habit looks like
+    /// on a day it isn't scheduled.
+    static let notDueHabit = WidgetHabit(
+        id: UUID(),
+        name: "Running",
+        color: .green,
+        icon: "figure.run",
+        typeKind: .binary,
+        target: nil,
+        currentStreak: 5,
+        bestStreak: 12,
+        currentScore: 0.54
+    )
+
+    static let populated: WidgetSnapshot = {
         let today = makeTodayRows()
         let (matrix, days) = makeMatrix()
         return WidgetSnapshot(
             generatedAt: .now,
-            habits: today.map(\.habit),
+            habits: today.map(\.habit) + [notDueHabit],
             today: today,
             totalDueToday: today.count,
             completedToday: today.filter { $0.status == .complete }.count,
             matrix: matrix,
             matrixDays: days
         )
-    }
+    }()
 
     /// `populated` with every row finished — the closed ring on the
     /// day-progress widget, and the small widget's grid with nothing

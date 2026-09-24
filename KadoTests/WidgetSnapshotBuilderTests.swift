@@ -386,6 +386,12 @@ struct WidgetSnapshotBuilderTests {
         #expect(slipped.today.first { $0.habit.name == "No sugar" }?.status == .complete)
         #expect(slipped.dayProgress == DayProgress(completed: 1, total: 2))
         #expect(!slipped.dayProgress.isComplete)
+
+        // The rows carry the same rule the tally was built with, so a
+        // widget summarising a *subset* of them (a picked home widget)
+        // can't drift from the whole-day number.
+        #expect(kept.completedToday == kept.today.filter(\.isDone).count)
+        #expect(slipped.completedToday == slipped.today.filter(\.isDone).count)
     }
 
     // MARK: - Upcoming days

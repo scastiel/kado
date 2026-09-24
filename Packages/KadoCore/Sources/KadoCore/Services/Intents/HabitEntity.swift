@@ -53,10 +53,13 @@ public extension HabitEntity {
 public struct HabitEntityQuery: EntityQuery {
     public init() {}
 
+    /// Rehydrates stored entity ids — how a widget's saved habit pick
+    /// comes back on every reload. Resolution follows `identifiers`,
+    /// not the snapshot's order, and a miss drops only itself; see
+    /// `WidgetHabitSelection.resolve` for why both matter.
     public func entities(for identifiers: [UUID]) async throws -> [HabitEntity] {
-        let idSet = Set(identifiers)
-        return WidgetSnapshotStore.read().habits
-            .filter { idSet.contains($0.id) }
+        WidgetHabitSelection
+            .resolve(identifiers, in: WidgetSnapshotStore.read().habits)
             .map(HabitEntity.init(widgetHabit:))
     }
 

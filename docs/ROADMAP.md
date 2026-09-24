@@ -165,9 +165,12 @@ DNA (habit score, offline, privacy) in place from the start.
 at-a-glance overview, notifications, frictionless data portability.
 
 ### Widgets
-- [x] Small home screen widget: today's grid (5-6 habits max)
-- [x] Medium home screen widget: grid + progress
-- [x] Large home screen widget: weekly view
+- [x] Small home screen widget: today's grid (up to 5 habits)
+- [x] Medium home screen widget: grid + progress (up to 8)
+- [x] Large home screen widget: weekly view (up to 5)
+- [x] Each placed home widget picks its own habits, in pick order,
+      through the widget-edit sheet — see
+      `docs/plans/2026-09/widget-habit-selection/`
 - [x] Lock screen widget (rectangular, circular, inline) — plus a
       "Daily Progress" ring with today's completed / scheduled count,
       see `docs/plans/2026-09/daily-completion-reward/`
@@ -271,7 +274,11 @@ noted inline.
       lock-screen "Daily Progress" ring. The edge is detected once, in
       the snapshot rebuild every mutation already runs through. See
       `docs/plans/2026-09/daily-completion-reward/`.
-- [x] Habit archive with history preservation
+- [x] Habit archive with history preservation — and, since issue #99,
+      a way back: Settings › Archived habits lists them, each opening
+      its read-only detail, with Unarchive and a confirmed Delete.
+      Delete is offered on archived habits only. See
+      `docs/plans/2026-09/archived-habits/`.
 - [ ] Import from Streaks — still open
 - [ ] Core themes: light, dark, sepia, high contrast — still open
 - [ ] Optional biometrics (Face ID / Touch ID) — still open
