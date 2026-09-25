@@ -87,4 +87,54 @@ struct HabitEffectiveStartTests {
         let start = h.effectiveStart(completions: comps, calendar: calendar)
         #expect(calendar.isDate(start, inSameDayAs: TestCalendar.day(3)))
     }
+
+    // MARK: - isBeforeStart / loggingBackdatesStart (issue #104)
+
+    @Test("Days before the effective start are before start; the start day itself is not")
+    func isBeforeStartBoundary() {
+        let h = habit(createdAtOffset: -2)
+        #expect(h.isBeforeStart(TestCalendar.day(-3), completions: [], calendar: calendar))
+        #expect(!h.isBeforeStart(TestCalendar.day(-2), completions: [], calendar: calendar))
+        #expect(!h.isBeforeStart(TestCalendar.day(0), completions: [], calendar: calendar))
+    }
+
+    @Test("isBeforeStart compares calendar days, not instants")
+    func isBeforeStartIgnoresTimeOfDay() {
+        // Created at noon; that day's midnight is an earlier instant
+        // but the creation day, not a day before it.
+        let h = habit(createdAtOffset: -2)
+        let midnight = calendar.startOfDay(for: TestCalendar.day(-2))
+        #expect(!h.isBeforeStart(midnight, completions: [], calendar: calendar))
+    }
+
+    @Test("A backdated completion moves the before-start boundary with it")
+    func isBeforeStartFollowsBackdate() {
+        let h = habit(createdAtOffset: 0)
+        let comps = [completion(for: h, dayOffset: -4)]
+        #expect(!h.isBeforeStart(TestCalendar.day(-4), completions: comps, calendar: calendar))
+        #expect(h.isBeforeStart(TestCalendar.day(-5), completions: comps, calendar: calendar))
+    }
+
+    @Test("Logging before the start backdates a positive habit")
+    func loggingBackdatesPositiveHabit() {
+        for type: HabitType in [.binary, .counter(target: 3), .timer(targetSeconds: 600)] {
+            let h = habit(type: type, createdAtOffset: 0)
+            #expect(
+                h.loggingBackdatesStart(on: TestCalendar.day(-3), completions: [], calendar: calendar),
+                "\(type)"
+            )
+            #expect(
+                !h.loggingBackdatesStart(on: TestCalendar.day(0), completions: [], calendar: calendar),
+                "\(type)"
+            )
+        }
+    }
+
+    @Test("Logging before the start never backdates a negative habit")
+    func loggingNeverBackdatesNegativeHabit() {
+        // A negative habit's start stays at `createdAt` whatever it logs.
+        let h = habit(type: .negative, createdAtOffset: 0)
+        #expect(h.isBeforeStart(TestCalendar.day(-3), completions: [], calendar: calendar))
+        #expect(!h.loggingBackdatesStart(on: TestCalendar.day(-3), completions: [], calendar: calendar))
+    }
 }

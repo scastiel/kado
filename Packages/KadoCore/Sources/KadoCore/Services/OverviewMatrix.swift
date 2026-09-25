@@ -14,8 +14,9 @@ public struct MatrixRow: Equatable, Sendable {
 /// Per-day state for the matrix. `.scored` carries the day's raw
 /// completion value (0...1) for a day the schedule asked for;
 /// `.offSchedule` carries the same value for a day it didn't;
-/// `.notDue` covers pre-creation and unlogged off-schedule days;
-/// `.future` is used for dates beyond today.
+/// `.notDue` covers unlogged off-schedule days; `.beforeStart` the
+/// days before the habit's effective start; `.future` is used for
+/// dates beyond today.
 ///
 /// The value is intentionally NOT the EMA habit score. Daily habits
 /// with partial completion would render as a uniform mid-tone under
@@ -24,6 +25,11 @@ public struct MatrixRow: Equatable, Sendable {
 public enum DayCell: Equatable, Sendable {
     case future
     case notDue
+    /// Before the habit's effective start. Drawn like `.notDue`, but
+    /// kept apart because it must not be edited: logging it would move
+    /// the start back to that day and turn every day in between into a
+    /// miss (issue #104).
+    case beforeStart
     case scored(Double)
     /// The user logged something on a day the schedule didn't ask
     /// for — a bonus run past a weekly quota, or a back-filled day.
@@ -41,11 +47,23 @@ public enum DayCell: Equatable, Sendable {
     /// neighbors, losing the "scheduled but missed" signal.
     public var colorOpacity: Double? {
         switch self {
-        case .future, .notDue:
+        case .future, .notDue, .beforeStart:
             return nil
         case .scored(let s), .offSchedule(let s):
             let clamped = max(0.0, min(1.0, s))
             return 0.2 + 0.8 * clamped
+        }
+    }
+
+    /// Whether the matrix opens the day editor on this cell. An
+    /// unscheduled day inside the tracked range can still be logged;
+    /// a day before the start or after today cannot.
+    public var isEditable: Bool {
+        switch self {
+        case .future, .beforeStart:
+            return false
+        case .notDue, .scored, .offSchedule:
+            return true
         }
     }
 
@@ -101,7 +119,7 @@ public enum OverviewMatrix {
 
             let cells = days.map { day -> DayCell in
                 if day > todayStart { return .future }
-                if day < effectiveStartDay { return .notDue }
+                if day < effectiveStartDay { return .beforeStart }
 
                 let completionsOnDay = completionsByDay[day] ?? []
                 if frequencyEvaluator.isDue(

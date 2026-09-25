@@ -229,6 +229,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         case completed    // done on this day
         case missed       // past / today, due, not done
         case nonDue       // past / today, not due (schedule skip)
+        case beforeStart  // before the habit's effective start
     }
 
     private func state(for day: Date) -> CellState {
@@ -236,11 +237,11 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         if day > today {
             return .future
         }
-        let effectiveStartDay = calendar.startOfDay(
-            for: habit.effectiveStart(completions: completions, calendar: calendar)
-        )
-        if day < effectiveStartDay {
-            return .nonDue
+        // Still tappable, unlike on the Overview: this calendar is where
+        // back-dating lives, and its popover says the start will move
+        // (issue #104).
+        if habit.isBeforeStart(day, completions: completions, calendar: calendar) {
+            return .beforeStart
         }
         let completedOnDay = completions.contains { c in
             c.habitID == habit.id && c.value > 0 && calendar.isDate(c.date, inSameDayAs: day)
@@ -269,7 +270,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         case .future: Color.kadoHairline
         case .completed: habit.color.color
         case .missed: Color.kadoPaper200
-        case .nonDue: Color.kadoHairline.opacity(0.4)
+        case .nonDue, .beforeStart: Color.kadoHairline.opacity(0.4)
         }
     }
 
@@ -278,7 +279,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         case .future: .kadoForegroundSecondary
         case .completed: habit.color.onFill
         case .missed: .kadoForeground
-        case .nonDue: .kadoForegroundSecondary
+        case .nonDue, .beforeStart: .kadoForegroundSecondary
         }
     }
 
@@ -301,6 +302,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         case .completed: stateString = String(localized: "completed")
         case .missed: stateString = String(localized: "missed")
         case .nonDue: stateString = String(localized: "not scheduled")
+        case .beforeStart: stateString = String(localized: "before tracking started")
         case .future: stateString = String(localized: "upcoming")
         }
         let noteString = hasNote(on: day) ? String(localized: ", has note") : ""

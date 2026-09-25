@@ -45,7 +45,7 @@ public struct MatrixCell: View {
                             color.tint(borderOpacity),
                             lineWidth: 2
                         )
-                } else if state == .notDue {
+                } else if state == .notDue || state == .beforeStart {
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .strokeBorder(Color.kadoHairline, lineWidth: 1)
                 }
@@ -57,7 +57,7 @@ public struct MatrixCell: View {
         switch state {
         case .future:
             Color.clear
-        case .notDue:
+        case .notDue, .beforeStart:
             Color.kadoBackgroundSecondary
         case .scored:
             color.tint(state.colorOpacity ?? 0)

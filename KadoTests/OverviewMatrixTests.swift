@@ -163,7 +163,7 @@ struct OverviewMatrixTests {
         let row = try #require(result.first)
 
         // The effective start is day -2 (the first completion), so
-        // days -4 and -3 are .notDue. Day -2 is scored 1.0; days -1
+        // days -4 and -3 are .beforeStart. Day -2 is scored 1.0; days -1
         // and 0 are scored 0.0 (due but not completed).
         let values: [Double] = row.days.map { cell in
             if case .scored(let v) = cell { v } else { -1 }
@@ -202,8 +202,8 @@ struct OverviewMatrixTests {
         }
     }
 
-    @Test("Cell is .notDue on days before the habit was created")
-    func preCreationIsNotDue() throws {
+    @Test("Cell is .beforeStart on days before the habit was created")
+    func preCreationIsBeforeStart() throws {
         let habit = Habit(
             name: "Habit",
             frequency: .daily,
@@ -223,7 +223,7 @@ struct OverviewMatrixTests {
         let row = try #require(result.first)
         let preCreation = row.days.prefix(3) // -5, -4, -3
         let postCreation = row.days.suffix(3) // -2, -1, 0
-        #expect(preCreation.allSatisfy { $0 == .notDue })
+        #expect(preCreation.allSatisfy { $0 == .beforeStart })
         #expect(postCreation.allSatisfy {
             if case .scored = $0 { return true } else { return false }
         })
@@ -252,7 +252,7 @@ struct OverviewMatrixTests {
         let row = try #require(result.first)
         let preEffective = row.days[0] // day -5: before effective start (-4)
         let atEffective = row.days[1]  // day -4: effective start, completed
-        #expect(preEffective == .notDue)
+        #expect(preEffective == .beforeStart)
         if case .scored(let v) = atEffective {
             #expect(v == 1.0)
         } else {
@@ -285,8 +285,11 @@ struct OverviewMatrixTests {
         )
         let row = try #require(result.first)
         #expect(row.days[4] == .offSchedule(1.0))
-        // The untouched non-Mondays stay grey; Monday stays scored.
-        #expect(row.days[0] == .notDue)
+        // The untouched Sunday stays grey; Monday stays scored. Days
+        // before the Saturday precede the effective start, which is
+        // the first completion, not `createdAt`.
+        #expect(row.days[0] == .beforeStart)
+        #expect(row.days[5] == .notDue)
         #expect(row.days[6] == .scored(0.0))
     }
 
@@ -381,10 +384,48 @@ struct OverviewMatrixTests {
 
     // MARK: - colorOpacity
 
-    @Test("DayCell.colorOpacity is nil for future and notDue")
+    @Test("DayCell.colorOpacity is nil for future, notDue and beforeStart")
     func opacityNilForNonScored() {
         #expect(DayCell.future.colorOpacity == nil)
         #expect(DayCell.notDue.colorOpacity == nil)
+        #expect(DayCell.beforeStart.colorOpacity == nil)
+    }
+
+    // MARK: - isEditable (issue #104)
+
+    @Test("Only days inside the habit's tracked range are editable")
+    func editableCells() {
+        // Logging a `.beforeStart` day would move the habit's effective
+        // start back to it and turn every day in between into a miss.
+        #expect(!DayCell.beforeStart.isEditable)
+        #expect(!DayCell.future.isEditable)
+        for cell: DayCell in [.notDue, .scored(0.0), .scored(1.0), .offSchedule(0.5)] {
+            #expect(cell.isEditable, "\(cell)")
+        }
+    }
+
+    @Test("An off-schedule day after the start stays .notDue, not .beforeStart")
+    func offScheduleAfterStartIsNotDue() throws {
+        // Mon/Wed/Fri, created on day -6 (a Tuesday): day -5 is the
+        // first unscheduled day inside the tracked range.
+        let habit = Habit(
+            name: "Habit",
+            frequency: .specificDays([.monday, .wednesday, .friday]),
+            type: .binary,
+            createdAt: TestCalendar.day(-6)
+        )
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: [],
+            days: days(offset: -7, count: 8),
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        #expect(row.days[0] == .beforeStart) // day -7, before creation
+        #expect(row.days[1] == .notDue)      // day -6, Tuesday
+        #expect(row.days.dropFirst().allSatisfy { $0 != .beforeStart })
     }
 
     @Test("Off-schedule border is always more visible than a neutral cell")
@@ -406,7 +447,7 @@ struct OverviewMatrixTests {
 
     @Test("borderOpacity and offScheduleFillOpacity are nil for every other case")
     func borderOpacityOnlyForOffSchedule() {
-        for cell: DayCell in [.future, .notDue, .scored(0.0), .scored(1.0)] {
+        for cell: DayCell in [.future, .notDue, .beforeStart, .scored(0.0), .scored(1.0)] {
             #expect(cell.borderOpacity == nil)
             #expect(cell.offScheduleFillOpacity == nil)
         }

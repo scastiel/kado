@@ -320,6 +320,26 @@ class KadoUITestCase: XCTestCase {
         return nil
     }
 
+    // MARK: - Creating a habit
+
+    /// Creates a daily yes/no habit — the sheet's defaults — with the
+    /// given name from Today's `+`, and waits for the sheet to go away.
+    @MainActor
+    func createHabit(named name: String, in app: XCUIApplication) {
+        app.buttons[AccessibilityID.Today.newHabitButton].firstMatch.tap()
+        let field = app.textFields[AccessibilityID.NewHabit.nameField]
+        XCTAssertTrue(field.waitForExistence(timeout: 10), "The New Habit sheet never appeared.")
+        field.tap()
+        field.typeText(name)
+        let save = app.buttons[AccessibilityID.NewHabit.saveButton].firstMatch
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        save.tap()
+        XCTAssertTrue(
+            field.waitForNonExistence(timeout: 10),
+            "The New Habit sheet should dismiss after Save."
+        )
+    }
+
     // MARK: - The day-edit popover
 
     /// Taps the day-edit popover's `+`, from whichever screen opened it.

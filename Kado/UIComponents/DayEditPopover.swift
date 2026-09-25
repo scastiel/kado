@@ -36,6 +36,11 @@ struct DayEditPopover: View {
     /// the fact the read-only popover used to state. Editing is the
     /// same either way — a day logged off schedule still counts.
     var notScheduled: Bool = false
+    /// Whether logging this day moves the habit's start back to it —
+    /// the detail calendar's pre-start days. Back-dating is a feature,
+    /// but one that rescores every day in between, so the popover says
+    /// so before the tap rather than after (issue #104).
+    var backdatesStart: Bool = false
 
     @Environment(\.calendar) private var calendar
     @Environment(\.dismiss) private var dismiss
@@ -77,6 +82,13 @@ struct DayEditPopover: View {
                 Text("Not scheduled")
                     .font(.caption)
                     .foregroundStyle(Color.kadoForegroundSecondary)
+            }
+            if backdatesStart {
+                Text("Before this habit started. Logging this day makes it the new start date.")
+                    .font(.caption)
+                    .foregroundStyle(Color.kadoForegroundSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(AccessibilityID.DayEdit.backdateNotice)
             }
         }
     }
@@ -407,6 +419,28 @@ struct DayEditPopover: View {
         onClear: {},
         onNoteChanged: { _ in },
         notScheduled: true
+    )
+}
+
+#Preview("Binary — before start") {
+    DayEditPopover(
+        habit: Habit(
+            name: "Morning meditation",
+            frequency: .daily,
+            type: .binary,
+            createdAt: .now,
+            color: .purple,
+            icon: "figure.mind.and.body"
+        ),
+        date: Calendar.current.date(byAdding: .day, value: -12, to: .now)!,
+        currentValue: 0,
+        currentNote: nil,
+        onToggle: {},
+        onSetCounter: { _ in },
+        onSetTimerSeconds: { _ in },
+        onClear: {},
+        onNoteChanged: { _ in },
+        backdatesStart: true
     )
 }
 
