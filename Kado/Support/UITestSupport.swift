@@ -283,6 +283,8 @@ nonisolated enum UITestSupport {
     }
 }
 #else
+import SwiftData
+
 /// Release stand-in, carrying only the members production code reads.
 ///
 /// `NewHabitFormView` asks whether to focus its name field on every
