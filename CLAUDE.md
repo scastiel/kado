@@ -1013,6 +1013,15 @@ nothing inside a test can change the simulator's appearance, and
 `simctl ui <udid> appearance` can, so the script sets it between the
 two passes.
 
+`HomeScreenWidgetTests` is a real test that `make e2e` also skips: it
+drives SpringBoard (`com.apple.springboard`) to place each home widget,
+pick habits in its edit sheet and read the tile back — the only check
+that a widget honours its stored configuration, since an ignored pick
+and no pick look identical. Over a minute per tile, English SpringBoard
+labels only. `make widgets-e2e` builds, re-signs (so picks decode on
+iOS 26.x) and runs it serially. When a step can't find its button, the
+`springboard: …` tree it dumps shows what the label became.
+
 Seven findings, each of which cost a cycle:
 
 - **Never build the UI suite with `CODE_SIGNING_ALLOWED=NO`.** Kadō's

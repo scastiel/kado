@@ -3,6 +3,7 @@
 #   make build   build the app for the simulator
 #   make test    the unit suite (KadoTests)
 #   make e2e     the UI suite (KadoUITests) — drives the app in a simulator
+#   make widgets-e2e  place each home widget on the Home Screen and check its pick
 #   make run     install and launch the app on this worktree's simulator
 #   make shot    screenshot that simulator
 #   make sim-clean  delete this worktree's simulator and any leftover clones
@@ -72,6 +73,12 @@ export SIGN_IDENTITY
 # appearance and a pinned language; every other run leaves it alone.
 SKIP_SCREENSHOTS := -skip-testing:KadoUITests/ScreenshotTests
 
+# `HomeScreenWidgetTests` is a real test but drives SpringBoard rather than
+# Kadō: over a minute per tile, and at the mercy of Apple's accessibility
+# labels for the Home Screen's own buttons. `make widgets-e2e` runs it;
+# `make e2e` leaves it alone.
+SKIP_WIDGETS := -skip-testing:KadoUITests/HomeScreenWidgetTests
+
 # The App Store Connect API key. `Scripts/appstore.py` finds the .p8 itself, by
 # key ID, in ~/.appstoreconnect/private_keys — the issuer is the half that can't
 # be derived from it, so it comes from the environment: export ASC_ISSUER_ID, or
@@ -80,7 +87,7 @@ ASC_KEY_ID    ?=
 ASC_ISSUER_ID ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help build test e2e run shot sim sim-clean clean \
+.PHONY: help build test e2e widgets-e2e run shot sim sim-clean clean \
 	screenshots frames site-shots listing-check listing-info listing \
 	archive ipa testflight release-check
 
@@ -132,8 +139,30 @@ e2e: sim ## Run the UI suite (KadoUITests) against the simulator
 		$(PARALLEL) \
 		-only-testing:KadoUITests \
 		$(SKIP_SCREENSHOTS) \
+		$(SKIP_WIDGETS) \
 		-test-timeouts-enabled YES \
 		-maximum-test-execution-time-allowance 180 \
+		-quiet
+
+# Built, re-signed, then run: the re-sign is what lets the widget extension
+# decode its pick on an iOS 26.x simulator (see `run` below), and
+# `test-without-building` installs the products as they are on disk. Serial,
+# because each test clears every Kadō widget off the Home Screen before it
+# places its own, and a clone per test would boot three more simulators.
+widgets-e2e: sim ## Place each home widget on the Home Screen and check it draws its pick
+	@xcodebuild build-for-testing \
+		-project $(PROJECT) -scheme $(SCHEME) \
+		-destination '$(DESTINATION)' \
+		-derivedDataPath $(DERIVED) \
+		-quiet
+	@Scripts/resign-simulator.sh \
+		"$$(find $(DERIVED)/Build/Products -name 'Kado.app' -maxdepth 3 | head -1)"
+	@xcodebuild test-without-building \
+		-project $(PROJECT) -scheme $(SCHEME) \
+		-destination '$(DESTINATION)' \
+		-derivedDataPath $(DERIVED) \
+		-parallel-testing-enabled NO \
+		-only-testing:KadoUITests/HomeScreenWidgetTests \
 		-quiet
 
 # Named rather than `booted`, which is a coin toss the moment anything

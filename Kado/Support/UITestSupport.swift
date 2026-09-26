@@ -233,6 +233,15 @@ nonisolated enum UITestSupport {
             DevModeSeed.seed(into: context)
         }
         archiveFirstHabitIfRequested(using: context)
+        // The launch-time snapshot write in `KadoApp` races this seed and
+        // usually wins, leaving the widgets — and the habit picker in
+        // their edit sheet, which reads the same snapshot — looking at
+        // an empty store. `HomeScreenWidgetTests` has nothing to pick
+        // without this. Only when this store is the one mounted: in dev
+        // mode the snapshot belongs to the sandbox.
+        if !DevModeDefaults.sharedDefaults.bool(forKey: DevModeDefaults.key) {
+            WidgetSnapshotBuilder.rebuildAndWrite(using: context)
+        }
     }
 
     /// Archives one seeded habit, if this run asked for it. Called
