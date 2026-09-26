@@ -17,6 +17,15 @@ export/import. No subscription, no telemetry, no required account.
 
 Target: iOS 18.0+, Xcode 16.0+, Swift 5.10+.
 
+**Every target in the project sits on that 18.0 floor, not just the
+app.** Xcode's "add target" wizard writes the *SDK's* version as the new
+target's `IPHONEOS_DEPLOYMENT_TARGET` (26.4 on Xcode 26), and an
+extension above the app's floor is not refused at install — installd
+drops it silently and the app runs with no widgets. The widget extension
+shipped that way for five months (#97). `make deployment-check` walks the
+pbxproj and fails on any entry that isn't `18.0`; `make archive` runs
+it. Run it in the commit that adds a target.
+
 ---
 
 ## Tech stack
