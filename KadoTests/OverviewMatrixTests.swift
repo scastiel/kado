@@ -428,6 +428,51 @@ struct OverviewMatrixTests {
         #expect(row.days.dropFirst().allSatisfy { $0 != .beforeStart })
     }
 
+    @Test("A negative habit's pre-creation days stay editable: logging can't move its start")
+    func negativePreCreationIsNotDue() throws {
+        let habit = Habit(
+            name: "No smoking",
+            frequency: .daily,
+            type: .negative,
+            createdAt: TestCalendar.day(-2)
+        )
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: [],
+            days: days(offset: -5, count: 3), // -5 .. -3
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        #expect(row.days.allSatisfy { $0 == .notDue && $0.isEditable })
+    }
+
+    @Test("A pre-start day that already holds a record stays editable")
+    func preStartDayWithRecordIsNotDue() throws {
+        // A zero-value record (a note on an otherwise empty day) doesn't
+        // move the start, but it must stay reachable to read or clear.
+        let habit = Habit(
+            name: "Habit",
+            frequency: .daily,
+            type: .binary,
+            createdAt: TestCalendar.day(-2)
+        )
+        let completions = [
+            Completion(habitID: habit.id, date: TestCalendar.day(-4), value: 0, note: "Sick")
+        ]
+        let result = OverviewMatrix.compute(
+            habits: [habit],
+            completions: completions,
+            days: days(offset: -5, count: 3), // -5 .. -3
+            today: today,
+            calendar: calendar,
+            frequencyEvaluator: frequencyEvaluator
+        )
+        let row = try #require(result.first)
+        #expect(row.days == [.beforeStart, .notDue, .beforeStart])
+    }
+
     @Test("Off-schedule border is always more visible than a neutral cell")
     func offScheduleBorderNeverFades() throws {
         // The border is the only thing saying "you logged this". If it

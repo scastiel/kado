@@ -67,7 +67,80 @@ final class PreStartDayTests: KadoUITestCase {
         )
     }
 
+    /// Stepping a habit's earliest day to zero from the Overview moves
+    /// its start past that day, which turns the cell under the open
+    /// popover into a pre-start one. The popover must stay, warn, and
+    /// still step back up.
+    @MainActor
+    func testSteppingTheEarliestDayToZeroKeepsTheOverviewPopoverOpen() throws {
+        let app = launchApp(devMode: true)
+        tapTab(.today, in: app)
+        waitForTodayRows(in: app)
+        let habitID = try XCTUnwrap(openCounterHabitDetail(in: app), "No counter habit in the seed.")
+        app.navigationBars.buttons.firstMatch.tap()
+
+        // `DevModeSeed` logs 6 on every odd day back to 29, so day 29
+        // is the counter habit's start — the leftmost cell.
+        tapTab(.overview, in: app)
+        let earliest = app.buttons[AccessibilityID.Overview.cell(habitID, daysAgo: 29)]
+        scrollMatrixToLeadingEdge(showing: earliest, habitID: habitID, in: app)
+        earliest.tap()
+
+        let value = app.staticTexts[AccessibilityID.DayEdit.value]
+        XCTAssertTrue(value.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
+        XCTAssertEqual(number(in: value), "6", "The seed logs 6 on day 29.")
+        let minus = app.buttons[AccessibilityID.DayEdit.decrement]
+        for step in stride(from: 5, through: 0, by: -1) {
+            minus.tap()
+            XCTAssertTrue(
+                waited(for: value, toRead: "\(step)"),
+                "Stepping down should read \(step); the popover shows \(value.label)."
+            )
+        }
+
+        capture(app, "overview-earliest-day-at-zero")
+        XCTAssertTrue(
+            app.staticTexts[AccessibilityID.DayEdit.backdateNotice].waitForExistence(timeout: 5),
+            "At zero the day is before the start, and the popover should say so."
+        )
+        tapDayEditIncrement(in: app)
+        XCTAssertTrue(
+            waited(for: value, toRead: "1"),
+            "The popover should still step back up; it shows \(value.label)."
+        )
+    }
+
     // MARK: - Driving
+
+    /// Drags the matrix right until `target` can be tapped. The matrix
+    /// opens scrolled to today, and `scrollTo` only swipes vertically.
+    @MainActor
+    private func scrollMatrixToLeadingEdge(
+        showing target: XCUIElement, habitID: UUID, in app: XCUIApplication
+    ) {
+        let todayCell = app.buttons[AccessibilityID.Overview.cell(habitID, daysAgo: 0)]
+        XCTAssertTrue(todayCell.waitForExistence(timeout: 10), "The matrix never appeared.")
+        scrollTo(todayCell, in: app)
+        // Drag along the habit's own cell row: the label overlay above
+        // it passes touches through, but the row is the surest target.
+        let rowY = todayCell.frame.midY
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        // By frame, not `isHittable`: asked about a cell wholly off
+        // screen, `isHittable` fails the test instead of answering.
+        let window = app.windows.firstMatch.frame
+        func onScreen() -> Bool { target.exists && window.contains(target.frame) }
+        for _ in 0..<8 {
+            if onScreen() { break }
+            let start = origin.withOffset(CGVector(dx: 60, dy: rowY))
+            start.press(
+                forDuration: 0.05,
+                thenDragTo: start.withOffset(CGVector(dx: 280, dy: 0)),
+                withVelocity: .slow,
+                thenHoldForDuration: 0.1
+            )
+        }
+        XCTAssertTrue(onScreen(), "Never scrolled \(target) into view.")
+    }
 
     /// The id of the only habit on Today, read off its row.
     @MainActor

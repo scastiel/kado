@@ -15,8 +15,8 @@ public struct MatrixRow: Equatable, Sendable {
 /// completion value (0...1) for a day the schedule asked for;
 /// `.offSchedule` carries the same value for a day it didn't;
 /// `.notDue` covers unlogged off-schedule days; `.beforeStart` the
-/// days before the habit's effective start; `.future` is used for
-/// dates beyond today.
+/// empty days before the habit's effective start that logging would
+/// back-date; `.future` is used for dates beyond today.
 ///
 /// The value is intentionally NOT the EMA habit score. Daily habits
 /// with partial completion would render as a uniform mid-tone under
@@ -25,10 +25,12 @@ public struct MatrixRow: Equatable, Sendable {
 public enum DayCell: Equatable, Sendable {
     case future
     case notDue
-    /// Before the habit's effective start. Drawn like `.notDue`, but
-    /// kept apart because it must not be edited: logging it would move
-    /// the start back to that day and turn every day in between into a
-    /// miss (issue #104).
+    /// An empty day before the habit's effective start, where logging
+    /// would move the start back to it and turn every day in between
+    /// into a miss (issue #104). Drawn like `.notDue`, but kept apart
+    /// because the matrix doesn't edit it. A negative habit, whose
+    /// start never moves, and a pre-start day that already holds a
+    /// record get `.notDue` instead.
     case beforeStart
     case scored(Double)
     /// The user logged something on a day the schedule didn't ask
@@ -119,9 +121,18 @@ public enum OverviewMatrix {
 
             let cells = days.map { day -> DayCell in
                 if day > todayStart { return .future }
-                if day < effectiveStartDay { return .beforeStart }
 
                 let completionsOnDay = completionsByDay[day] ?? []
+                if day < effectiveStartDay {
+                    // Locked only where logging would move the start: a
+                    // negative habit's start never moves, and a day that
+                    // already holds a record (a note, a zero) must stay
+                    // reachable so it can be read and cleared.
+                    let backdates = habit.loggingBackdatesStart(
+                        on: day, completions: habitCompletions, calendar: calendar
+                    )
+                    return backdates && completionsOnDay.isEmpty ? .beforeStart : .notDue
+                }
                 if frequencyEvaluator.isDue(
                     habit: habit,
                     on: day,

@@ -37,7 +37,8 @@ struct DayEditPopover: View {
     /// same either way — a day logged off schedule still counts.
     var notScheduled: Bool = false
     /// Whether logging this day moves the habit's start back to it —
-    /// the detail calendar's pre-start days. Back-dating is a feature,
+    /// the detail calendar's pre-start days, and the few the Overview
+    /// still opens (see `OverviewView.matrixCell`). Back-dating is a feature,
     /// but one that rescores every day in between, so the popover says
     /// so before the tap rather than after (issue #104).
     var backdatesStart: Bool = false
