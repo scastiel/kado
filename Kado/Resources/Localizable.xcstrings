@@ -1111,6 +1111,40 @@
         }
       }
     },
+    "Before this habit started. Logging this day makes it the new start date." : {
+      "comment" : "Caption in the day-edit popover on a calendar day before the habit's start, warning that logging it back-dates the habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before this habit started. Logging this day makes it the new start date."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant le début de cette habitude. Noter ce jour en fait sa nouvelle date de début."
+          }
+        }
+      }
+    },
+    "before tracking started" : {
+      "comment" : "VoiceOver state for a calendar or Overview day that falls before the habit's start.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "before tracking started"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avant le début du suivi"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "comment" : "Dismissive button in confirmation dialogs and form toolbars.",
       "localizations" : {

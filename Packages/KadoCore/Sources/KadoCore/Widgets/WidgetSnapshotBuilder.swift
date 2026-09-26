@@ -378,7 +378,8 @@ public enum WidgetSnapshotBuilder {
     private static func mapDayCell(_ cell: DayCell) -> WidgetDayCell {
         switch cell {
         case .future: .future
-        case .notDue: .notDue
+        // The widget doesn't edit, so it has no use for the distinction.
+        case .notDue, .beforeStart: .notDue
         case .scored(let v): .scored(v)
         case .offSchedule(let v): .offSchedule(v)
         }

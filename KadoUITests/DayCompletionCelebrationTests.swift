@@ -62,24 +62,4 @@ final class DayCompletionCelebrationTests: KadoUITestCase {
             "A tap through the celebration overlay should reach the toolbar."
         )
     }
-
-    // MARK: - Driving
-
-    /// Creates a daily yes/no habit — the sheet's defaults — with the
-    /// given name, and waits for the sheet to go away.
-    @MainActor
-    private func createHabit(named name: String, in app: XCUIApplication) {
-        app.buttons[AccessibilityID.Today.newHabitButton].firstMatch.tap()
-        let field = app.textFields[AccessibilityID.NewHabit.nameField]
-        XCTAssertTrue(field.waitForExistence(timeout: 10), "The New Habit sheet never appeared.")
-        field.tap()
-        field.typeText(name)
-        let save = app.buttons[AccessibilityID.NewHabit.saveButton].firstMatch
-        XCTAssertTrue(save.waitForExistence(timeout: 5))
-        save.tap()
-        XCTAssertTrue(
-            field.waitForNonExistence(timeout: 10),
-            "The New Habit sheet should dismiss after Save."
-        )
-    }
 }

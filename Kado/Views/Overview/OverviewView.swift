@@ -138,12 +138,14 @@ struct OverviewView: View {
     /// so the popover anchors to the tapped button rather than the
     /// whole matrix. Days compare by calendar day, as the detail
     /// calendar's binding does, not by instant.
+    private func isSelected(habitID: UUID, date: Date) -> Bool {
+        guard let sel = selection else { return false }
+        return sel.habitID == habitID && calendar.isDate(sel.date, inSameDayAs: date)
+    }
+
     private func selectionBinding(habitID: UUID, date: Date) -> Binding<Bool> {
         Binding(
-            get: {
-                guard let sel = selection else { return false }
-                return sel.habitID == habitID && calendar.isDate(sel.date, inSameDayAs: date)
-            },
+            get: { isSelected(habitID: habitID, date: date) },
             set: { newValue in
                 if !newValue,
                    let sel = selection,
@@ -232,42 +234,65 @@ struct OverviewView: View {
         .allowsHitTesting(false)
     }
 
-    /// Every cell opens the editor, grey ones included — a day the
-    /// schedule didn't ask for can still be logged, as on the detail
-    /// calendar. The window ends today, so `.future` never reaches
-    /// this row and needs no gate.
     private func cellRow(_ row: MatrixRow, days: [Date], completions: [Completion]) -> some View {
         HStack(spacing: Self.cellSpacing) {
             ForEach(Array(zip(days, row.days).enumerated()), id: \.offset) { offset, pair in
                 let (day, cell) = pair
-                Button {
-                    selection = CellSelection(habitID: row.habit.id, date: day)
-                } label: {
-                    MatrixCell(
-                        state: cell,
-                        color: row.habit.color,
-                        size: Self.cellSize
-                    )
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(
-                    Self.accessibilityLabel(
-                        habit: row.habit,
-                        date: day,
-                        cell: cell,
-                        calendar: calendar
-                    )
+                matrixCell(
+                    row: row,
+                    day: day,
+                    cell: cell,
+                    daysAgo: days.count - 1 - offset,
+                    completions: completions
                 )
-                .accessibilityHint(Text("Double-tap to edit this day."))
-                .accessibilityIdentifier(
-                    AccessibilityID.Overview.cell(row.habit.id, daysAgo: days.count - 1 - offset)
-                )
-                .popover(isPresented: selectionBinding(habitID: row.habit.id, date: day)) {
-                    dayEditPopover(for: row.habit, on: day, cell: cell, completions: completions)
-                }
             }
         }
         .frame(height: Self.cellSize)
+    }
+
+    /// Grey cells inside the tracked range open the editor — a day the
+    /// schedule didn't ask for can still be logged, as on the detail
+    /// calendar. A day before the habit's start does not: logging it
+    /// would quietly move the start back and turn the month in between
+    /// into misses (issue #104). Back-dating stays on the detail
+    /// calendar, which says so before it happens. The window ends
+    /// today, so `.future` never reaches this row.
+    ///
+    /// The cell whose popover is up stays a button whatever its state.
+    /// Stepping a habit's earliest day down to zero moves the start
+    /// past it and turns it `.beforeStart` under the open popover;
+    /// swapping the branch then would tear the popover down mid-edit,
+    /// with no way back from the Overview.
+    @ViewBuilder
+    private func matrixCell(
+        row: MatrixRow,
+        day: Date,
+        cell: DayCell,
+        daysAgo: Int,
+        completions: [Completion]
+    ) -> some View {
+        let label = Self.accessibilityLabel(habit: row.habit, date: day, cell: cell, calendar: calendar)
+        let identifier = AccessibilityID.Overview.cell(row.habit.id, daysAgo: daysAgo)
+        let visual = MatrixCell(state: cell, color: row.habit.color, size: Self.cellSize)
+        if cell.isEditable || isSelected(habitID: row.habit.id, date: day) {
+            Button {
+                selection = CellSelection(habitID: row.habit.id, date: day)
+            } label: {
+                visual
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(label)
+            .accessibilityHint(Text("Double-tap to edit this day."))
+            .accessibilityIdentifier(identifier)
+            .popover(isPresented: selectionBinding(habitID: row.habit.id, date: day)) {
+                dayEditPopover(for: row.habit, on: day, cell: cell, completions: completions)
+            }
+        } else {
+            visual
+                .accessibilityElement()
+                .accessibilityLabel(label)
+                .accessibilityIdentifier(identifier)
+        }
     }
 
     /// The editor for one cell, fed from the render's value snapshots.
@@ -280,11 +305,17 @@ struct OverviewView: View {
         completions: [Completion]
     ) -> some View {
         let completion = completions.first { calendar.isDate($0.date, inSameDayAs: day) }
+        // A pre-start day can still get here — it holds a record, or
+        // was stepped to zero under this popover — so it carries the
+        // detail calendar's warning, which replaces "Not scheduled".
+        let backdatesStart = habit.loggingBackdatesStart(
+            on: day, completions: completions, calendar: calendar
+        )
         let notScheduled: Bool
         switch cell {
         case .notDue, .offSchedule:
-            notScheduled = true
-        case .future, .scored:
+            notScheduled = !backdatesStart
+        case .future, .beforeStart, .scored:
             notScheduled = false
         }
         return DayEditPopover(
@@ -297,7 +328,8 @@ struct OverviewView: View {
             onSetTimerSeconds: { seconds in setTimerSeconds(seconds, for: habit, on: day) },
             onClear: { clear(habit, on: day) },
             onNoteChanged: { note in setNote(note, for: habit, on: day) },
-            notScheduled: notScheduled
+            notScheduled: notScheduled,
+            backdatesStart: backdatesStart
         )
         .presentationCompactAdaptation(.popover)
     }
@@ -375,6 +407,8 @@ struct OverviewView: View {
             state = String(localized: "upcoming")
         case .notDue:
             state = String(localized: "not scheduled")
+        case .beforeStart:
+            state = String(localized: "before tracking started")
         case .scored(let s):
             state = completionPhrase(for: s)
         case .offSchedule(let s):

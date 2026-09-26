@@ -121,7 +121,10 @@ struct HabitDetailView: View {
                             onSetCounter: { value in setCounter(value, on: day) },
                             onSetTimerSeconds: { seconds in setTimerSeconds(seconds, on: day) },
                             onClear: { clear(on: day) },
-                            onNoteChanged: { note in setNote(note, on: day) }
+                            onNoteChanged: { note in setNote(note, on: day) },
+                            backdatesStart: habit.loggingBackdatesStart(
+                                on: day, completions: completions, calendar: calendar
+                            )
                         )
                         .presentationCompactAdaptation(.popover)
                     }

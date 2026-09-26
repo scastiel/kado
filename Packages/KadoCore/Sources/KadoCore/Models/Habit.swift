@@ -58,6 +58,23 @@ public struct Habit: Identifiable, Hashable, Sendable {
         return earliest ?? createdAt
     }
 
+    /// Whether `day` falls before `effectiveStart` — a day the score,
+    /// the streak and the Overview treat as "before tracking" rather
+    /// than as a miss. Compared by calendar day, not by instant.
+    public func isBeforeStart(_ day: Date, completions: [Completion], calendar: Calendar) -> Bool {
+        let startDay = calendar.startOfDay(for: effectiveStart(completions: completions, calendar: calendar))
+        return calendar.startOfDay(for: day) < startDay
+    }
+
+    /// Whether logging `day` would move `effectiveStart` back to it,
+    /// turning every day in between from "before tracking" into a
+    /// miss (issue #104). Never for a negative habit, whose start
+    /// stays at `createdAt` whatever it logs.
+    public func loggingBackdatesStart(on day: Date, completions: [Completion], calendar: Calendar) -> Bool {
+        if case .negative = type { return false }
+        return isBeforeStart(day, completions: completions, calendar: calendar)
+    }
+
     public static func == (lhs: Habit, rhs: Habit) -> Bool {
         lhs.id == rhs.id
     }
