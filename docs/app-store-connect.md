@@ -778,6 +778,83 @@ nothing a customer sees, so the notes don't mention it.
 >   d'accueil — et maintenant la fête — n'additionnent que les
 >   habitudes que tu as vraiment tenues.
 
+### What's New — 1.10
+
+Build 19 carries everything on `main` since 1.9: #101 (the widget
+extension on the app's iOS 18.0 floor — widgets never loaded on iOS 18.0
+through 26.3), #96 (pick which habits each Home Screen widget shows),
+#102 (Settings › Archived habits, with unarchive and delete), #103 (a
+number pad for "Log specific value…"), #94 ("Day starts at" any hour),
+#95 (mark a habit completed from the Overview day popover), and #105 (a
+pre-start Overview cell no longer silently back-dates the habit). #106
+(the Home Screen widget XCUITest) changes nothing a customer sees, so
+the notes don't mention it.
+
+> Version 1.10 — Choose what each widget shows, bring archived habits
+> back, and type a value instead of tapping your way to it.
+>
+> • Widgets on iOS 18 and on iOS 26 up to 26.3 are here at last.
+>   Kadō's widgets never showed up in the widget gallery on those
+>   versions, so if you went looking for them and found nothing, have
+>   another look.
+> • Each Home Screen widget can now show the habits you choose: long-
+>   press it, tap Edit Widget, and pick up to 5 (small and large) or 8
+>   (medium), in the order you want them. A widget you've never edited
+>   keeps showing every habit due today, the way it always has.
+> • Archived habits have a home: Settings › Archived habits lists them
+>   all, and from there you can unarchive a habit — history intact —
+>   or delete it for good. An archived habit's own screen offers the
+>   same two actions.
+> • "Log specific value…" now opens a number pad with today's value
+>   already selected, so logging 25 push-ups is two keystrokes, not
+>   twenty-five taps. Save stays greyed out until the field holds a
+>   number in range.
+> • "Day starts at" can now be any hour, not just midnight to 6 AM, so
+>   if you work nights and sleep through the morning, your day can
+>   turn over mid-afternoon.
+> • On the Overview, tap a day to mark a habit completed right there
+>   in the popover, without opening the habit first.
+> • On the Overview, a day before a habit started is no longer a trap.
+>   Logging it used to quietly move the habit's start date back and
+>   turn every day in between into a miss. Back-dating still works
+>   from the habit's own calendar, which now tells you that logging
+>   that day makes it the new start date.
+
+> Version 1.10 — Choisis ce que montre chaque widget, retrouve tes
+> habitudes archivées, et saisis une valeur au lieu de l'atteindre à
+> coups de taps.
+>
+> • Les widgets arrivent enfin sur iOS 18 et sur iOS 26 jusqu'à 26.3.
+>   Sur ces versions, les widgets de Kadō n'apparaissaient jamais dans
+>   la galerie : si tu les as cherchés sans les trouver, jette un
+>   nouveau coup d'œil.
+> • Chaque widget de l'écran d'accueil peut maintenant afficher les
+>   habitudes de ton choix : maintiens-le, touche Modifier le widget,
+>   puis choisis-en jusqu'à 5 (petit et grand) ou 8 (moyen), dans
+>   l'ordre que tu veux. Un widget que tu n'as jamais modifié continue
+>   d'afficher toutes les habitudes prévues aujourd'hui, comme avant.
+> • Les habitudes archivées ont trouvé leur place : Réglages ›
+>   Habitudes archivées les liste toutes, et de là tu peux désarchiver
+>   une habitude — avec tout son historique — ou la supprimer pour de
+>   bon. L'écran d'une habitude archivée propose les deux mêmes
+>   actions.
+> • « Saisir une valeur… » ouvre maintenant un pavé numérique avec la
+>   valeur du jour déjà sélectionnée : noter 25 pompes, c'est deux
+>   touches, pas vingt-cinq taps. Enregistrer reste grisé tant que le
+>   champ ne contient pas un nombre valide.
+> • « La journée commence à » accepte maintenant n'importe quelle
+>   heure, et plus seulement de minuit à 6 h : si tu travailles de
+>   nuit et dors le matin, ta journée peut changer en plein après-
+>   midi.
+> • Dans la Vue d'ensemble, touche un jour pour marquer une habitude
+>   comme faite directement dans la fenêtre, sans ouvrir l'habitude.
+> • Dans la Vue d'ensemble, un jour antérieur au début d'une habitude
+>   n'est plus un piège. Le noter déplaçait discrètement sa date de
+>   début et transformait chaque jour intermédiaire en jour manqué.
+>   L'antidatage reste possible depuis le calendrier de l'habitude,
+>   qui te prévient désormais que noter ce jour en fait la nouvelle
+>   date de début.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
