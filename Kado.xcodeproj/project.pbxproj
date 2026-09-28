@@ -66,6 +66,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BE0C5A1B2F9A0001000000A1 /* Exceptions for "Kado" folder in "Kado" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BE4188792F91B4F0006126D6 /* Kado */;
+		};
 		BE58C7732F940AB10020146E /* Exceptions for "KadoWidgets" folder in "KadoWidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -83,6 +90,9 @@
 		};
 		BE41887C2F91B4F0006126D6 /* Kado */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BE0C5A1B2F9A0001000000A1 /* Exceptions for "Kado" folder in "Kado" target */,
+			);
 			path = Kado;
 			sourceTree = "<group>";
 		};
@@ -542,6 +552,7 @@
 				DEVELOPMENT_TEAM = VKY5EKKU47;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kado/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Kadō";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -578,6 +589,7 @@
 				DEVELOPMENT_TEAM = VKY5EKKU47;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kado/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Kadō";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
