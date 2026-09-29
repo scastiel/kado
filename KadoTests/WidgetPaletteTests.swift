@@ -21,6 +21,8 @@ struct WidgetPaletteTests {
     private let tinted: [WidgetRenderingMode] = [.accented, .vibrant]
     private let everyStatus: [WidgetStatus] = [.none, .partial, .complete]
 
+    init() { ResolvedColor.warmUp() }
+
     // MARK: - Full colour is untouched
 
     @Test("Full colour reproduces the paper / ink palette", arguments: HabitTheme.allCases)
@@ -226,17 +228,14 @@ struct WidgetPaletteTests {
     /// `.primary` bridges to a dynamic `UIColor`, which only yields
     /// components once it is resolved against a trait collection.
     private func opacity(of color: Color) -> Double {
-        let resolved = UIColor(color)
-            .resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
-        return Double(resolved.cgColor.alpha)
+        Double(ResolvedColor.resolved(color, .light).cgColor.alpha)
     }
 
     /// The habit tints are dynamic colours too, and two of them built
     /// from the same inputs are distinct objects — compare what they
     /// resolve to, rounded to 8-bit.
     private func channels(of color: Color, _ style: UIUserInterfaceStyle) -> [Int] {
-        let resolved = UIColor(color)
-            .resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
+        let resolved = ResolvedColor.resolved(color, style)
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         resolved.getRed(&r, green: &g, blue: &b, alpha: &a)
         return [r, g, b, a].map { Int(($0 * 255).rounded()) }

@@ -27,7 +27,8 @@ nonisolated public enum HabitTheme: String, CaseIterable, Codable, Sendable, Has
     case muted
     /// As much chroma as sRGB shows at each hue. Supporter pack.
     case vivid
-    /// An autumn set — brick to plum. Supporter pack.
+    /// Four oranges and four greens, told apart by lightness and
+    /// chroma. Supporter pack.
     case autumn
     /// One hue, the brand sage, told apart by lightness alone.
     /// Supporter pack.
@@ -67,13 +68,18 @@ nonisolated public enum HabitTheme: String, CaseIterable, Codable, Sendable, Has
         }
     }
 
-    /// Whether the slots are told apart by hue. Monochrome sage is
-    /// the one that isn't: its slots share a hue and differ by
-    /// lightness, so the palette tests hold it to a lightness spacing
-    /// instead of a hue spacing. Both are held to the same minimum
-    /// Oklab distance.
-    public var variesHue: Bool {
-        self != .monochromeSage
+    /// Whether the slots are spread around the hue wheel, each told
+    /// apart from the next by hue. Two themes aren't, by design:
+    /// Monochrome sage shares one hue, and Autumn packs its eight into
+    /// an orange and a green family, so neighbours within a family sit
+    /// closer than 15° and differ by lightness and chroma instead. The
+    /// palette tests hold every theme to the same minimum Oklab
+    /// distance, and only these to the hue spacing.
+    public var spansHueWheel: Bool {
+        switch self {
+        case .kado, .classic, .muted, .vivid: true
+        case .autumn, .monochromeSage: false
+        }
     }
 
     // MARK: - Kadō
@@ -203,24 +209,29 @@ nonisolated public enum HabitTheme: String, CaseIterable, Codable, Sendable, Has
 
     // MARK: - Autumn
 
-    /// Brick, pumpkin, mustard, olive, moss, spruce, dusk and plum —
-    /// each slot keeps its name's family, so a habit picked as "blue"
-    /// is still the blue one. The warm half carries the chroma and the
-    /// cool half is deliberately quiet (C 0.07–0.08), the way a
-    /// landscape in October is; lightness steps between neighbours so
-    /// the quiet ones still stand apart. Dark lifts each by 0.14,
-    /// never below 0.70, at the same C and H — mustard ends at 0.88,
-    /// the lightest base anywhere in the palette.
+    /// Turning leaves on evergreens: four oranges (H 38–72) and four
+    /// greens (H 122–160), nothing else. With only two families the
+    /// slots can't be told apart by hue, so each family is a ladder
+    /// of lightness and chroma — rust, pumpkin and a pale amber
+    /// against a deep chestnut; a bright olive and a pale moss against
+    /// a mid forest and a deep pine. Every pair is ΔE ≥ 0.095 apart,
+    /// wider than any hue-spread theme but Vivid.
+    ///
+    /// Slots keep their names' *temperature* rather than their hue:
+    /// red, orange and yellow are the warm run, green through blue the
+    /// cool one, and purple — which has no autumn counterpart — is the
+    /// dark chestnut. Dark mode lifts each by about 0.12 at the same C
+    /// and H; amber stops at 0.84, where sRGB still shows its chroma.
     private static func autumnBase(_ color: HabitColor) -> (light: OKLCH, dark: OKLCH) {
         switch color {
-        case .red: (OKLCH(l: 0.55, c: 0.13, h: 30), OKLCH(l: 0.70, c: 0.13, h: 30))
-        case .orange: (OKLCH(l: 0.66, c: 0.14, h: 55), OKLCH(l: 0.80, c: 0.13, h: 55))
-        case .yellow: (OKLCH(l: 0.74, c: 0.13, h: 88), OKLCH(l: 0.88, c: 0.13, h: 88))
-        case .green: (OKLCH(l: 0.60, c: 0.11, h: 118), OKLCH(l: 0.74, c: 0.11, h: 118))
-        case .mint: (OKLCH(l: 0.52, c: 0.08, h: 150), OKLCH(l: 0.70, c: 0.08, h: 150))
-        case .teal: (OKLCH(l: 0.50, c: 0.07, h: 200), OKLCH(l: 0.70, c: 0.07, h: 200))
-        case .blue: (OKLCH(l: 0.52, c: 0.07, h: 250), OKLCH(l: 0.70, c: 0.07, h: 250))
-        case .purple: (OKLCH(l: 0.48, c: 0.10, h: 345), OKLCH(l: 0.70, c: 0.10, h: 345))
+        case .red: (OKLCH(l: 0.52, c: 0.14, h: 38), OKLCH(l: 0.64, c: 0.14, h: 38))
+        case .orange: (OKLCH(l: 0.66, c: 0.16, h: 52), OKLCH(l: 0.76, c: 0.15, h: 52))
+        case .yellow: (OKLCH(l: 0.80, c: 0.14, h: 72), OKLCH(l: 0.84, c: 0.13, h: 72))
+        case .green: (OKLCH(l: 0.64, c: 0.13, h: 122), OKLCH(l: 0.74, c: 0.13, h: 122))
+        case .mint: (OKLCH(l: 0.76, c: 0.12, h: 132), OKLCH(l: 0.86, c: 0.12, h: 132))
+        case .teal: (OKLCH(l: 0.52, c: 0.11, h: 148), OKLCH(l: 0.64, c: 0.11, h: 148))
+        case .blue: (OKLCH(l: 0.40, c: 0.07, h: 160), OKLCH(l: 0.52, c: 0.07, h: 160))
+        case .purple: (OKLCH(l: 0.42, c: 0.09, h: 50), OKLCH(l: 0.54, c: 0.09, h: 50))
         }
     }
 

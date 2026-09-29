@@ -1,534 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Classic" : {
-      "comment" : "Habit colour theme name: Apple's system colours, as habits looked before.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Classic"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Classique"
-          }
-        }
-      }
+    "" : {
+
     },
-    "Muted" : {
-      "comment" : "Habit colour theme name (Supporter pack): soft, low-saturation ink-wash colours.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muted"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feutré"
-          }
-        }
-      }
-    },
-    "Vivid" : {
-      "comment" : "Habit colour theme name (Supporter pack): the most saturated colours the screen shows.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vivid"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vif"
-          }
-        }
-      }
-    },
-    "Autumn" : {
-      "comment" : "Habit colour theme name (Supporter pack): autumn colours, brick red to plum.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autumn"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automne"
-          }
-        }
-      }
-    },
-    "Monochrome sage" : {
-      "comment" : "Habit colour theme name (Supporter pack): shades of the brand's sage green.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monochrome sage"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauge monochrome"
-          }
-        }
-      }
-    },
-    "Themes with a lock come with the Supporter pack." : {
-      "comment" : "Habit colours footer, shown until the pack is owned: explains the lock on paid themes.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Themes with a lock come with the Supporter pack."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les thèmes avec un cadenas font partie du pack de soutien."
-          }
-        }
-      }
-    },
-    "Needs the Supporter pack" : {
-      "comment" : "VoiceOver value on a locked habit colour theme in Settings.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Needs the Supporter pack"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nécessite le pack de soutien"
-          }
-        }
-      }
-    },
-    "Opens the Supporter pack." : {
-      "comment" : "VoiceOver hint on a locked habit colour theme: tapping it opens the pack screen.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens the Supporter pack."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvre le pack de soutien."
-          }
-        }
-      }
-    },
-    "Habit colours" : {
-      "comment" : "Settings section header and picker label: the colour theme habits are painted in.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habit colours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couleurs des habitudes"
-          }
-        }
-      }
-    },
-    "Habit unavailable" : {
-      "comment" : "Title of the placeholder shown when a screen's habit no longer exists.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habit unavailable"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habitude indisponible"
-          }
-        }
-      }
-    },
-    "Kadō" : {
-      "comment" : "Habit colour theme name: the default Kadō palette. Brand name, keep as is.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō"
-          }
-        }
-      }
-    },
-    "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks." : {
-      "comment" : "Settings footer under the habit colour theme picker.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recolore toutes les habitudes, ici et dans les widgets. Chaque habitude garde sa couleur ; le thème décide de son rendu."
-          }
-        }
-      }
-    },
-    "This habit is no longer available." : {
-      "comment" : "Description under the 'Habit unavailable' placeholder.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This habit is no longer available."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette habitude n'est plus disponible."
-          }
-        }
-      }
-    },
-    "SUPPORT" : {
-      "comment" : "Eyebrow label above the Tip Jar screen title. Displayed uppercased.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SUPPORT"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SOUTIEN"
-          }
-        }
-      }
-    },
-    "If Kadō earns a place in your day" : {
-      "comment" : "Tip Jar screen title (large serif). Warm, no-pressure tone.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If Kadō earns a place in your day"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si Kadō a trouvé sa place dans ta journée"
-          }
-        }
-      }
-    },
-    "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip." : {
-      "comment" : "Tip Jar intro paragraph explaining why tips exist.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō est gratuite, open source, sans publicité, sans abonnement et sans suivi. Si tu veux aider à ce que ça reste ainsi, tu peux laisser un pourboire."
-          }
-        }
-      }
-    },
-    "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here." : {
-      "comment" : "Tip Jar footnote clarifying tips unlock no features.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les pourboires sont facultatifs et ne débloquent rien — tu as déjà toute l'application. Ils soutiennent simplement le temps consacré à Kadō. Merci d'être là."
-          }
-        }
-      }
-    },
-    "Tips aren't available right now. Check your connection and try again." : {
-      "comment" : "Tip Jar error message when the products fail to load.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tips aren't available right now. Check your connection and try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les pourboires ne sont pas disponibles pour le moment. Vérifie ta connexion et réessaie."
-          }
-        }
-      }
-    },
-    "Try again" : {
-      "comment" : "Button to retry loading the tip or Supporter pack products after a failure.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Try again"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réessayer"
-          }
-        }
-      }
-    },
-    "Thank you — truly." : {
-      "comment" : "Tip Jar thank-you headline shown after a successful tip.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thank you — truly."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci — vraiment."
-          }
-        }
-      }
-    },
-    "Your support keeps Kadō free and independent. It means a lot." : {
-      "comment" : "Tip Jar thank-you body shown after a successful tip.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your support keeps Kadō free and independent. It means a lot."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton soutien permet à Kadō de rester gratuite et indépendante. Ça compte beaucoup."
-          }
-        }
-      }
-    },
-    "Leave another tip" : {
-      "comment" : "Button returning from the thank-you to the tip tiers so the user can tip again.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leave another tip"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laisser un autre pourboire"
-          }
-        }
-      }
-    },
-    "Tip pending" : {
-      "comment" : "Alert title when a tip purchase is pending approval (e.g. Ask to Buy).",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tip pending"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pourboire en attente"
-          }
-        }
-      }
-    },
-    "Your tip is pending approval. Thank you!" : {
-      "comment" : "Alert message when a tip purchase is pending approval.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your tip is pending approval. Thank you!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton pourboire est en attente d'approbation. Merci !"
-          }
-        }
-      }
-    },
-    "Purchase failed" : {
-      "comment" : "Alert title when a tip or Supporter pack purchase fails.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Purchase failed"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achat échoué"
-          }
-        }
-      }
-    },
-    "The purchase didn't go through. No charge was made." : {
-      "comment" : "Alert message when a tip or Supporter pack purchase fails.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The purchase didn't go through. No charge was made."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'achat n'a pas abouti. Aucun montant n'a été débité."
-          }
-        }
-      }
-    },
-    "Support Kadō" : {
-      "comment" : "Tip Jar navigation title and the Settings section header for tipping.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Support Kadō"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Soutenir Kadō"
-          }
-        }
-      }
-    },
-    "Leave a %@ tip, %@" : {
-      "comment" : "VoiceOver label for a tip tier button. %@ is the tier name, then the price.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leave a %@ tip, %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laisser un pourboire %@, %@"
-          }
-        }
-      }
-    },
-    "Thank you" : {
-      "comment" : "VoiceOver label for the ありがとう thank-you mark on the Tip Jar screen.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thank you"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci"
-          }
-        }
-      }
-    },
-    "Loading tips" : {
-      "comment" : "VoiceOver label for the Tip Jar tiers while they load.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading tips"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chargement des pourboires"
-          }
-        }
-      }
-    },
-    "Leave a tip" : {
-      "comment" : "Settings row and Today tip nudge label that opens the Tip Jar.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leave a tip"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laisser un pourboire"
-          }
-        }
-      }
-    },
-    "" : {},
     ", has note" : {
       "comment" : "Appended to the calendar cell accessibility label when the day has a note attached.",
       "localizations" : {
@@ -554,23 +29,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "·"
-          }
-        }
-      }
-    },
-    "%@, off schedule" : {
-      "comment" : "VoiceOver state for an Overview cell logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, off schedule"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, jour non prévu"
           }
         }
       }
@@ -653,6 +111,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, compteur, objectif %2$lld"
+          }
+        }
+      }
+    },
+    "%@, off schedule" : {
+      "comment" : "Overview cell state for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, off schedule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, jour non prévu"
           }
         }
       }
@@ -820,6 +295,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld / meilleure %2$lld"
+          }
+        }
+      }
+    },
+    "%lld completions" : {
+      "comment" : "Subtitle on an Archived habits row: how many completions the habit carries.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completion"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completions"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld complétion"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld complétions"
+                }
+              }
+            }
           }
         }
       }
@@ -1081,6 +597,23 @@
         }
       }
     },
+    "%lldm" : {
+      "comment" : "Minutes logged today, before the +5m chip on a timer Today row. Argument is whole minutes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lldm"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
     "•" : {
       "comment" : "A bullet point.",
       "isCommentAutoGenerated" : true,
@@ -1110,23 +643,6 @@
         }
       }
     },
-    "%lldm" : {
-      "comment" : "Minutes logged today, before the +5m chip on a timer Today row. Argument is whole minutes.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lldm"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld min"
-          }
-        }
-      }
-    },
     "A few times a week" : {
       "comment" : "Frequency picker option in the new-habit form, selects the 'N days per week' mode.",
       "localizations" : {
@@ -1140,6 +656,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quelques fois par semaine"
+          }
+        }
+      }
+    },
+    "A little extra, once" : {
+      "comment" : "Headline of the Supporter pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A little extra, once"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un petit plus, une fois pour toutes"
+          }
+        }
+      }
+    },
+    "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks." : {
+      "comment" : "Intro paragraph of the Supporter pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un achat unique qui soutient Kadō et ajoute quelques extras cosmétiques. Toutes les fonctionnalités restent gratuites : le pack ne change que l'apparence de Kadō."
           }
         }
       }
@@ -1213,6 +763,40 @@
         }
       }
     },
+    "All done for today" : {
+      "comment" : "Caption shown with the confetti when the last habit scheduled for today is completed. Also read by VoiceOver.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All done for today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout est fait pour aujourd'hui"
+          }
+        }
+      }
+    },
+    "Alternate app icons" : {
+      "comment" : "Supporter pack contents: title of the alternate app icons item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternate app icons"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icônes d'app alternatives"
+          }
+        }
+      }
+    },
     "Appearance" : {
       "comment" : "Section header in the new-habit form grouping the color + icon pickers.",
       "localizations" : {
@@ -1277,6 +861,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archivée"
+          }
+        }
+      }
+    },
+    "Archived habits" : {
+      "comment" : "Settings row label and navigation title of the list of archived habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes archivées"
+          }
+        }
+      }
+    },
+    "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits." : {
+      "comment" : "Message body in the archive confirmation dialog: what archiving does and where to find archived habits.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes archivées quittent l'onglet Aujourd'hui mais gardent leur historique. Tu les retrouveras dans Réglages › Habitudes archivées."
+          }
+        }
+      }
+    },
+    "Archived on %@" : {
+      "comment" : "Subtitle on an Archived habits row; %@ is the date the habit was archived, medium style.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archived on %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archivée le %@"
+          }
+        }
+      }
+    },
+    "Automatic (%@)" : {
+      "comment" : "Week-start picker option that follows the region. %@ is the resolved day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatique (%@)"
+          }
+        }
+      }
+    },
+    "Autumn" : {
+      "comment" : "Habit colour theme name (Supporter pack): autumn colours, oranges and greens only.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autumn"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automne"
           }
         }
       }
@@ -1361,6 +1030,59 @@
         }
       }
     },
+    "Choose Habits" : {
+      "comment" : "Title of the home widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir des habitudes"
+          }
+        }
+      }
+    },
+    "Choose which habits this widget shows. Leave it empty to show them all." : {
+      "comment" : "Description of the home widgets' configuration intent, under the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose which habits this widget shows. Leave it empty to show them all."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis les habitudes affichées par ce widget. Laisse vide pour toutes les afficher."
+          }
+        }
+      }
+    },
+    "Classic" : {
+      "comment" : "Habit colour theme name: Apple's system colours, as habits looked before.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classique"
+          }
+        }
+      }
+    },
     "Clear" : {
       "comment" : "Destructive action in the past-day edit popover that clears the logged value for counter and timer habits (deletes the completion).",
       "localizations" : {
@@ -1374,6 +1096,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Effacer"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Button dismissing the Tip Jar sheet opened from the Today tip nudge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer"
           }
         }
       }
@@ -1551,6 +1290,23 @@
         }
       }
     },
+    "CSV" : {
+      "comment" : "Export format option in the Settings Data menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CSV"
+          }
+        }
+      }
+    },
     "Data" : {
       "comment" : "Settings section heading for import and export.",
       "localizations" : {
@@ -1564,6 +1320,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Données"
+          }
+        }
+      }
+    },
+    "Day" : {
+      "comment" : "Settings section header above the day-rollover hour picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journée"
+          }
+        }
+      }
+    },
+    "Day starts at" : {
+      "comment" : "Settings picker label: the hour at which the app rolls over to the next day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day starts at"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La journée commence à"
           }
         }
       }
@@ -1598,6 +1388,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Supprimer"
+          }
+        }
+      }
+    },
+    "Delete “%@”?" : {
+      "comment" : "Confirmation dialog title before permanently deleting an archived habit; %@ is its name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer « %@ » ?"
+          }
+        }
+      }
+    },
+    "Delete this habit?" : {
+      "comment" : "Fallback confirmation dialog title before permanently deleting an archived habit, when its name can't be resolved.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this habit?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer cette habitude ?"
           }
         }
       }
@@ -1746,6 +1570,23 @@
         }
       }
     },
+    "Enter a number no higher than %lld." : {
+      "comment" : "Footer of a log sheet, shown while the typed number is above the field's maximum. Argument is that maximum.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a number no higher than %lld."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisis un nombre inférieur ou égal à %lld."
+          }
+        }
+      }
+    },
     "every %lld days" : {
       "comment" : "Frequency phrase used in 'Fires on every 3 days'. Argument: the N in everyNDays.",
       "localizations" : {
@@ -1889,6 +1730,23 @@
         }
       }
     },
+    "Extra colour themes for your habits, on top of the free Kadō and Classic." : {
+      "comment" : "Supporter pack contents: detail of the paid colour themes item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra colour themes for your habits, on top of the free Kadō and Classic."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des thèmes de couleurs supplémentaires pour tes habitudes, en plus des thèmes gratuits Kadō et Classique."
+          }
+        }
+      }
+    },
     "Feedback" : {
       "comment" : "Settings section header for the review and feedback links.",
       "localizations" : {
@@ -1939,6 +1797,40 @@
         }
       }
     },
+    "Get the pack · %@" : {
+      "comment" : "Supporter pack buy button; the argument is the localized price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get the pack · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtenir le pack · %@"
+          }
+        }
+      }
+    },
+    "Get the Supporter pack, %@" : {
+      "comment" : "VoiceOver label of the Supporter pack buy button; the argument is the price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get the Supporter pack, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtenir le pack de soutien, %@"
+          }
+        }
+      }
+    },
     "Habit" : {
       "comment" : "Title of the `habit` parameter on Kadō's AppIntents.",
       "extractionState" : "stale",
@@ -1947,6 +1839,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Habitude"
+          }
+        }
+      }
+    },
+    "Habit colours" : {
+      "comment" : "Settings section header and picker label: the colour theme habits are painted in.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit colours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleurs des habitudes"
           }
         }
       }
@@ -1986,6 +1895,23 @@
         }
       }
     },
+    "Habit unavailable" : {
+      "comment" : "Title of the placeholder shown when a screen's habit no longer exists.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit unavailable"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitude indisponible"
+          }
+        }
+      }
+    },
     "Habits" : {
       "comment" : "Label for the habit-count row in the import confirmation sheet, and the Settings section heading above the Archived habits row.",
       "localizations" : {
@@ -2005,6 +1931,7 @@
     },
     "Habits due today with a completion summary. Pick up to 8." : {
       "comment" : "Medium home widget description, shown in the widget gallery.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2016,6 +1943,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Habitudes prévues aujourd'hui avec un résumé de progression. Choisis-en jusqu'à 8."
+          }
+        }
+      }
+    },
+    "Habits you archive leave Today but keep their history. You can unarchive or delete them from here." : {
+      "comment" : "Empty-state description of the Archived habits list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits you archive leave Today but keep their history. You can unarchive or delete them from here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les habitudes que tu archives quittent Aujourd'hui mais gardent leur historique. Tu peux les désarchiver ou les supprimer d'ici."
           }
         }
       }
@@ -2130,6 +2074,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La synchronisation iCloud ne fonctionne pas"
+          }
+        }
+      }
+    },
+    "If Kadō earns a place in your day" : {
+      "comment" : "Tip Jar screen title (large serif). Warm, no-pressure tone.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If Kadō earns a place in your day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si Kadō a trouvé sa place dans ta journée"
           }
         }
       }
@@ -2270,6 +2231,40 @@
         }
       }
     },
+    "JSON" : {
+      "comment" : "Export format option in the Settings Data menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JSON"
+          }
+        }
+      }
+    },
+    "Kadō" : {
+      "comment" : "Habit colour theme name: the default Kadō palette. Brand name, keep as is.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō"
+          }
+        }
+      }
+    },
     "Kadō — in operation" : {
       "comment" : "The title of the app.",
       "isCommentAutoGenerated" : true,
@@ -2282,6 +2277,23 @@
         }
       }
     },
+    "Kadō couldn't reach the App Store. Check your connection and try again." : {
+      "comment" : "Alert message when Restore purchases can't reach the App Store.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō couldn't reach the App Store. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō n'a pas pu joindre l'App Store. Vérifie ta connexion et réessaie."
+          }
+        }
+      }
+    },
     "Kadō is checking your iCloud status." : {
       "comment" : "A placeholder message that indicates that the app is currently checking the user's iCloud account status.",
       "isCommentAutoGenerated" : true,
@@ -2290,6 +2302,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kadō vérifie ton statut iCloud."
+          }
+        }
+      }
+    },
+    "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip." : {
+      "comment" : "Tip Jar intro paragraph explaining why tips exist.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō est gratuite, open source, sans publicité, sans abonnement et sans suivi. Si tu veux aider à ce que ça reste ainsi, tu peux laisser un pourboire."
+          }
+        }
+      }
+    },
+    "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip." : {
+      "comment" : "Tip nudge shown at the bottom of Today after a few days of use.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō est gratuite, sans publicité ni abonnement. Si elle a trouvé sa place dans ta journée, tu peux laisser un pourboire."
           }
         }
       }
@@ -2307,6 +2353,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dernier export : %@"
+          }
+        }
+      }
+    },
+    "Leave a %@ tip, %@" : {
+      "comment" : "VoiceOver label for a tip tier button. %@ is the tier name, then the price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a %@ tip, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un pourboire %@, %@"
+          }
+        }
+      }
+    },
+    "Leave a tip" : {
+      "comment" : "Settings row and Today tip nudge label that opens the Tip Jar.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave a tip"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un pourboire"
+          }
+        }
+      }
+    },
+    "Leave another tip" : {
+      "comment" : "Button returning from the thank-you to the tip tiers so the user can tip again.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave another tip"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser un autre pourboire"
+          }
+        }
+      }
+    },
+    "Line %lld doesn't have the expected number of columns." : {
+      "comment" : "Alert message naming the CSV line with a wrong column count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line %lld doesn't have the expected number of columns."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ligne %lld n'a pas le nombre de colonnes attendu."
+          }
+        }
+      }
+    },
+    "Loading tips" : {
+      "comment" : "VoiceOver label for the Tip Jar tiers while they load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading tips"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des pourboires"
           }
         }
       }
@@ -2385,23 +2516,6 @@
         }
       }
     },
-    "Long-press a row to delete it." : {
-      "comment" : "Footer under the detail's History list, telling the user the rows have a long-press menu.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Long-press a row to delete it."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maintiens une ligne pour la supprimer."
-          }
-        }
-      }
-    },
     "Log value" : {
       "comment" : "Navigation title of the counter-log sheet (set today's exact counter value).",
       "localizations" : {
@@ -2439,6 +2553,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld minutes enregistrées pour %2$@."
+          }
+        }
+      }
+    },
+    "Long-press a row to delete it." : {
+      "comment" : "Footer under the detail's History list, telling the user the rows have a long-press menu.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Long-press a row to delete it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintiens une ligne pour la supprimer."
+          }
+        }
+      }
+    },
+    "Malformed row" : {
+      "comment" : "Alert title when a CSV row has the wrong column count.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Malformed row"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ligne mal formée"
           }
         }
       }
@@ -2535,6 +2683,40 @@
         }
       }
     },
+    "Midnight" : {
+      "comment" : "Day-start picker option for hour 0, and the default value.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midnight"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuit"
+          }
+        }
+      }
+    },
+    "min" : {
+      "comment" : "Unit label beside the minutes field in the timer-log sheet (e.g. '30' 'min').",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "min"
+          }
+        }
+      }
+    },
     "missed" : {
       "comment" : "VoiceOver state for a past day in the monthly calendar grid where the habit was due and not completed.",
       "localizations" : {
@@ -2548,6 +2730,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "manqué"
+          }
+        }
+      }
+    },
+    "Monochrome sage" : {
+      "comment" : "Habit colour theme name (Supporter pack): shades of the brand's sage green.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monochrome sage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauge monochrome"
+          }
+        }
+      }
+    },
+    "More habit colours" : {
+      "comment" : "Supporter pack contents: title of the paid colour themes item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More habit colours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus de couleurs d'habitudes"
+          }
+        }
+      }
+    },
+    "Muted" : {
+      "comment" : "Habit colour theme name (Supporter pack): soft, low-saturation ink-wash colours.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muted"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feutré"
+          }
+        }
+      }
+    },
+    "Needs the Supporter pack" : {
+      "comment" : "VoiceOver value on a locked habit colour theme in Settings.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs the Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite le pack de soutien"
           }
         }
       }
@@ -2620,6 +2870,23 @@
         }
       }
     },
+    "No archived habits" : {
+      "comment" : "Empty-state title of the Archived habits list.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No archived habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude archivée"
+          }
+        }
+      }
+    },
     "No habits due today" : {
       "comment" : "Inline lock widget empty state.",
       "extractionState" : "stale",
@@ -2672,6 +2939,24 @@
         }
       }
     },
+    "No picked habits to show" : {
+      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No picked habits to show"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude choisie à afficher"
+          }
+        }
+      }
+    },
     "Not a Kadō backup" : {
       "comment" : "Alert title shown when the file can't be decoded as a backup.",
       "localizations" : {
@@ -2685,6 +2970,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pas une sauvegarde Kadō"
+          }
+        }
+      }
+    },
+    "Not a Kadō CSV export" : {
+      "comment" : "Alert title when an imported CSV isn't a Kadō export.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a Kadō CSV export"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un export CSV Kadō"
           }
         }
       }
@@ -2786,6 +3088,24 @@
         }
       }
     },
+    "Not today" : {
+      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas aujourd'hui"
+          }
+        }
+      }
+    },
     "Note" : {
       "comment" : "Accessibility label for the note text field in the day-edit popover.",
       "localizations" : {
@@ -2834,6 +3154,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rien de prévu aujourd'hui"
+          }
+        }
+      }
+    },
+    "Nothing to restore" : {
+      "comment" : "Alert title when Restore purchases finds no Supporter pack.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to restore"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à restaurer"
           }
         }
       }
@@ -2945,6 +3282,23 @@
         }
       }
     },
+    "One-time purchase — no subscription. Shared with your Family Sharing group." : {
+      "comment" : "Footnote under the Supporter pack buy button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One-time purchase — no subscription. Shared with your Family Sharing group."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat unique, sans abonnement. Partagé avec ton groupe de partage familial."
+          }
+        }
+      }
+    },
     "Only scheduled days count. If your habit runs Mon/Wed/Fri, other days are skipped." : {
       "comment" : "Third bullet in the score explanation sheet; explains that non-scheduled days do not affect the score. 'Mon/Wed/Fri' is an example — translators should localize the weekday abbreviations for their locale.",
       "localizations" : {
@@ -2991,6 +3345,23 @@
         }
       }
     },
+    "Opens the Supporter pack." : {
+      "comment" : "VoiceOver hint on a locked habit colour theme: tapping it opens the pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the Supporter pack."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre le pack de soutien."
+          }
+        }
+      }
+    },
     "Overview" : {
       "comment" : "Tab + navigation title for the multi-habit overview matrix.",
       "localizations" : {
@@ -3004,6 +3375,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vue d'ensemble"
+          }
+        }
+      }
+    },
+    "Owned" : {
+      "comment" : "Trailing value on the Settings Supporter pack row once the pack is owned.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owned"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acheté"
           }
         }
       }
@@ -3026,6 +3414,59 @@
         }
       }
     },
+    "Pick Habit" : {
+      "comment" : "Title of the lock widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick Habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une habitude"
+          }
+        }
+      }
+    },
+    "Pick the icon Kadō wears on your Home Screen." : {
+      "comment" : "Supporter pack contents: detail of the alternate app icons item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick the icon Kadō wears on your Home Screen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis l'icône de Kadō sur ton écran d'accueil."
+          }
+        }
+      }
+    },
+    "Pick which habit this widget shows." : {
+      "comment" : "Description of the lock widgets' configuration intent, under the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick which habit this widget shows."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis l'habitude affichée par ce widget."
+          }
+        }
+      }
+    },
     "Previous month" : {
       "comment" : "Accessibility label for the backward chevron in the month navigator.",
       "localizations" : {
@@ -3043,8 +3484,43 @@
         }
       }
     },
+    "Purchase failed" : {
+      "comment" : "Alert title when a tip or Supporter pack purchase fails.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat échoué"
+          }
+        }
+      }
+    },
+    "Purchase pending" : {
+      "comment" : "Alert title when a Supporter pack purchase awaits approval (Ask to Buy).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase pending"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat en attente"
+          }
+        }
+      }
+    },
     "Quick tap-to-complete for the habits due today. Pick up to 5." : {
       "comment" : "Small home widget description, shown in the widget gallery.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3056,108 +3532,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valide rapidement les habitudes du jour d'un tap. Choisis-en jusqu'à 5."
-          }
-        }
-      }
-    },
-    "Pick which habit this widget shows." : {
-      "comment" : "Description of the lock widgets' configuration intent, under the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pick which habit this widget shows."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisis l'habitude affichée par ce widget."
-          }
-        }
-      }
-    },
-    "Pick Habit" : {
-      "comment" : "Title of the lock widgets' configuration intent, shown as the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pick Habit"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir une habitude"
-          }
-        }
-      }
-    },
-    "Choose which habits this widget shows. Leave it empty to show them all." : {
-      "comment" : "Description of the home widgets' configuration intent, under the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose which habits this widget shows. Leave it empty to show them all."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisis les habitudes affichées par ce widget. Laisse vide pour toutes les afficher."
-          }
-        }
-      }
-    },
-    "Choose Habits" : {
-      "comment" : "Title of the home widgets' configuration intent, shown as the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose Habits"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir des habitudes"
-          }
-        }
-      }
-    },
-    "No picked habits to show" : {
-      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No picked habits to show"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune habitude choisie à afficher"
-          }
-        }
-      }
-    },
-    "Not today" : {
-      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not today"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas aujourd'hui"
           }
         }
       }
@@ -3192,6 +3566,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les jours récents pèsent plus que les anciens. Un jour raté perd environ la moitié de son impact après deux semaines."
+          }
+        }
+      }
+    },
+    "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks." : {
+      "comment" : "Settings footer under the habit colour theme picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recolore toutes les habitudes, ici et dans les widgets. Chaque habitude garde sa couleur ; le thème décide de son rendu."
           }
         }
       }
@@ -3269,6 +3660,40 @@
         }
       }
     },
+    "Restore failed" : {
+      "comment" : "Alert title when Restore purchases can't reach the App Store.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la restauration"
+          }
+        }
+      }
+    },
+    "Restore purchases" : {
+      "comment" : "Supporter pack screen button that restores a previous purchase.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore purchases"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer les achats"
+          }
+        }
+      }
+    },
     "Save" : {
       "comment" : "Confirmation button in form toolbars and the timer-log sheet.",
       "localizations" : {
@@ -3282,6 +3707,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enregistrer"
+          }
+        }
+      }
+    },
+    "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it." : {
+      "comment" : "Footer text in the timer-log sheet: single-completion-per-day semantics, and that 0 clears the day's session.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistré comme complétion du jour. Si tu as déjà noté une session aujourd'hui, elle sera remplacée. Mettre à 0 l'efface."
           }
         }
       }
@@ -3424,23 +3866,6 @@
         }
       }
     },
-    "Enter a number no higher than %lld." : {
-      "comment" : "Footer of a log sheet, shown while the typed number is above the field's maximum. Argument is that maximum.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter a number no higher than %lld."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisis un nombre inférieur ou égal à %lld."
-          }
-        }
-      }
-    },
     "Session length" : {
       "comment" : "Section header of the timer-log sheet, and VoiceOver label of its minutes field.",
       "localizations" : {
@@ -3458,36 +3883,19 @@
         }
       }
     },
-    "min" : {
-      "comment" : "Unit label beside the minutes field in the timer-log sheet (e.g. '30' 'min').",
+    "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region." : {
+      "comment" : "Footer under the week-start picker, saying what it changes.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "min"
+            "value" : "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "min"
-          }
-        }
-      }
-    },
-    "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it." : {
-      "comment" : "Footer text in the timer-log sheet: single-completion-per-day semantics, and that 0 clears the day's session.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saves as today's completion. If you already logged a session today, it will be replaced. Setting it to 0 clears it."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistré comme complétion du jour. Si tu as déjà noté une session aujourd'hui, elle sera remplacée. Mettre à 0 l'efface."
+            "value" : "Détermine où commence une semaine : le calendrier d'une habitude, l'ordre des sélecteurs de jours, et les jours qui comptent ensemble pour une habitude mesurée en jours par semaine. Automatique suit ta région."
           }
         }
       }
@@ -3614,6 +4022,23 @@
         }
       }
     },
+    "Still %@ · rolls over at %@" : {
+      "comment" : "Today tab caption shown between midnight and the day-start hour. First argument: weekday name of the day still being shown. Second: the rollover time.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still %@ · rolls over at %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours %@ · nouvelle journée à %@"
+          }
+        }
+      }
+    },
     "Streak" : {
       "comment" : "Metric card title on habit detail, shows the current and best streak lengths in days.",
       "localizations" : {
@@ -3644,6 +4069,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Série %1$lld, score %2$lld pour cent"
+          }
+        }
+      }
+    },
+    "SUPPORT" : {
+      "comment" : "Eyebrow label above the Tip Jar screen title. Displayed uppercased.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SUPPORT"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOUTIEN"
+          }
+        }
+      }
+    },
+    "Support Kadō" : {
+      "comment" : "Tip Jar navigation title and the Settings section header for tipping.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support Kadō"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soutenir Kadō"
+          }
+        }
+      }
+    },
+    "Supporter pack" : {
+      "comment" : "Settings row and Supporter pack screen title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pack de soutien"
+          }
+        }
+      }
+    },
+    "SUPPORTER PACK" : {
+      "comment" : "Eyebrow above the Supporter pack screen's headline.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SUPPORTER PACK"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PACK DE SOUTIEN"
+          }
+        }
+      }
+    },
+    "Swipe or long-press a habit to unarchive or delete it." : {
+      "comment" : "Footer under the Archived habits list, pointing at the swipe and long-press actions.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe or long-press a habit to unarchive or delete it."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balaie ou maintiens une habitude pour la désarchiver ou la supprimer."
           }
         }
       }
@@ -3741,6 +4251,74 @@
         }
       }
     },
+    "Thank you" : {
+      "comment" : "VoiceOver label for the ありがとう thank-you mark on the Tip Jar screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci"
+          }
+        }
+      }
+    },
+    "Thank you — truly." : {
+      "comment" : "Tip Jar thank-you headline shown after a successful tip.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you — truly."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci — vraiment."
+          }
+        }
+      }
+    },
+    "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account." : {
+      "comment" : "Supporter pack screen: thank-you under the owned badge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci de soutenir Kadō. Tes extras sont débloqués sur tous les appareils connectés à ce compte Apple."
+          }
+        }
+      }
+    },
+    "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights." : {
+      "comment" : "Settings footer under the day-start picker while it is set to midnight.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La journée change à minuit. Choisis une autre heure si la tienne ne commence pas là : au petit matin si tu veilles après minuit, ou l'après-midi si tu travailles de nuit."
+          }
+        }
+      }
+    },
     "The file couldn't be decoded as a Kadō backup." : {
       "comment" : "Alert message for an undecodable backup file.",
       "localizations" : {
@@ -3758,6 +4336,23 @@
         }
       }
     },
+    "The file couldn't be read as a Kadō CSV export. Check that its header row is intact." : {
+      "comment" : "Alert message when a CSV file fails to parse as a Kadō export.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file couldn't be read as a Kadō CSV export. Check that its header row is intact."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier n'a pas pu être lu comme un export CSV Kadō. Vérifie que sa ligne d'en-tête est intacte."
+          }
+        }
+      }
+    },
     "The file couldn't be read. Try a different file." : {
       "comment" : "Alert message shown when the selected file couldn't be read.",
       "localizations" : {
@@ -3771,6 +4366,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ce fichier n'a pas pu être lu. Essaie un autre fichier."
+          }
+        }
+      }
+    },
+    "The purchase didn't go through. No charge was made." : {
+      "comment" : "Alert message when a tip or Supporter pack purchase fails.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The purchase didn't go through. No charge was made."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'achat n'a pas abouti. Aucun montant n'a été débité."
+          }
+        }
+      }
+    },
+    "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free." : {
+      "comment" : "Footer under the Settings Support Kadō section (Supporter pack and tip rows).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pack de soutien est un achat unique pour des extras cosmétiques. Les pourboires ne débloquent rien. Tout le reste de Kadō reste gratuit."
+          }
+        }
+      }
+    },
+    "The Supporter pack isn't available right now. Check your connection and try again." : {
+      "comment" : "Shown instead of the buy button when the Supporter pack product fails to load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Supporter pack isn't available right now. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pack de soutien n'est pas disponible pour le moment. Vérifie ta connexion et réessaie."
+          }
+        }
+      }
+    },
+    "Themes with a lock come with the Supporter pack." : {
+      "comment" : "Habit colours footer, shown until the pack is owned: explains the lock on paid themes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Themes with a lock come with the Supporter pack."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les thèmes avec un cadenas font partie du pack de soutien."
+          }
+        }
+      }
+    },
+    "This Apple Account hasn't bought the Supporter pack yet." : {
+      "comment" : "Alert message when Restore purchases finds no Supporter pack.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Apple Account hasn't bought the Supporter pack yet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce compte Apple n'a pas encore acheté le pack de soutien."
           }
         }
       }
@@ -3804,6 +4484,23 @@
         }
       }
     },
+    "This habit is no longer available." : {
+      "comment" : "Description under the 'Habit unavailable' placeholder.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This habit is no longer available."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette habitude n'est plus disponible."
+          }
+        }
+      }
+    },
     "This habit no longer exists." : {
       "comment" : "Error shown when an AppIntent is invoked on a deleted habit.",
       "extractionState" : "stale",
@@ -3812,6 +4509,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cette habitude n'existe plus."
+          }
+        }
+      }
+    },
+    "This permanently deletes the habit and all of its history. This can’t be undone." : {
+      "comment" : "Message body in the delete confirmation dialog for an archived habit.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permanently deletes the habit and all of its history. This can’t be undone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'habitude et tout son historique seront supprimés définitivement. Cette action est irréversible."
           }
         }
       }
@@ -3893,6 +4607,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Minuteur · objectif %lld min"
+          }
+        }
+      }
+    },
+    "Tip pending" : {
+      "comment" : "Alert title when a tip purchase is pending approval (e.g. Ask to Buy).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip pending"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourboire en attente"
+          }
+        }
+      }
+    },
+    "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here." : {
+      "comment" : "Tip Jar footnote clarifying tips unlock no features.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips are optional and unlock nothing — you already have the whole app. They just support the time that goes into Kadō. Thank you for being here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les pourboires sont facultatifs et ne débloquent rien — tu as déjà toute l'application. Ils soutiennent simplement le temps consacré à Kadō. Merci d'être là."
+          }
+        }
+      }
+    },
+    "Tips aren't available right now. Check your connection and try again." : {
+      "comment" : "Tip Jar error message when the products fail to load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips aren't available right now. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les pourboires ne sont pas disponibles pour le moment. Vérifie ta connexion et réessaie."
           }
         }
       }
@@ -4002,6 +4767,23 @@
         }
       }
     },
+    "Try again" : {
+      "comment" : "Button to retry loading the tip or Supporter pack products after a failure.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        }
+      }
+    },
     "Type" : {
       "comment" : "Section header in the new-habit form grouping habit-type controls.",
       "localizations" : {
@@ -4015,6 +4797,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Type"
+          }
+        }
+      }
+    },
+    "Unarchive" : {
+      "comment" : "Verb. Restores an archived habit to Today: row swipe / long-press menu / VoiceOver action, and the archived detail's toolbar button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unarchive"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désarchiver"
           }
         }
       }
@@ -4044,6 +4843,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ : décoché."
+          }
+        }
+      }
+    },
+    "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged." : {
+      "comment" : "Settings footer under the day-start picker once a custom hour is set.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jusqu'à cette heure, Aujourd'hui affiche encore la journée précédente : ce que tu notes avant se range au bon endroit. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée."
           }
         }
       }
@@ -4089,6 +4905,57 @@
         }
       }
     },
+    "Vivid" : {
+      "comment" : "Habit colour theme name (Supporter pack): the most saturated colours the screen shows.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vivid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vif"
+          }
+        }
+      }
+    },
+    "Week" : {
+      "comment" : "Settings section header above the week-start picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semaine"
+          }
+        }
+      }
+    },
+    "Week starts on" : {
+      "comment" : "Settings picker label: the day a week starts on.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week starts on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La semaine commence le"
+          }
+        }
+      }
+    },
     "Yes / no" : {
       "comment" : "Habit type label for binary habits (done/not done, no intermediate state). Used in the new-habit picker and as the type subtitle on habit detail.",
       "localizations" : {
@@ -4123,6 +4990,23 @@
         }
       }
     },
+    "You have the Supporter pack" : {
+      "comment" : "Supporter pack screen: replaces the buy button once owned.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have the Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as le pack de soutien"
+          }
+        }
+      }
+    },
     "You'll be asked the first time you save a habit with a reminder." : {
       "comment" : "Settings subtitle explaining when the first notification prompt will fire.",
       "localizations" : {
@@ -4148,6 +5032,7 @@
     },
     "Your habit grid for the past seven days. Pick up to 5." : {
       "comment" : "Large home widget description, shown in the widget gallery.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4198,824 +5083,6 @@
         }
       }
     },
-    "Your real habits are safe in iCloud. Turn dev mode off to resume syncing." : {
-      "comment" : "A description of the consequences of disabling",
-      "isCommentAutoGenerated" : true,
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tes vraies habitudes sont en sécurité dans iCloud. Désactive le mode développeur pour reprendre la synchronisation."
-          }
-        }
-      }
-    },
-    "Day" : {
-      "comment" : "Settings section header above the day-rollover hour picker.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Day"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Journée"
-          }
-        }
-      }
-    },
-    "Day starts at" : {
-      "comment" : "Settings picker label: the hour at which the app rolls over to the next day.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Day starts at"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La journée commence à"
-          }
-        }
-      }
-    },
-    "Midnight" : {
-      "comment" : "Day-start picker option for hour 0, and the default value.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Midnight"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Minuit"
-          }
-        }
-      }
-    },
-    "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights." : {
-      "comment" : "Settings footer under the day-start picker while it is set to midnight.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The day rolls over at midnight. Pick a different hour if your day doesn't start there — in the small hours if you're up past midnight, or in the afternoon if you work nights."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La journée change à minuit. Choisis une autre heure si la tienne ne commence pas là : au petit matin si tu veilles après minuit, ou l'après-midi si tu travailles de nuit."
-          }
-        }
-      }
-    },
-    "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged." : {
-      "comment" : "Settings footer under the day-start picker once a custom hour is set.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Until this hour, Today still shows the previous day — so a tap before then lands where you expect. Reminders keep their own times, and changing this never moves a completion you've already logged."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jusqu'à cette heure, Aujourd'hui affiche encore la journée précédente : ce que tu notes avant se range au bon endroit. Les rappels gardent leurs propres horaires, et modifier ce réglage ne déplace jamais une complétion déjà enregistrée."
-          }
-        }
-      }
-    },
-    "Still %@ · rolls over at %@" : {
-      "comment" : "Today tab caption shown between midnight and the day-start hour. First argument: weekday name of the day still being shown. Second: the rollover time.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Still %@ · rolls over at %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toujours %@ · nouvelle journée à %@"
-          }
-        }
-      }
-    },
-    "JSON" : {
-      "comment" : "Export format option in the Settings Data menu.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "JSON"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "JSON"
-          }
-        }
-      }
-    },
-    "CSV" : {
-      "comment" : "Export format option in the Settings Data menu.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CSV"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CSV"
-          }
-        }
-      }
-    },
-    "Not a Kadō CSV export" : {
-      "comment" : "Alert title when an imported CSV isn't a Kadō export.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not a Kadō CSV export"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas un export CSV Kadō"
-          }
-        }
-      }
-    },
-    "The file couldn't be read as a Kadō CSV export. Check that its header row is intact." : {
-      "comment" : "Alert message when a CSV file fails to parse as a Kadō export.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The file couldn't be read as a Kadō CSV export. Check that its header row is intact."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le fichier n'a pas pu être lu comme un export CSV Kadō. Vérifie que sa ligne d'en-tête est intacte."
-          }
-        }
-      }
-    },
-    "Malformed row" : {
-      "comment" : "Alert title when a CSV row has the wrong column count.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Malformed row"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ligne mal formée"
-          }
-        }
-      }
-    },
-    "Line %lld doesn't have the expected number of columns." : {
-      "comment" : "Alert message naming the CSV line with a wrong column count.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Line %lld doesn't have the expected number of columns."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La ligne %lld n'a pas le nombre de colonnes attendu."
-          }
-        }
-      }
-    },
-    "Close" : {
-      "comment" : "Button dismissing the Tip Jar sheet opened from the Today tip nudge.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Close"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fermer"
-          }
-        }
-      }
-    },
-    "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip." : {
-      "comment" : "Tip nudge shown at the bottom of Today after a few days of use.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō is free, with no ads and no subscription. If it has earned a place in your day, you can leave a tip."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō est gratuite, sans publicité ni abonnement. Si elle a trouvé sa place dans ta journée, tu peux laisser un pourboire."
-          }
-        }
-      }
-    },
-    "Automatic (%@)" : {
-      "comment" : "Week-start picker option that follows the region. %@ is the resolved day.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatic (%@)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatique (%@)"
-          }
-        }
-      }
-    },
-    "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region." : {
-      "comment" : "Footer under the week-start picker, saying what it changes.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sets where a week begins: the calendar on a habit's screen, the order of the day pickers, and which days count together for a habit measured in days per week. Automatic follows your region."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Détermine où commence une semaine : le calendrier d'une habitude, l'ordre des sélecteurs de jours, et les jours qui comptent ensemble pour une habitude mesurée en jours par semaine. Automatique suit ta région."
-          }
-        }
-      }
-    },
-    "Week" : {
-      "comment" : "Settings section header above the week-start picker.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Semaine"
-          }
-        }
-      }
-    },
-    "Week starts on" : {
-      "comment" : "Settings picker label: the day a week starts on.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Week starts on"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La semaine commence le"
-          }
-        }
-      }
-    },
-    "All done for today" : {
-      "comment" : "Caption shown with the confetti when the last habit scheduled for today is completed. Also read by VoiceOver.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All done for today"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tout est fait pour aujourd'hui"
-          }
-        }
-      }
-    },
-    "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits." : {
-      "comment" : "Message body in the archive confirmation dialog: what archiving does and where to find archived habits.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archived habits leave Today but keep their history. You can find them in Settings › Archived habits."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les habitudes archivées quittent l'onglet Aujourd'hui mais gardent leur historique. Tu les retrouveras dans Réglages › Habitudes archivées."
-          }
-        }
-      }
-    },
-    "Archived habits" : {
-      "comment" : "Settings row label and navigation title of the list of archived habits.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archived habits"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habitudes archivées"
-          }
-        }
-      }
-    },
-    "No archived habits" : {
-      "comment" : "Empty-state title of the Archived habits list.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No archived habits"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune habitude archivée"
-          }
-        }
-      }
-    },
-    "Habits you archive leave Today but keep their history. You can unarchive or delete them from here." : {
-      "comment" : "Empty-state description of the Archived habits list.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habits you archive leave Today but keep their history. You can unarchive or delete them from here."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les habitudes que tu archives quittent Aujourd'hui mais gardent leur historique. Tu peux les désarchiver ou les supprimer d'ici."
-          }
-        }
-      }
-    },
-    "Swipe or long-press a habit to unarchive or delete it." : {
-      "comment" : "Footer under the Archived habits list, pointing at the swipe and long-press actions.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Swipe or long-press a habit to unarchive or delete it."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Balaie ou maintiens une habitude pour la désarchiver ou la supprimer."
-          }
-        }
-      }
-    },
-    "Unarchive" : {
-      "comment" : "Verb. Restores an archived habit to Today: row swipe / long-press menu / VoiceOver action, and the archived detail's toolbar button.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unarchive"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désarchiver"
-          }
-        }
-      }
-    },
-    "Archived on %@" : {
-      "comment" : "Subtitle on an Archived habits row; %@ is the date the habit was archived, medium style.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archived on %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archivée le %@"
-          }
-        }
-      }
-    },
-    "%lld completions" : {
-      "comment" : "Subtitle on an Archived habits row: how many completions the habit carries.",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld completion"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld completions"
-                }
-              }
-            }
-          }
-        },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld complétion"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld complétions"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "Delete “%@”?" : {
-      "comment" : "Confirmation dialog title before permanently deleting an archived habit; %@ is its name.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete “%@”?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer « %@ » ?"
-          }
-        }
-      }
-    },
-    "Delete this habit?" : {
-      "comment" : "Fallback confirmation dialog title before permanently deleting an archived habit, when its name can't be resolved.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete this habit?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer cette habitude ?"
-          }
-        }
-      }
-    },
-    "This permanently deletes the habit and all of its history. This can’t be undone." : {
-      "comment" : "Message body in the delete confirmation dialog for an archived habit.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This permanently deletes the habit and all of its history. This can’t be undone."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'habitude et tout son historique seront supprimés définitivement. Cette action est irréversible."
-          }
-        }
-      }
-    },
-    "Supporter pack" : {
-      "comment" : "Settings row and Supporter pack screen title.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supporter pack"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pack de soutien"
-          }
-        }
-      }
-    },
-    "SUPPORTER PACK" : {
-      "comment" : "Eyebrow above the Supporter pack screen's headline.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SUPPORTER PACK"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PACK DE SOUTIEN"
-          }
-        }
-      }
-    },
-    "A little extra, once" : {
-      "comment" : "Headline of the Supporter pack screen.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A little extra, once"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un petit plus, une fois pour toutes"
-          }
-        }
-      }
-    },
-    "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks." : {
-      "comment" : "Intro paragraph of the Supporter pack screen.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un achat unique qui soutient Kadō et ajoute quelques extras cosmétiques. Toutes les fonctionnalités restent gratuites : le pack ne change que l'apparence de Kadō."
-          }
-        }
-      }
-    },
-    "More habit colours" : {
-      "comment" : "Supporter pack contents: title of the paid colour themes item.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "More habit colours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus de couleurs d'habitudes"
-          }
-        }
-      }
-    },
-    "Extra colour themes for your habits, on top of the free Kadō and Classic." : {
-      "comment" : "Supporter pack contents: detail of the paid colour themes item.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Extra colour themes for your habits, on top of the free Kadō and Classic."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Des thèmes de couleurs supplémentaires pour tes habitudes, en plus des thèmes gratuits Kadō et Classique."
-          }
-        }
-      }
-    },
-    "Alternate app icons" : {
-      "comment" : "Supporter pack contents: title of the alternate app icons item.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alternate app icons"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Icônes d'app alternatives"
-          }
-        }
-      }
-    },
-    "Pick the icon Kadō wears on your Home Screen." : {
-      "comment" : "Supporter pack contents: detail of the alternate app icons item.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pick the icon Kadō wears on your Home Screen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisis l'icône de Kadō sur ton écran d'accueil."
-          }
-        }
-      }
-    },
-    "Get the pack · %@" : {
-      "comment" : "Supporter pack buy button; the argument is the localized price.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get the pack · %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obtenir le pack · %@"
-          }
-        }
-      }
-    },
-    "Get the Supporter pack, %@" : {
-      "comment" : "VoiceOver label of the Supporter pack buy button; the argument is the price.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get the Supporter pack, %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obtenir le pack de soutien, %@"
-          }
-        }
-      }
-    },
-    "Restore purchases" : {
-      "comment" : "Supporter pack screen button that restores a previous purchase.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restore purchases"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaurer les achats"
-          }
-        }
-      }
-    },
-    "One-time purchase — no subscription. Shared with your Family Sharing group." : {
-      "comment" : "Footnote under the Supporter pack buy button.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "One-time purchase — no subscription. Shared with your Family Sharing group."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achat unique, sans abonnement. Partagé avec ton groupe de partage familial."
-          }
-        }
-      }
-    },
-    "The Supporter pack isn't available right now. Check your connection and try again." : {
-      "comment" : "Shown instead of the buy button when the Supporter pack product fails to load.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Supporter pack isn't available right now. Check your connection and try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le pack de soutien n'est pas disponible pour le moment. Vérifie ta connexion et réessaie."
-          }
-        }
-      }
-    },
-    "You have the Supporter pack" : {
-      "comment" : "Supporter pack screen: replaces the buy button once owned.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You have the Supporter pack"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu as le pack de soutien"
-          }
-        }
-      }
-    },
-    "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account." : {
-      "comment" : "Supporter pack screen: thank-you under the owned badge.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci de soutenir Kadō. Tes extras sont débloqués sur tous les appareils connectés à ce compte Apple."
-          }
-        }
-      }
-    },
-    "Purchase pending" : {
-      "comment" : "Alert title when a Supporter pack purchase awaits approval (Ask to Buy).",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Purchase pending"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achat en attente"
-          }
-        }
-      }
-    },
     "Your purchase is waiting for approval. The pack unlocks as soon as it's approved." : {
       "comment" : "Alert message when a Supporter pack purchase awaits approval (Ask to Buy).",
       "localizations" : {
@@ -5033,104 +5100,48 @@
         }
       }
     },
-    "Nothing to restore" : {
-      "comment" : "Alert title when Restore purchases finds no Supporter pack.",
+    "Your real habits are safe in iCloud. Turn dev mode off to resume syncing." : {
+      "comment" : "A description of the consequences of disabling",
+      "isCommentAutoGenerated" : true,
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nothing to restore"
-          }
-        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rien à restaurer"
+            "value" : "Tes vraies habitudes sont en sécurité dans iCloud. Désactive le mode développeur pour reprendre la synchronisation."
           }
         }
       }
     },
-    "This Apple Account hasn't bought the Supporter pack yet." : {
-      "comment" : "Alert message when Restore purchases finds no Supporter pack.",
+    "Your support keeps Kadō free and independent. It means a lot." : {
+      "comment" : "Tip Jar thank-you body shown after a successful tip.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Apple Account hasn't bought the Supporter pack yet."
+            "value" : "Your support keeps Kadō free and independent. It means a lot."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ce compte Apple n'a pas encore acheté le pack de soutien."
+            "value" : "Ton soutien permet à Kadō de rester gratuite et indépendante. Ça compte beaucoup."
           }
         }
       }
     },
-    "Restore failed" : {
-      "comment" : "Alert title when Restore purchases can't reach the App Store.",
+    "Your tip is pending approval. Thank you!" : {
+      "comment" : "Alert message when a tip purchase is pending approval.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restore failed"
+            "value" : "Your tip is pending approval. Thank you!"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Échec de la restauration"
-          }
-        }
-      }
-    },
-    "Kadō couldn't reach the App Store. Check your connection and try again." : {
-      "comment" : "Alert message when Restore purchases can't reach the App Store.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō couldn't reach the App Store. Check your connection and try again."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kadō n'a pas pu joindre l'App Store. Vérifie ta connexion et réessaie."
-          }
-        }
-      }
-    },
-    "Owned" : {
-      "comment" : "Trailing value on the Settings Supporter pack row once the pack is owned.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Owned"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acheté"
-          }
-        }
-      }
-    },
-    "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free." : {
-      "comment" : "Footer under the Settings Support Kadō section (Supporter pack and tip rows).",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le pack de soutien est un achat unique pour des extras cosmétiques. Les pourboires ne débloquent rien. Tout le reste de Kadō reste gratuit."
+            "value" : "Ton pourboire est en attente d'approbation. Merci !"
           }
         }
       }

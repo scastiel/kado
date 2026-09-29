@@ -16,6 +16,8 @@ struct HabitColorTests {
 
     private let schemes: [UIUserInterfaceStyle] = [.light, .dark]
 
+    init() { ResolvedColor.warmUp() }
+
     // MARK: - Shape
 
     @Test("Palette exposes eight distinct cases")
@@ -172,9 +174,10 @@ struct HabitColorTests {
         }
     }
 
-    /// Only for themes that tell slots apart by hue — Monochrome sage
-    /// shares one hue by design and is held to `monochromeLadder`.
-    @Test("Hues are spaced at least 15° apart", arguments: HabitTheme.allCases.filter(\.variesHue))
+    /// Only for themes spread around the hue wheel — Monochrome sage
+    /// and Autumn cluster their hues by design and are held to
+    /// `monochromeLadder` / `autumnFamilies` instead.
+    @Test("Hues are spaced at least 15° apart", arguments: HabitTheme.allCases.filter(\.spansHueWheel))
     func hueSpacing(theme: HabitTheme) {
         for scheme in schemes {
             let hues = HabitColor.allCases.map {
@@ -229,6 +232,21 @@ struct HabitColorTests {
             for (lower, upper) in zip(bases, bases.dropFirst()) {
                 #expect(upper.l - lower.l >= 0.05, "dark: \(dark), \(lower.l) → \(upper.l)")
             }
+        }
+    }
+
+    /// Autumn is oranges and greens and nothing else — the concept the
+    /// maintainer asked for — four of each, so no later tuning drifts
+    /// a slot into yellow, red or blue.
+    @Test("Autumn is four oranges and four greens, in both schemes")
+    func autumnFamilies() {
+        let orange = 30.0...75.0, green = 115.0...165.0
+        for dark in [false, true] {
+            let hues = HabitColor.allCases.map {
+                (dark ? $0.darkBase(in: .autumn) : $0.base(in: .autumn)).h
+            }
+            #expect(hues.filter(orange.contains).count == 4, "dark: \(dark), \(hues)")
+            #expect(hues.filter(green.contains).count == 4, "dark: \(dark), \(hues)")
         }
     }
 
@@ -355,8 +373,7 @@ struct HabitColorTests {
     // MARK: - Helpers
 
     private func srgb(_ color: Color, _ scheme: UIUserInterfaceStyle) -> SRGB {
-        let resolved = UIColor(color)
-            .resolvedColor(with: UITraitCollection(userInterfaceStyle: scheme))
+        let resolved = ResolvedColor.resolved(color, scheme)
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         resolved.getRed(&r, green: &g, blue: &b, alpha: &a)
         return SRGB(red: r, green: g, blue: b)

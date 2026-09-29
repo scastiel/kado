@@ -3,6 +3,7 @@
   "strings" : {
     "%lld" : {
       "comment" : "Bare number, no unit (Int). Circular lock widget's percentage; large widget's streak count.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -20,6 +21,7 @@
     },
     "%lld / %lld done" : {
       "comment" : "Widget progress summary. Arg 1 is completed count, arg 2 is total count.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37,6 +39,7 @@
     },
     "%lld of %lld done today" : {
       "comment" : "Inline lock widget summary. Arg 1 completed, arg 2 total.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -72,6 +75,7 @@
     },
     "%lld%%" : {
       "comment" : "Score percentage badge. Rectangular lock widget, and the large home widget's per-habit metrics chip.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -89,6 +93,7 @@
     },
     "%lldd" : {
       "comment" : "Compact streak badge on the rectangular lock-screen widget. Arg: streak length in days. Translators: localize the 'd' suffix (e.g. 'j' for French).",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -106,6 +111,7 @@
     },
     "All done" : {
       "comment" : "Small home widget empty state when every due habit is complete.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -121,8 +127,62 @@
         }
       }
     },
+    "Choose Habits" : {
+      "comment" : "Title of the home widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir des habitudes"
+          }
+        }
+      }
+    },
+    "Choose which habits this widget shows. Leave it empty to show them all." : {
+      "comment" : "Description of the home widgets' configuration intent, under the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose which habits this widget shows. Leave it empty to show them all."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis les habitudes affichées par ce widget. Laisse vide pour toutes les afficher."
+          }
+        }
+      }
+    },
+    "Daily Progress" : {
+      "comment" : "Day-progress circular lock widget display name.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Progress"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression du jour"
+          }
+        }
+      }
+    },
     "done" : {
       "comment" : "Widget accessibility: binary habit completed",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -172,6 +232,24 @@
         }
       }
     },
+    "Habits" : {
+      "comment" : "Title of the `habits` parameter on the home widgets' configuration intent — the row the user taps to pick.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitudes"
+          }
+        }
+      }
+    },
     "Habits due today with a completion summary. Pick up to 8." : {
       "comment" : "Medium home widget description, shown in the widget gallery.",
       "localizations" : {
@@ -189,8 +267,26 @@
         }
       }
     },
+    "How many of today's habits are done, as a ring." : {
+      "comment" : "Day-progress circular lock widget description.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How many of today's habits are done, as a ring."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien d'habitudes du jour sont faites, en anneau."
+          }
+        }
+      }
+    },
     "No habits due today" : {
       "comment" : "Inline lock widget empty state.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -208,6 +304,7 @@
     },
     "No habits yet" : {
       "comment" : "Empty-state shown on the large weekly-grid widget when no habits exist.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -223,8 +320,27 @@
         }
       }
     },
+    "No picked habits to show" : {
+      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No picked habits to show"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune habitude choisie à afficher"
+          }
+        }
+      }
+    },
     "not done" : {
       "comment" : "Widget accessibility: binary habit not completed",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -236,6 +352,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "non fait"
+          }
+        }
+      }
+    },
+    "Not today" : {
+      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas aujourd'hui"
           }
         }
       }
@@ -259,6 +393,7 @@
     },
     "Pick a habit" : {
       "comment" : "Accessibility label for an unpicked circular lock widget.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -270,6 +405,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choisir une habitude"
+          }
+        }
+      }
+    },
+    "Pick Habit" : {
+      "comment" : "Title of the lock widgets' configuration intent, shown as the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick Habit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une habitude"
+          }
+        }
+      }
+    },
+    "Pick which habit this widget shows." : {
+      "comment" : "Description of the lock widgets' configuration intent, under the widget-edit sheet's heading.",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick which habit this widget shows."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis l'habitude affichée par ce widget."
           }
         }
       }
@@ -291,127 +462,9 @@
         }
       }
     },
-    "Pick which habit this widget shows." : {
-      "comment" : "Description of the lock widgets' configuration intent, under the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pick which habit this widget shows."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisis l'habitude affichée par ce widget."
-          }
-        }
-      }
-    },
-    "Pick Habit" : {
-      "comment" : "Title of the lock widgets' configuration intent, shown as the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pick Habit"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir une habitude"
-          }
-        }
-      }
-    },
-    "Habits" : {
-      "comment" : "Title of the `habits` parameter on the home widgets' configuration intent — the row the user taps to pick.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habits"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Habitudes"
-          }
-        }
-      }
-    },
-    "Choose which habits this widget shows. Leave it empty to show them all." : {
-      "comment" : "Description of the home widgets' configuration intent, under the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose which habits this widget shows. Leave it empty to show them all."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisis les habitudes affichées par ce widget. Laisse vide pour toutes les afficher."
-          }
-        }
-      }
-    },
-    "Choose Habits" : {
-      "comment" : "Title of the home widgets' configuration intent, shown as the widget-edit sheet's heading.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose Habits"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir des habitudes"
-          }
-        }
-      }
-    },
-    "No picked habits to show" : {
-      "comment" : "Home widget placeholder when the user's picked habits are all absent — not due today, or archived. Distinct from 'All done', which means the day is genuinely clear.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No picked habits to show"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune habitude choisie à afficher"
-          }
-        }
-      }
-    },
-    "Not today" : {
-      "comment" : "Home widget row for a picked habit that isn't scheduled today — dimmed, not tappable. Also its VoiceOver value.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not today"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas aujourd'hui"
-          }
-        }
-      }
-    },
     "Score %lld percent" : {
       "comment" : "VoiceOver label for a large-widget habit row with no active streak. Arg: EMA score percent (0-100).",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -446,6 +499,7 @@
     },
     "Streak %lld, score %lld percent" : {
       "comment" : "VoiceOver label for a large-widget habit row. First arg: streak length in days. Second arg: EMA score percent (0-100).",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -463,6 +517,7 @@
     },
     "Tap to pick a habit" : {
       "comment" : "Prompt shown on an unpicked rectangular lock widget.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -480,6 +535,7 @@
     },
     "This week" : {
       "comment" : "Large home widget header above the weekly grid.",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -593,40 +649,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ta grille d'habitudes sur les sept derniers jours. Choisis-en jusqu'à 5."
-          }
-        }
-      }
-    },
-    "Daily Progress" : {
-      "comment" : "Day-progress circular lock widget display name.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daily Progress"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progression du jour"
-          }
-        }
-      }
-    },
-    "How many of today's habits are done, as a ring." : {
-      "comment" : "Day-progress circular lock widget description.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How many of today's habits are done, as a ring."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Combien d'habitudes du jour sont faites, en anneau."
           }
         }
       }

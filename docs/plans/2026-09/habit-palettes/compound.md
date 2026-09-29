@@ -30,7 +30,7 @@ Rendered 8-bit colours, both schemes; the floor is 0.025.
 | Classic (reference) | 0.049 — light mint / teal | 3.32 | 5.68 |
 | Muted | 0.038 — dark red / orange | 3.17 | 5.40 |
 | Vivid | 0.080 — dark mint / teal | 3.81 | 5.59 |
-| Autumn | 0.059 — dark teal / blue | 3.06 | 5.15 |
+| Autumn | 0.096 — dark pumpkin / amber | 3.08 | 4.92 |
 | Monochrome sage | 0.058 — light teal / blue | 3.63 | 4.86 |
 
 Rationale for each palette lives in its doc comment in `HabitTheme.swift`.
@@ -41,9 +41,15 @@ Rationale for each palette lives in its doc comment in `HabitTheme.swift`.
   and teal (0.029) are what people have told apart since #89; the floor
   rejects anything tighter. A JND-sized 0.02 is too lenient for eight
   18pt dots. Every paid palette clears 0.035.
-- **Hue spacing stays, for themes that vary hue.** `HabitTheme.variesHue`
-  exempts Monochrome sage, which is held to a lightness ladder instead
-  (one hue, ≥0.05 L per step, darkest first in both schemes).
+- **Hue spacing stays, for themes spread around the wheel.**
+  `HabitTheme.spansHueWheel` exempts Monochrome sage (held to a lightness
+  ladder: one hue, ≥0.05 L per step, darkest first in both schemes) and
+  Autumn (held to four oranges + four greens).
+- **Autumn is oranges and greens only** (maintainer feedback on the first
+  cut, which spread brick-to-plum across the wheel and read too close to
+  Kadō). Rust, pumpkin, amber, chestnut; olive, moss, forest, pine — each
+  family a lightness/chroma ladder. Slots keep their *temperature*
+  (red/orange/yellow warm, green→blue cool, purple → chestnut).
 - **Muted can't go below C ≈ 0.06.** The ink keeps the base's chroma and
   `inkIsDisplayable` requires it above 0.05, so the ink stays a tint of
   the hue rather than a grey. Muted's hues are spread to ≥35° apart to
@@ -52,8 +58,7 @@ Rationale for each palette lives in its doc comment in `HabitTheme.swift`.
   0.78 is the palest base whose 20% ramp floor still sits under the
   never-due tile. Dark L 0.48…0.90 for the same reason on the other side.
 - **"Seasonal" is named Autumn.** The issue describes it as "an autumn
-  set"; *Autumn* / *Automne* says what the user gets. Same concept, so
-  within the "tuning is fine" allowance. Flagged for the maintainer anyway.
+  set"; *Autumn* / *Automne* says what the user gets.
 - **The picker's checkmark follows the rendered theme.** A lapsed paid
   pick shows Kadō checked, because that is what the screen is painted in.
 - **UI tests own the pack through a mock.** `-uiTestSupporter` makes
