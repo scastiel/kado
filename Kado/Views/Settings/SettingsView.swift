@@ -9,19 +9,13 @@ import KadoCore
 /// Journal, and Streaks. v1.0 adds About, themes, biometrics, and
 /// export sections below this one.
 struct SettingsView: View {
-    /// Set by a tap on a locked habit theme. The destination is attached
-    /// to the `Form` rather than inside the section, because a
-    /// `navigationDestination` inside a lazy container like `Form` is
-    /// ignored.
-    @State private var showsSupporterPack = false
-
     var body: some View {
         NavigationStack {
             Form {
                 SyncStatusSection()
                 DayStartSection()
                 WeekStartSection()
-                HabitThemeSection(showsSupporterPack: $showsSupporterPack)
+                AppearanceSection()
                 NotificationsSection()
                 ArchivedSection()
                 BackupSection()
@@ -33,9 +27,6 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle("Settings")
-            .navigationDestination(isPresented: $showsSupporterPack) {
-                SupporterPackView()
-            }
         }
     }
 

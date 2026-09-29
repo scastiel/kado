@@ -16,7 +16,7 @@ struct HabitThemeSection: View {
     private var theme: HabitTheme = HabitThemeDefaults.defaultValue
     @Environment(\.supporterPack) private var store
 
-    /// Set when a locked theme is tapped; `SettingsView` pushes the
+    /// Set when a locked theme is tapped; `AppearanceView` pushes the
     /// Supporter pack from it.
     @Binding var showsSupporterPack: Bool
 
@@ -120,7 +120,9 @@ private struct HabitThemeRow: View {
     }
 }
 
-private extension HabitTheme {
+extension HabitTheme {
+    /// The theme's display name, shared by the picker rows and the
+    /// Appearance row in Settings.
     var name: LocalizedStringKey {
         switch self {
         case .kado: "Kadō"

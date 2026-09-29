@@ -245,6 +245,8 @@ enum AccessibilityID {
         static func habitThemeRow(_ themeRawValue: String) -> String {
             "settings.habitTheme.\(themeRawValue)"
         }
+        /// The row that pushes the Appearance screen (habit colours).
+        static let appearanceRow = "settings.appearance"
         /// The row that pushes the Archived habits list. A
         /// `NavigationLink` in a `Form` is one element already, so this
         /// lands on a leaf.
