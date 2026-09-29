@@ -14,6 +14,7 @@ public struct WeeklyGridLargeView: View {
     let entry: SelectedSnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     private static let cellSpacing: CGFloat = 4
 
@@ -26,7 +27,7 @@ public struct WeeklyGridLargeView: View {
     }
 
     private var palette: WidgetPalette {
-        WidgetPalette(renderingMode: renderingMode)
+        WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
     }
 
     public var body: some View {
@@ -99,7 +100,7 @@ public struct WeeklyGridLargeView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Image(systemName: row.habit.icon)
                         .font(.caption)
-                        .foregroundStyle(row.habit.color.color)
+                        .foregroundStyle(row.habit.color.color(in: habitTheme))
                         .frame(width: 16, alignment: .center)
                     Text(row.habit.name)
                         .font(.caption.weight(.medium))
@@ -189,9 +190,10 @@ struct WidgetMatrixCell: View {
     let size: CGFloat
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     private var palette: WidgetPalette {
-        WidgetPalette(renderingMode: renderingMode)
+        WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
     }
 
     var body: some View {

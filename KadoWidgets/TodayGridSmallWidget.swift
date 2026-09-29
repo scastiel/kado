@@ -17,6 +17,7 @@ struct TodayGridSmallWidget: Widget {
             provider: SelectedSnapshotProvider()
         ) { entry in
             TodayGridSmallView(entry: entry)
+                .environment(\.habitTheme, HabitThemeDefaults.theme())
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://today"))
         }

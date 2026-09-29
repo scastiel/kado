@@ -196,16 +196,17 @@ struct ArchivedHabitsView: View {
 /// One row: the habit's mark and name, and under it when it was
 /// archived and how much history it carries.
 private struct ArchivedHabitRowView: View {
+    @Environment(\.habitTheme) private var habitTheme
     let row: ArchivedHabitRow
     let archivedOn: String
 
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
-                Circle().fill(row.habit.color.tint(.mark))
+                Circle().fill(row.habit.color.tint(.mark, in: habitTheme))
                 Image(systemName: row.habit.icon)
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(row.habit.color.onTint)
+                    .foregroundStyle(row.habit.color.onTint(in: habitTheme))
             }
             .frame(width: 38, height: 38)
 

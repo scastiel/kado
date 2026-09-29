@@ -44,13 +44,14 @@ public struct TodayEmptyPlaceholder: View {
     let isFilteredOut: Bool
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     public init(isFilteredOut: Bool = false) {
         self.isFilteredOut = isFilteredOut
     }
 
     public var body: some View {
-        let palette = WidgetPalette(renderingMode: renderingMode)
+        let palette = WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
         VStack(spacing: 6) {
             Image(systemName: isFilteredOut ? "line.3.horizontal.decrease.circle" : "checkmark.circle")
                 .font(.title2)

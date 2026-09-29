@@ -12,7 +12,9 @@ import KadoCore
 ///
 /// Every assertion here is therefore about **alpha**, never about
 /// `Color` identity — two different `Color` values are not evidence of
-/// anything once hue has been discarded.
+/// anything once hue has been discarded. Each test runs once per
+/// `HabitTheme`: a theme only swaps the bases, but a bright one is
+/// exactly where a fill could start to outweigh its label.
 @Suite("WidgetPalette")
 struct WidgetPaletteTests {
 
@@ -21,9 +23,9 @@ struct WidgetPaletteTests {
 
     // MARK: - Full colour is untouched
 
-    @Test("Full colour reproduces the paper / ink palette")
-    func fullColourIsUnchanged() {
-        let palette = WidgetPalette(renderingMode: .fullColor)
+    @Test("Full colour reproduces the paper / ink palette", arguments: HabitTheme.allCases)
+    func fullColourIsUnchanged(theme: HabitTheme) {
+        let palette = WidgetPalette(renderingMode: .fullColor, theme: theme)
         #expect(palette.isTinted == false)
         #expect(palette.foreground == .kadoForeground)
         #expect(palette.foregroundSecondary == .kadoForegroundSecondary)
@@ -35,17 +37,17 @@ struct WidgetPaletteTests {
     /// out of `HabitWidgetCell.background`, so it is the one most
     /// exposed to a transcription slip. The ramp is an Oklab mix now,
     /// so it is compared by resolved channels rather than identity.
-    @Test("Full colour keeps the habit hue and the 0.3 + 0.4p partial ramp")
-    func fullColourHabitFills() {
-        let palette = WidgetPalette(renderingMode: .fullColor)
+    @Test("Full colour keeps the habit hue and the 0.3 + 0.4p partial ramp", arguments: HabitTheme.allCases)
+    func fullColourHabitFills(theme: HabitTheme) {
+        let palette = WidgetPalette(renderingMode: .fullColor, theme: theme)
         for color in HabitColor.allCases {
-            #expect(palette.habitFill(color, status: .complete, progress: 1) == color.color)
+            #expect(palette.habitFill(color, status: .complete, progress: 1) == color.color(in: theme))
             #expect(palette.habitFill(color, status: .none, progress: 0) == .kadoHairline)
             for (progress, expected) in [(0.0, 0.3), (0.5, 0.5), (1.0, 0.7)] {
                 for style in [UIUserInterfaceStyle.light, .dark] {
                     #expect(
                         channels(of: palette.habitFill(color, status: .partial, progress: progress), style)
-                            == channels(of: color.tint(expected), style),
+                            == channels(of: color.tint(expected, in: theme), style),
                         "\(color) \(progress) \(style)"
                     )
                 }
@@ -53,14 +55,14 @@ struct WidgetPaletteTests {
         }
     }
 
-    @Test("Full colour knocks the label out to the page only once complete")
-    func fullColourGlyphAndLabel() {
-        let palette = WidgetPalette(renderingMode: .fullColor)
+    @Test("Full colour knocks the label out to the page only once complete", arguments: HabitTheme.allCases)
+    func fullColourGlyphAndLabel(theme: HabitTheme) {
+        let palette = WidgetPalette(renderingMode: .fullColor, theme: theme)
         for color in HabitColor.allCases {
-            #expect(palette.glyphColor(color, status: .complete) == color.onFill)
-            #expect(palette.labelColor(color, status: .complete) == color.onFill)
+            #expect(palette.glyphColor(color, status: .complete) == color.onFill(in: theme))
+            #expect(palette.labelColor(color, status: .complete) == color.onFill(in: theme))
             for status in [WidgetStatus.none, .partial] {
-                #expect(palette.glyphColor(color, status: status) == color.color)
+                #expect(palette.glyphColor(color, status: status) == color.color(in: theme))
                 #expect(palette.labelColor(color, status: status) == .kadoForeground)
             }
         }
@@ -69,18 +71,18 @@ struct WidgetPaletteTests {
     /// The weekly matrix's cells are the one place a habit's hue
     /// survives the tint, and only because they carry their value as
     /// alpha. In full colour the same value is an opaque Oklab mix.
-    @Test("Matrix cells carry their value as alpha under the tint and as an opaque mix in full colour")
-    func matrixTintSplitsByMode() {
-        let full = WidgetPalette(renderingMode: .fullColor)
+    @Test("Matrix cells carry their value as alpha under the tint and as an opaque mix in full colour", arguments: HabitTheme.allCases)
+    func matrixTintSplitsByMode(theme: HabitTheme) {
+        let full = WidgetPalette(renderingMode: .fullColor, theme: theme)
         for color in HabitColor.allCases {
             for amount in [0.2, 0.6, 1.0] {
                 #expect(opacity(of: full.matrixTint(color, amount: amount)) == 1)
                 #expect(
                     channels(of: full.matrixTint(color, amount: amount), .light)
-                        == channels(of: color.tint(amount), .light)
+                        == channels(of: color.tint(amount, in: theme), .light)
                 )
                 for mode in tinted {
-                    let cell = WidgetPalette(renderingMode: mode).matrixTint(color, amount: amount)
+                    let cell = WidgetPalette(renderingMode: mode, theme: theme).matrixTint(color, amount: amount)
                     #expect(abs(opacity(of: cell) - amount) < 0.001, "\(mode) \(color) \(amount)")
                 }
             }
@@ -92,10 +94,10 @@ struct WidgetPaletteTests {
     /// The shipped bug, stated as a bound: a label drawn at the same
     /// strength as the fill under it is invisible once the tint
     /// removes the hue between them.
-    @Test("Tinted labels clear their own fill by a wide alpha margin")
-    func labelClearsItsFill() {
+    @Test("Tinted labels clear their own fill by a wide alpha margin", arguments: HabitTheme.allCases)
+    func labelClearsItsFill(theme: HabitTheme) {
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             #expect(palette.isTinted)
             for color in HabitColor.allCases {
                 for status in everyStatus {
@@ -114,10 +116,10 @@ struct WidgetPaletteTests {
         }
     }
 
-    @Test("Tinted fills stay translucent so the tint can't flatten them")
-    func tintedFillsKeepAlpha() {
+    @Test("Tinted fills stay translucent so the tint can't flatten them", arguments: HabitTheme.allCases)
+    func tintedFillsKeepAlpha(theme: HabitTheme) {
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             for status in everyStatus {
                 for progress in [0.0, 0.5, 1.0] {
                     let fill = palette.habitFill(.green, status: status, progress: progress)
@@ -128,10 +130,10 @@ struct WidgetPaletteTests {
         }
     }
 
-    @Test("Tinted fills stay ordered: complete reads stronger than untouched")
-    func tintedFillsAreOrdered() {
+    @Test("Tinted fills stay ordered: complete reads stronger than untouched", arguments: HabitTheme.allCases)
+    func tintedFillsAreOrdered(theme: HabitTheme) {
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             let untouched = opacity(of: palette.habitFill(.green, status: .none, progress: 0))
             let half = opacity(of: palette.habitFill(.green, status: .partial, progress: 0.5))
             let done = opacity(of: palette.habitFill(.green, status: .complete, progress: 1))
@@ -148,22 +150,22 @@ struct WidgetPaletteTests {
     /// The ring around a never-due day is the second thing that can
     /// outweigh a missed one; in full colour it is the divider paper,
     /// and under the tint it stays under the ramp's 0.2 floor.
-    @Test("The not-due ring is the divider in full colour and stays under the floor when tinted")
-    func notDueRing() {
-        #expect(WidgetPalette(renderingMode: .fullColor).notDueRing == .kadoDivider)
+    @Test("The not-due ring is the divider in full colour and stays under the floor when tinted", arguments: HabitTheme.allCases)
+    func notDueRing(theme: HabitTheme) {
+        #expect(WidgetPalette(renderingMode: .fullColor, theme: theme).notDueRing == .kadoDivider)
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             #expect(opacity(of: palette.notDueRing) < 0.2, "\(mode)")
             #expect(opacity(of: palette.notDueRing) > opacity(of: palette.notDueFill), "\(mode)")
         }
     }
 
-    @Test("Not-due sits clear of the scored ramp's floor under the tint")
-    func notDueClearsTheScoredFloor() throws {
+    @Test("Not-due sits clear of the scored ramp's floor under the tint", arguments: HabitTheme.allCases)
+    func notDueClearsTheScoredFloor(theme: HabitTheme) throws {
         let scoredFloor = try #require(WidgetDayCell.scored(0).colorOpacity)
         #expect(scoredFloor == 0.2)
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             let notDue = opacity(of: palette.notDueFill)
             #expect(notDue < scoredFloor - 0.05, "\(mode): not-due \(notDue) vs scored floor \(scoredFloor)")
         }
@@ -172,10 +174,10 @@ struct WidgetPaletteTests {
     /// Secondary text is already dimmed once by landing in the
     /// non-accented group; a heavy alpha on top of that dims it twice
     /// and buries it.
-    @Test("Secondary text ranks below primary without being buried")
-    func secondaryTextIsRankedNotBuried() {
+    @Test("Secondary text ranks below primary without being buried", arguments: HabitTheme.allCases)
+    func secondaryTextIsRankedNotBuried(theme: HabitTheme) {
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             let primary = opacity(of: palette.foreground)
             let secondary = opacity(of: palette.foregroundSecondary)
             #expect(secondary < primary)
@@ -189,11 +191,11 @@ struct WidgetPaletteTests {
     /// colour, because it isn't one — every opaque pixel arrives the
     /// same shade, and an orange that is silently `.primary` would
     /// read a whole step louder than the percentage beside it.
-    @Test("The streak flame keeps its orange in full colour and folds into secondary under the tint")
-    func streakAccentFoldsIntoSecondary() {
-        #expect(WidgetPalette(renderingMode: .fullColor).streakAccent == HabitColor.orange.color)
+    @Test("The streak flame keeps its orange in full colour and folds into secondary under the tint", arguments: HabitTheme.allCases)
+    func streakAccentFoldsIntoSecondary(theme: HabitTheme) {
+        #expect(WidgetPalette(renderingMode: .fullColor, theme: theme).streakAccent == HabitColor.orange.color(in: theme))
         for mode in tinted {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             #expect(palette.streakAccent == palette.foregroundSecondary)
             #expect(opacity(of: palette.streakAccent) < opacity(of: palette.foreground))
             #expect(opacity(of: palette.streakAccent) >= 0.7, "\(mode): the flame dims twice over")
@@ -202,10 +204,10 @@ struct WidgetPaletteTests {
 
     /// Out-of-range progress reaches the palette straight from the
     /// App Group JSON, so clamp rather than trust it.
-    @Test("Progress outside 0...1 stays inside the fill's alpha band")
-    func progressIsClamped() {
+    @Test("Progress outside 0...1 stays inside the fill's alpha band", arguments: HabitTheme.allCases)
+    func progressIsClamped(theme: HabitTheme) {
         for mode in [WidgetRenderingMode.fullColor, .accented] {
-            let palette = WidgetPalette(renderingMode: mode)
+            let palette = WidgetPalette(renderingMode: mode, theme: theme)
             let low = palette.habitFill(.green, status: .partial, progress: -3)
             let high = palette.habitFill(.green, status: .partial, progress: 12)
             for style in [UIUserInterfaceStyle.light, .dark] {

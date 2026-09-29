@@ -9,6 +9,7 @@ import KadoCore
 /// the palette's orange, not the system's, so it sits at the same
 /// weight as the hues around it.
 struct MetricsChip: View {
+    @Environment(\.habitTheme) private var habitTheme
     let streak: Int
     let scorePercent: Int
 
@@ -23,7 +24,7 @@ struct MetricsChip: View {
                     Text("\(streak)")
                 }
                 .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundStyle(HabitColor.orange.color)
+                .foregroundStyle(HabitColor.orange.color(in: habitTheme))
                 Text("·")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(Color.kadoForegroundSecondary)

@@ -9,6 +9,8 @@ struct KadoApp: App {
     private var dayStartHour = DayStartDefaults.defaultHour
     @AppStorage(WeekStartDefaults.key, store: WeekStartDefaults.sharedDefaults)
     private var weekStart: WeekStart = WeekStartDefaults.defaultValue
+    @AppStorage(HabitThemeDefaults.key, store: HabitThemeDefaults.sharedDefaults)
+    private var habitTheme: HabitTheme = HabitThemeDefaults.defaultValue
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
@@ -135,6 +137,7 @@ struct KadoApp: App {
         .environment(\.streakCalculator, DefaultStreakCalculator(calendar: weekCalendar))
         .environment(\.today, boundary.startOfDay(for: clockMark))
         .environment(\.dayBoundary, boundary)
+        .environment(\.habitTheme, habitTheme)
         .onChange(of: scenePhase) { _, newPhase in
             // Reconciles the pending set every time the app comes
             // to the foreground — handles clock-drift, day-rollover,
@@ -168,6 +171,12 @@ struct KadoApp: App {
             // widget renders a snapshot the app wrote under the old one.
             // Without this the home screen keeps yesterday's (or
             // tomorrow's) day until the next habit mutation.
+            WidgetReloader.reloadAll(using: container.mainContext)
+        }
+        .onChange(of: habitTheme) { _, _ in
+            // The widgets read the theme themselves, but only redraw
+            // when their timeline reloads — without this the home
+            // screen keeps the old hues until the next habit mutation.
             WidgetReloader.reloadAll(using: container.mainContext)
         }
         .onChange(of: isDevMode) { oldValue, newValue in

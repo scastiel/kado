@@ -25,6 +25,7 @@ import KadoCore
 /// save (issue #80), and nothing retained across renders holds a
 /// record that a container swap could invalidate (issue #63).
 struct OverviewView: View {
+    @Environment(\.habitTheme) private var habitTheme
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
         sort: \HabitRecord.sortOrder
@@ -201,7 +202,7 @@ struct OverviewView: View {
                 HStack(spacing: 8) {
                     Image(systemName: row.habit.icon)
                         .font(.callout.weight(.semibold))
-                        .foregroundStyle(row.habit.color.color)
+                        .foregroundStyle(row.habit.color.color(in: habitTheme))
                     Text(row.habit.name)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color.kadoForeground)

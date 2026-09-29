@@ -10,13 +10,14 @@ public struct TodayProgressMediumView: View {
     let entry: SelectedSnapshotEntry
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     public init(entry: SelectedSnapshotEntry) {
         self.entry = entry
     }
 
     private var palette: WidgetPalette {
-        WidgetPalette(renderingMode: renderingMode)
+        WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
     }
 
     private var rows: [WidgetTodayRow] {

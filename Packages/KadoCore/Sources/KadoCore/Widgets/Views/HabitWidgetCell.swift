@@ -28,13 +28,14 @@ public struct HabitWidgetCell: View {
     let row: WidgetTodayRow
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     public init(row: WidgetTodayRow) {
         self.row = row
     }
 
     private var palette: WidgetPalette {
-        WidgetPalette(renderingMode: renderingMode)
+        WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
     }
 
     public var body: some View {

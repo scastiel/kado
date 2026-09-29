@@ -31,8 +31,14 @@ public struct WidgetPalette {
     /// from `@Environment(\.widgetRenderingMode)`.
     public let renderingMode: WidgetRenderingMode
 
-    public init(renderingMode: WidgetRenderingMode) {
+    /// The habit colour theme. Read it from
+    /// `@Environment(\.habitTheme)`, which each widget injects from
+    /// `HabitThemeDefaults`.
+    public let theme: HabitTheme
+
+    public init(renderingMode: WidgetRenderingMode, theme: HabitTheme) {
         self.renderingMode = renderingMode
+        self.theme = theme
     }
 
     /// `true` when the system, not Kadō, chooses the colours.
@@ -71,7 +77,7 @@ public struct WidgetPalette {
     /// arrives the same colour), so it collapses onto the secondary
     /// text it sits beside and keeps the row to one weight.
     public var streakAccent: Color {
-        isTinted ? foregroundSecondary : HabitColor.orange.color
+        isTinted ? foregroundSecondary : HabitColor.orange.color(in: theme)
     }
 
     // MARK: - Fills
@@ -120,8 +126,8 @@ public struct WidgetPalette {
         let clamped = max(0, min(1, progress))
         guard isTinted else {
             switch status {
-            case .complete: return color.color
-            case .partial: return color.tint(0.3 + clamped * 0.4)
+            case .complete: return color.color(in: theme)
+            case .partial: return color.tint(0.3 + clamped * 0.4, in: theme)
             case .none: return restingFill
             }
         }
@@ -141,7 +147,7 @@ public struct WidgetPalette {
     /// 3:1 on the lifted dark-mode bases.
     public func glyphColor(_ color: HabitColor, status: WidgetStatus) -> Color {
         guard isTinted else {
-            return status == .complete ? color.onFill : color.color
+            return status == .complete ? color.onFill(in: theme) : color.color(in: theme)
         }
         return .primary
     }
@@ -157,7 +163,7 @@ public struct WidgetPalette {
     /// `habitFill` staying translucent underneath.
     public func labelColor(_ color: HabitColor, status: WidgetStatus) -> Color {
         guard isTinted else {
-            return status == .complete ? color.onFill : .kadoForeground
+            return status == .complete ? color.onFill(in: theme) : .kadoForeground
         }
         return .primary
     }
@@ -171,6 +177,6 @@ public struct WidgetPalette {
     /// tint preserves: an opaque mixed colour, whatever its value,
     /// would flatten into the same solid block as every other.
     public func matrixTint(_ color: HabitColor, amount: Double) -> Color {
-        isTinted ? color.color.opacity(amount) : color.tint(amount)
+        isTinted ? color.color(in: theme).opacity(amount) : color.tint(amount, in: theme)
     }
 }

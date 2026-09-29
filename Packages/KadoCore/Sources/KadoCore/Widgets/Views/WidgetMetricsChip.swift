@@ -19,6 +19,7 @@ public struct WidgetMetricsChip: View {
     let scorePercent: Int
 
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.habitTheme) private var habitTheme
 
     public init(streak: Int, scorePercent: Int) {
         self.streak = streak
@@ -26,7 +27,7 @@ public struct WidgetMetricsChip: View {
     }
 
     private var palette: WidgetPalette {
-        WidgetPalette(renderingMode: renderingMode)
+        WidgetPalette(renderingMode: renderingMode, theme: habitTheme)
     }
 
     public var body: some View {

@@ -4,11 +4,13 @@ import UIKit
 @testable import Kado
 import KadoCore
 
-/// The habit palette: eight hues authored in OKLCH at matched lightness
-/// and chroma, every tint derived from the base by mixing in Oklab over
-/// the page ground. The assertions are the design handoff's
-/// verification list, stated as invariants over all eight hues in both
-/// colour schemes rather than as examples in one.
+/// The habit palette: eight slots whose bases come from a `HabitTheme`,
+/// every tint derived from the base by mixing in Oklab over the page
+/// ground. The derivation rules — gamut, ramp, contrast, identity — are
+/// stated as invariants over **every theme × every slot** in both
+/// colour schemes, so a new theme is covered the moment it is a case.
+/// The rules that define Kadō's *look* (one lightness band, one chroma
+/// band) are Kadō's alone.
 @Suite("HabitColor palette")
 struct HabitColorTests {
 
@@ -39,73 +41,143 @@ struct HabitColorTests {
         }
     }
 
-    // MARK: - The bases
-
-    @Test("Every base is inside the sRGB gamut, light and dark")
-    func basesAreDisplayable() {
-        for color in HabitColor.allCases {
-            #expect(color.base.oklab.isInSRGBGamut, "\(color) light clips")
-            #expect(color.darkBase.oklab.isInSRGBGamut, "\(color) dark clips")
-        }
+    @Test("Theme raw values are stable (stored in UserDefaults)")
+    func themeRawValuesStable() {
+        #expect(HabitTheme.kado.rawValue == "kado")
+        #expect(HabitTheme.classic.rawValue == "classic")
     }
+
+    // MARK: - Kadō's look
 
     /// "The five habits read at equal weight — no habit dominates."
     /// Perceptual lightness is what carries weight; the handoff lifts
     /// orange (and this palette, yellow) to 0.64 because at 0.58 they
     /// go brown, and asks dark mode for 0.68–0.72.
-    @Test("Bases share a lightness band: 0.58…0.64 light, 0.68…0.72 dark")
+    @Test("Kadō's bases share a lightness band: 0.58…0.64 light, 0.68…0.72 dark")
     func matchedLightness() {
         for color in HabitColor.allCases {
-            #expect((0.58...0.64).contains(color.base.l), "\(color) light L \(color.base.l)")
-            #expect((0.68...0.72).contains(color.darkBase.l), "\(color) dark L \(color.darkBase.l)")
-            #expect(color.darkBase.c == color.base.c, "\(color) dark changes chroma")
-            #expect(color.darkBase.h == color.base.h, "\(color) dark changes hue")
+            let base = color.base(in: .kado), dark = color.darkBase(in: .kado)
+            #expect((0.58...0.64).contains(base.l), "\(color) light L \(base.l)")
+            #expect((0.68...0.72).contains(dark.l), "\(color) dark L \(dark.l)")
+            #expect(dark.c == base.c, "\(color) dark changes chroma")
+            #expect(dark.h == base.h, "\(color) dark changes hue")
         }
     }
 
-    /// The ink is the base's hue at L 0.46 / 0.78, and for four hues
-    /// sRGB cannot show the base's chroma there. It gives up chroma,
-    /// never hue or lightness — clipping per channel would shift both.
-    @Test("Ink is displayable at the base's hue and its own lightness")
-    func inkIsDisplayable() {
-        for color in HabitColor.allCases {
-            for (ink, lightness) in [(color.ink, 0.46), (color.darkInk, 0.78)] {
-                #expect(ink.oklab.isInSRGBGamut, "\(color) ink clips")
-                #expect(ink.h == color.base.h, "\(color) ink changes hue")
-                #expect(ink.l == lightness, "\(color) ink changes lightness")
-                #expect(ink.c <= color.base.c && ink.c > 0.05, "\(color) ink C \(ink.c)")
-            }
-        }
-    }
-
-    @Test("Chroma stays in the handoff's 0.10…0.14 band")
+    @Test("Kadō's chroma stays in the handoff's 0.10…0.14 band")
     func matchedChroma() {
         for color in HabitColor.allCases {
-            #expect((0.10...0.14).contains(color.base.c), "\(color) C \(color.base.c)")
+            let c = color.base(in: .kado).c
+            #expect((0.10...0.14).contains(c), "\(color) C \(c)")
         }
     }
 
-    @Test("Hues are spaced at least 15° apart")
-    func hueSpacing() {
-        let hues = HabitColor.allCases.map { ($0, $0.base.h) }
-        for (i, (a, ha)) in hues.enumerated() {
-            for (b, hb) in hues[(i + 1)...] {
-                let delta = abs(ha - hb).truncatingRemainder(dividingBy: 360)
-                let distance = min(delta, 360 - delta)
-                #expect(distance >= 15, "\(a) and \(b) are \(distance)° apart")
+    /// "Nothing changes visually for users who never open the picker":
+    /// the glyph on a filled Kadō control is still the page itself.
+    @Test("Kadō's glyph on a fill is the page colour for every slot")
+    func kadoOnFillIsThePage() {
+        for color in HabitColor.allCases {
+            #expect(color.onFill(in: .kado) == .kadoBackground, "\(color)")
+        }
+    }
+
+    // MARK: - Classic
+
+    /// The frozen literals, resolved: iOS 26.5's `.systemRed` …
+    /// `.systemPurple` in each scheme, as the probe printed them. Pins
+    /// that the OKLCH literals round-trip to the system hue they were
+    /// taken from, and that a later OS retuning its system colours
+    /// doesn't move a theme someone chose for how it looked. Light
+    /// yellow is the exception, nudged from the system's 255, 204, 0 so
+    /// its ramp floor clears the not-due tile (`notDueIsQuietest`).
+    @Test("Classic resolves to the pre-#89 system hues, light and dark")
+    func classicIsTheSystemHues() {
+        let expected: [HabitColor: (light: [Int], dark: [Int])] = [
+            .red: ([255, 56, 60], [255, 66, 69]),
+            .orange: ([255, 141, 40], [255, 146, 48]),
+            .yellow: ([245, 196, 0], [255, 214, 0]),
+            .green: ([52, 199, 89], [48, 209, 88]),
+            .mint: ([0, 200, 179], [0, 218, 195]),
+            .teal: ([0, 195, 208], [0, 210, 224]),
+            .blue: ([0, 136, 255], [0, 145, 255]),
+            .purple: ([203, 48, 224], [219, 52, 242]),
+        ]
+        for color in HabitColor.allCases {
+            let rgb = expected[color]!
+            #expect(bytes(color.color(in: .classic), .light) == rgb.light, "\(color) light")
+            #expect(bytes(color.color(in: .classic), .dark) == rgb.dark, "\(color) dark")
+        }
+    }
+
+    /// The page falls under 3:1 on the bright light-mode system hues,
+    /// so those take the ink — and only those, and only in light mode.
+    @Test("Classic's glyph on a fill is the ink only where the page can't read")
+    func classicOnFillFallsBackToInk() {
+        let dark: Set<HabitColor> = [.orange, .yellow, .green, .mint, .teal]
+        for color in HabitColor.allCases {
+            let onFill = srgb(color.onFill(in: .classic), .light)
+            let expected = dark.contains(color) ? Color.kadoForeground : .kadoBackground
+            #expect(onFill.isWithinOneStep(of: srgb(expected, .light)), "\(color) light")
+            #expect(srgb(color.onFill(in: .classic), .dark).isWithinOneStep(of: srgb(.kadoBackground, .dark)), "\(color) dark")
+        }
+    }
+
+    // MARK: - Every theme: the bases
+
+    @Test("Every base is inside the sRGB gamut, light and dark", arguments: HabitTheme.allCases)
+    func basesAreDisplayable(theme: HabitTheme) {
+        for color in HabitColor.allCases {
+            #expect(color.base(in: theme).oklab.isInSRGBGamut, "\(theme) \(color) light clips")
+            #expect(color.darkBase(in: theme).oklab.isInSRGBGamut, "\(theme) \(color) dark clips")
+        }
+    }
+
+    /// The ink is the base's hue at L 0.46 / 0.78, and for several
+    /// hues sRGB cannot show the base's chroma there. It gives up
+    /// chroma, never hue or lightness — clipping per channel would
+    /// shift both.
+    @Test("Ink is displayable at the base's hue and its own lightness", arguments: HabitTheme.allCases)
+    func inkIsDisplayable(theme: HabitTheme) {
+        for color in HabitColor.allCases {
+            let pairs = [
+                (color.ink(in: theme), color.base(in: theme), 0.46),
+                (color.darkInk(in: theme), color.darkBase(in: theme), 0.78),
+            ]
+            for (ink, base, lightness) in pairs {
+                #expect(ink.oklab.isInSRGBGamut, "\(theme) \(color) ink clips")
+                #expect(ink.h == base.h, "\(theme) \(color) ink changes hue")
+                #expect(ink.l == lightness, "\(theme) \(color) ink changes lightness")
+                #expect(ink.c <= base.c && ink.c > 0.05, "\(theme) \(color) ink C \(ink.c)")
             }
         }
     }
 
-    // MARK: - Derivations
+    @Test("Hues are spaced at least 15° apart", arguments: HabitTheme.allCases)
+    func hueSpacing(theme: HabitTheme) {
+        for scheme in schemes {
+            let hues = HabitColor.allCases.map {
+                ($0, scheme == .light ? $0.base(in: theme).h : $0.darkBase(in: theme).h)
+            }
+            for (i, (a, ha)) in hues.enumerated() {
+                for (b, hb) in hues[(i + 1)...] {
+                    let delta = abs(ha - hb).truncatingRemainder(dividingBy: 360)
+                    let distance = min(delta, 360 - delta)
+                    #expect(distance >= 15, "\(theme) \(scheme): \(a) and \(b) are \(distance)° apart")
+                }
+            }
+        }
+    }
 
-    @Test("tint(0) is the page and tint(1) is the base, in both schemes")
-    func tintEndpoints() {
+    // MARK: - Every theme: derivations
+
+    @Test("tint(0) is the page and tint(1) is the base, in both schemes", arguments: HabitTheme.allCases)
+    func tintEndpoints(theme: HabitTheme) {
         for color in HabitColor.allCases {
             for scheme in schemes {
                 let page = srgb(Color.kadoBackground, scheme)
-                #expect(srgb(color.tint(0), scheme).isWithinOneStep(of: page), "\(color) \(scheme) tint(0)")
-                #expect(srgb(color.tint(1), scheme).isWithinOneStep(of: srgb(color.color, scheme)), "\(color) \(scheme) tint(1)")
+                let base = srgb(color.color(in: theme), scheme)
+                #expect(srgb(color.tint(0, in: theme), scheme).isWithinOneStep(of: page), "\(theme) \(color) \(scheme) tint(0)")
+                #expect(srgb(color.tint(1, in: theme), scheme).isWithinOneStep(of: base), "\(theme) \(color) \(scheme) tint(1)")
             }
         }
     }
@@ -113,25 +185,25 @@ struct HabitColorTests {
     /// The Overview ramp is `0.2 + 0.8·value`; whatever the value, more
     /// of it must read as more of the hue. Lightness moves away from
     /// the page monotonically — down in light, up in dark.
-    @Test("The ramp moves steadily away from the page")
-    func tintRampIsMonotonic() {
+    @Test("The ramp moves steadily away from the page", arguments: HabitTheme.allCases)
+    func tintRampIsMonotonic(theme: HabitTheme) {
         let steps: [Double] = [0, 0.16, 0.2, 0.45, 0.7, 1]
         for color in HabitColor.allCases {
             for scheme in schemes {
-                let lightness = steps.map { oklab(color.tint($0), scheme).l }
+                let lightness = steps.map { oklab(color.tint($0, in: theme), scheme).l }
                 for (a, b) in zip(lightness, lightness.dropFirst()) {
                     if scheme == .light {
-                        #expect(a > b, "\(color) light ramp reverses: \(lightness)")
+                        #expect(a > b, "\(theme) \(color) light ramp reverses: \(lightness)")
                     } else {
-                        #expect(a < b, "\(color) dark ramp reverses: \(lightness)")
+                        #expect(a < b, "\(theme) \(color) dark ramp reverses: \(lightness)")
                     }
                 }
             }
         }
     }
 
-    @Test("The named surfaces carry the handoff's amounts")
-    func namedSurfaces() {
+    @Test("The named surfaces carry the handoff's amounts", arguments: HabitTheme.allCases)
+    func namedSurfaces(theme: HabitTheme) {
         #expect(HabitTint.mark.amount == 0.16)
         #expect(HabitTint.timerPill.amount == 0.18)
         #expect(HabitTint.counterPill.amount == 0.14)
@@ -143,9 +215,9 @@ struct HabitColorTests {
             for surface in HabitTint.allCases {
                 for scheme in schemes {
                     #expect(
-                        srgb(color.tint(surface), scheme)
-                            .isWithinOneStep(of: srgb(color.tint(surface.amount), scheme)),
-                        "\(color) \(surface) \(scheme)"
+                        srgb(color.tint(surface, in: theme), scheme)
+                            .isWithinOneStep(of: srgb(color.tint(surface.amount, in: theme), scheme)),
+                        "\(theme) \(color) \(surface) \(scheme)"
                     )
                 }
             }
@@ -157,18 +229,19 @@ struct HabitColorTests {
     /// by identity, and a matrix of cells hands SwiftUI one per render.
     /// The ramp is quantised to hundredths, and every named amount is
     /// a whole hundredth, so a surface and its amount are one entry.
-    @Test("The same surface or ramp value is the same Color")
-    func derivedColorsAreStable() {
+    @Test("The same surface or ramp value is the same Color", arguments: HabitTheme.allCases)
+    func derivedColorsAreStable(theme: HabitTheme) {
         for color in HabitColor.allCases {
-            #expect(color.color == color.color)
-            #expect(color.onTint == color.onTint)
+            #expect(color.color(in: theme) == color.color(in: theme))
+            #expect(color.onTint(in: theme) == color.onTint(in: theme))
+            #expect(color.onFill(in: theme) == color.onFill(in: theme))
             for surface in HabitTint.allCases {
-                #expect(color.tint(surface) == color.tint(surface))
-                #expect(color.tint(surface) == color.tint(surface.amount))
+                #expect(color.tint(surface, in: theme) == color.tint(surface, in: theme))
+                #expect(color.tint(surface, in: theme) == color.tint(surface.amount, in: theme))
             }
-            #expect(color.tint(0.37) == color.tint(0.37))
-            #expect(color.tint(0.371) == color.tint(0.37))
-            #expect(color.tint(0.2 + 0.8 * 0.5) == color.tint(0.6))
+            #expect(color.tint(0.37, in: theme) == color.tint(0.37, in: theme))
+            #expect(color.tint(0.371, in: theme) == color.tint(0.37, in: theme))
+            #expect(color.tint(0.2 + 0.8 * 0.5, in: theme) == color.tint(0.6, in: theme))
         }
     }
 
@@ -176,37 +249,41 @@ struct HabitColorTests {
     /// ring tells it from a missed day, and this keeps it the quietest
     /// fill in the row — lighter than the ramp's floor in light mode,
     /// darker in dark — so an empty day never outweighs a missed one.
-    @Test("The not-due fill is quieter than the ramp's floor")
-    func notDueIsQuietest() {
+    @Test("The not-due fill is quieter than the ramp's floor", arguments: HabitTheme.allCases)
+    func notDueIsQuietest(theme: HabitTheme) {
         for color in HabitColor.allCases {
-            let floorLight = oklab(color.tint(.tileLight), .light).l
-            let floorDark = oklab(color.tint(.tileLight), .dark).l
-            #expect(oklab(Color.kadoBackgroundSecondary, .light).l > floorLight, "\(color) light")
-            #expect(oklab(Color.kadoBackgroundSecondary, .dark).l < floorDark, "\(color) dark")
+            let floorLight = oklab(color.tint(.tileLight, in: theme), .light).l
+            let floorDark = oklab(color.tint(.tileLight, in: theme), .dark).l
+            #expect(oklab(Color.kadoBackgroundSecondary, .light).l > floorLight, "\(theme) \(color) light")
+            #expect(oklab(Color.kadoBackgroundSecondary, .dark).l < floorDark, "\(theme) \(color) dark")
         }
     }
 
-    // MARK: - Contrast
+    // MARK: - Every theme: contrast
 
     /// The handoff's "Icon / text on tint" row: same H and C, L 0.42–0.50.
-    @Test("Ink on a tint clears 4.5:1 on the mark, both schemes")
-    func inkOnTintContrast() {
+    @Test("Ink on a tint clears 4.5:1 on the mark, both schemes", arguments: HabitTheme.allCases)
+    func inkOnTintContrast(theme: HabitTheme) {
         for color in HabitColor.allCases {
             for scheme in schemes {
-                let ratio = srgb(color.onTint, scheme).contrastRatio(with: srgb(color.tint(.mark), scheme))
-                #expect(ratio >= 4.5, "\(color) \(scheme): \(ratio)")
+                let ratio = srgb(color.onTint(in: theme), scheme)
+                    .contrastRatio(with: srgb(color.tint(.mark, in: theme), scheme))
+                #expect(ratio >= 4.5, "\(theme) \(color) \(scheme): \(ratio)")
             }
         }
     }
 
     /// Why the glyph on a filled control is the page colour rather
-    /// than white: on the lifted dark bases white sits under 3:1.
-    @Test("The glyph on a filled control clears 3:1, both schemes")
-    func glyphOnFillContrast() {
+    /// than white: on the lifted dark bases white sits under 3:1. And
+    /// why Classic's bright light-mode hues take the ink instead: the
+    /// page sits under 3:1 on them too.
+    @Test("The glyph on a filled control clears 3:1, both schemes", arguments: HabitTheme.allCases)
+    func glyphOnFillContrast(theme: HabitTheme) {
         for color in HabitColor.allCases {
             for scheme in schemes {
-                let ratio = srgb(color.onFill, scheme).contrastRatio(with: srgb(color.color, scheme))
-                #expect(ratio >= 3, "\(color) \(scheme): \(ratio)")
+                let ratio = srgb(color.onFill(in: theme), scheme)
+                    .contrastRatio(with: srgb(color.color(in: theme), scheme))
+                #expect(ratio >= 3, "\(theme) \(color) \(scheme): \(ratio)")
             }
         }
     }
@@ -219,6 +296,11 @@ struct HabitColorTests {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         resolved.getRed(&r, green: &g, blue: &b, alpha: &a)
         return SRGB(red: r, green: g, blue: b)
+    }
+
+    private func bytes(_ color: Color, _ scheme: UIUserInterfaceStyle) -> [Int] {
+        let c = srgb(color, scheme)
+        return [c.red, c.green, c.blue].map { Int(($0 * 255).rounded()) }
     }
 
     private func oklab(_ color: Color, _ scheme: UIUserInterfaceStyle) -> Oklab {

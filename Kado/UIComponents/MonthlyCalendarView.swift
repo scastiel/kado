@@ -9,6 +9,7 @@ import KadoCore
 /// Which day opens the week comes from the injected calendar's
 /// `firstWeekday`, which `KadoApp` derives from Settings → Week.
 struct MonthlyCalendarView<PopoverContent: View>: View {
+    @Environment(\.habitTheme) private var habitTheme
     let habit: Habit
     let completions: [Completion]
     @Binding var month: Date
@@ -268,7 +269,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     private func fill(for state: CellState) -> Color {
         switch state {
         case .future: Color.kadoHairline
-        case .completed: habit.color.color
+        case .completed: habit.color.color(in: habitTheme)
         case .missed: Color.kadoPaper200
         case .nonDue, .beforeStart: Color.kadoHairline.opacity(0.4)
         }
@@ -277,7 +278,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     private func foreground(for state: CellState) -> Color {
         switch state {
         case .future: .kadoForegroundSecondary
-        case .completed: habit.color.onFill
+        case .completed: habit.color.onFill(in: habitTheme)
         case .missed: .kadoForeground
         case .nonDue, .beforeStart: .kadoForegroundSecondary
         }

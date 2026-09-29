@@ -29,6 +29,8 @@ public struct MatrixCell: View {
     public let color: HabitColor
     public var size: CGFloat = 32
 
+    @Environment(\.habitTheme) private var habitTheme
+
     public init(state: DayCell, color: HabitColor, size: CGFloat = 32) {
         self.state = state
         self.color = color
@@ -42,7 +44,7 @@ public struct MatrixCell: View {
                 if let borderOpacity = state.borderOpacity {
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .strokeBorder(
-                            color.tint(borderOpacity),
+                            color.tint(borderOpacity, in: habitTheme),
                             lineWidth: 2
                         )
                 } else if state == .notDue || state == .beforeStart {
@@ -60,10 +62,10 @@ public struct MatrixCell: View {
         case .notDue, .beforeStart:
             Color.kadoBackgroundSecondary
         case .scored:
-            color.tint(state.colorOpacity ?? 0)
+            color.tint(state.colorOpacity ?? 0, in: habitTheme)
         case .offSchedule:
             // Pale interior so the border carries the signal.
-            color.tint(state.offScheduleFillOpacity ?? 0)
+            color.tint(state.offScheduleFillOpacity ?? 0, in: habitTheme)
         }
     }
 }

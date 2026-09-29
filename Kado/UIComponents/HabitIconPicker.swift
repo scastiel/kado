@@ -6,6 +6,7 @@ import KadoCore
 /// neutral fill with the glyph in the hue's ink — the base itself is
 /// under 3:1 on the hairline for half the palette.
 struct HabitIconPicker: View {
+    @Environment(\.habitTheme) private var habitTheme
     @Binding var selection: String
     var tint: HabitColor
 
@@ -34,10 +35,10 @@ struct HabitIconPicker: View {
             .font(.title3)
             .frame(maxWidth: .infinity)
             .frame(height: 40)
-            .foregroundStyle(selection == icon ? tint.onFill : tint.onTint)
+            .foregroundStyle(selection == icon ? tint.onFill(in: habitTheme) : tint.onTint(in: habitTheme))
             .background {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(selection == icon ? tint.color : Color.kadoHairline)
+                    .fill(selection == icon ? tint.color(in: habitTheme) : Color.kadoHairline)
             }
     }
 }

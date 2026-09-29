@@ -4,6 +4,7 @@ import KadoCore
 /// Horizontal row of color swatches. The selected swatch shows a
 /// check; others are plain circles in their own color.
 struct HabitColorPicker: View {
+    @Environment(\.habitTheme) private var habitTheme
     @Binding var selection: HabitColor
 
     var body: some View {
@@ -24,13 +25,13 @@ struct HabitColorPicker: View {
 
     private func swatch(for color: HabitColor) -> some View {
         Circle()
-            .fill(color.color)
+            .fill(color.color(in: habitTheme))
             .frame(width: 30, height: 30)
             .overlay {
                 if selection == color {
                     Image(systemName: "checkmark")
                         .font(.footnote.weight(.bold))
-                        .foregroundStyle(color.onFill)
+                        .foregroundStyle(color.onFill(in: habitTheme))
                 }
             }
             .overlay {

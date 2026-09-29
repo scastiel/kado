@@ -26,6 +26,7 @@ import KadoCore
 /// hue at an opacity, so the row matches the handoff's tint table and
 /// mixes in Oklab rather than sRGB.
 struct HabitRowView: View {
+    @Environment(\.habitTheme) private var habitTheme
     let habit: Habit
     let state: HabitRowState
     let streak: Int
@@ -143,22 +144,22 @@ struct HabitRowView: View {
     private var leadingBadge: some View {
         ZStack {
             if isComplete {
-                Circle().fill(habit.color.color)
+                Circle().fill(habit.color.color(in: habitTheme))
             } else {
-                Circle().fill(habit.color.tint(.mark))
+                Circle().fill(habit.color.tint(.mark, in: habitTheme))
                 Circle()
-                    .strokeBorder(habit.color.tint(.outline), lineWidth: 2)
+                    .strokeBorder(habit.color.tint(.outline, in: habitTheme), lineWidth: 2)
                 Circle()
                     .trim(from: 0, to: state.progress)
                     .stroke(
-                        habit.color.color,
+                        habit.color.color(in: habitTheme),
                         style: StrokeStyle(lineWidth: 2, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
             }
             Image(systemName: habit.icon)
                 .font(.callout.weight(.semibold))
-                .foregroundStyle(isComplete ? habit.color.onFill : habit.color.onTint)
+                .foregroundStyle(isComplete ? habit.color.onFill(in: habitTheme) : habit.color.onTint(in: habitTheme))
         }
         .animation(KadoMotion.base, value: state.progress)
         .animation(KadoMotion.base, value: isComplete)
@@ -216,9 +217,9 @@ struct HabitRowView: View {
                 .padding(.vertical, 4)
                 .padding(.horizontal, 10)
                 .background(
-                    Capsule().fill(habit.color.tint(.timerPill))
+                    Capsule().fill(habit.color.tint(.timerPill, in: habitTheme))
                 )
-                .foregroundStyle(habit.color.onTint)
+                .foregroundStyle(habit.color.onTint(in: habitTheme))
         }
         .buttonStyle(.borderless)
         .accessibilityLabel(String(localized: "Add 5 minutes"))
@@ -273,8 +274,8 @@ struct HabitRowView: View {
         Image(systemName: icon)
             .font(.callout.weight(.semibold))
             .frame(width: 28, height: 28)
-            .background(Circle().fill(filled ? habit.color.color : habit.color.tint(.counterPill)))
-            .foregroundStyle(filled ? habit.color.onFill : habit.color.onTint)
+            .background(Circle().fill(filled ? habit.color.color(in: habitTheme) : habit.color.tint(.counterPill, in: habitTheme)))
+            .foregroundStyle(filled ? habit.color.onFill(in: habitTheme) : habit.color.onTint(in: habitTheme))
     }
 
     // MARK: - Counter stepper
@@ -325,8 +326,8 @@ struct HabitRowView: View {
             Image(systemName: "plus")
                 .font(.callout.weight(.semibold))
                 .frame(width: 28, height: 28)
-                .background(Circle().fill(habit.color.tint(.counterPill)))
-                .foregroundStyle(habit.color.onTint)
+                .background(Circle().fill(habit.color.tint(.counterPill, in: habitTheme)))
+                .foregroundStyle(habit.color.onTint(in: habitTheme))
         }
         .buttonStyle(.borderless)
         .accessibilityLabel(String(localized: "Increment"))
@@ -346,7 +347,7 @@ struct HabitRowView: View {
     private func countLabel(_ text: Text) -> some View {
         text
             .font(.callout.weight(.semibold).monospacedDigit())
-            .foregroundStyle(isComplete ? habit.color.color : Color.kadoForeground)
+            .foregroundStyle(isComplete ? habit.color.color(in: habitTheme) : Color.kadoForeground)
             // A count is one short token; it must never split into
             // `35 / m` across lines at large Dynamic Type.
             .fixedSize(horizontal: true, vertical: false)
@@ -435,19 +436,20 @@ struct HabitRowView: View {
 /// handoff's 20% rather than exactly it — the label, at least, is the
 /// palette's ink-on-tint.
 private struct NegativePillStyleModifier: ViewModifier {
+    @Environment(\.habitTheme) private var habitTheme
     let color: HabitColor
     let isSlipped: Bool
     func body(content: Content) -> some View {
         if isSlipped {
             content
                 .buttonStyle(.borderedProminent)
-                .tint(color.color)
-                .foregroundStyle(color.onFill)
+                .tint(color.color(in: habitTheme))
+                .foregroundStyle(color.onFill(in: habitTheme))
         } else {
             content
                 .buttonStyle(.bordered)
-                .tint(color.color)
-                .foregroundStyle(color.onTint)
+                .tint(color.color(in: habitTheme))
+                .foregroundStyle(color.onTint(in: habitTheme))
         }
     }
 }

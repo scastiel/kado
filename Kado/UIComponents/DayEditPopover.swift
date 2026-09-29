@@ -21,6 +21,7 @@ import KadoCore
 /// stateless like this. The note *is* a local draft the user is typing,
 /// so `noteText` stays.
 struct DayEditPopover: View {
+    @Environment(\.habitTheme) private var habitTheme
     let habit: Habit
     let date: Date
     let currentValue: Double
@@ -72,7 +73,7 @@ struct DayEditPopover: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 8) {
                 Image(systemName: habit.icon)
-                    .foregroundStyle(habit.color.color)
+                    .foregroundStyle(habit.color.color(in: habitTheme))
                 Text(habit.name)
                     .font(.headline)
             }

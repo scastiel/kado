@@ -45,6 +45,7 @@ struct MatrixRowView: View {
 /// color, followed by the habit name. Factored out so the full-view
 /// can stack it sticky-left of the scrolling cell region.
 struct HabitRowLabel: View {
+    @Environment(\.habitTheme) private var habitTheme
     let habit: Habit
     var height: CGFloat = 32
 
@@ -52,7 +53,7 @@ struct HabitRowLabel: View {
         HStack(spacing: 8) {
             Image(systemName: habit.icon)
                 .font(.callout.weight(.semibold))
-                .foregroundStyle(habit.color.color)
+                .foregroundStyle(habit.color.color(in: habitTheme))
                 .frame(width: 24)
             Text(habit.name)
                 .font(.subheadline)
