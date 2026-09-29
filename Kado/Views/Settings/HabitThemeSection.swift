@@ -44,29 +44,37 @@ private struct HabitThemePicker: View {
     /// A tap on a locked theme opens the pack instead of storing it:
     /// storing it would change nothing on screen, and a pick that
     /// silently does nothing reads as a bug.
-    private var selection: Binding<HabitTheme> {
-        Binding(
-            get: { HabitTheme.effective(preferred: theme, isSupporter: isSupporter) },
-            set: { picked in
-                if picked.isLocked(isSupporter: isSupporter) {
-                    onLockedPick()
-                } else {
-                    theme = picked
-                }
-            }
-        )
+    private var selection: HabitTheme {
+        HabitTheme.effective(preferred: theme, isSupporter: isSupporter)
     }
 
+    private func pick(_ picked: HabitTheme) {
+        if picked.isLocked(isSupporter: isSupporter) {
+            onLockedPick()
+        } else {
+            theme = picked
+        }
+    }
+
+    /// Rows are buttons rather than an inline `Picker` so the lock can
+    /// sit in the checkmark's column: an inline picker reserves that
+    /// column on every row, and nothing in a row's content reaches it.
     var body: some View {
         Section {
-            Picker("Habit colours", selection: selection) {
-                ForEach(HabitTheme.allCases, id: \.self) { option in
-                    HabitThemeRow(theme: option, isLocked: option.isLocked(isSupporter: isSupporter))
-                        .tag(option)
+            ForEach(HabitTheme.allCases, id: \.self) { option in
+                let isLocked = option.isLocked(isSupporter: isSupporter)
+                Button {
+                    pick(option)
+                } label: {
+                    HabitThemeRow(theme: option, isSelected: option == selection, isLocked: isLocked)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(option.name))
+                .accessibilityValue(isLocked ? Text("Needs the Supporter pack") : Text(verbatim: ""))
+                .accessibilityHint(isLocked ? Text("Opens the Supporter pack.") : Text(verbatim: ""))
+                .accessibilityAddTraits(option == selection ? [.isButton, .isSelected] : .isButton)
+                .accessibilityIdentifier(AccessibilityID.Settings.habitThemeRow(option.rawValue))
             }
-            .pickerStyle(.inline)
-            .labelsHidden()
         } header: {
             Text("Habit colours")
                 .foregroundStyle(Color.kadoForegroundSecondary)
@@ -87,36 +95,39 @@ private struct HabitThemePicker: View {
 /// One option: the theme's name above its eight slots, painted in
 /// that theme rather than the current one. A locked theme still shows
 /// its slots — that's what someone deciding on the pack wants to see —
-/// with a lock beside its name.
+/// with a lock where the checkmark would go.
 private struct HabitThemeRow: View {
     let theme: HabitTheme
+    let isSelected: Bool
     let isLocked: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(theme.name)
                     .foregroundStyle(Color.kadoForeground)
-                if isLocked {
-                    Image(systemName: "lock.fill")
-                        .font(.caption)
-                        .foregroundStyle(Color.kadoForegroundSecondary)
+                HStack(spacing: 6) {
+                    ForEach(HabitColor.allCases, id: \.self) { color in
+                        Circle()
+                            .fill(color.color(in: theme))
+                            .frame(width: 18, height: 18)
+                    }
                 }
             }
-            HStack(spacing: 6) {
-                ForEach(HabitColor.allCases, id: \.self) { color in
-                    Circle()
-                        .fill(color.color(in: theme))
-                        .frame(width: 18, height: 18)
-                }
+            Spacer(minLength: 8)
+            // One trailing column for both: a locked theme can never be
+            // the checked one, so the two never meet.
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.kadoAccent)
+            } else if isLocked {
+                Image(systemName: "lock.fill")
+                    .foregroundStyle(Color.kadoForegroundSecondary)
             }
         }
         .padding(.vertical, 2)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(theme.name))
-        .accessibilityValue(isLocked ? Text("Needs the Supporter pack") : Text(verbatim: ""))
-        .accessibilityHint(isLocked ? Text("Opens the Supporter pack.") : Text(verbatim: ""))
-        .accessibilityIdentifier(AccessibilityID.Settings.habitThemeRow(theme.rawValue))
+        .contentShape(Rectangle())
     }
 }
 
