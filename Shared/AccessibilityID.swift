@@ -249,6 +249,17 @@ enum AccessibilityID {
         /// `NavigationLink` in a `Form` is one element already, so this
         /// lands on a leaf.
         static let archivedRow = "settings.archived"
+        /// The row that pushes the Supporter pack screen.
+        static let supporterPackRow = "settings.supporterPack"
+    }
+
+    /// The Supporter pack screen (`SupporterPackView`).
+    enum SupporterPack {
+        static let buyButton = "supporterPack.buy"
+        static let restoreButton = "supporterPack.restore"
+        /// The thank-you that replaces the buy button once the pack is
+        /// owned — what a test waits for after a purchase or restore.
+        static let ownedBadge = "supporterPack.owned"
     }
 
     /// The Archived habits list (`ArchivedHabitsView`).

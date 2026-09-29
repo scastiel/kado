@@ -1,12 +1,13 @@
 import SwiftUI
 import KadoCore
 
-/// Settings entry point for the Tip Jar. A single row that pushes
-/// ``TipJarView``. Kept in its own "Support Kadō" section — separate from
-/// the Feedback section — so tipping carries its own visual weight.
+/// Settings' "Support Kadō" section: the Supporter pack row, then the
+/// row that pushes ``TipJarView``. Kept apart from the Feedback section
+/// so supporting Kadō carries its own visual weight.
 struct TipJarSection: View {
     var body: some View {
         Section {
+            SupporterPackRow()
             NavigationLink {
                 TipJarView()
             } label: {
@@ -18,6 +19,9 @@ struct TipJarSection: View {
             .listRowBackground(Color.kadoBackgroundSecondary)
         } header: {
             Text("Support Kadō")
+                .foregroundStyle(Color.kadoForegroundSecondary)
+        } footer: {
+            Text("The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free.")
                 .foregroundStyle(Color.kadoForegroundSecondary)
         }
     }

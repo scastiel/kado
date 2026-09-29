@@ -63,6 +63,26 @@
       "productID" : "dev.scastiel.kado.tip.large",
       "referenceName" : "Tip — Lunch",
       "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "7.99",
+      "familyShareable" : true,
+      "internalID" : "6E0B1C3A-9F4D-4B7E-A2C5-3D8F1E6A9B40",
+      "localizations" : [
+        {
+          "description" : "Extra habit colour themes and app icons. A one-time purchase.",
+          "displayName" : "Supporter pack",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Des thèmes de couleurs et des icônes en plus. Un achat unique.",
+          "displayName" : "Pack de soutien",
+          "locale" : "fr_FR"
+        }
+      ],
+      "productID" : "dev.scastiel.kado.supporter",
+      "referenceName" : "Supporter pack",
+      "type" : "NonConsumable"
     }
   ],
   "settings" : {

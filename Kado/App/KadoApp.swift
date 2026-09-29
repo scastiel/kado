@@ -18,6 +18,7 @@ struct KadoApp: App {
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
+    @State private var supporterPack = DefaultSupporterPackStore()
 
     /// Raw wall-clock marker, bumped whenever the logical day may have
     /// changed. `\.today` is *derived* from it rather than stored, so
@@ -96,6 +97,10 @@ struct KadoApp: App {
         return WindowGroup {
             rootView
                 .task { await cloudAccountStatus.refresh() }
+                // A refund granted while the app was closed arrives as a
+                // missing entitlement, not an update — this is where the
+                // app (and, through the mirror, the widget) falls back.
+                .task { await supporterPack.refreshEntitlement() }
                 .task {
                     // Seed the widget's App Group JSON snapshot at
                     // launch so widgets have fresh data even if the
@@ -128,6 +133,7 @@ struct KadoApp: App {
         .environment(\.cloudAccountStatus, cloudAccountStatus)
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
+        .environment(\.supporterPack, supporterPack)
         .environment(\.calendar, weekCalendar)
         // The one calculator that reads `firstWeekday`: a
         // `.daysPerWeek` streak is counted in whole calendar weeks, so

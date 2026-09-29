@@ -99,6 +99,14 @@ extension EnvironmentValues {
     /// main app injects `DefaultTipJarStore(tipNudge:)` at scene build.
     @Entry var tipJarStore: any TipJarStoring = MockTipJarStore()
 
+    /// Whether this device owns the Supporter pack, and its purchase and
+    /// restore. Gate cosmetic extras on its `isSupporter` through
+    /// `SupporterGated.effective(preferred:isSupporter:)`. Default is a
+    /// mock (not a supporter) so previews and unit tests never touch
+    /// StoreKit; the main app injects `DefaultSupporterPackStore()` at
+    /// scene build.
+    @Entry var supporterPack: any SupporterPackStoring = MockSupporterPackStore()
+
     /// Defaults to the process-wide instance rather than a fresh one:
     /// the snapshot funnel and the intents feed `.shared`, and a view
     /// watching any other instance would simply never see a

@@ -189,7 +189,7 @@
       }
     },
     "Try again" : {
-      "comment" : "Button to retry loading the tip products after a failure.",
+      "comment" : "Button to retry loading the tip or Supporter pack products after a failure.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -291,7 +291,7 @@
       }
     },
     "Purchase failed" : {
-      "comment" : "Alert title when a tip purchase fails.",
+      "comment" : "Alert title when a tip or Supporter pack purchase fails.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -308,7 +308,7 @@
       }
     },
     "The purchase didn't go through. No charge was made." : {
-      "comment" : "Alert message when a tip purchase fails.",
+      "comment" : "Alert message when a tip or Supporter pack purchase fails.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4621,6 +4621,397 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L'habitude et tout son historique seront supprimés définitivement. Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "Supporter pack" : {
+      "comment" : "Settings row and Supporter pack screen title.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pack de soutien"
+          }
+        }
+      }
+    },
+    "SUPPORTER PACK" : {
+      "comment" : "Eyebrow above the Supporter pack screen's headline.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SUPPORTER PACK"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PACK DE SOUTIEN"
+          }
+        }
+      }
+    },
+    "A little extra, once" : {
+      "comment" : "Headline of the Supporter pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A little extra, once"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un petit plus, une fois pour toutes"
+          }
+        }
+      }
+    },
+    "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks." : {
+      "comment" : "Intro paragraph of the Supporter pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un achat unique qui soutient Kadō et ajoute quelques extras cosmétiques. Toutes les fonctionnalités restent gratuites : le pack ne change que l'apparence de Kadō."
+          }
+        }
+      }
+    },
+    "More habit colours" : {
+      "comment" : "Supporter pack contents: title of the paid colour themes item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More habit colours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus de couleurs d'habitudes"
+          }
+        }
+      }
+    },
+    "Extra colour themes for your habits, on top of the free Kadō and Classic." : {
+      "comment" : "Supporter pack contents: detail of the paid colour themes item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extra colour themes for your habits, on top of the free Kadō and Classic."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des thèmes de couleurs supplémentaires pour tes habitudes, en plus des thèmes gratuits Kadō et Classique."
+          }
+        }
+      }
+    },
+    "Alternate app icons" : {
+      "comment" : "Supporter pack contents: title of the alternate app icons item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternate app icons"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icônes d'app alternatives"
+          }
+        }
+      }
+    },
+    "Pick the icon Kadō wears on your Home Screen." : {
+      "comment" : "Supporter pack contents: detail of the alternate app icons item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick the icon Kadō wears on your Home Screen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisis l'icône de Kadō sur ton écran d'accueil."
+          }
+        }
+      }
+    },
+    "Get the pack · %@" : {
+      "comment" : "Supporter pack buy button; the argument is the localized price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get the pack · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtenir le pack · %@"
+          }
+        }
+      }
+    },
+    "Get the Supporter pack, %@" : {
+      "comment" : "VoiceOver label of the Supporter pack buy button; the argument is the price.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get the Supporter pack, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtenir le pack de soutien, %@"
+          }
+        }
+      }
+    },
+    "Restore purchases" : {
+      "comment" : "Supporter pack screen button that restores a previous purchase.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore purchases"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer les achats"
+          }
+        }
+      }
+    },
+    "One-time purchase — no subscription. Shared with your Family Sharing group." : {
+      "comment" : "Footnote under the Supporter pack buy button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One-time purchase — no subscription. Shared with your Family Sharing group."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat unique, sans abonnement. Partagé avec ton groupe de partage familial."
+          }
+        }
+      }
+    },
+    "The Supporter pack isn't available right now. Check your connection and try again." : {
+      "comment" : "Shown instead of the buy button when the Supporter pack product fails to load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Supporter pack isn't available right now. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pack de soutien n'est pas disponible pour le moment. Vérifie ta connexion et réessaie."
+          }
+        }
+      }
+    },
+    "You have the Supporter pack" : {
+      "comment" : "Supporter pack screen: replaces the buy button once owned.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have the Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as le pack de soutien"
+          }
+        }
+      }
+    },
+    "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account." : {
+      "comment" : "Supporter pack screen: thank-you under the owned badge.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank you for supporting Kadō. Your extras are unlocked on every device signed in to this Apple Account."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merci de soutenir Kadō. Tes extras sont débloqués sur tous les appareils connectés à ce compte Apple."
+          }
+        }
+      }
+    },
+    "Purchase pending" : {
+      "comment" : "Alert title when a Supporter pack purchase awaits approval (Ask to Buy).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase pending"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Achat en attente"
+          }
+        }
+      }
+    },
+    "Your purchase is waiting for approval. The pack unlocks as soon as it's approved." : {
+      "comment" : "Alert message when a Supporter pack purchase awaits approval (Ask to Buy).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your purchase is waiting for approval. The pack unlocks as soon as it's approved."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton achat attend une approbation. Le pack se débloquera dès qu'il sera approuvé."
+          }
+        }
+      }
+    },
+    "Nothing to restore" : {
+      "comment" : "Alert title when Restore purchases finds no Supporter pack.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to restore"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à restaurer"
+          }
+        }
+      }
+    },
+    "This Apple Account hasn't bought the Supporter pack yet." : {
+      "comment" : "Alert message when Restore purchases finds no Supporter pack.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Apple Account hasn't bought the Supporter pack yet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce compte Apple n'a pas encore acheté le pack de soutien."
+          }
+        }
+      }
+    },
+    "Restore failed" : {
+      "comment" : "Alert title when Restore purchases can't reach the App Store.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la restauration"
+          }
+        }
+      }
+    },
+    "Kadō couldn't reach the App Store. Check your connection and try again." : {
+      "comment" : "Alert message when Restore purchases can't reach the App Store.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō couldn't reach the App Store. Check your connection and try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō n'a pas pu joindre l'App Store. Vérifie ta connexion et réessaie."
+          }
+        }
+      }
+    },
+    "Owned" : {
+      "comment" : "Trailing value on the Settings Supporter pack row once the pack is owned.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owned"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acheté"
+          }
+        }
+      }
+    },
+    "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free." : {
+      "comment" : "Footer under the Settings Support Kadō section (Supporter pack and tip rows).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Supporter pack is a one-time purchase for cosmetic extras. Tips unlock nothing. Everything else in Kadō stays free."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pack de soutien est un achat unique pour des extras cosmétiques. Les pourboires ne débloquent rien. Tout le reste de Kadō reste gratuit."
           }
         }
       }
