@@ -18,7 +18,6 @@ struct AppearanceView: View {
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle("Appearance")
-        .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showsSupporterPack) {
             SupporterPackView()
         }
