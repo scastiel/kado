@@ -15,6 +15,7 @@ struct SettingsView: View {
                 SyncStatusSection()
                 DayStartSection()
                 WeekStartSection()
+                HabitThemeSection()
                 NotificationsSection()
                 ArchivedSection()
                 BackupSection()

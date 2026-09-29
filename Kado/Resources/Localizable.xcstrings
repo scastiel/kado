@@ -1,6 +1,40 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Classic" : {
+      "comment" : "Habit colour theme name: Apple's system colours, as habits looked before.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classique"
+          }
+        }
+      }
+    },
+    "Habit colours" : {
+      "comment" : "Settings section header and picker label: the colour theme habits are painted in.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habit colours"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleurs des habitudes"
+          }
+        }
+      }
+    },
     "Habit unavailable" : {
       "comment" : "Title of the placeholder shown when a screen's habit no longer exists.",
       "localizations" : {
@@ -14,6 +48,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Habitude indisponible"
+          }
+        }
+      }
+    },
+    "Kadō" : {
+      "comment" : "Habit colour theme name: the default Kadō palette. Brand name, keep as is.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō"
+          }
+        }
+      }
+    },
+    "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks." : {
+      "comment" : "Settings footer under the habit colour theme picker.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recolours every habit, here and in widgets. Each habit keeps its colour; the theme decides how it looks."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recolore toutes les habitudes, ici et dans les widgets. Chaque habitude garde sa couleur ; le thème décide de son rendu."
           }
         }
       }

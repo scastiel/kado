@@ -135,6 +135,10 @@ nonisolated enum UITestSupport {
         // are. A 4 AM day start left on the simulator would shift the
         // seed by one at 1:30 in the morning.
         DayStartDefaults.sharedDefaults.removeObject(forKey: DayStartDefaults.key)
+        // And the habit colour theme: a run that picks Classic would
+        // otherwise paint every later run — the App Store captures
+        // included — in the wrong palette.
+        HabitThemeDefaults.sharedDefaults.removeObject(forKey: HabitThemeDefaults.key)
         applyTipNudgeState(arguments)
     }
 

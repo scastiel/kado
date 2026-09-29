@@ -239,6 +239,12 @@ enum AccessibilityID {
         /// Same reason: "Day starts at" on one simulator, "La journée
         /// commence à" on the other.
         static let dayStartPicker = "settings.dayStart.picker"
+        /// One row of the Habit colours picker, per theme: "Classic"
+        /// on one simulator, "Classique" on the other. Takes the
+        /// theme's raw value: the UI suite doesn't link `KadoCore`.
+        static func habitThemeRow(_ themeRawValue: String) -> String {
+            "settings.habitTheme.\(themeRawValue)"
+        }
         /// The row that pushes the Archived habits list. A
         /// `NavigationLink` in a `Form` is one element already, so this
         /// lands on a leaf.
