@@ -17,7 +17,7 @@ struct TodayProgressMediumWidget: Widget {
             provider: SelectedSnapshotProvider()
         ) { entry in
             TodayProgressMediumView(entry: entry)
-                .environment(\.habitTheme, HabitThemeDefaults.theme())
+                .environment(\.habitTheme, HabitThemeDefaults.renderedTheme())
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://today"))
         }

@@ -86,6 +86,23 @@ nonisolated enum UITestSupport {
         /// `ArchivedHabitsTests` drives that path once, end to end,
         /// and starts here for the rest.
         static let archiveFirstHabit = "-uiTestArchiveFirstHabit"
+        /// Own the Supporter pack for the run: `KadoApp` injects an
+        /// owning `MockSupporterPackStore` in place of StoreKit, which
+        /// a test run can't buy from. Without it every paid habit
+        /// theme renders as Kadō, which is right for a user and useless
+        /// for photographing one.
+        static let supporter = "-uiTestSupporter"
+        /// Start in a habit colour theme. Followed by its raw value.
+        /// Written into the suite from inside the app, like everything
+        /// here a user can change later — see the note at the top of
+        /// this file.
+        static let habitTheme = "-uiTestHabitTheme"
+    }
+
+    /// Whether `KadoApp` should stand in an owning mock for StoreKit.
+    static var forcesSupporter: Bool {
+        isRunningUITests
+            && ProcessInfo.processInfo.arguments.contains(Argument.supporter)
     }
 
     /// Whether the root view should be the widget gallery.
@@ -139,6 +156,15 @@ nonisolated enum UITestSupport {
         // otherwise paint every later run — the App Store captures
         // included — in the wrong palette.
         HabitThemeDefaults.sharedDefaults.removeObject(forKey: HabitThemeDefaults.key)
+        if let index = arguments.firstIndex(of: Argument.habitTheme),
+           arguments.indices.contains(index + 1),
+           let theme = HabitTheme(rawValue: arguments[index + 1]) {
+            HabitThemeDefaults.setTheme(theme)
+        }
+        // And the pack's App Group mirror, which the store seeds from
+        // and the widget reads: a run under `-uiTestSupporter` must not
+        // leave the next one owning it.
+        SupporterDefaults.sharedDefaults.removeObject(forKey: SupporterDefaults.key)
         applyTipNudgeState(arguments)
     }
 

@@ -27,6 +27,18 @@ nonisolated public enum HabitThemeDefaults {
         defaults.string(forKey: key).flatMap(HabitTheme.init(rawValue:)) ?? defaultValue
     }
 
+    /// The theme to paint in outside the app: the stored pick, gated on
+    /// the App Group's Supporter pack mirror, so a widget falls back to
+    /// Kadō when the pack is refunded. What the widgets read — never
+    /// ``theme(in:)`` on its own, which would keep painting a lapsed
+    /// paid theme.
+    public static func renderedTheme(
+        in defaults: UserDefaults = sharedDefaults,
+        supporterDefaults: UserDefaults = SupporterDefaults.sharedDefaults
+    ) -> HabitTheme {
+        HabitTheme.effective(preferred: theme(in: defaults), in: supporterDefaults)
+    }
+
     public static func setTheme(_ theme: HabitTheme, in defaults: UserDefaults = sharedDefaults) {
         defaults.set(theme.rawValue, forKey: key)
     }

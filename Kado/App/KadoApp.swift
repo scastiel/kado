@@ -18,7 +18,7 @@ struct KadoApp: App {
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
-    @State private var supporterPack = DefaultSupporterPackStore()
+    @State private var supporterPack: any SupporterPackStoring = Self.makeSupporterPack()
 
     /// Raw wall-clock marker, bumped whenever the logical day may have
     /// changed. `\.today` is *derived* from it rather than stored, so
@@ -61,6 +61,24 @@ struct KadoApp: App {
         #else
         ContentView()
         #endif
+    }
+
+    /// The theme habits actually paint in: the stored pick, unless it
+    /// needs a Supporter pack this device doesn't own. Read from the
+    /// live store, so a purchase, restore or refund repaints at once.
+    private var renderedHabitTheme: HabitTheme {
+        HabitTheme.effective(preferred: habitTheme, isSupporter: supporterPack.isSupporter)
+    }
+
+    /// StoreKit's store — or, on a UI test run that asked to own the
+    /// pack, a mock that does, since a test run can't buy it.
+    private static func makeSupporterPack() -> any SupporterPackStoring {
+        #if DEBUG
+        if UITestSupport.forcesSupporter {
+            return MockSupporterPackStore(isSupporter: true)
+        }
+        #endif
+        return DefaultSupporterPackStore()
     }
 
     init() {
@@ -143,7 +161,7 @@ struct KadoApp: App {
         .environment(\.streakCalculator, DefaultStreakCalculator(calendar: weekCalendar))
         .environment(\.today, boundary.startOfDay(for: clockMark))
         .environment(\.dayBoundary, boundary)
-        .environment(\.habitTheme, habitTheme)
+        .environment(\.habitTheme, renderedHabitTheme)
         .onChange(of: scenePhase) { _, newPhase in
             // Reconciles the pending set every time the app comes
             // to the foreground — handles clock-drift, day-rollover,

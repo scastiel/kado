@@ -43,6 +43,10 @@ class KadoUITestCase: XCTestCase {
     ///     one. Only the screenshot run wants this.
     ///   - suppressNameAutoFocus: leave the New Habit sheet's name
     ///     field unfocused, so the keyboard stays out of a screenshot.
+    ///   - supporter: own the Supporter pack for the run — a mock
+    ///     stands in for StoreKit, which a test can't buy from.
+    ///   - habitTheme: start in this habit colour theme (its raw value).
+    ///     A paid one only renders with `supporter` too.
     ///   - archiveFirstHabit: start with the first seeded habit already
     ///     archived, for tests of the Archived list that don't need to
     ///     drive Today's long-press menu to get one there — see
@@ -59,7 +63,9 @@ class KadoUITestCase: XCTestCase {
         seedForScreenshots: Bool = false,
         suppressNameAutoFocus: Bool = false,
         widgetGallery: Bool = false,
-        archiveFirstHabit: Bool = false
+        archiveFirstHabit: Bool = false,
+        supporter: Bool = false,
+        habitTheme: String? = nil
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -81,6 +87,12 @@ class KadoUITestCase: XCTestCase {
         }
         if archiveFirstHabit {
             app.launchArguments.append("-uiTestArchiveFirstHabit")
+        }
+        if supporter {
+            app.launchArguments.append("-uiTestSupporter")
+        }
+        if let habitTheme {
+            app.launchArguments += ["-uiTestHabitTheme", habitTheme]
         }
         app.launchArguments += [
             "-uiTestDevMode", devMode ? "1" : "0",

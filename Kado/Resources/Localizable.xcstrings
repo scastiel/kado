@@ -18,6 +18,125 @@
         }
       }
     },
+    "Muted" : {
+      "comment" : "Habit colour theme name (Supporter pack): soft, low-saturation ink-wash colours.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muted"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feutré"
+          }
+        }
+      }
+    },
+    "Vivid" : {
+      "comment" : "Habit colour theme name (Supporter pack): the most saturated colours the screen shows.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vivid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vif"
+          }
+        }
+      }
+    },
+    "Autumn" : {
+      "comment" : "Habit colour theme name (Supporter pack): autumn colours, brick red to plum.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autumn"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automne"
+          }
+        }
+      }
+    },
+    "Monochrome sage" : {
+      "comment" : "Habit colour theme name (Supporter pack): shades of the brand's sage green.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monochrome sage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauge monochrome"
+          }
+        }
+      }
+    },
+    "Themes with a lock come with the Supporter pack." : {
+      "comment" : "Habit colours footer, shown until the pack is owned: explains the lock on paid themes.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Themes with a lock come with the Supporter pack."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les thèmes avec un cadenas font partie du pack de soutien."
+          }
+        }
+      }
+    },
+    "Needs the Supporter pack" : {
+      "comment" : "VoiceOver value on a locked habit colour theme in Settings.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs the Supporter pack"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite le pack de soutien"
+          }
+        }
+      }
+    },
+    "Opens the Supporter pack." : {
+      "comment" : "VoiceOver hint on a locked habit colour theme: tapping it opens the pack screen.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the Supporter pack."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre le pack de soutien."
+          }
+        }
+      }
+    },
     "Habit colours" : {
       "comment" : "Settings section header and picker label: the colour theme habits are painted in.",
       "localizations" : {

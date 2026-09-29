@@ -80,6 +80,10 @@ SKIP_SCREENSHOTS := -skip-testing:KadoUITests/ScreenshotTests
 # `make e2e` leaves it alone.
 SKIP_WIDGETS := -skip-testing:KadoUITests/HomeScreenWidgetTests
 
+# `HabitPaletteCaptureTests` photographs each paid habit palette for a PR's
+# record and asserts nothing more than that the screens were reached.
+SKIP_PALETTES := -skip-testing:KadoUITests/HabitPaletteCaptureTests
+
 # The App Store Connect API key. `Scripts/appstore.py` finds the .p8 itself, by
 # key ID, in ~/.appstoreconnect/private_keys — the issuer is the half that can't
 # be derived from it, so it comes from the environment: export ASC_ISSUER_ID, or
@@ -141,6 +145,7 @@ e2e: sim ## Run the UI suite (KadoUITests) against the simulator
 		-only-testing:KadoUITests \
 		$(SKIP_SCREENSHOTS) \
 		$(SKIP_WIDGETS) \
+		$(SKIP_PALETTES) \
 		-test-timeouts-enabled YES \
 		-maximum-test-execution-time-allowance 180 \
 		-quiet

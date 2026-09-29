@@ -16,7 +16,7 @@ struct WeeklyGridLargeWidget: Widget {
             provider: SelectedSnapshotProvider()
         ) { entry in
             WeeklyGridLargeView(entry: entry)
-                .environment(\.habitTheme, HabitThemeDefaults.theme())
+                .environment(\.habitTheme, HabitThemeDefaults.renderedTheme())
                 .containerBackground(for: .widget) { Color.kadoBackgroundSecondary }
                 .widgetURL(URL(string: "kado://overview"))
         }

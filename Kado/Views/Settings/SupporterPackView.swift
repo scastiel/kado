@@ -1,8 +1,8 @@
 import SwiftUI
 import KadoCore
 
-/// The Supporter pack screen, pushed from Settings and — once the
-/// pickers gain paid options — opened by tapping a locked one.
+/// The Supporter pack screen, pushed from Settings — by its own row,
+/// or by tapping a locked habit colour theme.
 ///
 /// What the pack contains, one buy button, and Restore purchases. The
 /// copy is careful to say what the pack is *not*: every feature stays
