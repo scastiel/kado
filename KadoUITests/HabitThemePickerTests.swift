@@ -30,7 +30,11 @@ final class HabitThemePickerTests: KadoUITestCase {
         XCTAssertTrue(kado.exists, "Settings should offer the Kadō theme.")
         capture(app, "habit-theme-picker-kado")
 
+        XCTAssertTrue(kado.isSelected, "Kadō should be the theme a fresh install starts on.")
         classic.tap()
+        let classicSelected = expectation(for: NSPredicate(format: "isSelected == true"), evaluatedWith: classic)
+        wait(for: [classicSelected], timeout: 5)
+        XCTAssertFalse(kado.isSelected, "Choosing Classic should deselect Kadō.")
         capture(app, "habit-theme-picker-classic")
 
         tapTab(.overview, in: app)
