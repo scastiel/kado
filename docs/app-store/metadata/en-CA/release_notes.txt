@@ -1,9 +1,6 @@
-Version 1.10 — Choose what each widget shows, bring archived habits back, and type a value instead of tapping your way to it.
+Version 1.11 — Make Kadō yours: new habit colours, alternate app icons, and a Supporter pack to help keep it going.
 
-• Widgets on iOS 18 and on iOS 26 up to 26.3 are here at last. Kadō's widgets never showed up in the widget gallery on those versions, so if you went looking for them and found nothing, have another look.
-• Each Home Screen widget can now show the habits you choose: long-press it, tap Edit Widget, and pick up to 5 (small and large) or 8 (medium), in the order you want them. A widget you've never edited keeps showing every habit due today, the way it always has.
-• Archived habits have a home: Settings › Archived habits lists them all, and from there you can unarchive a habit — history intact — or delete it for good. An archived habit's own screen offers the same two actions.
-• "Log specific value…" now opens a number pad with today's value already selected, so logging 25 push-ups is two keystrokes, not twenty-five taps. Save stays greyed out until the field holds a number in range.
-• "Day starts at" can now be any hour, not just midnight to 6 AM, so if you work nights and sleep through the morning, your day can turn over mid-afternoon.
-• On the Overview, tap a day to mark a habit completed right there in the popover, without opening the habit first.
-• On the Overview, a day before a habit started is no longer a trap. Logging it used to quietly move the habit's start date back and turn every day in between into a miss. Back-dating still works from the habit's own calendar, which now tells you that logging that day makes it the new start date.
+• Settings › Appearance is a new home for how Kadō looks. Pick the colours your habits wear there: Kadō, as before, or Classic, the brighter system colours from earlier versions. Both are free, the change is instant, and the widgets follow along.
+• The Supporter pack is a one-time purchase that unlocks four more palettes — Muted, Vivid, Autumn and Monochrome sage — and seven alternate app icons: Ura, Sakura and Momiji, plus the gradients Yūyake, Umi, Hotaru and Fuji. Every icon has a light, dark and tinted version. Find it under Settings › Support Kadō.
+• No subscription, no account, and everything Kadō already did stays free. The pack is shared with your Family Sharing group, and Restore purchases brings it back on a new device.
+• Siri now finds Kadō when you say "Kado", without the macron.

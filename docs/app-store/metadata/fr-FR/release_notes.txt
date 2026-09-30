@@ -1,9 +1,6 @@
-Version 1.10 — Choisis ce que montre chaque widget, retrouve tes habitudes archivées, et saisis une valeur au lieu de l'atteindre à coups de taps.
+Version 1.11 — Fais de Kadō le tien : de nouvelles couleurs d'habitudes, d'autres icônes d'app, et un Pack de soutien pour aider Kadō à durer.
 
-• Les widgets arrivent enfin sur iOS 18 et sur iOS 26 jusqu'à 26.3. Sur ces versions, les widgets de Kadō n'apparaissaient jamais dans la galerie : si tu les as cherchés sans les trouver, jette un nouveau coup d'œil.
-• Chaque widget de l'écran d'accueil peut maintenant afficher les habitudes de ton choix : maintiens-le, touche Modifier le widget, puis choisis-en jusqu'à 5 (petit et grand) ou 8 (moyen), dans l'ordre que tu veux. Un widget que tu n'as jamais modifié continue d'afficher toutes les habitudes prévues aujourd'hui, comme avant.
-• Les habitudes archivées ont trouvé leur place : Réglages › Habitudes archivées les liste toutes, et de là tu peux désarchiver une habitude — avec tout son historique — ou la supprimer pour de bon. L'écran d'une habitude archivée propose les deux mêmes actions.
-• « Saisir une valeur… » ouvre maintenant un pavé numérique avec la valeur du jour déjà sélectionnée : noter 25 pompes, c'est deux touches, pas vingt-cinq taps. Enregistrer reste grisé tant que le champ ne contient pas un nombre valide.
-• « La journée commence à » accepte maintenant n'importe quelle heure, et plus seulement de minuit à 6 h : si tu travailles de nuit et dors le matin, ta journée peut changer en plein après-midi.
-• Dans la Vue d'ensemble, touche un jour pour marquer une habitude comme faite directement dans la fenêtre, sans ouvrir l'habitude.
-• Dans la Vue d'ensemble, un jour antérieur au début d'une habitude n'est plus un piège. Le noter déplaçait discrètement sa date de début et transformait chaque jour intermédiaire en jour manqué. L'antidatage reste possible depuis le calendrier de l'habitude, qui te prévient désormais que noter ce jour en fait la nouvelle date de début.
+• Réglages › Apparence réunit désormais tout ce qui touche à l'allure de Kadō. Choisis-y les couleurs de tes habitudes : Kadō, comme avant, ou Classique, les couleurs système plus vives des premières versions. Les deux sont gratuites, le changement est immédiat, et les widgets suivent.
+• Le Pack de soutien est un achat unique qui débloque quatre palettes de plus — Feutré, Vif, Automne et Sauge monochrome — et sept autres icônes d'app : Ura, Sakura et Momiji, plus les dégradés Yūyake, Umi, Hotaru et Fuji. Chaque icône existe en version claire, sombre et teintée. Tu le trouveras dans Réglages › Soutenir Kadō.
+• Pas d'abonnement, pas de compte, et tout ce que Kadō faisait déjà reste gratuit. Le pack est partagé avec ton groupe Partage familial, et Restaurer les achats le récupère sur un nouvel appareil.
+• Siri trouve maintenant Kadō quand tu dis « Kado », sans le macron.
