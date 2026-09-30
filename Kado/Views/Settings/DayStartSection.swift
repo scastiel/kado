@@ -100,7 +100,6 @@ private struct DayStartHourList: View {
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle("Day starts at")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

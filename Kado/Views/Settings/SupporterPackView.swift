@@ -70,7 +70,6 @@ struct SupporterPackView: View {
         }
         .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle(Text("Supporter pack"))
-        .navigationBarTitleDisplayMode(.inline)
         .task {
             if case .loaded = store.offerState { return }
             await store.loadOffer()

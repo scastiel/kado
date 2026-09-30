@@ -39,7 +39,6 @@ struct ArchivedHabitsView: View {
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
             .navigationTitle(Text("Archived habits"))
-            .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(
                 deleteDialogTitle,
                 isPresented: deleteDialogBinding,

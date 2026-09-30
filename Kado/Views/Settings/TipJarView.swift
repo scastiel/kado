@@ -59,7 +59,6 @@ struct TipJarView: View {
         }
         .background(Color.kadoBackground.ignoresSafeArea())
         .navigationTitle(Text("Support Kadō"))
-        .navigationBarTitleDisplayMode(.inline)
         .task {
             // The store is app-lifetime, so skip the reload (and its
             // .loading skeleton flash) when products are already cached.
