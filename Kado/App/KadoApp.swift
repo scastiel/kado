@@ -1,3 +1,4 @@
+import OSLog
 import SwiftData
 import SwiftUI
 import KadoCore
@@ -11,6 +12,7 @@ struct KadoApp: App {
     private var weekStart: WeekStart = WeekStartDefaults.defaultValue
     @AppStorage(HabitThemeDefaults.key, store: HabitThemeDefaults.sharedDefaults)
     private var habitTheme: HabitTheme = HabitThemeDefaults.defaultValue
+    @AppStorage(AppIconDefaults.key) private var appIcon: AppIcon = AppIconDefaults.defaultValue
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
@@ -19,6 +21,7 @@ struct KadoApp: App {
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
     @State private var supporterPack: any SupporterPackStoring = Self.makeSupporterPack()
+    private let appIconSwitcher = LiveAppIconSwitcher()
 
     /// Raw wall-clock marker, bumped whenever the logical day may have
     /// changed. `\.today` is *derived* from it rather than stored, so
@@ -68,6 +71,25 @@ struct KadoApp: App {
     /// live store, so a purchase, restore or refund repaints at once.
     private var renderedHabitTheme: HabitTheme {
         HabitTheme.effective(preferred: habitTheme, isSupporter: supporterPack.isSupporter)
+    }
+
+    /// Puts the Home Screen icon back in line with the pick and the
+    /// pack: the default when a refund lapsed it, the pick again after a
+    /// restore. A no-op — and no system alert — when they already agree.
+    /// A failure is logged, not shown: the user didn't ask for this
+    /// switch, and the next foreground tries again.
+    private func reconcileAppIcon() {
+        let applier = AppIconApplier(switcher: appIconSwitcher)
+        let preferred = appIcon
+        let isSupporter = supporterPack.isSupporter
+        Task { @MainActor in
+            do {
+                try await applier.apply(preferred: preferred, isSupporter: isSupporter)
+            } catch {
+                Logger(subsystem: "dev.scastiel.kado", category: "app-icon")
+                    .error("Couldn't reconcile the app icon: \(error.localizedDescription, privacy: .public)")
+            }
+        }
     }
 
     /// StoreKit's store — or, on a UI test run that asked to own the
@@ -152,6 +174,7 @@ struct KadoApp: App {
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
         .environment(\.supporterPack, supporterPack)
+        .environment(\.appIconSwitcher, appIconSwitcher)
         .environment(\.calendar, weekCalendar)
         // The one calculator that reads `firstWeekday`: a
         // `.daysPerWeek` streak is counted in whole calendar weeks, so
@@ -168,6 +191,7 @@ struct KadoApp: App {
             // and cases where a background reminder fired while
             // the app was suspended.
             guard newPhase == .active else { return }
+            reconcileAppIcon()
             guard !boundary.isDate(clockMark, inSameDayAs: .now) else {
                 RemindersSync.rescheduleAll(using: container.mainContext)
                 return
@@ -202,6 +226,10 @@ struct KadoApp: App {
             // when their timeline reloads — without this the home
             // screen keeps the old hues until the next habit mutation.
             WidgetReloader.reloadAll(using: container.mainContext)
+        }
+        .onChange(of: supporterPack.isSupporter) { _, _ in
+            // A purchase, restore or refund while the app is open.
+            reconcileAppIcon()
         }
         .onChange(of: isDevMode) { oldValue, newValue in
             if newValue && !oldValue {

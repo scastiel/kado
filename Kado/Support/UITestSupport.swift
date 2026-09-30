@@ -161,6 +161,10 @@ nonisolated enum UITestSupport {
            let theme = HabitTheme(rawValue: arguments[index + 1]) {
             HabitThemeDefaults.setTheme(theme)
         }
+        // The app icon pick, likewise. A run that left one behind would
+        // have the next run's launch reconcile the Home Screen icon —
+        // and raise the system's alert over whatever that run tests.
+        UserDefaults.standard.removeObject(forKey: AppIconDefaults.key)
         // And the pack's App Group mirror, which the store seeds from
         // and the widget reads: a run under `-uiTestSupporter` must not
         // leave the next one owning it.

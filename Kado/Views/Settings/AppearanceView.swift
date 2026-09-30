@@ -2,10 +2,9 @@ import SwiftUI
 import KadoCore
 
 /// Settings → Appearance: how Kadō looks, as opposed to how it
-/// behaves. Holds the habit colour theme today; the alternate app
-/// icon picker joins it later.
+/// behaves: the habit colour theme and the Home Screen icon.
 struct AppearanceView: View {
-    /// Set by a tap on a locked habit theme. The destination is attached
+    /// Set by a tap on a locked habit theme or app icon. The destination is attached
     /// to the `Form` rather than inside the section, because a
     /// `navigationDestination` inside a lazy container like `Form` is
     /// ignored.
@@ -14,6 +13,7 @@ struct AppearanceView: View {
     var body: some View {
         Form {
             HabitThemeSection(showsSupporterPack: $showsSupporterPack)
+            AppIconSection(showsSupporterPack: $showsSupporterPack)
         }
         .scrollContentBackground(.hidden)
         .background(Color.kadoBackground.ignoresSafeArea())

@@ -245,7 +245,13 @@ enum AccessibilityID {
         static func habitThemeRow(_ themeRawValue: String) -> String {
             "settings.habitTheme.\(themeRawValue)"
         }
-        /// The row that pushes the Appearance screen (habit colours).
+        /// One row of the App icon picker, per icon. Takes the icon's
+        /// raw value, for the same reason as `habitThemeRow`.
+        static func appIconRow(_ iconRawValue: String) -> String {
+            "settings.appIcon.\(iconRawValue)"
+        }
+        /// The row that pushes the Appearance screen (habit colours,
+        /// app icon).
         static let appearanceRow = "settings.appearance"
         /// The row that pushes the Archived habits list. A
         /// `NavigationLink` in a `Form` is one element already, so this

@@ -795,6 +795,24 @@
         }
       }
     },
+    "App icon" : {
+      "comment" : "Settings → Appearance section header: the Home Screen icon picker.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App icon"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône de l'app"
+          }
+        }
+      }
+    },
     "Appearance" : {
       "comment" : "New-habit form section grouping color + icon pickers; Settings row and screen title for themes.",
       "localizations" : {
@@ -948,6 +966,24 @@
         }
       }
     },
+    "Autumn maple" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Momiji means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autumn maple"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Érable d'automne"
+          }
+        }
+      }
+    },
     "Avoid" : {
       "comment" : "Habit type label for negative habits (things the user is trying NOT to do). Used in the new-habit picker and as the type subtitle on habit detail.",
       "localizations" : {
@@ -1024,6 +1060,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vérification iCloud…"
+          }
+        }
+      }
+    },
+    "Cherry blossom" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Sakura means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cherry blossom"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fleur de cerisier"
           }
         }
       }
@@ -1186,6 +1240,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Complétions"
+          }
+        }
+      }
+    },
+    "Couldn't change the icon" : {
+      "comment" : "Alert title when iOS refuses to switch the app icon; the system reason follows.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't change the icon"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de changer l'icône"
           }
         }
       }
@@ -1756,6 +1828,24 @@
         }
       }
     },
+    "Firefly" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Hotaru means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Firefly"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luciole"
+          }
+        }
+      }
+    },
     "Fires on %@" : {
       "comment" : "Footer under the reminder time picker. Argument: human-readable frequency description (e.g. 'every day', 'Mon · Wed · Fri').",
       "localizations" : {
@@ -2076,6 +2166,24 @@
         }
       }
     },
+    "Icons with a lock come with the Supporter pack." : {
+      "comment" : "App icon footer, shown until the pack is owned: explains the lock on paid icons.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icons with a lock come with the Supporter pack."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les icônes avec un cadenas font partie du pack de soutien."
+          }
+        }
+      }
+    },
     "If Kadō earns a place in your day" : {
       "comment" : "Small caps tagline under the tip jar screen's title.",
       "localizations" : {
@@ -2334,6 +2442,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kadō est gratuite, sans publicité ni abonnement. Si elle a trouvé sa place dans ta journée, tu peux laisser un pourboire."
+          }
+        }
+      }
+    },
+    "Kadō, inverted" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Ura: the default icon's colours swapped means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō, inverted"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kadō, inversé"
           }
         }
       }
@@ -2784,7 +2910,7 @@
       }
     },
     "Needs the Supporter pack" : {
-      "comment" : "VoiceOver value on a locked habit colour theme in Settings.",
+      "comment" : "VoiceOver value on a locked habit colour theme or app icon in Settings.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3344,7 +3470,7 @@
       }
     },
     "Opens the Supporter pack." : {
-      "comment" : "VoiceOver hint on a locked habit colour theme: tapping it opens the pack screen.",
+      "comment" : "VoiceOver hint on a locked habit colour theme or app icon in Settings.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3806,6 +3932,24 @@
         }
       }
     },
+    "Sea" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Umi means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sea"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mer"
+          }
+        }
+      }
+    },
     "Seed habit not found" : {
       "comment" : "Developer-only fallback shown in SwiftUI previews when the seeded habit is missing. Not user-facing in production; safe to leave untranslated if that simplifies review.",
       "localizations" : {
@@ -4071,6 +4215,24 @@
         }
       }
     },
+    "Sunset" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Yūyake means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunset"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coucher de soleil"
+          }
+        }
+      }
+    },
     "Support Kadō" : {
       "comment" : "Tip Jar navigation title and the Settings section header for tipping.",
       "localizations" : {
@@ -4330,6 +4492,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ce fichier n'a pas pu être lu. Essaie un autre fichier."
+          }
+        }
+      }
+    },
+    "The icon on your Home Screen. Each one follows Light, Dark and Tinted." : {
+      "comment" : "App icon section footer. Light/Dark/Tinted are the Home Screen icon styles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The icon on your Home Screen. Each one follows Light, Dark and Tinted."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'icône de ton écran d'accueil. Chacune suit les modes Clair, Sombre et Teinté."
+          }
+        }
+      }
+    },
+    "The original" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Kadō, the default icon means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The original"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'original"
           }
         }
       }
@@ -4916,6 +5114,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La semaine commence le"
+          }
+        }
+      }
+    },
+    "Wisteria" : {
+      "comment" : "App icon picker, under the icon's Japanese name: what Fuji means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wisteria"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glycine"
           }
         }
       }
