@@ -2077,7 +2077,7 @@
       }
     },
     "If Kadō earns a place in your day" : {
-      "comment" : "Tip Jar screen title (large serif). Warm, no-pressure tone.",
+      "comment" : "Small caps tagline under the tip jar screen's title.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4067,23 +4067,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Série %1$lld, score %2$lld pour cent"
-          }
-        }
-      }
-    },
-    "SUPPORT" : {
-      "comment" : "Eyebrow label above the Tip Jar screen title. Displayed uppercased.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SUPPORT"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SOUTIEN"
           }
         }
       }

@@ -81,9 +81,10 @@ struct TipJarView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: KadoSpace.s3) {
-            Text("SUPPORT").kadoEyebrow()
+            // The large navigation title names the screen, so the header
+            // opens on the tagline rather than repeating the name.
             Text("If Kadō earns a place in your day")
-                .kadoDisplay(size: 30)
+                .kadoEyebrow()
                 .fixedSize(horizontal: false, vertical: true)
             Text("Kadō is free and open source, with no ads, no subscription, and no tracking. If you'd like to help keep it that way, you can leave a tip.")
                 .font(.subheadline)
