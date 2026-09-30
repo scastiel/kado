@@ -152,6 +152,38 @@ struct AppIconTests {
         #expect(switcher.requests == ["AppIconSakura"])
     }
 
+    /// A pick's alert makes the scene inactive; dismissing it makes it
+    /// active again, and that foreground reconciles while the pick's own
+    /// switch may still be in flight. The second caller has to wait and
+    /// see the icon already changed — not ask again and raise a second
+    /// alert.
+    @Test("A reconcile that overlaps a pick doesn't switch twice")
+    func overlappingCallsSwitchOnce() async throws {
+        let switcher = MockAppIconSwitcher()
+        let applier = AppIconApplier(switcher: switcher)
+
+        async let pick = applier.apply(preferred: .umi, isSupporter: true)
+        async let reconcile = applier.apply(preferred: .umi, isSupporter: true)
+        let results = try await [pick, reconcile]
+
+        #expect(switcher.requests == ["AppIconUmi"])
+        #expect(results.filter { $0 }.count == 1)
+    }
+
+    @Test("Overlapping calls for different icons both land, in order")
+    func overlappingDifferentCallsSerialise() async throws {
+        let switcher = MockAppIconSwitcher()
+        let applier = AppIconApplier(switcher: switcher)
+
+        async let first = applier.apply(preferred: .umi, isSupporter: true)
+        async let second = applier.apply(preferred: .fuji, isSupporter: true)
+        _ = try await [first, second]
+
+        #expect(switcher.requests.count == 2)
+        #expect(Set(switcher.requests) == ["AppIconUmi", "AppIconFuji"])
+        #expect(switcher.alternateIconName == switcher.requests.last!)
+    }
+
     @Test("A device that can't change icons is never asked")
     func unsupportedIsNeverAsked() async throws {
         let switcher = MockAppIconSwitcher(supportsAlternateIcons: false)

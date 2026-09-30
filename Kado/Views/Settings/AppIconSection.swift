@@ -15,7 +15,7 @@ import KadoCore
 struct AppIconSection: View {
     @AppStorage(AppIconDefaults.key) private var icon: AppIcon = AppIconDefaults.defaultValue
     @Environment(\.supporterPack) private var store
-    @Environment(\.appIconSwitcher) private var switcher
+    @Environment(\.appIconApplier) private var applier
 
     /// Set when a locked icon is tapped; `AppearanceView` pushes the
     /// Supporter pack from it.
@@ -25,7 +25,7 @@ struct AppIconSection: View {
     @State private var failureMessage: String?
 
     var body: some View {
-        if switcher.supportsAlternateIcons {
+        if applier.switcher.supportsAlternateIcons {
             AppIconPicker(
                 selection: AppIcon.effective(preferred: icon, isSupporter: store.isSupporter),
                 isSupporter: store.isSupporter,
@@ -58,7 +58,7 @@ struct AppIconSection: View {
         let previous = icon
         icon = picked
         isApplying = true
-        let applier = AppIconApplier(switcher: switcher)
+        let applier = self.applier
         let isSupporter = store.isSupporter
         Task {
             defer { isApplying = false }

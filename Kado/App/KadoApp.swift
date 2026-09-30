@@ -21,7 +21,7 @@ struct KadoApp: App {
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
     @State private var supporterPack: any SupporterPackStoring = Self.makeSupporterPack()
-    private let appIconSwitcher = LiveAppIconSwitcher()
+    @State private var appIconApplier = AppIconApplier(switcher: LiveAppIconSwitcher())
 
     /// Raw wall-clock marker, bumped whenever the logical day may have
     /// changed. `\.today` is *derived* from it rather than stored, so
@@ -79,7 +79,7 @@ struct KadoApp: App {
     /// A failure is logged, not shown: the user didn't ask for this
     /// switch, and the next foreground tries again.
     private func reconcileAppIcon() {
-        let applier = AppIconApplier(switcher: appIconSwitcher)
+        let applier = appIconApplier
         let preferred = appIcon
         let isSupporter = supporterPack.isSupporter
         Task { @MainActor in
@@ -174,7 +174,7 @@ struct KadoApp: App {
         .environment(\.notificationScheduler, notificationScheduler)
         .environment(\.tipJarStore, tipJarStore)
         .environment(\.supporterPack, supporterPack)
-        .environment(\.appIconSwitcher, appIconSwitcher)
+        .environment(\.appIconApplier, appIconApplier)
         .environment(\.calendar, weekCalendar)
         // The one calculator that reads `firstWeekday`: a
         // `.daysPerWeek` streak is counted in whole calendar weeks, so

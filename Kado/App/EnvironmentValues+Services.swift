@@ -107,10 +107,10 @@ extension EnvironmentValues {
     /// scene build.
     @Entry var supporterPack: any SupporterPackStoring = MockSupporterPackStore()
 
-    /// Changes the Home Screen icon. Default is a mock so previews
-    /// never raise the system's icon-changed alert; the main app
-    /// injects `LiveAppIconSwitcher()` at scene build.
-    @Entry var appIconSwitcher: any AppIconSwitching = MockAppIconSwitcher()
+    /// Changes the Home Screen icon, one switch at a time. Default wraps
+    /// a mock so previews never raise the system's icon-changed alert;
+    /// the main app injects its one live applier at scene build.
+    @Entry var appIconApplier: AppIconApplier = .preview
 
     /// Defaults to the process-wide instance rather than a fresh one:
     /// the snapshot funnel and the intents feed `.shared`, and a view
