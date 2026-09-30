@@ -89,10 +89,9 @@ struct SupporterPackView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: KadoSpace.s3) {
-            Text("SUPPORTER PACK").kadoEyebrow()
-            Text("A little extra, once")
-                .kadoDisplay(size: 30)
-                .fixedSize(horizontal: false, vertical: true)
+            // The large navigation title names the screen, so the header
+            // opens on the tagline rather than repeating the name.
+            Text("A little extra, once").kadoEyebrow()
             Text("A one-time purchase that supports Kadō and adds a few cosmetic extras. Every feature stays free — the pack only changes how Kadō looks.")
                 .font(.subheadline)
                 .foregroundStyle(Color.kadoForegroundSecondary)

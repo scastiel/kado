@@ -1,9 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
+    "" : {},
     ", has note" : {
       "comment" : "Appended to the calendar cell accessibility label when the day has a note attached.",
       "localizations" : {
@@ -661,7 +659,7 @@
       }
     },
     "A little extra, once" : {
-      "comment" : "Headline of the Supporter pack screen.",
+      "comment" : "Small caps tagline under the Supporter pack screen's title.",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -4120,23 +4118,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pack de soutien"
-          }
-        }
-      }
-    },
-    "SUPPORTER PACK" : {
-      "comment" : "Eyebrow above the Supporter pack screen's headline.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SUPPORTER PACK"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PACK DE SOUTIEN"
           }
         }
       }
