@@ -857,13 +857,17 @@ the notes don't mention it.
 
 ### What's New — 1.11
 
-Build 20 carries the Supporter pack stack: #115 (habit colour themes,
+Build 21 carries the Supporter pack stack: #115 (habit colour themes,
 with Classic bringing back the pre-#89 hues), #116 (the one-time
 Supporter pack purchase), #118 (Muted, Vivid, Autumn and Monochrome
-sage behind it), #119 (Settings › Appearance) and #120 (seven alternate
-app icons). It also carries #109 (Siri answers to "Kado"), which landed
-on `main` after build 19 was uploaded. The listing gains an eighth
-screenshot, `08-appearance`: the Appearance screen with the pack owned.
+sage behind it), #119 (Settings › Appearance), #120 (seven alternate
+app icons) and #122 (a one-off card at the bottom of Today announcing
+Appearance, in the tip nudge's slot). It also carries #109 (Siri
+answers to "Kado"), which landed on `main` after build 19 was uploaded.
+Build 20 was the same minus #122 and was never submitted. The listing
+gains an eighth screenshot, `08-appearance`: the Appearance screen with
+the pack owned. The notes don't mention the Today card: it announces
+itself.
 
 The Supporter pack IAP (`dev.scastiel.kado.supporter`) has never been
 submitted, so it has to go with this version: attach it to 1.11 under
