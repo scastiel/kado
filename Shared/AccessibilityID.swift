@@ -83,6 +83,10 @@ enum AccessibilityID {
         /// the copy and both buttons with one identifier.
         static let tipNudgeTipButton = "today.tipNudge.tip"
         static let tipNudgeHideButton = "today.tipNudge.hide"
+        /// The Appearance announcement's two actions, on leaves for the
+        /// same reason.
+        static let appearanceAnnouncementOpenButton = "today.appearanceAnnouncement.open"
+        static let appearanceAnnouncementHideButton = "today.appearanceAnnouncement.hide"
         /// "Log specific value…" in a row's long-press menu, which only
         /// counter and timer rows carry. Not under the `today.row.`
         /// prefix, or `todayRows` would count the open menu's item as

@@ -9,6 +9,7 @@ struct AppearanceView: View {
     /// `navigationDestination` inside a lazy container like `Form` is
     /// ignored.
     @State private var showsSupporterPack = false
+    @Environment(\.appearanceAnnouncement) private var appearanceAnnouncement
 
     var body: some View {
         Form {
@@ -21,6 +22,9 @@ struct AppearanceView: View {
         .navigationDestination(isPresented: $showsSupporterPack) {
             SupporterPackView()
         }
+        // Whichever way the user got here — Today's card or Settings —
+        // they have found the screen, so Today stops announcing it.
+        .onAppear { appearanceAnnouncement.retire() }
     }
 }
 

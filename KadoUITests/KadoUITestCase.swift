@@ -47,6 +47,9 @@ class KadoUITestCase: XCTestCase {
     ///     stands in for StoreKit, which a test can't buy from.
     ///   - habitTheme: start in this habit colour theme (its raw value).
     ///     A paid one only renders with `supporter` too.
+    ///   - appearanceAnnouncement: leave Today's Appearance
+    ///     announcement due. Every other run starts with it put away.
+    ///   - tipNudgeReady: start old enough for the tip nudge to be due.
     ///   - archiveFirstHabit: start with the first seeded habit already
     ///     archived, for tests of the Archived list that don't need to
     ///     drive Today's long-press menu to get one there — see
@@ -65,7 +68,9 @@ class KadoUITestCase: XCTestCase {
         widgetGallery: Bool = false,
         archiveFirstHabit: Bool = false,
         supporter: Bool = false,
-        habitTheme: String? = nil
+        habitTheme: String? = nil,
+        appearanceAnnouncement: Bool = false,
+        tipNudgeReady: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -90,6 +95,12 @@ class KadoUITestCase: XCTestCase {
         }
         if supporter {
             app.launchArguments.append("-uiTestSupporter")
+        }
+        if appearanceAnnouncement {
+            app.launchArguments.append("-uiTestAppearanceAnnouncement")
+        }
+        if tipNudgeReady {
+            app.launchArguments.append("-uiTestTipNudgeReady")
         }
         if let habitTheme {
             app.launchArguments += ["-uiTestHabitTheme", habitTheme]

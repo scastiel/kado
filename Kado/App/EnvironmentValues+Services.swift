@@ -94,6 +94,12 @@ extension EnvironmentValues {
     /// previews and tests inject a stub to pin the answer.
     @Entry var tipNudge: any TipNudging = DefaultTipNudgeService()
 
+    /// Gates the Appearance announcement, which shares the tip nudge's
+    /// slot at the bottom of Today (`TodayCard`). Retired by Today's
+    /// card and by `AppearanceView` itself, whichever comes first.
+    @Entry var appearanceAnnouncement: any AppearanceAnnouncing =
+        DefaultAppearanceAnnouncementService()
+
     /// Loads the tip products and runs purchases for the Tip Jar. Default
     /// is a mock so previews and unit tests never touch StoreKit; the
     /// main app injects `DefaultTipJarStore(tipNudge:)` at scene build.

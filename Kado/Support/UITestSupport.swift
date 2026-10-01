@@ -69,6 +69,11 @@ nonisolated enum UITestSupport {
         /// week away from any fresh launch, which no test and no visual
         /// check can wait for.
         static let tipNudgeReady = "-uiTestTipNudgeReady"
+        /// Leave the Appearance announcement due. Every other run starts
+        /// with it already put away, or it would sit under Today's
+        /// habits in every capture and every test — the App Store
+        /// screenshots included.
+        static let appearanceAnnouncement = "-uiTestAppearanceAnnouncement"
         /// Show `WidgetGalleryView` instead of the app: every widget
         /// at its Home Screen / Lock Screen size on the seeded data,
         /// for the screenshot run to photograph tile by tile. Passed
@@ -170,6 +175,20 @@ nonisolated enum UITestSupport {
         // leave the next one owning it.
         SupporterDefaults.sharedDefaults.removeObject(forKey: SupporterDefaults.key)
         applyTipNudgeState(arguments)
+        applyAppearanceAnnouncementState(arguments)
+    }
+
+    /// Puts the Appearance announcement into a known state: retired,
+    /// long ago (so the tip nudge's next-day wait never applies), unless
+    /// the run asks for it. Cleared first, because retiring is terminal.
+    private static func applyAppearanceAnnouncementState(_ arguments: [String]) {
+        for key in AppearanceAnnouncementDefaults.allKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        guard !arguments.contains(Argument.appearanceAnnouncement) else { return }
+        UserDefaults.standard.set(
+            Date.distantPast, forKey: AppearanceAnnouncementDefaults.retiredAt
+        )
     }
 
     /// Puts the tip nudge into a known state for the run.
