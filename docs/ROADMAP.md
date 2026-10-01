@@ -9,10 +9,12 @@ the App Store release it went out in.
 
 ---
 
-## Current status (2026-09-05)
+## Current status (2026-10-01)
 
-- **Shipping on the App Store: version 1.7** (build 14). Seven
-  updates since the public launch, all free, no subscription.
+- **Shipping on the App Store: version 1.11** (build 21). Eleven
+  updates since the public launch, all free, no subscription. 1.11
+  added the first paid item — a one-time Supporter pack of extra
+  habit palettes and app icons; every tracking feature stays free.
 - **v0.1 MVP**, **v0.2 "Visible iOS-native"**, and **v1.0 public
   launch**: shipped.
 - **v0.3 "iOS depth"**: partially shipped, partially descoped. App
@@ -22,8 +24,8 @@ the App Store release it went out in.
 - **French localization** (originally v1.0) shipped early, in the
   v0.2 stream.
 - **Next**: Live Activities + Dynamic Island for timer habits, then
-  the remaining v1.x polish items (themes, biometrics, categories,
-  backup files).
+  the remaining v1.x polish items (biometrics, categories, backup
+  files).
 
 ---
 
@@ -39,6 +41,10 @@ the App Store release it went out in.
 | **1.5** | Support Kadō | Tip Jar (StoreKit 2, no third-party SDK). Optional, unlocks nothing |
 | **1.6** | Late nights and fairer scores | "Day starts at" rollover hour (up to 6 AM); days-per-week scoring fix; off-schedule completions now visible in Overview |
 | **1.7** | Portable backups | CSV export and import with a lossless round-trip; "every N days" re-anchors on each completion instead of a fixed grid |
+| **1.8** | Your week, readable widgets | Week starts on the region's (or the user's chosen) first day; Home Screen widgets legible under Clear and Tinted |
+| **1.9** | A finished day | Confetti when the day is done; Daily Progress Lock Screen ring; habit hues redrawn in OKLCH; counter/timer rows show the day's total; widgets roll over without the app; History rows deletable from a long-press menu |
+| **1.10** | Widgets your way | Each Home Screen widget shows the habits picked in Edit Widget; widgets on iOS 18–26.3 at last (#97); archived habits list with unarchive/delete; number-pad value entry; "Day starts at" any hour; complete a habit from the Overview popover |
+| **1.11** | Make it yours | Settings › Appearance with Kadō and Classic habit palettes; Supporter pack (one-time, Family Sharing) with four more palettes and seven alternate app icons; Siri finds the app as "Kado" |
 
 Per-release copy (EN + FR) lives in `docs/app-store-connect.md`; the
 copy that actually ships is in `docs/app-store/metadata/`.
@@ -90,7 +96,9 @@ flow genuinely can't serve.
 - [ ] Timer background persistence (respecting iOS limitations)
 
 ### Remaining v1.x polish
-- [ ] Core themes: light, dark, sepia, high contrast
+- [x] Habit colour palettes (Kadō, Classic, plus four in the
+      Supporter pack) and alternate app icons — shipped in 1.11
+- [ ] Core app themes: sepia, high contrast
 - [ ] Optional biometrics (Face ID / Touch ID) to open the app
 - [ ] Categories / tags for organization
 - [ ] Manual backup as `.kado` file (zipped JSON), and restore
@@ -309,6 +317,10 @@ noted inline.
 ### Monetization
 - [x] Tip Jar (StoreKit 2 IAP, no RevenueCat) — shipped in 1.5, with
       an earned-it nudge at the bottom of Today
+- [x] Supporter pack — shipped in 1.11: a one-time, Family
+      Sharing-enabled purchase that unlocks cosmetic extras only
+      (palettes, app icons). No subscription, nothing functional
+      behind it
 - [x] No Pro tier at launch — still the position
 
 ### Communication

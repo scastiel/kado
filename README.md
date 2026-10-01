@@ -16,7 +16,7 @@
 
   <p>
     <a href="https://github.com/scastiel/kado/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store 1.7" src="https://img.shields.io/badge/App%20Store-1.7-black.svg" /></a>
+    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store 1.11" src="https://img.shields.io/badge/App%20Store-1.11-black.svg" /></a>
     <a href="https://developer.apple.com/swift/"><img alt="Swift 5.10" src="https://img.shields.io/badge/Swift-5.10-orange.svg" /></a>
     <img alt="Platforms" src="https://img.shields.io/badge/platforms-iOS%2018%20%7C%20iPadOS%2018-lightgrey.svg" />
   </p>
@@ -51,35 +51,50 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 ## Screenshots
 
 <p float="left">
-  <img src="docs/screenshots/iphone-67-appstore/en/01-today.png" width="19%" alt="Today view" />
-  <img src="docs/screenshots/iphone-67-appstore/en/02-habit-detail.png" width="19%" alt="Habit detail with score popover" />
-  <img src="docs/screenshots/iphone-67-appstore/en/04-overview.png" width="19%" alt="Multi-habit overview" />
-  <img src="docs/screenshots/iphone-67-appstore/en/05-new-habit.png" width="19%" alt="New habit form" />
-  <img src="docs/screenshots/iphone-67-appstore/en/07-today-dark.png" width="19%" alt="Today view in dark mode" />
+  <img src="docs/screenshots/iphone-67-appstore/en/01-today.png" width="16%" alt="Today view" />
+  <img src="docs/screenshots/iphone-67-appstore/en/02-habit-detail.png" width="16%" alt="Habit detail with score popover" />
+  <img src="docs/screenshots/iphone-67-appstore/en/04-overview.png" width="16%" alt="Multi-habit overview" />
+  <img src="docs/screenshots/iphone-67-appstore/en/05-new-habit.png" width="16%" alt="New habit form" />
+  <img src="docs/screenshots/iphone-67-appstore/en/08-appearance.png" width="16%" alt="Appearance settings with habit colour palettes and app icons" />
+  <img src="docs/screenshots/iphone-67-appstore/en/07-today-dark.png" width="16%" alt="Today view in dark mode" />
 </p>
 
 ## Features
 
 - **Today view** — habits due today, tap to complete, long-press for
   partial / note / timer, drag to reorder (the order syncs via
-  iCloud).
+  iCloud). Counter and timer rows show the day's total between − and
+  +, with a haptic tick on every tap; "Log specific value…" opens a
+  number pad with today's value selected. Finish the day and Kadō
+  throws confetti (just a caption under Reduce Motion).
 - **Habit detail** — monthly calendar with month-by-month navigation,
   current streak, best streak, habit score with an info popover
   explaining the math. Edit any past day straight from the calendar,
-  including days before the habit existed.
+  including days before the habit existed (the calendar says when
+  that makes it the new start date). Long-press a History entry to
+  delete it.
 - **Per-day notes** — a short note on any day's completion, carried
   through export and import.
 - **Overview** — habits × days matrix with score-shaded cells, the
-  Loop / Way of Life pattern with Kadō's score DNA. Completions logged
+  Loop / Way of Life pattern with Kadō's score DNA. Tap a day to mark
+  a habit completed right from the popover. Completions logged
   off-schedule show up too, instead of hiding as rest days.
 - **Flexible schedules** — daily, N days per week, specific weekdays,
   every N days (the cycle re-anchors on each completion, so finishing
   early never costs you a day). Binary, counter, or timer habit types.
-- **Day starts at** — push the day rollover as late as 6 AM, so
-  late-night logging still lands on the day you mean. Changing it
-  never re-buckets history.
-- **Widgets** — Home Screen (small / medium / large) and Lock Screen
-  (rectangular / circular / inline). Quick-complete via `AppIntent`.
+- **Day starts at** — move the day rollover to any hour, so
+  late-night logging (or a night-shift schedule) lands on the day you
+  mean. Changing it never re-buckets history.
+- **Week starts where you do** — calendars and week grids follow your
+  region's first day of the week, or the one you pick in Settings.
+- **Archived habits** — Settings lists them; unarchive one with its
+  history intact, or delete it for good.
+- **Widgets** — Home Screen (small / medium / large), each showing
+  the habits you pick in Edit Widget (up to 5 or 8, in your order), and
+  Lock Screen (rectangular / circular / inline, plus a Daily Progress
+  ring). Quick-complete via `AppIntent`; widgets roll over to the new
+  day on their own and stay legible under the Clear and Tinted Home
+  Screen appearances.
 - **Siri and Shortcuts** — complete a habit, log a value, or ask for a
   score and streak, hands-free. Also available as Home Screen actions
   and Shortcuts automations.
@@ -91,15 +106,21 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 - **JSON and CSV export / import** — lossless backup of your data, in
   both formats, round-trip tested. Open a CSV backup in Numbers or
   Excel, edit it, bring it back in.
-- **Tip Jar** — entirely optional, unlocks nothing. The whole app
-  stays free, with no ads, no subscription, and no tracking.
+- **Appearance** — choose the colours your habits wear: Kadō or
+  Classic for free, and four more palettes (Muted, Vivid, Autumn,
+  Monochrome sage) plus seven alternate app icons with the Supporter
+  pack. Widgets follow the palette.
+- **Supporter pack and Tip Jar** — a one-time, Family Sharing-enabled
+  purchase that unlocks the extra palettes and icons, and a Tip Jar
+  that unlocks nothing. Both are optional: every feature that tracks a
+  habit stays free, with no ads, no subscription, and no tracking.
 - **Accessibility** — Dynamic Type up to XXXL, VoiceOver labels on
   every surface, full Dark Mode.
 - **Localization** — English and native French (not machine-translated).
 
 ## Status
 
-**Shipping on the App Store — [current version 1.7](https://apps.apple.com/app/id6762570244).**
+**Shipping on the App Store — [current version 1.11](https://apps.apple.com/app/id6762570244).**
 
 | Version | Highlights |
 |---|---|
@@ -111,6 +132,10 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 | 1.5 | Tip Jar (StoreKit 2), optional and unlocking nothing |
 | 1.6 | "Day starts at" hour; days-per-week scoring fix; off-schedule completions in Overview |
 | 1.7 | CSV export / import round-trip; "every N days" re-anchors on completion |
+| 1.8 | Week starts on your region's first day; widgets legible under Clear and Tinted |
+| 1.9 | Confetti for a finished day; Daily Progress Lock Screen ring; redrawn habit colours; widgets roll over on their own |
+| 1.10 | Pick each widget's habits; archived habits list; number-pad value entry; "Day starts at" any hour; complete from the Overview |
+| 1.11 | Settings › Appearance with habit colour palettes; Supporter pack with extra palettes and alternate app icons; Siri finds "Kado" |
 
 **Not planned.** A native Apple Watch app and HealthKit
 auto-completion were scoped for v0.3 and have been **descoped** — no
@@ -133,7 +158,7 @@ files). Full roadmap in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
   (the widget process never opens SwiftData — see `CLAUDE.md` for
   why).
 - **App Intents** for widget quick-complete, Siri, and Shortcuts.
-- **StoreKit 2** for the Tip Jar.
+- **StoreKit 2** for the Tip Jar and the Supporter pack.
 - **Swift Testing** for unit tests, XCTest for UI tests and for the
   App Store screenshot run.
 - **Zero third-party dependencies.**
@@ -237,8 +262,8 @@ Issues and pull requests are welcome. A few notes:
 - One PR per feature or logical fix. Commit message format follows
   a lightweight Conventional Commits convention —
   `feat(scope): description`, `fix(scope): …`, etc.
-- No third-party dependencies. The Tip Jar is built directly on
-  StoreKit 2, and the App Store Connect client in `Scripts/` signs
+- No third-party dependencies. The Tip Jar and Supporter pack are
+  built directly on StoreKit 2, and the App Store Connect client in `Scripts/` signs
   its own JWT with `openssl`, precisely so that stays true.
 
 ## Privacy
