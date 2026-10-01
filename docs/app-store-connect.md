@@ -855,6 +855,58 @@ the notes don't mention it.
 >   qui te prévient désormais que noter ce jour en fait la nouvelle
 >   date de début.
 
+### What's New — 1.11
+
+Build 20 carries the Supporter pack stack: #115 (habit colour themes,
+with Classic bringing back the pre-#89 hues), #116 (the one-time
+Supporter pack purchase), #118 (Muted, Vivid, Autumn and Monochrome
+sage behind it), #119 (Settings › Appearance) and #120 (seven alternate
+app icons). It also carries #109 (Siri answers to "Kado"), which landed
+on `main` after build 19 was uploaded. The listing gains an eighth
+screenshot, `08-appearance`: the Appearance screen with the pack owned.
+
+The Supporter pack IAP (`dev.scastiel.kado.supporter`) has never been
+submitted, so it has to go with this version: attach it to 1.11 under
+*In-App Purchases and Subscriptions* on the version page before
+submitting, or review sees a pack that can't be bought.
+
+> Version 1.11 — Make Kadō yours: new habit colours, alternate app
+> icons, and a Supporter pack to help keep it going.
+>
+> • Settings › Appearance is a new home for how Kadō looks. Pick the
+>   colours your habits wear there: Kadō, as before, or Classic, the
+>   brighter system colours from earlier versions. Both are free, the
+>   change is instant, and the widgets follow along.
+> • The Supporter pack is a one-time purchase that unlocks four more
+>   palettes — Muted, Vivid, Autumn and Monochrome sage — and seven
+>   alternate app icons: Ura, Sakura and Momiji, plus the gradients
+>   Yūyake, Umi, Hotaru and Fuji. Every icon has a light, dark and
+>   tinted version. Find it under Settings › Support Kadō.
+> • No subscription, no account, and everything Kadō already did stays
+>   free. The pack is shared with your Family Sharing group, and
+>   Restore purchases brings it back on a new device.
+> • Siri now finds Kadō when you say "Kado", without the macron.
+
+> Version 1.11 — Fais de Kadō le tien : de nouvelles couleurs
+> d'habitudes, d'autres icônes d'app, et un Pack de soutien pour aider
+> Kadō à durer.
+>
+> • Réglages › Apparence réunit désormais tout ce qui touche à l'allure
+>   de Kadō. Choisis-y les couleurs de tes habitudes : Kadō, comme
+>   avant, ou Classique, les couleurs système plus vives des premières
+>   versions. Les deux sont gratuites, le changement est immédiat, et
+>   les widgets suivent.
+> • Le Pack de soutien est un achat unique qui débloque quatre palettes
+>   de plus — Feutré, Vif, Automne et Sauge monochrome — et sept autres
+>   icônes d'app : Ura, Sakura et Momiji, plus les dégradés Yūyake,
+>   Umi, Hotaru et Fuji. Chaque icône existe en version claire, sombre
+>   et teintée. Tu le trouveras dans Réglages › Soutenir Kadō.
+> • Pas d'abonnement, pas de compte, et tout ce que Kadō faisait déjà
+>   reste gratuit. Le pack est partagé avec ton groupe Partage
+>   familial, et Restaurer les achats le récupère sur un nouvel
+>   appareil.
+> • Siri trouve maintenant Kadō quand tu dis « Kado », sans le macron.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 

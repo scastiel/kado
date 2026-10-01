@@ -78,6 +78,42 @@ final class ScreenshotTests: KadoUITestCase {
             "The Settings tab should show its own navigation bar."
         )
         photograph(app, "06-settings")
+
+        // 8 — what the Supporter pack adds: Settings › Appearance, with
+        // the pack owned so no row wears a lock, scrolled to where the
+        // last paid palette sits above the alternate icons. Not the pack
+        // screen itself: a run launched outside Xcode has no
+        // `Tips.storekit`, so its buy button would read "isn't available
+        // right now" instead of a price. A relaunch, because ownership is
+        // a launch argument.
+        app.terminate()
+        let supporter = launchApp(
+            seedProduction: true,
+            language: Self.runLanguage,
+            locale: Self.runLocale,
+            seedForScreenshots: true,
+            supporter: true
+        )
+        waitForTodayRows(in: supporter)
+        tapTab(.settings, in: supporter)
+        let appearance = supporter.descendants(matching: .any)[AccessibilityID.Settings.appearanceRow]
+            .firstMatch
+        scrollTo(appearance, in: supporter)
+        appearance.tap()
+        // Waited on through the first palette row: the icon rows are
+        // below the fold, and an unrealized row never appears on its own.
+        assertReached(
+            supporter.descendants(matching: .any)
+                .matching(identifier: AccessibilityID.Settings.habitThemeRow("kado"))
+                .firstMatch,
+            "The Appearance row should open the Appearance screen."
+        )
+        let umi = supporter.descendants(matching: .any)
+            .matching(identifier: AccessibilityID.Settings.appIconRow("umi"))
+            .firstMatch
+        scrollTo(umi, in: supporter)
+        scrollClearOfTabBar(umi, in: supporter)
+        photograph(supporter, "08-appearance")
     }
 
     // MARK: - Dark

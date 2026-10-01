@@ -19,7 +19,8 @@
     "04-overview": "Every habit,\nthirty days at a glance",
     "05-new-habit": "Schedules that fit\nhow you actually live",
     "06-settings": "No account.\nNo tracking. Ever.",
-    "07-today-dark": "Made for\nthe evening too"
+    "07-today-dark": "Made for\nthe evening too",
+    "08-appearance": "Colours and icons\nthat feel like yours"
   },
   "fr-FR": {
     "01-today": "Ta journée,\nen une liste calme",
@@ -28,6 +29,7 @@
     "04-overview": "Toutes tes habitudes,\ntrente jours d'un coup d'œil",
     "05-new-habit": "Des rythmes qui\ncollent à ta vie",
     "06-settings": "Aucun compte.\nAucun suivi. Jamais.",
-    "07-today-dark": "Pensé aussi\npour le soir"
+    "07-today-dark": "Pensé aussi\npour le soir",
+    "08-appearance": "Des couleurs et icônes\nà ton image"
   }
 }
