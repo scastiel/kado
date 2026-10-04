@@ -10,8 +10,8 @@ import KadoCore
 /// popover has nothing left to do but feed the returned `Change`
 /// into its haptic.
 ///
-/// The caller resolves `habit` from its own `@Query` and passes the
-/// live record in. The editor never fetches: a fetch between a view's
+/// The caller resolves `habit` from the `@Query` its screen renders
+/// from and passes the live record in. The editor never fetches: a fetch between a view's
 /// tracked read and the mutation leaves the view un-notified on
 /// value-only saves (issue #80, `ObservationAfterFetchTests`).
 @MainActor

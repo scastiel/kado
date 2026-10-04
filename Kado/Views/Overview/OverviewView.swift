@@ -21,8 +21,8 @@ import KadoCore
 /// matrix is computed from — and its callbacks resolve the live
 /// `HabitRecord` from `records` only inside the mutation, never a
 /// fetch. That is what keeps the matrix following its own edits: a
-/// view mutating through its own `@Query` re-renders on a value-only
-/// save (issue #80), and nothing retained across renders holds a
+/// view mutating through the `@Query` it rendered from re-renders on
+/// a value-only save (issues #80, #124), and nothing retained across renders holds a
 /// record that a container swap could invalidate (issue #63).
 struct OverviewView: View {
     @Environment(\.habitTheme) private var habitTheme

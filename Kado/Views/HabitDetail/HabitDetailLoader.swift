@@ -10,6 +10,10 @@ import KadoCore
 /// record it retained from the previous store traps as soon as SwiftUI
 /// re-reads it (issue #63). Re-resolving on every render means the
 /// pushed screen follows the swap instead of holding a dead object.
+///
+/// Its query is also the one the detail screen's mutations resolve
+/// the record from (`resolveRecord`): the same query that read the
+/// values is the one that hears a value-only save (issue #124).
 struct HabitDetailLoader: View {
     let habitID: UUID
 
@@ -31,7 +35,8 @@ struct HabitDetailLoader: View {
             // evaluating this body.
             HabitDetailView(
                 habit: record.snapshot,
-                completions: (record.completions ?? []).compactMap(\.snapshot)
+                completions: (record.completions ?? []).compactMap(\.snapshot),
+                resolveRecord: { allHabits.first { $0.id == habitID } }
             )
         } else {
             HabitUnavailableView()
