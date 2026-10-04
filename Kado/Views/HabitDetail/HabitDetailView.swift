@@ -20,29 +20,29 @@ import KadoCore
 /// invalidate; mutations resolve the record by id against the current
 /// `@Query` (issue #63).
 ///
-/// **A view that mutates records holds its own `@Query` and resolves
-/// them from it — `TodayView`'s shape.** The first cut of #63 gave
-/// this view no query and resolved the record with a
-/// `modelContext.fetch(…)` inside each mutation, and the screen
-/// stopped following its own edits: a counter stepped a second time,
-/// a timer re-logged — any value-only save — landed in the store and
-/// never re-rendered `HabitDetailLoader`. Only an insert or delete,
-/// which changes the query's result set, woke it up (issue #80: the
-/// popover, the quick-log, score, streak and history all froze
-/// together). Two things were measured, and both halves of the rule
-/// come from them: a fetch between a view's tracked read and the
-/// mutation leaves the observer un-notified even for the same instance
-/// (`ObservationAfterFetchTests`), and with `allHabits` in place the
-/// loader re-renders on every save. Keep both.
+/// **Mutations resolve the record from the same `@Query` whose
+/// results the screen rendered from — the loader's, handed down as
+/// `resolveRecord`.** Two shapes left the screen frozen on value-only
+/// saves (a counter stepped a second time, a timer re-logged): the
+/// save landed in the store and never re-rendered `HabitDetailLoader`,
+/// so the popover, the quick-log, score, streak and history all stuck
+/// together while an insert or delete, which changes the query's
+/// result set, still woke it up. First a `modelContext.fetch(…)` in
+/// each mutation (issue #80: a fetch between a view's tracked read and
+/// the mutation leaves the observer un-notified even for the same
+/// instance, `ObservationAfterFetchTests`). Then a second `@Query` of
+/// this view's own, which fixed #80 on iOS 26 and froze again on
+/// iOS 27 (issue #124). One query, read in the loader's body and
+/// resolved from in the mutation, is `OverviewView`'s and `TodayView`'s
+/// shape and holds on both runtimes; don't add a query here.
 struct HabitDetailView: View {
     let habit: Habit
     let completions: [Completion]
 
-    /// Read only from mutations, never from `body`. Unfiltered for
-    /// the same reasons as `HabitDetailLoader`'s query, and so an
-    /// archived habit stays resolvable while its screen is up. Its
-    /// presence is load-bearing — see the type comment.
-    @Query(sort: \HabitRecord.sortOrder) private var allHabits: [HabitRecord]
+    /// The live record, looked up in `HabitDetailLoader`'s `@Query`.
+    /// Called from mutations only, never from `body` — see the type
+    /// comment for why it isn't a query of this view's own.
+    let resolveRecord: () -> HabitRecord?
 
     @Environment(\.habitScoreCalculator) private var scoreCalculator
     @Environment(\.streakCalculator) private var streakCalculator
@@ -73,9 +73,9 @@ struct HabitDetailView: View {
     /// The live record behind this screen, resolved against the store
     /// that is mounted now. Called from mutations only — never from a
     /// `body`, which is the whole point. A Swift-side lookup in the
-    /// query's array, never a `fetch` — see the type comment.
+    /// loader's query, never a `fetch` — see the type comment.
     private var record: HabitRecord? {
-        allHabits.first { $0.id == habit.id }
+        resolveRecord()
     }
 
     /// The live record behind one snapshotted completion, walked from
@@ -336,7 +336,7 @@ struct HabitDetailView: View {
     }
 
     /// The popover's mutations, shared with the Overview matrix. Each
-    /// wrapper resolves the record here — from this view's own query —
+    /// wrapper resolves the record here — from the loader's query —
     /// and hands the editor's `Change` to the haptic.
     private var dayEditor: DayCompletionEditor { DayCompletionEditor(calendar: calendar) }
 
@@ -569,7 +569,8 @@ private struct HabitDetailPreviewWrapper: View {
         if let habit = habits.first {
             HabitDetailView(
                 habit: habit.snapshot,
-                completions: (habit.completions ?? []).compactMap(\.snapshot)
+                completions: (habit.completions ?? []).compactMap(\.snapshot),
+                resolveRecord: { habits.first }
             )
             .onAppear {
                 if archived { habit.archivedAt = .now }

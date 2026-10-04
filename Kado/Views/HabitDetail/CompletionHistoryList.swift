@@ -18,10 +18,10 @@ import KadoCore
 /// does: its `ForEach` would otherwise hold `CompletionRecord`s from
 /// a store a dev-mode swap has already replaced, and re-reading one
 /// during an update pass traps inside SwiftData (issue #63). The
-/// deletion itself lives on `HabitDetailView`, which owns the `@Query`
-/// the record has to be resolved against — a fetch-based lookup in a
-/// view without one is the shape that left the detail screen stale
-/// (issue #80).
+/// deletion itself lives on `HabitDetailView`, which resolves the
+/// record against `HabitDetailLoader`'s `@Query` — a fetch, or a
+/// second query, is the shape that left the detail screen stale
+/// (issues #80, #124).
 struct CompletionHistoryList: View {
     let habitType: HabitType
     let completions: [Completion]
