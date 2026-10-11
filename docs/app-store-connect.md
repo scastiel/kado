@@ -911,6 +911,31 @@ submitting, or review sees a pack that can't be bought.
 >   appareil.
 > • Siri trouve maintenant Kadō quand tu dis « Kado », sans le macron.
 
+### What's New — 1.12
+
+Build 22 is a single-fix release: #125 (issue #124, reported by a user
+by email), the habit detail screen freezing after the first value-only
+save on iOS 27 — #80 again, on the new runtime. The only other change
+since build 21 is #123, docs and site. No new screenshots, no IAP to
+attach.
+
+> Version 1.12 — A fix for iOS 27.
+>
+> • On iOS 27, a habit's screen stopped keeping up with your taps.
+>   Stepping a counter or timer from the calendar popover, or logging
+>   from the screen itself, updated once and then looked stuck — and
+>   the score, streak and history froze with it — while every tap was
+>   in fact saved. The screen now follows each one again.
+
+> Version 1.12 — Une correction pour iOS 27.
+>
+> • Sur iOS 27, l'écran d'une habitude ne suivait plus tes taps.
+>   Incrémenter un compteur ou un minuteur depuis la fenêtre du
+>   calendrier, ou noter depuis l'écran lui-même, ne se mettait à jour
+>   qu'une fois puis semblait bloqué — et le score, la série et
+>   l'historique restaient figés avec lui — alors que chaque tap était
+>   bien enregistré. L'écran suit de nouveau chacun d'eux.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 

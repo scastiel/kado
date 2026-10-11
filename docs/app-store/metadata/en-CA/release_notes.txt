@@ -1,6 +1,3 @@
-Version 1.11 — Make Kadō yours: new habit colours, alternate app icons, and a Supporter pack to help keep it going.
+Version 1.12 — A fix for iOS 27.
 
-• Settings › Appearance is a new home for how Kadō looks. Pick the colours your habits wear there: Kadō, as before, or Classic, the brighter system colours from earlier versions. Both are free, the change is instant, and the widgets follow along.
-• The Supporter pack is a one-time purchase that unlocks four more palettes — Muted, Vivid, Autumn and Monochrome sage — and seven alternate app icons: Ura, Sakura and Momiji, plus the gradients Yūyake, Umi, Hotaru and Fuji. Every icon has a light, dark and tinted version. Find it under Settings › Support Kadō.
-• No subscription, no account, and everything Kadō already did stays free. The pack is shared with your Family Sharing group, and Restore purchases brings it back on a new device.
-• Siri now finds Kadō when you say "Kado", without the macron.
+• On iOS 27, a habit's screen stopped keeping up with your taps. Stepping a counter or timer from the calendar popover, or logging from the screen itself, updated once and then looked stuck — and the score, streak and history froze with it — while every tap was in fact saved. The screen now follows each one again.

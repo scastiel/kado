@@ -1,6 +1,3 @@
-Version 1.11 — Fais de Kadō le tien : de nouvelles couleurs d'habitudes, d'autres icônes d'app, et un Pack de soutien pour aider Kadō à durer.
+Version 1.12 — Une correction pour iOS 27.
 
-• Réglages › Apparence réunit désormais tout ce qui touche à l'allure de Kadō. Choisis-y les couleurs de tes habitudes : Kadō, comme avant, ou Classique, les couleurs système plus vives des premières versions. Les deux sont gratuites, le changement est immédiat, et les widgets suivent.
-• Le Pack de soutien est un achat unique qui débloque quatre palettes de plus — Feutré, Vif, Automne et Sauge monochrome — et sept autres icônes d'app : Ura, Sakura et Momiji, plus les dégradés Yūyake, Umi, Hotaru et Fuji. Chaque icône existe en version claire, sombre et teintée. Tu le trouveras dans Réglages › Soutenir Kadō.
-• Pas d'abonnement, pas de compte, et tout ce que Kadō faisait déjà reste gratuit. Le pack est partagé avec ton groupe Partage familial, et Restaurer les achats le récupère sur un nouvel appareil.
-• Siri trouve maintenant Kadō quand tu dis « Kado », sans le macron.
+• Sur iOS 27, l'écran d'une habitude ne suivait plus tes taps. Incrémenter un compteur ou un minuteur depuis la fenêtre du calendrier, ou noter depuis l'écran lui-même, ne se mettait à jour qu'une fois puis semblait bloqué — et le score, la série et l'historique restaient figés avec lui — alors que chaque tap était bien enregistré. L'écran suit de nouveau chacun d'eux.
