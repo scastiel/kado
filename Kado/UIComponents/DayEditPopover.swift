@@ -339,8 +339,11 @@ struct DayEditPopover: View {
                         .font(.caption2)
                         .foregroundStyle(Color.kadoForegroundSecondary)
                     Spacer()
-                    Button(String(localized: "Done")) { commitNote() }
-                        .font(.caption.weight(.medium))
+                    Button(String(localized: "Done")) {
+                        commitNote()
+                        dismiss()
+                    }
+                    .font(.caption.weight(.medium))
                 }
             }
         } else {
