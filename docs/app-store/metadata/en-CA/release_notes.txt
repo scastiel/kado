@@ -1,3 +1,4 @@
-Version 1.12 — A fix for iOS 27.
+Version 1.13 — Notes that stay put.
 
-• On iOS 27, a habit's screen stopped keeping up with your taps. Stepping a counter or timer from the calendar popover, or logging from the screen itself, updated once and then looked stuck — and the score, streak and history froze with it — while every tap was in fact saved. The screen now follows each one again.
+• The note on a calendar day now saves however you leave it. Tapping outside the popover used to drop what you had typed; it is kept now.
+• Done, under a day's note, closes the popover instead of leaving it open.

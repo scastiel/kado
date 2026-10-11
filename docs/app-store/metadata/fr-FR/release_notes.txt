@@ -1,3 +1,4 @@
-Version 1.12 — Une correction pour iOS 27.
+Version 1.13 — Des notes qui restent.
 
-• Sur iOS 27, l'écran d'une habitude ne suivait plus tes taps. Incrémenter un compteur ou un minuteur depuis la fenêtre du calendrier, ou noter depuis l'écran lui-même, ne se mettait à jour qu'une fois puis semblait bloqué — et le score, la série et l'historique restaient figés avec lui — alors que chaque tap était bien enregistré. L'écran suit de nouveau chacun d'eux.
+• La note d'un jour du calendrier est maintenant enregistrée quelle que soit la façon dont tu fermes la fenêtre. Toucher en dehors effaçait ce que tu venais d'écrire ; c'est maintenant conservé.
+• « Fait », sous la note d'un jour, ferme la fenêtre au lieu de la laisser ouverte.
