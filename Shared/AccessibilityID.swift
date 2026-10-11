@@ -195,6 +195,12 @@ enum AccessibilityID {
         /// The caption warning that logging a pre-start day moves the
         /// habit's start back to it (issue #104).
         static let backdateNotice = "dayEdit.backdateNotice"
+        /// The collapsed "Add a note..." row, the note field it opens
+        /// into, and the Done button under the field, which saves the
+        /// note and closes the popover.
+        static let noteExpand = "dayEdit.noteExpand"
+        static let noteField = "dayEdit.noteField"
+        static let noteDone = "dayEdit.noteDone"
     }
 
     enum Overview {

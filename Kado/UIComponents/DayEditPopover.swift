@@ -20,6 +20,11 @@ import KadoCore
 /// drifted. `CounterQuickLogView` and the Today row have always been
 /// stateless like this. The note *is* a local draft the user is typing,
 /// so `noteText` stays.
+///
+/// The draft is written back however the popover goes away — Done,
+/// Return, a tap outside, a VoiceOver escape — through `.onDisappear`.
+/// Done used to be the only path, so a note typed and then tapped away
+/// from was dropped without a word.
 struct DayEditPopover: View {
     @Environment(\.habitTheme) private var habitTheme
     let habit: Habit
@@ -48,6 +53,10 @@ struct DayEditPopover: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var noteText: String = ""
+    /// What the day's note was last known to hold — seeded from
+    /// `currentNote`, moved on every write — so a commit that changes
+    /// nothing skips the save and widget reload behind `onNoteChanged`.
+    @State private var committedNote: String?
     @State private var isNoteExpanded: Bool = false
     @FocusState private var isNoteFocused: Bool
 
@@ -67,6 +76,7 @@ struct DayEditPopover: View {
         .padding()
         .frame(minWidth: 260, idealWidth: 300, maxWidth: 340)
         .onAppear { seedLocalState() }
+        .onDisappear { commitNote() }
     }
 
     private var header: some View {
@@ -327,23 +337,22 @@ struct DayEditPopover: View {
                 .font(.callout)
                 .focused($isNoteFocused)
                 .accessibilityLabel(String(localized: "Note"))
+                .accessibilityIdentifier(AccessibilityID.DayEdit.noteField)
                 .onChange(of: noteText) { _, newValue in
                     if newValue.count > noteCharLimit {
                         noteText = String(newValue.prefix(noteCharLimit))
                     }
                 }
-                .onSubmit { commitNote() }
+                .onSubmit { finishNote() }
 
                 HStack {
                     Text("\(noteText.count)/\(noteCharLimit)")
                         .font(.caption2)
                         .foregroundStyle(Color.kadoForegroundSecondary)
                     Spacer()
-                    Button(String(localized: "Done")) {
-                        commitNote()
-                        dismiss()
-                    }
-                    .font(.caption.weight(.medium))
+                    Button(String(localized: "Done"), action: finishNote)
+                        .font(.caption.weight(.medium))
+                        .accessibilityIdentifier(AccessibilityID.DayEdit.noteDone)
                 }
             }
         } else {
@@ -360,13 +369,25 @@ struct DayEditPopover: View {
                 .lineLimit(1)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier(AccessibilityID.DayEdit.noteExpand)
         }
+    }
+
+    /// Done and Return both end the note *and* the popover. The write
+    /// itself would happen on disappear anyway; committing first keeps
+    /// it from depending on the dismissal landing.
+    private func finishNote() {
+        commitNote()
+        dismiss()
     }
 
     private func commitNote() {
         isNoteFocused = false
         let trimmed = noteText.trimmingCharacters(in: .whitespacesAndNewlines)
-        onNoteChanged(trimmed.isEmpty ? nil : trimmed)
+        let note = trimmed.isEmpty ? nil : trimmed
+        guard note != committedNote else { return }
+        committedNote = note
+        onNoteChanged(note)
     }
 
     private var formattedDate: String {
@@ -380,6 +401,7 @@ struct DayEditPopover: View {
     /// Only the note draft is local state — see the type comment.
     private func seedLocalState() {
         noteText = currentNote ?? ""
+        committedNote = currentNote
         isNoteExpanded = currentNote != nil
     }
 }
