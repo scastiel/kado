@@ -110,7 +110,86 @@ final class DayEditPopoverTests: KadoUITestCase {
         )
     }
 
+    /// Done saves the note and closes the popover (#127); reopening
+    /// the day shows the note back.
+    @MainActor
+    func testDoneSavesTheNoteAndClosesThePopover() {
+        let app = launchApp(devMode: true)
+
+        tapTab(.today, in: app)
+        waitForTodayRows(in: app)
+        openCounterHabitDetail(in: app)
+
+        openDayEditPopover(daysAgo: 2, in: app)
+        typeNote("Done saves this", in: app)
+        app.buttons[AccessibilityID.DayEdit.noteDone].tap()
+
+        XCTAssertTrue(
+            app.staticTexts[AccessibilityID.DayEdit.value].waitForNonExistence(timeout: 5),
+            "Done should close the popover."
+        )
+        assertNoteReads("Done saves this", onDaysAgo: 2, in: app)
+    }
+
+    /// Closing the popover any other way keeps the draft too. Done was
+    /// the only path that wrote it, so a note tapped away from was lost.
+    @MainActor
+    func testTappingOutsideSavesTheNote() {
+        let app = launchApp(devMode: true)
+
+        tapTab(.today, in: app)
+        waitForTodayRows(in: app)
+        openCounterHabitDetail(in: app)
+
+        openDayEditPopover(daysAgo: 2, in: app)
+        typeNote("Tapped away from", in: app)
+        app.otherElements["PopoverDismissRegion"].firstMatch.tap()
+
+        XCTAssertTrue(
+            app.staticTexts[AccessibilityID.DayEdit.value].waitForNonExistence(timeout: 5),
+            "A tap outside should close the popover."
+        )
+        assertNoteReads("Tapped away from", onDaysAgo: 2, in: app)
+    }
+
     // MARK: - Driving
+
+    /// Opens the note field and types into it. Tapped rather than
+    /// trusted to auto-focus, which iOS 26.5 drops.
+    @MainActor
+    private func typeNote(_ text: String, in app: XCUIApplication) {
+        let expand = app.buttons[AccessibilityID.DayEdit.noteExpand]
+        XCTAssertTrue(expand.waitForExistence(timeout: 10), "The day-edit popover never appeared.")
+        expand.tap()
+        let field = noteField(in: app)
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(text)
+    }
+
+    /// Reopens the day and reads the note field, which a day with a
+    /// note opens expanded.
+    @MainActor
+    private func assertNoteReads(
+        _ text: String, onDaysAgo daysAgo: Int, in app: XCUIApplication,
+        file: StaticString = #filePath, line: UInt = #line
+    ) {
+        openDayEditPopover(daysAgo: daysAgo, in: app)
+        let field = noteField(in: app)
+        XCTAssertTrue(
+            field.waitForExistence(timeout: 10),
+            "Reopening the day should show its note.", file: file, line: line
+        )
+        capture(app, "day-edit-note-reopened")
+        XCTAssertEqual(field.value as? String, text, file: file, line: line)
+    }
+
+    @MainActor
+    private func noteField(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(identifier: AccessibilityID.DayEdit.noteField)
+            .firstMatch
+    }
 
     /// Taps the calendar cell for the given day, navigating back a
     /// month first when it falls in the previous one, and returns the
