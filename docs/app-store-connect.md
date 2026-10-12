@@ -1024,9 +1024,9 @@ Apple requires the **6.7" iPhone** set and the **13" iPad** set as of
 2026. Older sizes auto-scale from the 6.7".
 
 - **6.7" iPhone**: 1290 × 2796 or 1320 × 2868 px. We ship 1320 × 2868
-  (iPhone 17 Pro Max) — Apple folded the 6.9" canvas into the 6.7" set
-  rather than adding a size, so the App Store Connect display type is
-  still `APP_IPHONE_67`.
+  (iPhone 17 Pro Max), which the App Asset Library places in the
+  `IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE` group (the old set API called
+  it `APP_IPHONE_67`).
 - **13" iPad**: 2064 × 2752 px (iPad Pro 13")
 - Minimum **3** screenshots per locale, maximum **10**
 - PNG or JPEG, RGB color space, no transparency

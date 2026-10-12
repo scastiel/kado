@@ -1130,12 +1130,17 @@ make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
   otherwise have crept into a project that has none.
 - **The English listing is `en-CA`, not `en-US`.** Writing the wrong
   locale is not an error — App Store Connect adds a second English
-  localization beside the real one and says nothing. Likewise the live
-  iPhone screenshots sit under `APP_IPHONE_65` while these captures
-  belong to `APP_IPHONE_67`, so the first upload creates a set rather
-  than replacing one. `make listing-info` prints what the listing
-  actually holds and warns about anything `config.json` disagrees with;
-  run it before changing either.
+  localization beside the real one and says nothing. `make listing-info`
+  prints what the listing actually holds and warns about anything
+  `config.json` disagrees with; run it before changing either.
+- **Screenshots and creative go through the App Asset Library**, not
+  the deprecated screenshot sets: a file is uploaded once and *placed*
+  per localization and placement group. Groups are resolved from each
+  file's size against `/v1/appAssetLibraryRefData` at run time — never
+  hard-code `IPHONE_…_PROFILE` names. Deletes don't cascade: remove
+  placements first, and an image only once nothing places it, since the
+  live version shares images with the one being prepared. Placements
+  need a version in `PREPARE_FOR_SUBMISSION`.
 - **Every write has `--dry-run`**, which reads and compares exactly as
   the real run does and sends nothing. Use it: the API has no undo,
   and this is the copy customers read. It is what caught both of the

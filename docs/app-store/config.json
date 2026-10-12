@@ -3,21 +3,18 @@
     "The one place the screenshot pipeline and the App Store Connect uploader agree on what",
     "Kadō publishes: which languages, which device sizes, and which canvas each size needs.",
     "Scripts/screenshots.sh reads it to know what to photograph; Scripts/appstore.py reads it",
-    "to know which screenshot set each folder belongs in.",
+    "to know what to upload.",
     "",
-    "`displayType` is App Store Connect's own name for a screenshot set. Apple folded the 6.9\"",
-    "iPhone into the 6.7\" set rather than adding a size, so a 1320x2868 capture is uploaded as",
-    "APP_IPHONE_67 — the name is historical, the canvas is current. If Apple ever splits them,",
-    "this is the line that changes and nothing else.",
+    "Nothing here names App Store Connect's device families. Screenshots go through the App",
+    "Asset Library, where each is placed in a *placement group* (IPHONE_DYNAMIC_ISLAND_LARGE_",
+    "PROFILE, IPAD_13_PROFILE, …), and appstore.py looks the group up from `size` in Apple's",
+    "reference data on every run — Apple adds families there without an API version change, and",
+    "a hard-coded name is the thing that goes stale. `Scripts/appstore.py info` prints the groups",
+    "the listing holds and warns about any this file would not produce.",
     "",
     "The listing's own locales, not the ones you would guess: English here is en-CA, which is",
     "what App Store Connect actually holds. Writing en-US would not update it — it would add a",
-    "second English localization beside it. `Scripts/appstore.py info` prints the live list.",
-    "",
-    "Kadō's 1.6 listing carries its iPhone screenshots under APP_IPHONE_65, the older 6.5\" set",
-    "at 1284x2778. These captures are 1320x2868, which belongs to APP_IPHONE_67 — the size",
-    "Apple asks for now, and the one it scales every smaller device from. Uploading creates that",
-    "set; the stale 65 one stays until it is deleted in App Store Connect, and is redundant."
+    "second English localization beside it. `Scripts/appstore.py info` prints the live list."
   ],
   "bundleId": "dev.scastiel.kado",
   "languages": {
@@ -27,13 +24,11 @@
   "devices": {
     "iphone-6.9": {
       "simulator": "iPhone 17 Pro Max",
-      "size": "1320x2868",
-      "displayType": "APP_IPHONE_67"
+      "size": "1320x2868"
     },
     "ipad-13": {
       "simulator": "iPad Pro 13-inch (M5)",
-      "size": "2064x2752",
-      "displayType": "APP_IPAD_PRO_3GEN_129"
+      "size": "2064x2752"
     }
   }
 }
