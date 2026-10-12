@@ -1,4 +1,5 @@
-Version 1.13 — Des notes qui restent.
+Version 1.14 — Côte à côte.
 
-• La note d'un jour du calendrier est maintenant enregistrée quelle que soit la façon dont tu fermes la fenêtre. Toucher en dehors effaçait ce que tu venais d'écrire ; c'est maintenant conservé.
-• « Fait », sous la note d'un jour, ferme la fenêtre au lieu de la laisser ouverte.
+• Sur iPad, Aujourd'hui affiche maintenant tes habitudes et celle que tu choisis côte à côte. Touche une habitude pour voir son score, sa série et son calendrier à côté de la liste — et continue à noter depuis la liste sans la quitter.
+• La même disposition sur l'iPhone Duo une fois déplié. Plié, Kadō fonctionne comme sur n'importe quel iPhone.
+• Sur l'écran d'une habitude, la meilleure série tient maintenant sur une ligne au lieu de se couper en deux.
