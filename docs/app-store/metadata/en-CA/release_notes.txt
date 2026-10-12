@@ -1,4 +1,4 @@
-Version 1.13 — Notes that stay put.
+Version 1.14 — Side by side.
 
-• The note on a calendar day now saves however you leave it. Tapping outside the popover used to drop what you had typed; it is kept now.
-• Done, under a day's note, closes the popover instead of leaving it open.
+• On iPad, Today now shows your habits and the one you pick next to each other. Tap a habit to see its score, streak and calendar beside the list — and keep logging from the list without leaving it.
+• The same layout on iPhone Duo when it's unfolded. Folded, Kadō works as it does on any iPhone.

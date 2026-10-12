@@ -59,6 +59,34 @@ for key in sys.argv[2:]: d = d[key]
 print(d)' "$CONFIG" "$@"
 }
 
+# "1" when a boolean key is true in config.json, empty when it is false or absent.
+config_flag() {
+  python3 -c 'import json,sys; d=json.load(open(sys.argv[1]))
+for key in sys.argv[2:]: d = d.get(key, {}) if isinstance(d, dict) else {}
+print("1" if d is True else "")' "$CONFIG" "$@"
+}
+
+# Stops the run unless the device's display of `size` is lit — i.e. a foldable is unfolded.
+# Its displays are separate framebuffers, each photographable on its own; an unlit one comes
+# back as a black PNG of ~100 KB, where a lit one is megabytes.
+require_unfolded() {
+  local udid="$1" name="$2" size="$3" width height uuid shot
+  width="${size%x*}"; height="${size#*x}"
+  # `enumerate` lists a display in its native orientation, which may be the other way round.
+  uuid="$(xcrun simctl io "$udid" enumerate 2>/dev/null | awk -v a="$width" -v b="$height" '
+    /UUID:/ {u=$2} /Default width:/ {w=$3}
+    /Default height:/ { if ((w==a && $3==b) || (w==b && $3==a)) { print u; exit } }')"
+  shot="$(mktemp -t kado-fold).png"
+  xcrun simctl io "$udid" screenshot --display="$uuid" "$shot" > /dev/null 2>&1 || true
+  if [[ -z "$uuid" || ! -s "$shot" || "$(stat -f %z "$shot")" -lt 1000000 ]]; then
+    rm -f "$shot"
+    echo "'$name' is folded: its ${size} display is dark." >&2
+    echo "Unfold it in Device Hub (the simulator stays unfolded until it reboots), then re-run." >&2
+    exit 2
+  fi
+  rm -f "$shot"
+}
+
 # What a full run covers. Spelled out rather than read back out of the config, so this stays
 # readable in `bash -x` output and works on the bash 3.2 macOS still ships as /bin/bash.
 LANGUAGES=(en fr)
@@ -87,6 +115,7 @@ done
 for device in "${DEVICES[@]}"; do
   type_name="$(config devices "$device" simulator)"
   expected_size="$(config devices "$device" size)"
+  unfolded="$(config_flag devices "$device" unfolded)"
   sim_name="$SIM_PREFIX $device"
 
   echo "==> $type_name"
@@ -111,20 +140,31 @@ for device in "${DEVICES[@]}"; do
     # and writes it back when it feels like it. CoreSimulator writes the same file when it
     # creates and boots a device, and between the two the language can quietly fail to take.
     # `plutil` edits the file on disk and nothing else touches it while the device is off.
-    plist="$HOME/Library/Developer/CoreSimulator/Devices/$udid/data/Library/Preferences/.GlobalPreferences.plist"
-    xcrun simctl shutdown "$udid" 2>/dev/null || true
-    plutil -replace AppleLanguages -json "[\"$language\"]" "$plist"
-    plutil -replace AppleLocale -string "${language}_${region}" "$plist"
+    #
+    # Except on a device photographed *unfolded* (the iPhone Duo's inner display): a reboot folds
+    # it back up, nothing in simctl or XCTest can unfold it, and its status bar carries no date
+    # for the device language to get wrong — so it is booted once, unfolded by hand, and left
+    # alone, with the app's own language coming from the test's launch arguments as usual.
+    if [[ -z "$unfolded" ]]; then
+      plist="$HOME/Library/Developer/CoreSimulator/Devices/$udid/data/Library/Preferences/.GlobalPreferences.plist"
+      xcrun simctl shutdown "$udid" 2>/dev/null || true
+      plutil -replace AppleLanguages -json "[\"$language\"]" "$plist"
+      plutil -replace AppleLocale -string "${language}_${region}" "$plist"
 
-    xcrun simctl boot "$udid" 2>/dev/null || true
-    xcrun simctl bootstatus "$udid" -b > /dev/null
+      xcrun simctl boot "$udid" 2>/dev/null || true
+      xcrun simctl bootstatus "$udid" -b > /dev/null
 
-    # And check that it took, because the way this fails is a screenshot that looks right until
-    # someone reads the status bar. A wrong language here is worth a stopped run.
-    actual="$(xcrun simctl spawn "$udid" defaults read -g AppleLanguages | tr -d ' \n()\"')"
-    if [[ "$actual" != "$language"* ]]; then
-      echo "the simulator came up in '$actual', not '$language'" >&2
-      exit 1
+      # And check that it took, because the way this fails is a screenshot that looks right
+      # until someone reads the status bar. A wrong language here is worth a stopped run.
+      actual="$(xcrun simctl spawn "$udid" defaults read -g AppleLanguages | tr -d ' \n()\"')"
+      if [[ "$actual" != "$language"* ]]; then
+        echo "the simulator came up in '$actual', not '$language'" >&2
+        exit 1
+      fi
+    else
+      xcrun simctl boot "$udid" 2>/dev/null || true
+      xcrun simctl bootstatus "$udid" -b > /dev/null
+      require_unfolded "$udid" "$sim_name" "$expected_size"
     fi
 
     # Everything else that would otherwise date the picture: the clock, the battery, the signal.

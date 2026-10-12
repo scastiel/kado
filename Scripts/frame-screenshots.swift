@@ -161,20 +161,20 @@ struct Profile {
                 assembly: .twoColumns
             )
         case "iphone-duo":
-            // The iPhone Duo's outer display: wider than a phone, narrower than an iPad. The
-            // device is sized to the canvas's height rather than its width — at the phone's 0.80
-            // the screen would run off the bottom — and the widget tiles take the iPad's two
-            // columns, since one column would be a strip down the middle of a canvas this wide.
+            // The iPhone Duo's inner display, unfolded and in landscape: the one canvas in the
+            // set that is wider than it is tall. The device is sized so its screen clears the
+            // canvas's bottom under a two-line headline, and the widget tiles go in one row —
+            // either portrait arrangement, scaled to this width, would be taller than the canvas.
             return Profile(
-                canvas: NSSize(width: 1398, height: 2034),
-                screenWidthFraction: 0.74,
-                cornerFraction: 0.09,
-                bezel: 14,
-                headlineSize: 84,
-                headlineTop: 130,
+                canvas: NSSize(width: 2853, height: 2007),
+                screenWidthFraction: 0.66,
+                cornerFraction: 0.035,
+                bezel: 18,
+                headlineSize: 110,
+                headlineTop: 120,
                 headlineGap: 90,
-                headlineMargin: 110,
-                assembly: .twoColumns
+                headlineMargin: 220,
+                assembly: .wide
             )
         default:
             return nil
@@ -258,6 +258,26 @@ struct Assembly {
             // A touch over 1:1 on the 3× tiles — 1.03 — which is invisible at this size, and
             // buys the arrangement enough of the canvas not to float in the top half.
             widthFraction: 0.84
+        )
+    }()
+
+    /// The landscape canvas — the iPhone Duo's inner display — is wider than it is tall, and
+    /// both arrangements above would overflow it once scaled to its width. One row instead:
+    /// the large tile, then the medium over the small, then the lock card, tops aligned.
+    static let wide: Assembly = {
+        let gap = Assembly.gap
+        let middle = Tile.large.size.width + gap
+        let right = middle + Tile.medium.size.width + gap
+        return Assembly(
+            placements: [
+                (.large, NSPoint(x: 0, y: 0)),
+                (.medium, NSPoint(x: middle, y: 0)),
+                (.small, NSPoint(x: middle, y: Tile.medium.size.height + gap)),
+                (.lock, NSPoint(x: right, y: 0)),
+            ],
+            size: NSSize(width: right + Tile.lock.size.width, height: Tile.large.size.height),
+            // ~2.6× on the 3× tiles: still a downscale, so nothing goes soft.
+            widthFraction: 0.86
         )
     }()
 }

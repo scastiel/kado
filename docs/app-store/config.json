@@ -12,11 +12,13 @@
     "a hard-coded name is the thing that goes stale. `Scripts/appstore.py info` prints the groups",
     "the listing holds and warns about any this file would not produce.",
     "",
-    "iphone-duo is the iPhone Duo's *outer* display, 1398x2034 — the size Apple's",
-    "IPHONE_DUO_PROFILE takes beside the inner 2007x2853. Outer because Kadō is laid out for",
-    "it already, and because a fresh Duo simulator boots folded, so the capture runs unattended:",
-    "nothing in simctl or XCTest can unfold one, and the inner display stays black until a",
-    "person does it in Device Hub. Required for builds on the iOS 27.1 SDK from April 2027.",
+    "iphone-duo is the iPhone Duo's *inner* display in landscape, 2853x2007 — one of the sizes",
+    "Apple's IPHONE_DUO_PROFILE takes (the outer 1398x2034 is another; a set is one or the",
+    "other). Inner because it is the Duo's own screen, where Today shows the list and the",
+    "habit's detail side by side (#143). `unfolded` is what that costs: a Duo simulator boots",
+    "folded, nothing in simctl or XCTest can unfold it, and a reboot folds it again — so",
+    "screenshots.sh boots it once, checks the inner display is lit, and stops with a message",
+    "until somebody unfolds it in Device Hub. Required for 27.1-SDK builds from April 2027.",
     "",
     "The listing's own locales, not the ones you would guess: English here is en-CA, which is",
     "what App Store Connect actually holds. Writing en-US would not update it — it would add a",
@@ -38,7 +40,8 @@
     },
     "iphone-duo": {
       "simulator": "iPhone Duo",
-      "size": "1398x2034"
+      "size": "2853x2007",
+      "unfolded": true
     }
   }
 }

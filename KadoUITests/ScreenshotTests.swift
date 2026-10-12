@@ -32,7 +32,16 @@ final class ScreenshotTests: KadoUITestCase {
 
         // 2 — one habit's detail: the score, the streak, and the
         // monthly calendar underneath. The differentiator shot.
-        todayRows(in: app).firstMatch.tap()
+        //
+        // In regular width (iPad, the Duo's inner display) Today already
+        // shows the first habit's detail beside the list (#143), so
+        // opening that one again would make 02 the same picture as 01
+        // with a different month. There it opens the counter habit
+        // instead — partial days and a score short of 100%, which is
+        // what the headline over this shot is about. On a phone the
+        // first row stays, so that set doesn't move.
+        let splitLayout = app.buttons[AccessibilityID.HabitDetail.scoreCard].exists
+        (splitLayout ? todayRows(in: app).element(boundBy: 2) : todayRows(in: app).firstMatch).tap()
         assertReached(
             app.buttons[AccessibilityID.HabitDetail.scoreCard],
             "Tapping a Today row should push the habit's detail screen."
