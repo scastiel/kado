@@ -7,7 +7,8 @@ make screenshots     photograph the app, both languages, both device sizes, and 
 make frames          re-wrap the existing captures — new headline, no recapture
 make listing-check   lengths and image sizes, checked without the network
 make listing-info    what App Store Connect currently holds
-make listing         send the copy and the screenshots
+make listing         send the copy, the screenshots and the creative
+make listing-creative  send only the header and search creative
 ```
 
 `make listing` refuses to run until `make listing-check` passes, so a 31-character subtitle costs a second rather than a rejection that arrives days after the upload that caused it.
@@ -91,6 +92,16 @@ It is the same ground and the same Fraunces as the screenshots, laid out sideway
 Why the phone alone, and not the phone with widget tiles beside it: `docs/plans/2026-10/listing-creative/` has both mocks. The tiles repeated the list's rows at a smaller size and covered the "Slipped" row, which is the one that makes the headline's point.
 
 If one placement crops badly, the fallback is a dedicated asset rather than a compromise in this one: a 21:9 header (3840×1646) or a 3:2 search image.
+
+#### Uploading it
+
+`appstore.py creative` (in `make listing`, or alone as `make listing-creative`) sends it through the **App Asset Library**, the half of the API creative assets live in. Screenshot sets hang off the version; a creative is uploaded to the app's library once and then *placed* on each version localization, as `PRODUCT_PAGE_HEADER_ASSET` and as `APP_STORE_SEARCH_RESULTS_ASSET`.
+
+- **The spec is read, not written down.** Every run reads Apple's reference data (`/v1/appAssetLibraryRefData`) for the `universalAsset` image spec that serves both placements, and for the group each one is placed in (`DEFAULT_PROFILE` today). It stops if that spec no longer takes 5244×2950. After processing it checks that Apple filed the upload under that spec.
+- **Placements need a version being prepared.** Only `PREPARE_FOR_SUBMISSION` takes them, so a real run on anything else stops before writing. `--dry-run` warns and carries on, so the plan can be read between releases: `appstore.py creative --dry-run --version 1.13`.
+- **Re-running is free.** The API keeps no checksum, so each image is named `kado-creative-<locale>-<sha256 prefix>` in its `referenceName`. When both placements already show the file's name, nothing is sent. When an upload is in the library but not placed (an interrupted run), it is reused instead of uploaded again.
+- **Replacing leaves no orphans.** Placements are immutable and a version takes one of each, so a changed image means: delete the old placement, create the new one, then delete the old image, but only if nothing else still places it. The live version's localization may still be showing it, and the API refuses the delete while one does.
+- `make listing-info` lists each locale's header and search placements, with the image name and both states.
 
 ### Adding a shot
 

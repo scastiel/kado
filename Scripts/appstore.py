@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Push Kadō's listing — copy and screenshots — to App Store Connect.
+"""Push Kadō's listing — copy, screenshots and creative — to App Store Connect.
 
     Scripts/appstore.py check                  # lengths and files, no network
     Scripts/appstore.py info                   # what the API currently holds
     Scripts/appstore.py metadata               # names, descriptions, keywords, what's new
     Scripts/appstore.py screenshots            # the framed images, replacing what's there
-    Scripts/appstore.py all                    # both, metadata first
+    Scripts/appstore.py creative               # the product page header and search asset
+    Scripts/appstore.py all                    # all three, in that order
 
 Copy lives in docs/app-store/metadata/<locale>/<field>.txt, one file per field, because a
 description is four thousand characters of prose with its own line breaks and no JSON string
@@ -810,6 +811,285 @@ def upload_screenshot(client: Client, set_id: str, path: Path) -> str:
     return screenshot["id"]
 
 
+# MARK: - The creative: product page header and search results asset
+#
+# Creative assets exist only in the App Asset Library, a newer half of the API than the
+# screenshot sets above: an image is uploaded to the app's library once, then *placed* — on a
+# version localization, as a header or as a search results asset. Placements are immutable and
+# a version takes one of each, so replacing an image is delete-then-create, and deleting the
+# image afterwards is a separate step the API will refuse while any placement still uses it.
+#
+# The API keeps no checksum of what was uploaded, so the file's own hash rides in the image's
+# `referenceName` — the one free-text field it lets us set and filter on. A run that finds both
+# placements already pointing at an image with this file's name has nothing to do.
+
+CREATIVE_PLACEMENTS = ("PRODUCT_PAGE_HEADER_ASSET", "APP_STORE_SEARCH_RESULTS_ASSET")
+
+# Image states from which an asset can be placed. Everything before them is still uploading or
+# processing; FAILED is its own case.
+CREATIVE_READY = (
+    "PREPARE_FOR_SUBMISSION", "READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW",
+    "ACCEPTED", "APPROVED",
+)
+
+
+def creative_reference(locale: str, payload: bytes) -> str:
+    return f"kado-creative-{locale}-{hashlib.sha256(payload).hexdigest()[:16]}"
+
+
+def universal_creative_spec(client: Client) -> tuple[str, dict[str, str]]:
+    """The universal image spec and, per placement type, the group it is placed in.
+
+    Read from Apple's reference data at run time rather than written down here: Apple says to,
+    and the help page's numbers already disagreed with the live data the first time this ran.
+    """
+    reference = client.get(
+        "/v1/appAssetLibraryRefData",
+        **{"fields[appAssetLibraryRefData]": "imageSpecs,placementTypes"},
+    )["data"][0]["attributes"]
+    spec = next(
+        (
+            spec for spec in reference["imageSpecs"]
+            if spec.get("universalAsset")
+            and set(CREATIVE_PLACEMENTS) <= set(spec["compatiblePlacementTypes"])
+        ),
+        None,
+    )
+    if spec is None:
+        fail("Apple's reference data no longer lists a universal header + search image spec")
+    width, height = CREATIVE_SIZE
+    dimensions = spec["dimensions"]
+    if not (dimensions["minWidth"] <= width <= dimensions["maxWidth"]
+            and dimensions["minHeight"] <= height <= dimensions["maxHeight"]):
+        fail(
+            f"the universal creative spec ({spec['shortName']}) no longer takes "
+            f"{width}x{height} — CREATIVE_SIZE and the frame tool need to follow it"
+        )
+
+    groups = {}
+    for placement_type in reference["placementTypes"]:
+        if placement_type["placementTypeId"] not in CREATIVE_PLACEMENTS:
+            continue
+        for mapping in placement_type["specMappings"]:
+            if spec["specId"] in mapping["specs"]:
+                groups[placement_type["placementTypeId"]] = mapping["placementGroupId"]
+    missing = set(CREATIVE_PLACEMENTS) - set(groups)
+    if missing:
+        fail(f"no placement group takes the universal spec for {', '.join(sorted(missing))}")
+    return spec["specId"], groups
+
+
+def creative_placements(client: Client, localization_id: str) -> dict[str, tuple[dict, dict]]:
+    """The localization's header and search placements, each with the image it shows."""
+    response = client.get(
+        f"/v1/appStoreVersionLocalizations/{localization_id}/placements",
+        **{
+            "filter[placementType]": ",".join(CREATIVE_PLACEMENTS),
+            "include": "image",
+            "limit": "50",
+        },
+    )
+    images = {item["id"]: item for item in response.get("included", [])}
+    placements = {}
+    for placement in response["data"]:
+        image_id = placement["relationships"]["image"]["data"]["id"]
+        placements[placement["attributes"]["placementType"]] = (
+            placement, images.get(image_id, {"id": image_id, "attributes": {}})
+        )
+    return placements
+
+
+def push_creative(client: Client, config: dict, locales: list[str], wanted_version: str | None):
+    app = find_app(client, config["bundleId"])
+    version = find_version(client, app["id"], wanted_version)
+    state = state_of(version)
+    print(
+        f"{app['attributes']['name']} — creative, version "
+        f"{version['attributes']['versionString']} ({state})"
+    )
+    # Narrower than the copy's `EDITABLE_STATES`: Apple places assets only on a version being
+    # prepared, and refuses the rest with a STATE_ERROR from the middle of the run.
+    if state != "PREPARE_FOR_SUBMISSION":
+        message = (
+            f"placements can only be made on a version in PREPARE_FOR_SUBMISSION, and "
+            f"{version['attributes']['versionString']} is {state}. Open the next version "
+            "first (create-version)."
+        )
+        if not client.dry_run:
+            fail(message)
+        print(f"  ! {message}\n    Dry run, so carrying on to show what would change.")
+
+    library_id = client.get(f"/v1/apps/{app['id']}/assetLibrary")["data"]["id"]
+    spec_id, groups = universal_creative_spec(client)
+    version_localizations = localizations(
+        client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
+    )
+
+    for locale in locales:
+        print(f"\n{locale}")
+        path = MARKETING_DIR / locale / CREATIVE_PATH
+        if not path.exists():
+            print(f"  - nothing at {path.relative_to(ROOT)}, left alone")
+            continue
+        localization = version_localizations.get(locale)
+        if localization is None:
+            fail(
+                f"App Store Connect has no {locale} localization to place the creative on. "
+                "Run `metadata` first — it creates one."
+            )
+
+        payload = path.read_bytes()
+        reference = creative_reference(locale, payload)
+        placed = creative_placements(client, localization["id"])
+        if all(
+            placement_type in placed
+            and placed[placement_type][1]["attributes"].get("referenceName") == reference
+            for placement_type in CREATIVE_PLACEMENTS
+        ):
+            print(f"  = header and search results already show {reference}")
+            continue
+
+        image_id = creative_image(client, library_id, spec_id, path, payload, reference)
+
+        replaced = set()
+        for placement_type in CREATIVE_PLACEMENTS:
+            current = placed.get(placement_type)
+            if current and current[1]["id"] == image_id:
+                print(f"  = {placement_type} already shows it")
+                continue
+            if current:
+                was = current[1]["attributes"].get("referenceName") or current[1]["id"]
+                print(f"  ✗ {placement_type}: removing the placement of {was}")
+                client.delete(f"/v1/appAssetLibraryPlacements/{current[0]['id']}")
+                replaced.add(current[1]["id"])
+            print(f"  + {placement_type} ({groups[placement_type]}) → {reference}")
+            client.post(
+                "/v1/appAssetLibraryPlacements",
+                {
+                    "data": {
+                        "type": "appAssetLibraryPlacements",
+                        "attributes": {
+                            "placementType": placement_type,
+                            "placementGroup": groups[placement_type],
+                        },
+                        "relationships": {
+                            "image": {
+                                "data": {"type": "appAssetLibraryImages", "id": image_id}
+                            },
+                            "appStoreVersionLocalization": {
+                                "data": {
+                                    "type": "appStoreVersionLocalizations",
+                                    "id": localization["id"],
+                                }
+                            },
+                        },
+                    }
+                },
+            )
+
+        # An image this run took off the version is deleted only once nothing places it: the
+        # live version's localization, or another locale, may still be showing it, and the
+        # API refuses the delete anyway while one does. A dry run removed nothing, so it says
+        # what it would check instead of checking it.
+        for old_id in sorted(replaced):
+            if client.dry_run:
+                print(f"  ? {old_id}: deleted afterwards if nothing else places it")
+                continue
+            remaining = client.get(
+                f"/v1/appAssetLibraryImages/{old_id}/relationships/placements"
+            )["data"]
+            if remaining:
+                print(f"  - {old_id}: still placed {len(remaining)} time(s) elsewhere, kept")
+            else:
+                client.delete(f"/v1/appAssetLibraryImages/{old_id}")
+                print(f"  ✗ {old_id}: no placements left, deleted from the library")
+
+
+def creative_image(
+    client: Client, library_id: str, spec_id: str, path: Path, payload: bytes, reference: str
+) -> str:
+    """The id of a library image holding exactly this file, uploading it if there is none.
+
+    An image left by an interrupted run — uploaded, never placed — is found by its name and
+    reused rather than uploaded a second time beside itself.
+    """
+    existing = client.get(
+        f"/v1/appAssetLibraries/{library_id}/images",
+        **{
+            "filter[category]": "CREATIVE_ASSETS",
+            "filter[referenceName]": reference,
+        },
+    )["data"]
+    for image in existing:
+        attributes = image["attributes"]
+        if attributes.get("state") in CREATIVE_READY and attributes.get("specId") == spec_id:
+            print(f"  · {reference} is already in the library ({attributes['state']})")
+            return image["id"]
+        # Half-uploaded or failed: of no use, and in the way of the name.
+        print(f"  ✗ {reference}: discarding a {attributes.get('state')} copy")
+        client.delete(f"/v1/appAssetLibraryImages/{image['id']}")
+
+    print(f"  ↑ uploading {path.name} as {reference}")
+    reservation = client.post(
+        "/v1/appAssetLibraryImages",
+        {
+            "data": {
+                "type": "appAssetLibraryImages",
+                "attributes": {
+                    "fileName": path.name,
+                    "fileSize": len(payload),
+                    "category": "CREATIVE_ASSETS",
+                    "referenceName": reference,
+                },
+                "relationships": {
+                    "assetLibrary": {"data": {"type": "appAssetLibraries", "id": library_id}}
+                },
+            }
+        },
+    )
+    if client.dry_run:
+        return DRY_RUN_ID
+
+    image = reservation["data"]
+    for operation in image["attributes"]["uploadOperations"]:
+        chunk = payload[operation["offset"] : operation["offset"] + operation["length"]]
+        headers = {
+            header["name"]: header["value"] for header in operation.get("requestHeaders", [])
+        }
+        client.request(
+            operation["method"], "", body=chunk,
+            raw_url=operation["url"], headers=headers, authorize=False,
+        )
+    # No checksum here, unlike a screenshot: the library checks the bytes against `fileSize`.
+    client.patch(
+        f"/v1/appAssetLibraryImages/{image['id']}",
+        {"data": {"type": "appAssetLibraryImages", "id": image["id"],
+                  "attributes": {"uploaded": True}}},
+    )
+
+    # Processing is where Apple decides which spec the file meets. Placing an image before it
+    # has one is refused, and an image that met some other spec would place as the wrong thing.
+    deadline = time.time() + 10 * 60
+    while True:
+        attributes = client.get(f"/v1/appAssetLibraryImages/{image['id']}")["data"]["attributes"]
+        state = attributes.get("state")
+        if state in CREATIVE_READY:
+            break
+        if state == "FAILED":
+            client.delete(f"/v1/appAssetLibraryImages/{image['id']}")
+            fail(f"App Store Connect refused {path.name}: {attributes.get('stateDetails')}")
+        if time.time() > deadline:
+            fail(f"{path.name} is still {state} after ten minutes — re-run to pick it up")
+        time.sleep(5)
+    if attributes.get("specId") != spec_id:
+        fail(
+            f"{path.name} was processed as spec {attributes.get('specId')}, not the universal "
+            f"creative {spec_id} — it would not place as both header and search asset"
+        )
+    print(f"  ✓ processed ({state})")
+    return image["id"]
+
+
 # MARK: - Reading back
 
 
@@ -859,6 +1139,18 @@ def show_info(client: Client, config: dict):
             )
             counts.append(f"{display_type}×{len(shots)}")
         print(f"  {locale:<8} {', '.join(counts) if counts else 'no screenshots'}")
+        placed = creative_placements(client, localization["id"])
+        for placement_type in CREATIVE_PLACEMENTS:
+            if placement_type not in placed:
+                print(f"           {placement_type}: none")
+                continue
+            placement, image = placed[placement_type]
+            name = image["attributes"].get("referenceName") or image["id"]
+            print(
+                f"           {placement_type}: {name}"
+                f" (placement {placement['attributes']['state']},"
+                f" image {image['attributes'].get('state')})"
+            )
 
     # What the listing holds versus what this repo is about to send it. Both mismatches below
     # are silent failures rather than errors: a locale we don't have would *add* a second
@@ -891,7 +1183,9 @@ def main() -> int:
     )
     parser.add_argument(
         "command",
-        choices=["check", "info", "create-version", "metadata", "screenshots", "all"],
+        choices=[
+            "check", "info", "create-version", "metadata", "screenshots", "creative", "all",
+        ],
     )
     parser.add_argument(
         "version_string",
@@ -928,13 +1222,14 @@ def main() -> int:
     if arguments.command == "create-version" and not arguments.version_string:
         fail("create-version needs the version to open, e.g. create-version 1.7")
 
-    if arguments.command in ("create-version", "metadata", "screenshots", "all") \
+    if arguments.command in ("create-version", "metadata", "screenshots", "creative", "all") \
             and not arguments.dry_run:
         if not arguments.yes and sys.stdin.isatty():
             what = {
-                "all": f"copy and screenshots for {', '.join(locales)}",
+                "all": f"copy, screenshots and the creative for {', '.join(locales)}",
                 "metadata": f"copy for {', '.join(locales)}",
                 "screenshots": f"screenshots for {', '.join(locales)}",
+                "creative": f"the header and search creative for {', '.join(locales)}",
                 "create-version": f"a new version {arguments.version_string}",
             }[arguments.command]
             print(f"About to write {what} to App Store Connect.")
@@ -958,6 +1253,10 @@ def main() -> int:
         push_screenshots(
             client, config, locales, arguments.version, prune=arguments.prune_sets
         )
+    if arguments.command in ("creative", "all"):
+        if arguments.command == "all":
+            print()
+        push_creative(client, config, locales, arguments.version)
 
     if not arguments.dry_run and arguments.command in ("metadata", "screenshots", "all"):
         print("\nDone. Review it in App Store Connect before submitting.")
