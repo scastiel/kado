@@ -102,12 +102,25 @@ nonisolated enum UITestSupport {
         /// here a user can change later — see the note at the top of
         /// this file.
         static let habitTheme = "-uiTestHabitTheme"
+        /// Report a signed-in iCloud account with healthy sync. A run
+        /// under `-uiTestRun` drops CloudKit, so the real observer
+        /// honestly says "no account" — and the Settings screenshot,
+        /// headlined "No account. No tracking. Ever.", then opened on
+        /// an orange sign-in warning (#135).
+        static let iCloudAvailable = "-uiTestICloudAvailable"
     }
 
     /// Whether `KadoApp` should stand in an owning mock for StoreKit.
     static var forcesSupporter: Bool {
         isRunningUITests
             && ProcessInfo.processInfo.arguments.contains(Argument.supporter)
+    }
+
+    /// Whether `KadoApp` should stand in a signed-in, syncing iCloud
+    /// account for the real observer.
+    static var reportsICloudAvailable: Bool {
+        isRunningUITests
+            && ProcessInfo.processInfo.arguments.contains(Argument.iCloudAvailable)
     }
 
     /// Whether the root view should be the widget gallery.
