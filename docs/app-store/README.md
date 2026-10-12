@@ -19,7 +19,7 @@ make listing-creative  send only the header and search creative
 
 | Path | What it is |
 |---|---|
-| `config.json` | The languages, the device sizes, and the App Store Connect screenshot set each size belongs to. The one table both halves of the pipeline read. |
+| `config.json` | The languages and the device sizes. The one table both halves of the pipeline read. Each size's App Store Connect placement group is looked up at upload time, never written here. |
 | `metadata/<locale>/*.txt` | The copy. One file per field, because a description is four thousand characters of prose with its own line breaks and no JSON string survives being edited by hand at that length. |
 | `captions.json` | The headline drawn across the top of each screenshot, per locale. |
 | `screenshots/<locale>/<device>/` | The raw captures. The source of truth — committed, and never edited by hand. |
@@ -36,9 +36,9 @@ make listing-creative  send only the header and search creative
 
 Kadō's English listing is **`en-CA`**, not `en-US`. That is what App Store Connect actually holds, and it is not something to guess at: writing `en-US` would not update the English listing, it would quietly add a second English localization beside it. The API accepts that without complaint.
 
-`make listing-info` prints the live locales and screenshot sets, and warns about anything in `config.json` that doesn't match them. Run it before changing either.
+`make listing-info` prints the live locales and each locale's screenshots per placement group, and warns about anything in `config.json` that doesn't match them. Run it before changing either.
 
-The same applies to screenshot sets. The 1.6 listing carries its iPhone shots under `APP_IPHONE_65` (the older 6.5" canvas, 1284×2778); these captures are 1320×2868, which belongs to `APP_IPHONE_67` — the size Apple asks for now and scales every smaller device from. The first upload therefore *creates* that set rather than replacing anything, and the old 6.5" one sits there until it is deleted by hand in App Store Connect.
+The same applies to device families. Screenshots are placed in **placement groups** (`IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE` for the 1320×2868 captures, `IPAD_13_PROFILE` for the 2064×2752 ones). `appstore.py` resolves the group from each file's size against Apple's reference data, because Apple adds families there without an API version change. A group the listing holds that `config.json` would not produce is left alone and reported. `--prune-groups` removes it; that is how a stale smaller-iPhone family would be cleared. Under the old set API this was the `APP_IPHONE_65` set the 1.6 listing carried beside the current `APP_IPHONE_67` one.
 
 ---
 
@@ -128,6 +128,21 @@ The universal image was tried in search first, and in Apple's Preview tool it re
 ### The marketing site
 
 `getkado.app` ships the same captures, unframed, at the canvas its CSS was built against. `make screenshots` and `make frames` both regenerate `docs/screenshots/iphone-67-appstore/` from the iPhone captures, so the site and the listing cannot drift apart — they had, quietly, for several releases. `make site-shots` does only that step. Push the folder and the Pages workflow redeploys.
+
+### Uploading them
+
+`appstore.py screenshots` (in `make listing`) goes through the **App Asset Library**, like the creative. The screenshot-set endpoints it used before are deprecated.
+
+- **Each file is uploaded once,** named `kado-shot-<name>-<sha256 prefix>` in its `referenceName`. It is then *placed* as `APP_SCREENSHOT` in its group, per localization.
+- **Re-running costs nothing.** The whole run is planned first. A group that already shows exactly these files, in this order, is left alone. A file already in the library is placed rather than uploaded again, so a run interrupted halfway picks up where it stopped.
+- **A changed group is reconciled, not wiped:**
+  1. placements already showing a wanted file stay;
+  2. the rest are deleted;
+  3. the missing ones are placed;
+  4. one ordering request per group sets the display order.
+- **Uploads are batched:** every missing file is uploaded first, then all of them are waited on together, since processing takes a while per image.
+- **Images are deleted only when nothing places them.** The version being prepared shares its images with the live one, which must keep them.
+- Placements need a version in `PREPARE_FOR_SUBMISSION`, as for the creative. `--dry-run --version <live>` still prints the plan between releases.
 
 ---
 

@@ -655,206 +655,50 @@ def _push(client, listing, mapping, *, existing, collection, parent):
     )
 
 
-# MARK: - Screenshots
-
-
-def push_screenshots(
-    client: Client, config: dict, locales: list[str], wanted_version: str | None,
-    prune: bool = False,
-):
-    app = find_app(client, config["bundleId"])
-    version = find_version(client, app["id"], wanted_version)
-    print(
-        f"{app['attributes']['name']} — version {version['attributes']['versionString']}"
-        f" ({state_of(version)})"
-    )
-    version_localizations = localizations(
-        client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
-    )
-
-    for locale in locales:
-        localization = version_localizations.get(locale)
-        if localization is None:
-            fail(
-                f"App Store Connect has no {locale} localization to hang screenshots on. "
-                "Run `metadata` first — it creates one."
-            )
-        print(f"\n{locale}")
-        sets = {
-            item["attributes"]["screenshotDisplayType"]: item
-            for item in client.get_all(
-                f"/v1/appStoreVersionLocalizations/{localization['id']}/appScreenshotSets"
-            )
-        }
-
-        for device, spec in config["devices"].items():
-            folder = MARKETING_DIR / locale / device
-            shots = sorted(folder.glob("*.png")) if folder.is_dir() else []
-            if not shots:
-                print(f"  - {device}: nothing in {folder.relative_to(ROOT)}, left alone")
-                continue
-
-            display_type = spec["displayType"]
-            screenshot_set = sets.get(display_type)
-            print(f"  {device} → {display_type}")
-            if screenshot_set is None:
-                print("    creating the set, which the listing does not have yet")
-                created = client.post(
-                    "/v1/appScreenshotSets",
-                    {
-                        "data": {
-                            "type": "appScreenshotSets",
-                            "attributes": {"screenshotDisplayType": display_type},
-                            "relationships": {
-                                "appStoreVersionLocalization": {
-                                    "data": {
-                                        "type": "appStoreVersionLocalizations",
-                                        "id": localization["id"],
-                                    }
-                                }
-                            },
-                        }
-                    },
-                )
-                screenshot_set = created["data"]
-
-            set_id = screenshot_set["id"]
-            # Replaced wholesale rather than diffed. The API has no way to ask "is this the
-            # same picture", the set is at most ten small files, and a half-updated set — new
-            # shot 3 beside old shot 4 — is the failure worth designing away.
-            #
-            # Nothing to replace in a set that does not exist yet — which in a dry run is
-            # every set the listing is missing, and whose id is a placeholder that would 404.
-            existing = (
-                []
-                if set_id == DRY_RUN_ID
-                else client.get_all(f"/v1/appScreenshotSets/{set_id}/appScreenshots")
-            )
-            for screenshot in existing:
-                client.delete(f"/v1/appScreenshots/{screenshot['id']}")
-            if existing:
-                print(f"    removed {len(existing)} existing screenshot(s)")
-
-            uploaded = []
-            for shot in shots:
-                uploaded.append(upload_screenshot(client, set_id, shot))
-                print(f"    {shot.name}")
-
-            if client.dry_run:
-                print(f"  ✓ {device}: {len(shots)} screenshots (dry run, nothing sent)")
-                continue
-
-            # The order the set is shown in, which is not the order they were created in.
-            client.patch(
-                f"/v1/appScreenshotSets/{set_id}/relationships/appScreenshots",
-                {"data": [{"type": "appScreenshots", "id": i} for i in uploaded]},
-            )
-            print(f"  ✓ {device}: {len(shots)} screenshots")
-
-        # Sets the listing has and this repo does not. Left alone by default — deleting
-        # somebody's screenshots on a flag they didn't pass is not a thing a tool should do.
-        #
-        # But leaving them is not harmless either: Apple serves the closest set it has and
-        # scales down from there, so an old 6.5" set beside a fresh 6.7" one means two
-        # different people see two different listings, one of them out of date. That is
-        # exactly the drift this pipeline exists to remove, hence the flag.
-        configured_types = {device["displayType"] for device in config["devices"].values()}
-        for display_type, screenshot_set in sorted(sets.items()):
-            if display_type in configured_types:
-                continue
-            if not prune:
-                print(
-                    f"  - {display_type}: in the listing but not in config.json, left as it is"
-                    " (--prune-sets removes it)"
-                )
-                continue
-            print(f"  ✗ {display_type}: removing, nothing here replaces it")
-            client.delete(f"/v1/appScreenshotSets/{screenshot_set['id']}")
-
-
-def upload_screenshot(client: Client, set_id: str, path: Path) -> str:
-    """Reserve, upload, then commit — the three steps every asset in this API takes."""
-    payload = path.read_bytes()
-    reservation = client.post(
-        "/v1/appScreenshots",
-        {
-            "data": {
-                "type": "appScreenshots",
-                "attributes": {"fileName": path.name, "fileSize": len(payload)},
-                "relationships": {
-                    "appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": set_id}}
-                },
-            }
-        },
-    )
-    if client.dry_run:
-        return DRY_RUN_ID
-
-    screenshot = reservation["data"]
-    for operation in screenshot["attributes"]["uploadOperations"]:
-        chunk = payload[operation["offset"] : operation["offset"] + operation["length"]]
-        headers = {
-            header["name"]: header["value"] for header in operation.get("requestHeaders", [])
-        }
-        client.request(
-            operation["method"], "", body=chunk,
-            raw_url=operation["url"], headers=headers, authorize=False,
-        )
-
-    # The checksum is Apple's proof the bytes arrived whole. MD5 is what the API asks for; it
-    # is an integrity check against a truncated upload, not a security claim.
-    client.patch(
-        f"/v1/appScreenshots/{screenshot['id']}",
-        {
-            "data": {
-                "type": "appScreenshots",
-                "id": screenshot["id"],
-                "attributes": {
-                    "uploaded": True,
-                    "sourceFileChecksum": hashlib.md5(payload).hexdigest(),
-                },
-            }
-        },
-    )
-    return screenshot["id"]
-
-
-# MARK: - The creative: product page header and search results asset
+# MARK: - The App Asset Library
 #
-# Creative assets exist only in the App Asset Library, a newer half of the API than the
-# screenshot sets above: an image is uploaded to the app's library once, then *placed* — on a
-# version localization, as a header or as a search results asset. Placements are immutable and
-# a version takes one of each, so replacing an image is delete-then-create, and deleting the
-# image afterwards is a separate step the API will refuse while any placement still uses it.
+# Everything the listing shows — the screenshots and the header and search creative — lives in
+# the app's asset library. A file is uploaded to the library *once* and then *placed*: on a
+# version localization, as a placement type (APP_SCREENSHOT, PRODUCT_PAGE_HEADER_ASSET, …) in a
+# placement group (IPHONE_DYNAMIC_ISLAND_LARGE_PROFILE, DEFAULT_PROFILE, …). This replaced the
+# screenshot-set endpoints Apple deprecated in October 2026: the set-based API uploaded the same
+# picture once per localization, kept no shared record of it, and named device sizes with
+# display types that drift from the canvases Apple actually asks for.
 #
-# The API keeps no checksum of what was uploaded, so the file's own hash rides in the image's
-# `referenceName` — the one free-text field it lets us set and filter on. A run that finds both
-# placements already pointing at an image with this file's name has nothing to do.
-
-CREATIVE_PLACEMENTS = ("PRODUCT_PAGE_HEADER_ASSET", "APP_STORE_SEARCH_RESULTS_ASSET")
+# Three things about the model shape everything below:
+#
+# - **Placement groups are looked up, never written down.** Apple adds device families to the
+#   reference data without an API version change, so a file's group comes from its pixel size
+#   and the placement type, matched against `/v1/appAssetLibraryRefData` on every run.
+# - **The API keeps no checksum**, so a file's hash rides in its image's `referenceName` — the
+#   one free-text field it lets us set and filter on. A file already in the library under its
+#   own name is placed again rather than uploaded again; a placement already showing it is left.
+# - **Deletes don't cascade.** An image cannot be deleted while anything places it, so removing
+#   one is placements first, image after — and only once nothing else places it: the live
+#   version's localizations share images with the one being prepared, and must keep them.
 
 # Image states from which an asset can be placed. Everything before them is still uploading or
 # processing; FAILED is its own case.
-CREATIVE_READY = (
+LIBRARY_READY = (
     "PREPARE_FOR_SUBMISSION", "READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW",
     "ACCEPTED", "APPROVED",
 )
 
 
-def creative_reference(locale: str, payload: bytes) -> str:
-    return f"kado-creative-{locale}-{hashlib.sha256(payload).hexdigest()[:16]}"
+@dataclass
+class LibraryFile:
+    """A local file on its way to the library: what it is called there, and the spec it meets."""
+    path: Path
+    payload: bytes
+    reference: str
+    spec_id: str
 
 
-# Which file each placement shows, first one present wins. The header takes the universal 16:9;
-# search takes its own 3:2 when there is one, because search shows every pixel of an image the
-# header only shows the top of, and falls back to the universal one when there isn't.
-CREATIVE_SOURCES = {
-    "PRODUCT_PAGE_HEADER_ASSET": ("universal.png",),
-    "APP_STORE_SEARCH_RESULTS_ASSET": ("search.png", "universal.png"),
-}
+def content_reference(prefix: str, payload: bytes) -> str:
+    return f"{prefix}-{hashlib.sha256(payload).hexdigest()[:16]}"
 
 
-def creative_reference_data(client: Client) -> dict:
+def reference_data(client: Client) -> dict:
     """Apple's image specs and placement types, read at run time rather than written down here:
     Apple says to, and the help page's numbers already disagreed with the live data the first
     time this ran."""
@@ -864,64 +708,212 @@ def creative_reference_data(client: Client) -> dict:
     )["data"][0]["attributes"]
 
 
-def creative_spec(reference: dict, placement_type: str, size: tuple[int, int]) -> tuple[str, str]:
+def library_spec(reference: dict, placement_type: str, size: tuple[int, int]) -> tuple[str, str]:
     """The spec an image of `size` meets for `placement_type`, and the group it is placed in.
 
-    Matched on the placement and the pixel size alone, which is enough: the universal 16:9 is
-    one exact size, and the search-only 3:2 is a range no 16:9 falls into. Whatever Apple's
-    processing then files the upload under is checked against this.
+    Matched on the placement and the pixel size alone, which is enough for everything Kadō
+    publishes: each screenshot canvas belongs to exactly one device family's spec, the universal
+    creative is one exact size, and the search-only 3:2 is a range no 16:9 falls into. What
+    Apple's processing then files the upload under is checked against this.
     """
     width, height = size
-    for spec in reference["imageSpecs"]:
-        dimensions = spec["dimensions"]
-        if (placement_type in spec["compatiblePlacementTypes"]
-                and dimensions["minWidth"] <= width <= dimensions["maxWidth"]
-                and dimensions["minHeight"] <= height <= dimensions["maxHeight"]):
-            break
-    else:
-        fail(
-            f"no image spec in Apple's reference data takes a {width}x{height} "
-            f"{placement_type} — the frame tool's sizes need to follow it"
-        )
     for entry in reference["placementTypes"]:
         if entry["placementTypeId"] != placement_type:
             continue
         for mapping in entry["specMappings"]:
-            if spec["specId"] in mapping["specs"]:
-                return spec["specId"], mapping["placementGroupId"]
-    fail(f"no placement group takes spec {spec['shortName']} for {placement_type}")
+            for spec in reference["imageSpecs"]:
+                if spec["specId"] not in mapping["specs"]:
+                    continue
+                dimensions = spec["dimensions"]
+                if (dimensions["minWidth"] <= width <= dimensions["maxWidth"]
+                        and dimensions["minHeight"] <= height <= dimensions["maxHeight"]):
+                    return spec["specId"], mapping["placementGroupId"]
+    fail(
+        f"no {placement_type} spec in Apple's reference data takes a {width}x{height} image — "
+        "the capture sizes in config.json and the frame tool need to follow it"
+    )
 
 
-def creative_placements(client: Client, localization_id: str) -> dict[str, tuple[dict, dict]]:
-    """The localization's header and search placements, each with the image it shows."""
+def library_index(client: Client, library_id: str, category: str) -> dict[str, list[dict]]:
+    """Every image in one category of the library, by `referenceName` — read once per run rather
+    than asked about one file at a time."""
+    index: dict[str, list[dict]] = {}
+    for image in client.get_all(
+        f"/v1/appAssetLibraries/{library_id}/images",
+        **{"filter[category]": category, "limit": "200"},
+    ):
+        index.setdefault(image["attributes"].get("referenceName") or "", []).append(image)
+    return index
+
+
+def ensure_images(
+    client: Client, library_id: str, category: str, files: list[LibraryFile],
+    index: dict[str, list[dict]],
+) -> dict[str, str]:
+    """A library image id for each file, uploading only the ones the library doesn't have.
+
+    Every missing file is reserved, uploaded and committed first, and only then are they all
+    waited on together: processing takes a while per image, and a listing's worth of screenshots
+    waited on one at a time is the better part of a quarter of an hour.
+
+    An image left by an interrupted run — uploaded, never placed — is found by its name and
+    reused, which is what makes a half-finished run resumable.
+    """
+    ids: dict[str, str] = {}
+    pending: dict[str, LibraryFile] = {}
+    seen: set[str] = set()
+    for file in files:
+        if file.reference in seen:
+            continue
+        seen.add(file.reference)
+        for image in index.get(file.reference, []):
+            attributes = image["attributes"]
+            if attributes.get("state") in LIBRARY_READY and attributes.get("specId") == file.spec_id:
+                ids[file.reference] = image["id"]
+                break
+            # Half-uploaded or failed: of no use, and in the way of the name.
+            print(f"  ✗ {file.reference}: discarding a {attributes.get('state')} copy")
+            client.delete(f"/v1/appAssetLibraryImages/{image['id']}")
+        if file.reference in ids:
+            continue
+
+        print(f"  ↑ uploading {file.path.name} as {file.reference}")
+        reservation = client.post(
+            "/v1/appAssetLibraryImages",
+            {
+                "data": {
+                    "type": "appAssetLibraryImages",
+                    "attributes": {
+                        "fileName": file.path.name,
+                        "fileSize": len(file.payload),
+                        "category": category,
+                        "referenceName": file.reference,
+                    },
+                    "relationships": {
+                        "assetLibrary": {"data": {"type": "appAssetLibraries", "id": library_id}}
+                    },
+                }
+            },
+        )
+        if client.dry_run:
+            ids[file.reference] = f"{DRY_RUN_ID}:{file.reference}"
+            continue
+        image = reservation["data"]
+        for operation in image["attributes"]["uploadOperations"]:
+            chunk = file.payload[operation["offset"] : operation["offset"] + operation["length"]]
+            headers = {
+                header["name"]: header["value"] for header in operation.get("requestHeaders", [])
+            }
+            client.request(
+                operation["method"], "", body=chunk,
+                raw_url=operation["url"], headers=headers, authorize=False,
+            )
+        # No checksum: the library checks the bytes against `fileSize`.
+        client.patch(
+            f"/v1/appAssetLibraryImages/{image['id']}",
+            {"data": {"type": "appAssetLibraryImages", "id": image["id"],
+                      "attributes": {"uploaded": True}}},
+        )
+        pending[image["id"]] = file
+
+    # Processing is where Apple decides which spec a file meets. Placing an image before it has
+    # one is refused, and an image that met some other spec would place as the wrong thing.
+    deadline = time.time() + 10 * 60
+    while pending:
+        for image_id, file in list(pending.items()):
+            attributes = client.get(f"/v1/appAssetLibraryImages/{image_id}")["data"]["attributes"]
+            state = attributes.get("state")
+            if state == "FAILED":
+                client.delete(f"/v1/appAssetLibraryImages/{image_id}")
+                fail(f"App Store Connect refused {file.path}: {attributes.get('stateDetails')}")
+            if state not in LIBRARY_READY:
+                continue
+            if attributes.get("specId") != file.spec_id:
+                fail(
+                    f"{file.path} was processed as spec {attributes.get('specId')}, not "
+                    f"{file.spec_id} — it would not place where it is meant to"
+                )
+            ids[file.reference] = image_id
+            del pending[image_id]
+        if pending and time.time() > deadline:
+            names = ", ".join(file.path.name for file in pending.values())
+            fail(f"still processing after ten minutes: {names} — re-run to pick them up")
+        if pending:
+            time.sleep(5)
+    return ids
+
+
+def localization_placements(
+    client: Client, localization_id: str, placement_types: tuple[str, ...]
+) -> list[tuple[dict, dict]]:
+    """The localization's placements of these types, in display order, each with its image."""
     response = client.get(
         f"/v1/appStoreVersionLocalizations/{localization_id}/placements",
         **{
-            "filter[placementType]": ",".join(CREATIVE_PLACEMENTS),
+            "filter[placementType]": ",".join(placement_types),
             "include": "image",
-            "limit": "50",
+            "sort": "placementGroupPosition",
+            "limit": "200",
         },
     )
     images = {item["id"]: item for item in response.get("included", [])}
-    placements = {}
-    for placement in response["data"]:
-        image_id = placement["relationships"]["image"]["data"]["id"]
-        placements[placement["attributes"]["placementType"]] = (
-            placement, images.get(image_id, {"id": image_id, "attributes": {}})
-        )
-    return placements
+    return [
+        (placement, images.get(image_id, {"id": image_id, "attributes": {}}))
+        for placement in response["data"]
+        for image_id in [placement["relationships"]["image"]["data"]["id"]]
+    ]
 
 
-def push_creative(client: Client, config: dict, locales: list[str], wanted_version: str | None):
+def place(
+    client: Client, placement_type: str, group: str, image_id: str, localization_id: str
+) -> str:
+    created = client.post(
+        "/v1/appAssetLibraryPlacements",
+        {
+            "data": {
+                "type": "appAssetLibraryPlacements",
+                "attributes": {"placementType": placement_type, "placementGroup": group},
+                "relationships": {
+                    "image": {"data": {"type": "appAssetLibraryImages", "id": image_id}},
+                    "appStoreVersionLocalization": {
+                        "data": {"type": "appStoreVersionLocalizations", "id": localization_id}
+                    },
+                },
+            }
+        },
+    )
+    return created["data"]["id"]
+
+
+def delete_unplaced(client: Client, image_ids: set[str]):
+    """Delete each image this run took off a placement — once nothing at all places it. The
+    live version's localizations share images with the one being prepared, and the API refuses
+    the delete anyway while one does. A dry run removed nothing, so it says what it would check."""
+    for image_id in sorted(image_ids):
+        if client.dry_run:
+            print(f"  ? {image_id}: deleted afterwards if nothing else places it")
+            continue
+        remaining = client.get(
+            f"/v1/appAssetLibraryImages/{image_id}/relationships/placements"
+        )["data"]
+        if remaining:
+            print(f"  - {image_id}: still placed {len(remaining)} time(s) elsewhere, kept")
+        else:
+            client.delete(f"/v1/appAssetLibraryImages/{image_id}")
+            print(f"  ✗ {image_id}: no placements left, deleted from the library")
+
+
+def version_for_placements(client: Client, config: dict, wanted_version: str | None, what: str):
+    """The app and the version to place on, refusing — outside a dry run — any version that
+    isn't being prepared: Apple places assets only there, and refuses the rest with a
+    STATE_ERROR from the middle of the run."""
     app = find_app(client, config["bundleId"])
     version = find_version(client, app["id"], wanted_version)
     state = state_of(version)
     print(
-        f"{app['attributes']['name']} — creative, version "
+        f"{app['attributes']['name']} — {what}, version "
         f"{version['attributes']['versionString']} ({state})"
     )
-    # Narrower than the copy's `EDITABLE_STATES`: Apple places assets only on a version being
-    # prepared, and refuses the rest with a STATE_ERROR from the middle of the run.
     if state != "PREPARE_FOR_SUBMISSION":
         message = (
             f"placements can only be made on a version in PREPARE_FOR_SUBMISSION, and "
@@ -931,64 +923,142 @@ def push_creative(client: Client, config: dict, locales: list[str], wanted_versi
         if not client.dry_run:
             fail(message)
         print(f"  ! {message}\n    Dry run, so carrying on to show what would change.")
+    return app, version
 
+
+# MARK: - Screenshots
+
+SCREENSHOT = "APP_SCREENSHOT"
+SCREENSHOT_CATEGORY = "APP_SCREENSHOTS_AND_PREVIEWS"
+
+
+def configured_groups(reference: dict, config: dict) -> dict[str, str]:
+    """config.json's devices, each with the placement group its canvas belongs to."""
+    return {
+        device: library_spec(
+            reference, SCREENSHOT, tuple(int(part) for part in spec["size"].split("x"))
+        )[1]
+        for device, spec in config["devices"].items()
+    }
+
+
+def push_screenshots(
+    client: Client, config: dict, locales: list[str], wanted_version: str | None,
+    prune: bool = False,
+):
+    app, version = version_for_placements(client, config, wanted_version, "screenshots")
     library_id = client.get(f"/v1/apps/{app['id']}/assetLibrary")["data"]["id"]
-    reference_data = creative_reference_data(client)
+    reference = reference_data(client)
+    groups = configured_groups(reference, config)
     version_localizations = localizations(
         client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
     )
 
+    # The whole run is planned before anything is sent: which files go in which group of which
+    # localization, and in what order. That is what lets every upload happen in one batch, and
+    # what lets a group that already shows exactly these files be left alone.
+    plans: dict[str, dict[str, list[LibraryFile]]] = {}
+    current: dict[str, dict[str, list[tuple[dict, dict]]]] = {}
     for locale in locales:
-        print(f"\n{locale}")
         localization = version_localizations.get(locale)
         if localization is None:
             fail(
-                f"App Store Connect has no {locale} localization to place the creative on. "
+                f"App Store Connect has no {locale} localization to hang screenshots on. "
                 "Run `metadata` first — it creates one."
             )
-        placed = creative_placements(client, localization["id"])
-        # One upload per file, however many placements show it.
-        uploaded: dict[str, str] = {}
-        replaced = set()
-
-        for placement_type, candidates in CREATIVE_SOURCES.items():
-            folder = MARKETING_DIR / locale / "creative"
-            path = next((folder / name for name in candidates if (folder / name).exists()), None)
-            if path is None:
-                print(f"  - {placement_type}: nothing in {folder.relative_to(ROOT)}, left alone")
+        plans[locale] = {}
+        for device, group in groups.items():
+            folder = MARKETING_DIR / locale / device
+            shots = sorted(folder.glob("*.png")) if folder.is_dir() else []
+            if not shots:
+                print(f"  - {locale} {device}: nothing in {folder.relative_to(ROOT)}, left alone")
                 continue
-            payload = path.read_bytes()
-            reference = creative_reference(locale, payload)
-            current = placed.get(placement_type)
-            if current and current[1]["attributes"].get("referenceName") == reference:
-                print(f"  = {placement_type} already shows {path.name} ({reference})")
+            files = []
+            for shot in shots:
+                payload = shot.read_bytes()
+                spec_id, shot_group = library_spec(reference, SCREENSHOT, png_size(shot))
+                if shot_group != group:
+                    fail(
+                        f"{shot.relative_to(ROOT)} is a {shot_group} canvas, and {device} is "
+                        f"{group} — a capture of the wrong size is in that folder"
+                    )
+                files.append(LibraryFile(
+                    shot, payload, content_reference(f"kado-shot-{shot.stem}", payload), spec_id
+                ))
+            plans[locale][group] = files
+
+        by_group: dict[str, list[tuple[dict, dict]]] = {}
+        for placement, image in localization_placements(client, localization["id"], (SCREENSHOT,)):
+            by_group.setdefault(placement["attributes"]["placementGroup"], []).append(
+                (placement, image)
+            )
+        current[locale] = by_group
+
+    def unchanged(locale: str, group: str) -> bool:
+        shown = [image["attributes"].get("referenceName") for _, image in current[locale].get(group, [])]
+        return shown == [file.reference for file in plans[locale][group]]
+
+    to_upload = [
+        file
+        for locale, planned in plans.items()
+        for group, files in planned.items()
+        if not unchanged(locale, group)
+        for file in files
+    ]
+    if to_upload:
+        print(f"\nThe library — {len(to_upload)} file(s) to place")
+    ids = ensure_images(
+        client, library_id, SCREENSHOT_CATEGORY, to_upload,
+        library_index(client, library_id, SCREENSHOT_CATEGORY) if to_upload else {},
+    )
+
+    removed: set[str] = set()
+    for locale in locales:
+        localization = version_localizations[locale]
+        print(f"\n{locale}")
+        for device, group in groups.items():
+            if group not in plans[locale]:
+                continue
+            files = plans[locale][group]
+            if unchanged(locale, group):
+                print(f"  = {device} ({group}): {len(files)} screenshots, as they are")
                 continue
 
-            spec_id, group = creative_spec(reference_data, placement_type, png_size(path))
-            if reference not in uploaded:
-                uploaded[reference] = creative_image(
-                    client, library_id, spec_id, path, payload, reference
-                )
-            image_id = uploaded[reference]
+            # Placements whose image is already one of these files stay; the rest go, and the
+            # files nothing shows yet are placed. Deleting first keeps the group under its cap.
+            wanted = {file.reference for file in files}
+            kept: dict[str, str] = {}
+            for placement, image in current[locale].get(group, []):
+                name = image["attributes"].get("referenceName")
+                if name in wanted and name not in kept:
+                    kept[name] = placement["id"]
+                    continue
+                client.delete(f"/v1/appAssetLibraryPlacements/{placement['id']}")
+                removed.add(image["id"])
+            dropped = len(current[locale].get(group, [])) - len(kept)
 
-            if current:
-                was = current[1]["attributes"].get("referenceName") or current[1]["id"]
-                print(f"  ✗ {placement_type}: removing the placement of {was}")
-                client.delete(f"/v1/appAssetLibraryPlacements/{current[0]['id']}")
-                replaced.add(current[1]["id"])
-            print(f"  + {placement_type} ({group}) → {path.name} ({reference})")
+            order, added = [], 0
+            for file in files:
+                if file.reference not in kept:
+                    kept[file.reference] = place(
+                        client, SCREENSHOT, group, ids[file.reference], localization["id"]
+                    )
+                    added += 1
+                order.append(kept[file.reference])
+
+            # The order the group is shown in, which is not the order the placements were made.
             client.post(
-                "/v1/appAssetLibraryPlacements",
+                "/v1/appAssetLibraryPlacementOrderingRequests",
                 {
                     "data": {
-                        "type": "appAssetLibraryPlacements",
-                        "attributes": {
-                            "placementType": placement_type,
-                            "placementGroup": group,
-                        },
+                        "type": "appAssetLibraryPlacementOrderingRequests",
+                        "attributes": {"placementGroup": group},
                         "relationships": {
-                            "image": {
-                                "data": {"type": "appAssetLibraryImages", "id": image_id}
+                            "orderedPlacements": {
+                                "data": [
+                                    {"type": "appAssetLibraryPlacements", "id": placement_id}
+                                    for placement_id in order
+                                ]
                             },
                             "appStoreVersionLocalization": {
                                 "data": {
@@ -1000,108 +1070,123 @@ def push_creative(client: Client, config: dict, locales: list[str], wanted_versi
                     }
                 },
             )
+            print(
+                f"  ✓ {device} ({group}): {len(files)} screenshots — "
+                f"{added} placed, {dropped} removed, order set"
+            )
 
-        # An image this run took off the version is deleted only once nothing places it: the
-        # live version's localization, or another locale, may still be showing it, and the
-        # API refuses the delete anyway while one does. A dry run removed nothing, so it says
-        # what it would check instead of checking it.
-        for old_id in sorted(replaced):
-            if client.dry_run:
-                print(f"  ? {old_id}: deleted afterwards if nothing else places it")
+        # Groups the listing has and this repo does not. Left alone by default — deleting
+        # somebody's screenshots on a flag they didn't pass is not a thing a tool should do.
+        #
+        # But leaving them is not harmless either: Apple serves the closest device family it has
+        # and scales from there, so a stale smaller-iPhone group beside a fresh large one means
+        # two people see two listings, one of them out of date. Hence the flag.
+        for group, placements in sorted(current[locale].items()):
+            if group in plans[locale]:
                 continue
-            remaining = client.get(
-                f"/v1/appAssetLibraryImages/{old_id}/relationships/placements"
-            )["data"]
-            if remaining:
-                print(f"  - {old_id}: still placed {len(remaining)} time(s) elsewhere, kept")
-            else:
-                client.delete(f"/v1/appAssetLibraryImages/{old_id}")
-                print(f"  ✗ {old_id}: no placements left, deleted from the library")
+            if not prune:
+                print(
+                    f"  - {group}: {len(placements)} screenshot(s) in the listing but not in "
+                    "config.json, left as they are (--prune-groups removes them)"
+                )
+                continue
+            print(f"  ✗ {group}: removing {len(placements)} screenshot(s), nothing replaces them")
+            for placement, image in placements:
+                client.delete(f"/v1/appAssetLibraryPlacements/{placement['id']}")
+                removed.add(image["id"])
 
-
-def creative_image(
-    client: Client, library_id: str, spec_id: str, path: Path, payload: bytes, reference: str
-) -> str:
-    """The id of a library image holding exactly this file, uploading it if there is none.
-
-    An image left by an interrupted run — uploaded, never placed — is found by its name and
-    reused rather than uploaded a second time beside itself.
-    """
-    existing = client.get(
-        f"/v1/appAssetLibraries/{library_id}/images",
-        **{
-            "filter[category]": "CREATIVE_ASSETS",
-            "filter[referenceName]": reference,
-        },
-    )["data"]
-    for image in existing:
-        attributes = image["attributes"]
-        if attributes.get("state") in CREATIVE_READY and attributes.get("specId") == spec_id:
-            print(f"  · {reference} is already in the library ({attributes['state']})")
-            return image["id"]
-        # Half-uploaded or failed: of no use, and in the way of the name.
-        print(f"  ✗ {reference}: discarding a {attributes.get('state')} copy")
-        client.delete(f"/v1/appAssetLibraryImages/{image['id']}")
-
-    print(f"  ↑ uploading {path.name} as {reference}")
-    reservation = client.post(
-        "/v1/appAssetLibraryImages",
-        {
-            "data": {
-                "type": "appAssetLibraryImages",
-                "attributes": {
-                    "fileName": path.name,
-                    "fileSize": len(payload),
-                    "category": "CREATIVE_ASSETS",
-                    "referenceName": reference,
-                },
-                "relationships": {
-                    "assetLibrary": {"data": {"type": "appAssetLibraries", "id": library_id}}
-                },
-            }
-        },
-    )
+    if removed:
+        print()
+        delete_unplaced(client, removed)
     if client.dry_run:
-        return DRY_RUN_ID
+        print("\n  (dry run — nothing was sent)")
 
-    image = reservation["data"]
-    for operation in image["attributes"]["uploadOperations"]:
-        chunk = payload[operation["offset"] : operation["offset"] + operation["length"]]
-        headers = {
-            header["name"]: header["value"] for header in operation.get("requestHeaders", [])
-        }
-        client.request(
-            operation["method"], "", body=chunk,
-            raw_url=operation["url"], headers=headers, authorize=False,
+
+# MARK: - The creative: product page header and search results asset
+#
+# The header and the search banner are library images like the screenshots, in the
+# CREATIVE_ASSETS category and one placement each per localization: placing a new one is
+# delete-then-create, since a version takes one of each.
+
+CREATIVE_PLACEMENTS = ("PRODUCT_PAGE_HEADER_ASSET", "APP_STORE_SEARCH_RESULTS_ASSET")
+CREATIVE_CATEGORY = "CREATIVE_ASSETS"
+
+# Which file each placement shows, first one present wins. The header takes the universal 16:9;
+# search takes its own 3:2 when there is one, because search shows every pixel of an image the
+# header only shows the top of, and falls back to the universal one when there isn't.
+CREATIVE_SOURCES = {
+    "PRODUCT_PAGE_HEADER_ASSET": ("universal.png",),
+    "APP_STORE_SEARCH_RESULTS_ASSET": ("search.png", "universal.png"),
+}
+
+
+def creative_reference(locale: str, payload: bytes) -> str:
+    return content_reference(f"kado-creative-{locale}", payload)
+
+
+def creative_placements(client: Client, localization_id: str) -> dict[str, tuple[dict, dict]]:
+    """The localization's header and search placements, each with the image it shows."""
+    return {
+        placement["attributes"]["placementType"]: (placement, image)
+        for placement, image in localization_placements(
+            client, localization_id, CREATIVE_PLACEMENTS
         )
-    # No checksum here, unlike a screenshot: the library checks the bytes against `fileSize`.
-    client.patch(
-        f"/v1/appAssetLibraryImages/{image['id']}",
-        {"data": {"type": "appAssetLibraryImages", "id": image["id"],
-                  "attributes": {"uploaded": True}}},
+    }
+
+
+def push_creative(client: Client, config: dict, locales: list[str], wanted_version: str | None):
+    app, version = version_for_placements(client, config, wanted_version, "creative")
+    library_id = client.get(f"/v1/apps/{app['id']}/assetLibrary")["data"]["id"]
+    reference = reference_data(client)
+    index = library_index(client, library_id, CREATIVE_CATEGORY)
+    version_localizations = localizations(
+        client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
     )
 
-    # Processing is where Apple decides which spec the file meets. Placing an image before it
-    # has one is refused, and an image that met some other spec would place as the wrong thing.
-    deadline = time.time() + 10 * 60
-    while True:
-        attributes = client.get(f"/v1/appAssetLibraryImages/{image['id']}")["data"]["attributes"]
-        state = attributes.get("state")
-        if state in CREATIVE_READY:
-            break
-        if state == "FAILED":
-            client.delete(f"/v1/appAssetLibraryImages/{image['id']}")
-            fail(f"App Store Connect refused {path.name}: {attributes.get('stateDetails')}")
-        if time.time() > deadline:
-            fail(f"{path.name} is still {state} after ten minutes — re-run to pick it up")
-        time.sleep(5)
-    if attributes.get("specId") != spec_id:
-        fail(
-            f"{path.name} was processed as spec {attributes.get('specId')}, not the universal "
-            f"creative {spec_id} — it would not place as both header and search asset"
-        )
-    print(f"  ✓ processed ({state})")
-    return image["id"]
+    removed: set[str] = set()
+    # One upload per file, however many placements show it — search falls back to the header's.
+    uploaded: dict[str, str] = {}
+    for locale in locales:
+        print(f"\n{locale}")
+        localization = version_localizations.get(locale)
+        if localization is None:
+            fail(
+                f"App Store Connect has no {locale} localization to place the creative on. "
+                "Run `metadata` first — it creates one."
+            )
+        placed = creative_placements(client, localization["id"])
+
+        for placement_type, candidates in CREATIVE_SOURCES.items():
+            folder = MARKETING_DIR / locale / "creative"
+            path = next((folder / name for name in candidates if (folder / name).exists()), None)
+            if path is None:
+                print(f"  - {placement_type}: nothing in {folder.relative_to(ROOT)}, left alone")
+                continue
+            payload = path.read_bytes()
+            name = creative_reference(locale, payload)
+            current = placed.get(placement_type)
+            if current and current[1]["attributes"].get("referenceName") == name:
+                print(f"  = {placement_type} already shows {path.name} ({name})")
+                continue
+
+            spec_id, group = library_spec(reference, placement_type, png_size(path))
+            if name not in uploaded:
+                uploaded.update(ensure_images(
+                    client, library_id, CREATIVE_CATEGORY,
+                    [LibraryFile(path, payload, name, spec_id)], index,
+                ))
+            image_id = uploaded[name]
+            if current:
+                was = current[1]["attributes"].get("referenceName") or current[1]["id"]
+                print(f"  ✗ {placement_type}: removing the placement of {was}")
+                client.delete(f"/v1/appAssetLibraryPlacements/{current[0]['id']}")
+                removed.add(current[1]["id"])
+            print(f"  + {placement_type} ({group}) → {path.name} ({name})")
+            place(client, placement_type, group, image_id, localization["id"])
+
+    if removed:
+        print()
+        delete_unplaced(client, removed)
 
 
 # MARK: - Reading back
@@ -1134,25 +1219,20 @@ def show_info(client: Client, config: dict):
         f"\nLocalizations on {version['attributes']['versionString']}"
         f"{'' if editable else ' (live — read only until a new version is created)'}"
     )
-    live_locales, live_types = set(), set()
+    live_locales, live_groups = set(), set()
     for locale, localization in sorted(
         localizations(
             client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
         ).items()
     ):
         live_locales.add(locale)
-        sets = client.get_all(
-            f"/v1/appStoreVersionLocalizations/{localization['id']}/appScreenshotSets"
-        )
-        counts = []
-        for screenshot_set in sets:
-            display_type = screenshot_set["attributes"]["screenshotDisplayType"]
-            live_types.add(display_type)
-            shots = client.get_all(
-                f"/v1/appScreenshotSets/{screenshot_set['id']}/appScreenshots"
-            )
-            counts.append(f"{display_type}×{len(shots)}")
-        print(f"  {locale:<8} {', '.join(counts) if counts else 'no screenshots'}")
+        counts: dict[str, int] = {}
+        for placement, _ in localization_placements(client, localization["id"], (SCREENSHOT,)):
+            group = placement["attributes"]["placementGroup"]
+            counts[group] = counts.get(group, 0) + 1
+        live_groups |= set(counts)
+        shown = ", ".join(f"{group}×{count}" for group, count in sorted(counts.items()))
+        print(f"  {locale:<8} {shown or 'no screenshots'}")
         placed = creative_placements(client, localization["id"])
         for placement_type in CREATIVE_PLACEMENTS:
             if placement_type not in placed:
@@ -1168,17 +1248,17 @@ def show_info(client: Client, config: dict):
 
     # What the listing holds versus what this repo is about to send it. Both mismatches below
     # are silent failures rather than errors: a locale we don't have would *add* a second
-    # localization rather than update the intended one, and a display type we don't have leaves
-    # the old set sitting beside the new one. Neither is refused by the API, and both were
-    # live here the first time this ran.
+    # localization rather than update the intended one, and a placement group we don't have
+    # leaves the old screenshots sitting beside the new ones. Neither is refused by the API, and
+    # both were live here the first time this ran (as display types, before the asset library).
     configured_locales = {
         language["locale"] for language in config["languages"].values()
     }
-    configured_types = {device["displayType"] for device in config["devices"].values()}
+    configured = set(configured_groups(reference_data(client), config).values())
 
     for label, configured, live in (
         ("locale", configured_locales, live_locales),
-        ("screenshot set", configured_types, live_types),
+        ("screenshot group", configured, live_groups),
     ):
         for value in sorted(configured - live):
             print(f"\n  ! config.json has {label} {value}, which the listing does not.")
@@ -1217,8 +1297,10 @@ def main() -> int:
         "--dry-run", action="store_true", help="read and compare, but send no writes"
     )
     parser.add_argument(
-        "--prune-sets", action="store_true",
-        help="also delete screenshot sets the listing has that config.json does not",
+        # `--prune-sets` is the name from before the asset library, when a device was a set.
+        "--prune-groups", "--prune-sets", dest="prune_groups", action="store_true",
+        help="also remove screenshots in placement groups the listing has that config.json "
+        "does not",
     )
     parser.add_argument(
         "--yes", action="store_true", help="skip the confirmation prompt"
@@ -1265,7 +1347,7 @@ def main() -> int:
         if arguments.command == "all":
             print()
         push_screenshots(
-            client, config, locales, arguments.version, prune=arguments.prune_sets
+            client, config, locales, arguments.version, prune=arguments.prune_groups
         )
     if arguments.command in ("creative", "all"):
         if arguments.command == "all":
