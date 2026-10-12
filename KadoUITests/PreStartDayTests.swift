@@ -77,7 +77,7 @@ final class PreStartDayTests: KadoUITestCase {
         tapTab(.today, in: app)
         waitForTodayRows(in: app)
         let habitID = try XCTUnwrap(openCounterHabitDetail(in: app), "No counter habit in the seed.")
-        app.navigationBars.buttons.firstMatch.tap()
+        leaveHabitDetail(in: app)
 
         // `DevModeSeed` logs 6 on every odd day back to 29, so day 29
         // is the counter habit's start — the leftmost cell.

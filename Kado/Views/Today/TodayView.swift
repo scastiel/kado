@@ -14,6 +14,12 @@ import KadoCore
 /// previous store vended, and SwiftUI re-reads its retained data
 /// during the next list diff, which traps inside SwiftData. Ids
 /// survive the swap; records don't (issue #63).
+///
+/// In a regular-width window — the iPad, and the iPhone Duo's inner
+/// display, which reports regular in both directions under the phone
+/// idiom — the list and the selected habit's detail sit side by side
+/// (`splitLayout`), rather than a phone list stretched across the
+/// whole screen with its detail pushed over it (issue #140).
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.frequencyEvaluator) private var frequencyEvaluator
@@ -26,6 +32,7 @@ struct TodayView: View {
     @Environment(\.calendar) private var calendar
     @Environment(\.today) private var today
     @Environment(\.dayBoundary) private var dayBoundary
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @Query(
         filter: #Predicate<HabitRecord> { $0.archivedAt == nil },
@@ -34,6 +41,11 @@ struct TodayView: View {
     private var activeHabits: [HabitRecord]
 
     @State private var path = NavigationPath()
+    /// The habit picked in the split layout's list, by id like
+    /// everything else here. `nil` until one is picked, and left stale
+    /// when that habit leaves the list: `TodayRow.selection` reads both
+    /// as "the first row".
+    @State private var selectedHabitID: UUID?
     @State private var sheet: TodaySheet?
     @State private var confirmingArchiveOf: UUID?
     /// The latest `−` / `+` / `+5m` tap, for the haptic. Recorded by
@@ -82,48 +94,123 @@ struct TodayView: View {
     }
 
     var body: some View {
+        Group {
+            if usesSplitLayout {
+                splitLayout
+            } else {
+                stackLayout
+            }
+        }
+        .onAppear(perform: refreshCard)
+        // Re-asked after every sheet, because two of them retire a
+        // card: a tip taken in the Tip Jar retires the nudge, opening
+        // Appearance retires the announcement, and Today is already on
+        // screen so nothing else would prompt it to look again.
+        .sheet(item: $sheet, onDismiss: refreshCard) { sheet in
+            sheetContent(for: sheet)
+        }
+        .confirmationDialog(
+            String(localized: "Archive this habit?"),
+            isPresented: archiveDialogBinding,
+            titleVisibility: .visible,
+            presenting: confirmingArchiveOf
+        ) { habitID in
+            Button(String(localized: "Archive"), role: .destructive) {
+                archive(habitID)
+            }
+            .accessibilityIdentifier(AccessibilityID.Today.archiveConfirmButton)
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: { _ in
+            Text("Archived habits leave Today but keep their history. You can find them in Settings › Archived habits.")
+        }
+    }
+
+    // MARK: - Layouts
+
+    /// Side by side only when there is something to put on the side:
+    /// with no habits, the empty state takes the whole window as it
+    /// does on a phone.
+    private var usesSplitLayout: Bool {
+        horizontalSizeClass == .regular && !activeHabits.isEmpty
+    }
+
+    /// Compact width: the list, and a pushed detail.
+    private var stackLayout: some View {
         NavigationStack(path: $path) {
-            content
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.kadoBackground.ignoresSafeArea())
-                .navigationTitle(Text("Today"))
+            todayColumn
                 .navigationDestination(for: HabitRoute.self) { route in
                     HabitDetailLoader(habitID: route.id)
                 }
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            sheet = .newHabit
-                        } label: {
-                            Label("New habit", systemImage: "plus")
-                        }
-                        .accessibilityIdentifier(AccessibilityID.Today.newHabitButton)
-                    }
-                }
-                .onAppear(perform: refreshCard)
-                // Re-asked after every sheet, because two of them retire
-                // a card: a tip taken in the Tip Jar retires the nudge,
-                // opening Appearance retires the announcement, and Today
-                // is already on screen so nothing else would prompt it
-                // to look again.
-                .sheet(item: $sheet, onDismiss: refreshCard) { sheet in
-                    sheetContent(for: sheet)
-                }
-                .confirmationDialog(
-                    String(localized: "Archive this habit?"),
-                    isPresented: archiveDialogBinding,
-                    titleVisibility: .visible,
-                    presenting: confirmingArchiveOf
-                ) { habitID in
-                    Button(String(localized: "Archive"), role: .destructive) {
-                        archive(habitID)
-                    }
-                    .accessibilityIdentifier(AccessibilityID.Today.archiveConfirmButton)
-                    Button(String(localized: "Cancel"), role: .cancel) {}
-                } message: { _ in
-                    Text("Archived habits leave Today but keep their history. You can find them in Settings › Archived habits.")
-                }
         }
+    }
+
+    /// Regular width: the list on the leading side and the selected
+    /// habit's detail beside it, both always on screen.
+    ///
+    /// `.balanced` with the sidebar toggle removed: in portrait the
+    /// automatic style floats the list *over* the detail, and a hidden
+    /// list leaves no way to reach another habit.
+    private var splitLayout: some View {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
+            // A sidebar defaults to an inline title and the flat
+            // `.sidebar` list style; both are pinned back to what the
+            // phone shows (`content`), so the list reads the same at
+            // either width. The iPad takes the large title; the Duo's
+            // inner display (iOS 27.1) keeps the inline one regardless.
+            todayColumn
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar(removing: .sidebarToggle)
+                // No narrower than a phone: a row is laid out for one,
+                // and below that the trailing control squeezes the
+                // name — French truncated on an iPad mini at 330pt.
+                // The detail beside it is then about a phone wide too.
+                .navigationSplitViewColumnWidth(min: 370, ideal: 400, max: 480)
+        } detail: {
+            NavigationStack {
+                if let habitID = detailHabitID {
+                    // Keyed by habit, so the detail's own state — the
+                    // month its calendar shows — starts over when the
+                    // selection moves instead of carrying across.
+                    HabitDetailLoader(habitID: habitID)
+                        .id(habitID)
+                }
+            }
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+
+    private var todayColumn: some View {
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.kadoBackground.ignoresSafeArea())
+            .navigationTitle(Text("Today"))
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        sheet = .newHabit
+                    } label: {
+                        Label("New habit", systemImage: "plus")
+                    }
+                    .accessibilityIdentifier(AccessibilityID.Today.newHabitButton)
+                }
+            }
+    }
+
+    /// The habit the split layout's detail column shows — see
+    /// `TodayRow.selection`.
+    private var detailHabitID: UUID? {
+        let (due, other) = sections
+        return TodayRow.selection(picked: selectedHabitID, due: due, other: other)
+    }
+
+    /// The split layout's list selection. Reads through
+    /// `detailHabitID`, so the highlighted row is always the one the
+    /// detail column shows.
+    private var selectionBinding: Binding<UUID?> {
+        Binding(
+            get: { detailHabitID },
+            set: { if let habitID = $0 { selectedHabitID = habitID } }
+        )
     }
 
     @ViewBuilder
@@ -188,7 +275,10 @@ struct TodayView: View {
             }
         } else {
             let (due, other) = sections
-            List {
+            let selected = usesSplitLayout
+                ? TodayRow.selection(picked: selectedHabitID, due: due, other: other)
+                : nil
+            List(selection: usesSplitLayout ? selectionBinding : nil) {
                 // Sampled once and passed down: letting the guard and
                 // the view each read `.now` lets them straddle the
                 // rollover and leave an empty, space-taking row.
@@ -201,7 +291,7 @@ struct TodayView: View {
                 }
                 if !due.isEmpty {
                     Section {
-                        ForEach(due) { row($0) }
+                        ForEach(due) { row($0, isSelected: $0.id == selected) }
                             .onMove { moveHabits(due, from: $0, to: $1) }
                     } header: {
                         Text("Scheduled")
@@ -210,7 +300,7 @@ struct TodayView: View {
                 }
                 if !other.isEmpty {
                     Section {
-                        ForEach(other) { row($0) }
+                        ForEach(other) { row($0, isSelected: $0.id == selected) }
                             .onMove { moveHabits(other, from: $0, to: $1) }
                     } header: {
                         Text("Not scheduled today")
@@ -241,6 +331,7 @@ struct TodayView: View {
                     EmptyView()
                 }
             }
+            .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .background(Color.kadoBackground.ignoresSafeArea())
             .quickLogFeedback(quickLog)
@@ -251,36 +342,46 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private func row(_ item: TodayRow) -> some View {
+    private func row(_ item: TodayRow, isSelected: Bool) -> some View {
         let state = HabitRowState.resolve(
             habit: item.habit,
             completions: item.completions,
             calendar: calendar,
             asOf: today
         )
-        NavigationLink(value: HabitRoute(id: item.id)) {
-            HabitRowView(
-                habit: item.habit,
-                state: state,
-                streak: streakCalculator.current(
+        let rowView = HabitRowView(
+            habit: item.habit,
+            state: state,
+            streak: streakCalculator.current(
+                for: item.habit, completions: item.completions, asOf: today
+            ),
+            scorePercent: Int(
+                (scoreCalculator.currentScore(
                     for: item.habit, completions: item.completions, asOf: today
-                ),
-                scorePercent: Int(
-                    (scoreCalculator.currentScore(
-                        for: item.habit, completions: item.completions, asOf: today
-                    ) * 100).rounded()
-                ),
-                onToggle: canToggle(item) ? { toggle(item.id) } : nil,
-                onCounterIncrement: isCounter(item) ? { incrementCounter(item.id) } : nil,
-                onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
-                onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
-                onLogSpecificValue: logSheetCallback(for: item),
-                onOpenDetail: { path.append(HabitRoute(id: item.id)) },
-                onEdit: { sheet = .editHabit(item.id) },
-                onArchive: { confirmingArchiveOf = item.id }
-            )
+                ) * 100).rounded()
+            ),
+            onToggle: canToggle(item) ? { toggle(item.id) } : nil,
+            onCounterIncrement: isCounter(item) ? { incrementCounter(item.id) } : nil,
+            onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
+            onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
+            onLogSpecificValue: logSheetCallback(for: item),
+            onOpenDetail: { openDetail(item.id) },
+            onEdit: { sheet = .editHabit(item.id) },
+            onArchive: { confirmingArchiveOf = item.id }
+        )
+        Group {
+            if usesSplitLayout {
+                // Picked through the list's selection, which the tag
+                // feeds — no link, and no chevron promising a push into
+                // a detail that is already on screen beside the list.
+                rowView.tag(item.id)
+            } else {
+                NavigationLink(value: HabitRoute(id: item.id)) { rowView }
+            }
         }
-        .listRowBackground(Color.kadoBackgroundSecondary)
+        // A custom row fill replaces the system's selection highlight,
+        // so the selected row has to draw its own.
+        .listRowBackground(isSelected ? Color.kadoAccentTint : Color.kadoBackgroundSecondary)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             if canSwipeUndo(item, state: state) {
                 Button(role: .destructive) {
@@ -363,6 +464,16 @@ struct TodayView: View {
     }
 
     // MARK: - Actions
+
+    /// "Open detail" from a row's menu: pushes on a phone, and selects
+    /// in the split layout, where the detail is already beside the list.
+    private func openDetail(_ habitID: UUID) {
+        if usesSplitLayout {
+            selectedHabitID = habitID
+        } else {
+            path.append(HabitRoute(id: habitID))
+        }
+    }
 
     /// The instant to stamp on anything logged right now, pinned to
     /// the day these rows were rendered for. Keeps a tap consistent
