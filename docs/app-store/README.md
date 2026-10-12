@@ -90,10 +90,11 @@ It is the same ground and the same Fraunces as the screenshots, laid out sideway
 **The crops, as measured.** Apple publishes no numbers, and the first cut's guess (a centred 60% × 75% band) was wrong for both placements. App Store Connect's **Preview** tool showed:
 
 - **Search results:** the whole 16:9, about 615pt wide. Anything confined to the middle reads small there, which is why the grid runs edge to edge.
-- **The iPhone product page header:** a centred 3:2 window of only ~54% × 64% of the canvas (x 1197–4047, y 531–2419, from the top).
-  - The status bar and Dynamic Island cover its top fifth (to y ≈ 950).
-  - The back and share buttons cover its top corners further down (to y ≈ 1305, at x 1311–1653 and 3591–3933).
-  - So the headline starts below the buttons, inside the window's left edge, and the phone's screen stays inside its right edge.
+- **The iPhone product page header:** a 3:2 window of only ~54% × 64% of the canvas, centred across but **anchored to the top**: x 1212–4057, y 0–1890 (counting from the top). The bottom third of the canvas never shows there.
+  - The status bar's fade covers its top (to y ≈ 400).
+  - The back and share buttons cover its top corners (to y ≈ 800, at x 1317–1672 and 3597–3953).
+  - So the headline and the phone start just below the buttons, inside the window's edges, and the grid's first row closes the window's bottom.
+  - A first measurement assumed the window was centred vertically, and put the wordmark and grid below its bottom edge. Measure against where known elements land, not against the frame.
 
 The layout constants in `Creative` are these numbers. Re-check in the Preview tool after any layout change, on iPhone and iPad.
 

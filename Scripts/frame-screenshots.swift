@@ -447,9 +447,10 @@ func assemble(
 //
 // - **Search results** show the whole 16:9, about 615pt wide. Whatever sits in the middle
 //   alone looks small there, so the ground has to carry something edge to edge.
-// - **The product page header**, on an iPhone, shows only a centred 3:2 window, ~54% of the
-//   width by ~64% of the height (`header`), and its top fifth sits under the status bar and the
-//   Dynamic Island, with the back and share buttons over its top corners (`headerTop`).
+// - **The product page header**, on an iPhone, shows only a 3:2 window, ~54% of the width by
+//   ~64% of the height (`header`), centred across but anchored to the *top* — the bottom third
+//   of the canvas never shows there. Its top sits under the status bar and the Dynamic Island,
+//   with the back and share buttons over its top corners (`headerTop`, `headerButtonsBottom`).
 //
 // So everything that must be read — the headline, the phone's screen — lives inside `header`
 // and below `headerTop`, and the grid runs the full width behind it for the search placement.
@@ -457,15 +458,15 @@ func assemble(
 enum Creative {
     /// App Store Connect's universal creative canvas: 16:9, and refused at any other size.
     static let canvas = NSSize(width: 5244, height: 2950)
-    /// The iPhone product page header's window onto the canvas, measured from the Preview tool:
-    /// x 1197–4047, y 531–2419 counting from the top.
-    static let header = (minX: CGFloat(1197), maxX: CGFloat(4047), top: CGFloat(531), bottom: CGFloat(2419))
-    /// Where the header stops being under the status bar (a band across its whole width)…
-    static let headerTop: CGFloat = 950
+    /// The iPhone product page header's window onto the canvas, measured from the Preview tool
+    /// against where known elements land: x 1212–4057, y 0–1890 counting from the top. A first
+    /// measurement assumed it was centred vertically, and put the wordmark below its bottom.
+    static let header = (minX: CGFloat(1212), maxX: CGFloat(4057), top: CGFloat(0), bottom: CGFloat(1890))
+    /// Where the header stops being under the status bar's fade (across its whole width)…
+    static let headerTop: CGFloat = 400
     /// …and under its back and share buttons, two circles over its top corners that reach
-    /// further down: x 1311–1653 and 3591–3933. Text starts below this; the phone's own status
-    /// bar row may sit under the share button, which is where it sits on the Home Screen too.
-    static let headerButtonsBottom: CGFloat = 1305
+    /// further down: x 1317–1672 and 3597–3953. The headline and the phone both start below.
+    static let headerButtonsBottom: CGFloat = 800
 
     /// The capture the device shows — read out of each locale's captures, so the French
     /// creative shows the French app.
@@ -481,13 +482,13 @@ enum Creative {
     /// and runs off the bottom edge, which is what the header would do to it anyway, and done
     /// deliberately it reads as a phone held up to the frame rather than one that didn't fit.
     static let screenHeight: CGFloat = 2300
-    static let screenTop: CGFloat = 1010
+    static let screenTop: CGFloat = headerButtonsBottom + 40
     /// The screen's right edge, inside the header window's by about a bezel and a shadow.
     static let screenRight: CGFloat = 3930
 
     /// The headline's left edge, inside the header window's, and its top, under the back button.
     static let headlineLeft: CGFloat = 1300
-    static let headlineTop: CGFloat = headerButtonsBottom + 55
+    static let headlineTop: CGFloat = headerButtonsBottom + 60
     static let headlineSize: CGFloat = 230
     /// Between the end of the headline's longest line and the phone.
     static let gap: CGFloat = 180
@@ -500,7 +501,8 @@ enum Creative {
 
     /// The Overview grid's band, the full width of the canvas: its top, and its cell in pixels.
     /// Big enough to read as habit days in a 615pt search result, where the whole frame shows.
-    static let matrixTop: CGFloat = 2150
+    /// High enough that its first row closes the bottom of the iPhone header's window.
+    static let matrixTop: CGFloat = 1680
     static let matrixCell: CGFloat = 150
 
     // No icon and no name: both placements already draw the app's icon and name right beside
