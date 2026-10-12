@@ -2,6 +2,7 @@
 
 **Date**: 2026-10-11
 **Status**: ready for plan
+**Tracking**: #130 (sub-issues #131 header art, #132 creative upload, #133 screenshot migration, #134 iPhone Duo, #135 Settings shot)
 **Related**: [Asset best practices](https://developer.apple.com/app-store/asset-best-practices/), `docs/app-store/README.md`, `Scripts/appstore.py`, `Scripts/frame-screenshots.swift`
 
 ## Problem
