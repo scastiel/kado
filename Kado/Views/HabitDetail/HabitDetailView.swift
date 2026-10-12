@@ -51,6 +51,7 @@ struct HabitDetailView: View {
     @Environment(\.dayBoundary) private var dayBoundary
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var showingEdit = false
     @State private var showingArchiveConfirmation = false
@@ -475,6 +476,13 @@ struct HabitDetailView: View {
             Text(value)
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.primary)
+                // Half a phone's width is tight for "37 / meilleure 37":
+                // on the iPhone Duo's outer display French broke it after
+                // "meilleure" (issue #140). Shrunk a little to stay on one
+                // line, except at accessibility sizes, where shrinking
+                // enough to fit would undo the size the user asked for.
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
+                .minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()

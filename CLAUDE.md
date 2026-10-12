@@ -396,6 +396,16 @@ repo. Guard against that with an explicit
   `TimerLogSheet` are the pattern; `WholeNumberField` beside them is
   the field, with iOS 18's `TextSelection` binding selecting the
   prefill on focus so typing replaces it rather than appending.
+- **The iPhone Duo's inner display is a regular-width phone.** Unfolded,
+  it reports `horizontalSizeClass == .regular` *and* `.regular` height
+  with `userInterfaceIdiom == .phone` (867×635pt of content in
+  landscape, iOS 27.1) — so branch layouts on size class, never on
+  idiom, or the Duo gets a phone layout stretched across a tablet.
+  Today's `NavigationSplitView` keys on exactly that (#140). The outer
+  display is compact. A fresh Duo simulator boots folded and only a
+  hand in Device Hub unfolds it; `simctl io <udid> screenshot
+  --display=<uuid>` photographs either screen, and an XCUITest can
+  drive the inner one once it's open (`TodaySplitLayoutTests`).
 - **Programmatic focus is not portable across iOS versions — don't
   build a screen that only works if it lands.** `@FocusState` set from
   `.onAppear` raises the keyboard on iOS 27 and is silently ignored on

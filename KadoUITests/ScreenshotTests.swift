@@ -44,7 +44,7 @@ final class ScreenshotTests: KadoUITestCase {
         // app nobody uses.
         app.buttons[AccessibilityID.HabitDetail.previousMonthButton].firstMatch.tap()
         photograph(app, "02-habit-detail")
-        goBack(in: app)
+        leaveHabitDetail(in: app)
 
         // 4 — the Overview matrix, habits × days.
         tapTab(.overview, in: app)

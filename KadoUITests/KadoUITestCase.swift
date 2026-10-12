@@ -356,15 +356,31 @@ class KadoUITestCase: XCTestCase {
             if markerButton.waitForExistence(timeout: 2) {
                 return habitID
             }
-            app.navigationBars.buttons.firstMatch.tap()
-            XCTAssertTrue(
-                scoreCard.waitForNonExistence(timeout: 10),
-                "Popping the detail should return to Today.",
-                file: file, line: line
-            )
+            leaveHabitDetail(in: app, file: file, line: line)
         }
         XCTFail("No Today row pushed a detail showing \(marker).", file: file, line: line)
         return nil
+    }
+
+    /// Goes from a habit's detail back to the Today list.
+    ///
+    /// On a phone that is a pop. In a regular-width window — iPad, the
+    /// iPhone Duo's inner display — Today shows the detail *beside* the
+    /// list (issue #140): there is nothing to pop, the list is already
+    /// on screen, and the bar's first button is the detail's own Edit.
+    @MainActor
+    func leaveHabitDetail(
+        in app: XCUIApplication,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        if todayRows(in: app).firstMatch.isHittable { return }
+        goBack(in: app)
+        XCTAssertTrue(
+            app.buttons[AccessibilityID.HabitDetail.scoreCard].waitForNonExistence(timeout: 10),
+            "Popping the detail should return to Today.",
+            file: file, line: line
+        )
     }
 
     // MARK: - Creating a habit

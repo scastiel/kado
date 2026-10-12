@@ -112,14 +112,10 @@ final class LogValueSheetTests: KadoUITestCase {
 
     // MARK: - Driving
 
-    /// Pops the detail that `openHabitDetail` left pushed.
+    /// Back from the detail that `openHabitDetail` left on screen.
     @MainActor
     private func popToToday(in app: XCUIApplication) {
-        app.navigationBars.buttons.firstMatch.tap()
-        XCTAssertTrue(
-            app.buttons[AccessibilityID.HabitDetail.scoreCard].waitForNonExistence(timeout: 10),
-            "Popping the detail should return to Today."
-        )
+        leaveHabitDetail(in: app)
     }
 
     /// Opens the log sheet from a row's long-press menu.

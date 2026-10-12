@@ -68,6 +68,23 @@ extension TodayRow {
     }
 }
 
+extension TodayRow {
+    /// The habit the regular-width Today shows beside its list: the
+    /// one the user `picked`, while Today still lists it, otherwise
+    /// the first row (issue #140).
+    ///
+    /// A picked habit that was archived or deleted — from its own
+    /// detail, from the row's menu, by a sync landing — falls back
+    /// rather than leaving the detail column on a habit the list no
+    /// longer has, or on nothing.
+    static func selection(picked: UUID?, due: [TodayRow], other: [TodayRow]) -> UUID? {
+        if let picked, due.contains(where: { $0.id == picked }) || other.contains(where: { $0.id == picked }) {
+            return picked
+        }
+        return (due.first ?? other.first)?.id
+    }
+}
+
 /// Navigation value for a pushed habit-detail screen.
 ///
 /// Carries the habit's id rather than the `HabitRecord` itself: a
