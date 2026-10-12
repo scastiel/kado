@@ -944,12 +944,20 @@ def configured_groups(reference: dict, config: dict) -> dict[str, str]:
 
 def push_screenshots(
     client: Client, config: dict, locales: list[str], wanted_version: str | None,
-    prune: bool = False,
+    prune: bool = False, devices: list[str] | None = None,
 ):
     app, version = version_for_placements(client, config, wanted_version, "screenshots")
     library_id = client.get(f"/v1/apps/{app['id']}/assetLibrary")["data"]["id"]
     reference = reference_data(client)
     groups = configured_groups(reference, config)
+    # Every configured group, whether or not this run sends it: a device left out with
+    # `--devices` is still config.json's, and must not be reported — or pruned — as a stray.
+    configured = set(groups.values())
+    if devices:
+        unknown = sorted(set(devices) - set(groups))
+        if unknown:
+            fail(f"config.json has no device {', '.join(unknown)} (it has {', '.join(groups)})")
+        groups = {device: group for device, group in groups.items() if device in devices}
     version_localizations = localizations(
         client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
     )
@@ -1082,7 +1090,7 @@ def push_screenshots(
         # and scales from there, so a stale smaller-iPhone group beside a fresh large one means
         # two people see two listings, one of them out of date. Hence the flag.
         for group, placements in sorted(current[locale].items()):
-            if group in plans[locale]:
+            if group in plans[locale] or group in configured:
                 continue
             if not prune:
                 print(
@@ -1298,6 +1306,11 @@ def main() -> int:
     )
     parser.add_argument(
         # `--prune-sets` is the name from before the asset library, when a device was a set.
+        "--devices", nargs="+",
+        help="screenshots: only these config.json devices, e.g. --devices ipad-13 "
+        "(default: all of them); the others' screenshots are left as they are",
+    )
+    parser.add_argument(
         "--prune-groups", "--prune-sets", dest="prune_groups", action="store_true",
         help="also remove screenshots in placement groups the listing has that config.json "
         "does not",
@@ -1347,7 +1360,8 @@ def main() -> int:
         if arguments.command == "all":
             print()
         push_screenshots(
-            client, config, locales, arguments.version, prune=arguments.prune_groups
+            client, config, locales, arguments.version, prune=arguments.prune_groups,
+            devices=arguments.devices,
         )
     if arguments.command in ("creative", "all"):
         if arguments.command == "all":
