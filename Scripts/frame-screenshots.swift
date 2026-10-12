@@ -578,6 +578,8 @@ enum Matrix {
     static let corner: CGFloat = 6
     static let notDueFill = rgb(0.957, 0.937, 0.902)  // kadoBackgroundSecondary, light
     static let hairline = rgb(0.914, 0.882, 0.824)    // kadoHairline, light
+    /// How much of the grid's width, from the left, the fade-in takes.
+    static let fadeLength: CGFloat = 0.5
 
     /// The grid's height when its width is `width`.
     static func height(width: CGFloat) -> CGFloat {
@@ -594,6 +596,33 @@ enum Matrix {
         let size = cell * scale
         let step = (cell + spacing) * scale
         let radius = corner * scale
+        let bounds = NSRect(
+            x: origin.x, y: origin.y - height(width: width), width: width, height: height(width: width)
+        )
+
+        // The grid fades out to the left, into the paper: older days recede, the way the
+        // Overview's own grid runs off the screen's leading edge. Drawn into a layer and then
+        // masked — `destinationIn` keeps what's there at the gradient's alpha — so the cells
+        // and their hairlines fade as one, rather than each going translucent over the other.
+        let context = NSGraphicsContext.current!.cgContext
+        context.beginTransparencyLayer(in: bounds.insetBy(dx: -scale, dy: -scale), auxiliaryInfo: nil)
+        defer {
+            let mask = CGGradient(
+                colorsSpace: CGColorSpace(name: CGColorSpace.sRGB),
+                colors: [NSColor.black.withAlphaComponent(0).cgColor, NSColor.black.cgColor] as CFArray,
+                locations: [0, fadeLength]
+            )!
+            context.setBlendMode(.destinationIn)
+            context.drawLinearGradient(
+                mask,
+                start: CGPoint(x: bounds.minX, y: bounds.midY),
+                end: CGPoint(x: bounds.maxX, y: bounds.midY),
+                options: [.drawsAfterEndLocation]
+            )
+            context.setBlendMode(.normal)
+            context.endTransparencyLayer()
+        }
+
         for (row, habit) in creativeMatrix.enumerated() {
             let sage = MonochromeHabit(slot: habit.slot)
             for (column, day) in habit.days.enumerated() {
