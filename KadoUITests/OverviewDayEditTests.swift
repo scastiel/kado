@@ -25,7 +25,7 @@ final class OverviewDayEditTests: KadoUITestCase {
         tapTab(.today, in: app)
         waitForTodayRows(in: app)
         let habitID = try XCTUnwrap(openCounterHabitDetail(in: app), "No counter habit in the seed.")
-        app.navigationBars.buttons.firstMatch.tap()
+        leaveHabitDetail(in: app)
 
         tapTab(.overview, in: app)
         let cell = app.buttons[AccessibilityID.Overview.cell(habitID, daysAgo: 0)]
