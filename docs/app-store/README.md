@@ -25,7 +25,8 @@ make listing-creative  send only the header and search creative
 | `screenshots/<locale>/<device>/` | The raw captures. The source of truth — committed, and never edited by hand. |
 | `screenshots/<locale>/03-widgets/` | The widget tiles, one PNG per widget, photographed once at 3× and composed onto every canvas. An *assembly*, not a capture — see below. |
 | `marketing/<locale>/<device>/` | The same captures wrapped in the frame, plus the assembled shots. **This is what gets uploaded.** |
-| `marketing/<locale>/creative/universal.png` | The landscape creative — the product page header and the search results banner. Drawn by the same `make frames`. See below. |
+| `marketing/<locale>/creative/universal.png` | The product page header (16:9). Drawn by the same `make frames`. See below. |
+| `marketing/<locale>/creative/search.png` | The search results banner (3:2), drawn separately because search shows the whole image. |
 
 `docs/app-store-connect.md`, one level up, is the human document: the age-rating answers, the App Review notes, the TestFlight copy, the submission checklists. It is prose for a person to read before a submission. This folder is what a script reads. Where they overlap — the description, the keywords — the files here are what actually ships, so a change made in one belongs in both.
 
@@ -83,7 +84,12 @@ The widget views themselves live in `KadoCore` so the app can draw them; the ext
 
 ### The creative: header and search banner
 
-On iOS 27 a listing has two landscape slots — a header across the top of the product page and a creative in search results — and one **universal** 16:9 image fills both. `make frames` draws it per locale into `marketing/<locale>/creative/universal.png`: **5244×2950, PNG, no alpha channel**. App Store Connect refuses any other size, and refuses alpha outright, even an alpha channel that is opaque everywhere, so the frame writes it through a no-alpha bitmap rather than the RGBA one the screenshots use. `make listing-check` checks all three.
+On iOS 27 a listing has two landscape slots — a header across the top of the product page and a creative in search results — and Apple accepts one **universal** 16:9 image for both. Kadō draws two instead, because the placements turned out to want opposite layouts (see the crops below):
+
+- `marketing/<locale>/creative/universal.png`: **5244×2950**, Apple's universal spec, used for the **header**.
+- `marketing/<locale>/creative/search.png`: **3840×2560**, Apple's search-only 3:2 spec, used for **search results**.
+
+Both are PNGs with **no alpha channel**. App Store Connect refuses alpha outright, even an alpha channel that is opaque everywhere, so the frame writes them through a no-alpha bitmap rather than the RGBA one the screenshots use. `make listing-check` checks both files' size and alpha. Same headline, same drawing; each layout is a `CreativeLayout` value in `Scripts/frame-screenshots.swift`.
 
 It is the same ground and the same Fraunces as the screenshots, laid out sideways. On the left are the `creative-universal` headline from `captions.json` and `稼 働 · in operation`, the wordmark from the foot of Settings, set as `SettingsView` sets it and left untranslated, as the app leaves it. On the right is that locale's iPhone `01-today` capture in a phone that runs off the bottom edge. Behind both, across the full width, is a band of the Overview grid in the monochrome sage theme. There is no icon or name: both placements draw the app's own icon and name right beside the creative. The grid is drawn, not cropped, because no capture shows the monochrome theme. Its cells are mixed in Oklab exactly as `MatrixCell` mixes them, and its rows are hand-set in `creativeMatrix`. It fades into the paper over the left half of its width (`Matrix.fadeLength`), so older days recede. The fade is masked with alpha while drawing; the written PNG is still flattened with no alpha. Nothing in it is new artwork, so a recapture or a reworded headline carries through on the next `make frames`. The layout is `Creative` in `Scripts/frame-screenshots.swift`.
 
@@ -100,13 +106,14 @@ The layout constants in `Creative` are these numbers. Re-check in the Preview to
 
 Why the phone alone, and not the phone with widget tiles beside it: `docs/plans/2026-10/listing-creative/` has both mocks. The tiles repeated the list's rows at a smaller size and covered the "Slipped" row, which is the one that makes the headline's point.
 
-If one placement crops badly, the fallback is a dedicated asset rather than a compromise in this one: a 21:9 header (3840×1646) or a 3:2 search image.
+The universal image was tried in search first, and in Apple's Preview tool it read as a small headline and phone adrift on paper. The layout that suits the header's small top window is wrong for a placement that shows every pixel. Hence `search.png`. A dedicated 21:9 header (3840×1646) is the remaining option if the universal image ever stops suiting the header.
 
 #### Uploading it
 
-`appstore.py creative` (in `make listing`, or alone as `make listing-creative`) sends it through the **App Asset Library**, the half of the API creative assets live in. Screenshot sets hang off the version; a creative is uploaded to the app's library once and then *placed* on each version localization, as `PRODUCT_PAGE_HEADER_ASSET` and as `APP_STORE_SEARCH_RESULTS_ASSET`.
+`appstore.py creative` (in `make listing`, or alone as `make listing-creative`) sends them through the **App Asset Library**, the half of the API creative assets live in. Screenshot sets hang off the version; a creative is uploaded to the app's library once and then *placed* on each version localization.
 
-- **The spec is read, not written down.** Every run reads Apple's reference data (`/v1/appAssetLibraryRefData`) for the `universalAsset` image spec that serves both placements, and for the group each one is placed in (`DEFAULT_PROFILE` today). It stops if that spec no longer takes 5244×2950. After processing it checks that Apple filed the upload under that spec.
+- **Which file goes where:** `PRODUCT_PAGE_HEADER_ASSET` ← `universal.png`; `APP_STORE_SEARCH_RESULTS_ASSET` ← `search.png`, falling back to `universal.png` if there is no `search.png` (`CREATIVE_SOURCES`).
+- **The spec is read, not written down.** Every run reads Apple's reference data (`/v1/appAssetLibraryRefData`) for the image spec that takes each file's placement and pixel size, and for the group it is placed in (`DEFAULT_PROFILE` today). It stops if no spec takes the size. After processing, it checks that Apple filed the upload under that spec.
 - **Placements need a version being prepared.** Only `PREPARE_FOR_SUBMISSION` takes them, so a real run on anything else stops before writing. `--dry-run` warns and carries on, so the plan can be read between releases: `appstore.py creative --dry-run --version 1.13`.
 - **Re-running is free.** The API keeps no checksum, so each image is named `kado-creative-<locale>-<sha256 prefix>` in its `referenceName`. When both placements already show the file's name, nothing is sent. When an upload is in the library but not placed (an interrupted run), it is reused instead of uploaded again.
 - **Replacing leaves no orphans.** Placements are immutable and a version takes one of each, so a changed image means: delete the old placement, create the new one, then delete the old image, but only if nothing else still places it. The live version's localization may still be showing it, and the API refuses the delete while one does.

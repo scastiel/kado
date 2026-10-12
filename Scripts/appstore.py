@@ -391,32 +391,40 @@ def check(config: dict, locales: list[str]) -> int:
     return 1 if problems else 0
 
 
-# The universal creative: the product page header and the search results banner, one image for
-# both. App Store Connect refuses any other size, and refuses alpha in it outright — an alpha
-# channel that is opaque everywhere is still an alpha channel.
-CREATIVE_SIZE = (5244, 2950)
-CREATIVE_PATH = "creative/universal.png"
+# The creatives under marketing/<locale>/creative/, and the size each is drawn at. The universal
+# 16:9 is the product page header; the 3:2 is the search results asset, drawn separately
+# because search shows every pixel of an image the header only shows the top of. App Store
+# Connect refuses alpha in either outright — an alpha channel that is opaque everywhere is
+# still an alpha channel.
+CREATIVE_FILES = {
+    "universal.png": (5244, 2950),
+    "search.png": (3840, 2560),
+}
 
 
 def check_creative(locale: str) -> int:
-    path = MARKETING_DIR / locale / CREATIVE_PATH
-    shown = path.relative_to(ROOT)
-    if not path.exists():
-        print(f"  !  no creative at {shown} — `make frames` draws it")
-        return 1
     problems = 0
-    size = png_size(path)
-    if size != CREATIVE_SIZE:
-        print(
-            f"  !  the creative is {size[0]}x{size[1]},"
-            f" and App Store Connect takes {CREATIVE_SIZE[0]}x{CREATIVE_SIZE[1]}"
-        )
-        problems += 1
-    if png_has_alpha(path):
-        print(f"  !  {shown} has an alpha channel, which App Store Connect refuses")
-        problems += 1
-    if not problems:
-        print(f"  ok {'creative':<18} {size[0]}x{size[1]}, no alpha")
+    for name, expected in CREATIVE_FILES.items():
+        path = MARKETING_DIR / locale / "creative" / name
+        shown = path.relative_to(ROOT)
+        if not path.exists():
+            print(f"  !  no creative at {shown} — `make frames` draws it")
+            problems += 1
+            continue
+        size = png_size(path)
+        found = 0
+        if size != expected:
+            print(
+                f"  !  {name} is {size[0]}x{size[1]},"
+                f" and it is drawn for {expected[0]}x{expected[1]}"
+            )
+            found += 1
+        if png_has_alpha(path):
+            print(f"  !  {shown} has an alpha channel, which App Store Connect refuses")
+            found += 1
+        if not found:
+            print(f"  ok {'creative/' + name:<18} {size[0]}x{size[1]}, no alpha")
+        problems += found
     return problems
 
 
@@ -837,46 +845,51 @@ def creative_reference(locale: str, payload: bytes) -> str:
     return f"kado-creative-{locale}-{hashlib.sha256(payload).hexdigest()[:16]}"
 
 
-def universal_creative_spec(client: Client) -> tuple[str, dict[str, str]]:
-    """The universal image spec and, per placement type, the group it is placed in.
+# Which file each placement shows, first one present wins. The header takes the universal 16:9;
+# search takes its own 3:2 when there is one, because search shows every pixel of an image the
+# header only shows the top of, and falls back to the universal one when there isn't.
+CREATIVE_SOURCES = {
+    "PRODUCT_PAGE_HEADER_ASSET": ("universal.png",),
+    "APP_STORE_SEARCH_RESULTS_ASSET": ("search.png", "universal.png"),
+}
 
-    Read from Apple's reference data at run time rather than written down here: Apple says to,
-    and the help page's numbers already disagreed with the live data the first time this ran.
-    """
-    reference = client.get(
+
+def creative_reference_data(client: Client) -> dict:
+    """Apple's image specs and placement types, read at run time rather than written down here:
+    Apple says to, and the help page's numbers already disagreed with the live data the first
+    time this ran."""
+    return client.get(
         "/v1/appAssetLibraryRefData",
         **{"fields[appAssetLibraryRefData]": "imageSpecs,placementTypes"},
     )["data"][0]["attributes"]
-    spec = next(
-        (
-            spec for spec in reference["imageSpecs"]
-            if spec.get("universalAsset")
-            and set(CREATIVE_PLACEMENTS) <= set(spec["compatiblePlacementTypes"])
-        ),
-        None,
-    )
-    if spec is None:
-        fail("Apple's reference data no longer lists a universal header + search image spec")
-    width, height = CREATIVE_SIZE
-    dimensions = spec["dimensions"]
-    if not (dimensions["minWidth"] <= width <= dimensions["maxWidth"]
-            and dimensions["minHeight"] <= height <= dimensions["maxHeight"]):
-        fail(
-            f"the universal creative spec ({spec['shortName']}) no longer takes "
-            f"{width}x{height} — CREATIVE_SIZE and the frame tool need to follow it"
-        )
 
-    groups = {}
-    for placement_type in reference["placementTypes"]:
-        if placement_type["placementTypeId"] not in CREATIVE_PLACEMENTS:
+
+def creative_spec(reference: dict, placement_type: str, size: tuple[int, int]) -> tuple[str, str]:
+    """The spec an image of `size` meets for `placement_type`, and the group it is placed in.
+
+    Matched on the placement and the pixel size alone, which is enough: the universal 16:9 is
+    one exact size, and the search-only 3:2 is a range no 16:9 falls into. Whatever Apple's
+    processing then files the upload under is checked against this.
+    """
+    width, height = size
+    for spec in reference["imageSpecs"]:
+        dimensions = spec["dimensions"]
+        if (placement_type in spec["compatiblePlacementTypes"]
+                and dimensions["minWidth"] <= width <= dimensions["maxWidth"]
+                and dimensions["minHeight"] <= height <= dimensions["maxHeight"]):
+            break
+    else:
+        fail(
+            f"no image spec in Apple's reference data takes a {width}x{height} "
+            f"{placement_type} — the frame tool's sizes need to follow it"
+        )
+    for entry in reference["placementTypes"]:
+        if entry["placementTypeId"] != placement_type:
             continue
-        for mapping in placement_type["specMappings"]:
+        for mapping in entry["specMappings"]:
             if spec["specId"] in mapping["specs"]:
-                groups[placement_type["placementTypeId"]] = mapping["placementGroupId"]
-    missing = set(CREATIVE_PLACEMENTS) - set(groups)
-    if missing:
-        fail(f"no placement group takes the universal spec for {', '.join(sorted(missing))}")
-    return spec["specId"], groups
+                return spec["specId"], mapping["placementGroupId"]
+    fail(f"no placement group takes spec {spec['shortName']} for {placement_type}")
 
 
 def creative_placements(client: Client, localization_id: str) -> dict[str, tuple[dict, dict]]:
@@ -920,49 +933,50 @@ def push_creative(client: Client, config: dict, locales: list[str], wanted_versi
         print(f"  ! {message}\n    Dry run, so carrying on to show what would change.")
 
     library_id = client.get(f"/v1/apps/{app['id']}/assetLibrary")["data"]["id"]
-    spec_id, groups = universal_creative_spec(client)
+    reference_data = creative_reference_data(client)
     version_localizations = localizations(
         client, f"/v1/appStoreVersions/{version['id']}/appStoreVersionLocalizations"
     )
 
     for locale in locales:
         print(f"\n{locale}")
-        path = MARKETING_DIR / locale / CREATIVE_PATH
-        if not path.exists():
-            print(f"  - nothing at {path.relative_to(ROOT)}, left alone")
-            continue
         localization = version_localizations.get(locale)
         if localization is None:
             fail(
                 f"App Store Connect has no {locale} localization to place the creative on. "
                 "Run `metadata` first — it creates one."
             )
-
-        payload = path.read_bytes()
-        reference = creative_reference(locale, payload)
         placed = creative_placements(client, localization["id"])
-        if all(
-            placement_type in placed
-            and placed[placement_type][1]["attributes"].get("referenceName") == reference
-            for placement_type in CREATIVE_PLACEMENTS
-        ):
-            print(f"  = header and search results already show {reference}")
-            continue
-
-        image_id = creative_image(client, library_id, spec_id, path, payload, reference)
-
+        # One upload per file, however many placements show it.
+        uploaded: dict[str, str] = {}
         replaced = set()
-        for placement_type in CREATIVE_PLACEMENTS:
-            current = placed.get(placement_type)
-            if current and current[1]["id"] == image_id:
-                print(f"  = {placement_type} already shows it")
+
+        for placement_type, candidates in CREATIVE_SOURCES.items():
+            folder = MARKETING_DIR / locale / "creative"
+            path = next((folder / name for name in candidates if (folder / name).exists()), None)
+            if path is None:
+                print(f"  - {placement_type}: nothing in {folder.relative_to(ROOT)}, left alone")
                 continue
+            payload = path.read_bytes()
+            reference = creative_reference(locale, payload)
+            current = placed.get(placement_type)
+            if current and current[1]["attributes"].get("referenceName") == reference:
+                print(f"  = {placement_type} already shows {path.name} ({reference})")
+                continue
+
+            spec_id, group = creative_spec(reference_data, placement_type, png_size(path))
+            if reference not in uploaded:
+                uploaded[reference] = creative_image(
+                    client, library_id, spec_id, path, payload, reference
+                )
+            image_id = uploaded[reference]
+
             if current:
                 was = current[1]["attributes"].get("referenceName") or current[1]["id"]
                 print(f"  ✗ {placement_type}: removing the placement of {was}")
                 client.delete(f"/v1/appAssetLibraryPlacements/{current[0]['id']}")
                 replaced.add(current[1]["id"])
-            print(f"  + {placement_type} ({groups[placement_type]}) → {reference}")
+            print(f"  + {placement_type} ({group}) → {path.name} ({reference})")
             client.post(
                 "/v1/appAssetLibraryPlacements",
                 {
@@ -970,7 +984,7 @@ def push_creative(client: Client, config: dict, locales: list[str], wanted_versi
                         "type": "appAssetLibraryPlacements",
                         "attributes": {
                             "placementType": placement_type,
-                            "placementGroup": groups[placement_type],
+                            "placementGroup": group,
                         },
                         "relationships": {
                             "image": {

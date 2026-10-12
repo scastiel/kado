@@ -472,41 +472,88 @@ enum Creative {
     /// creative shows the French app.
     static let device = "iphone-6.9"
     static let shot = "01-today"
-    /// Its key in each locale of `captions.json`, and its file name under `creative/`.
+    /// Its key in each locale of `captions.json` — one headline for both images.
     static let caption = "creative-universal"
-    static let name = "universal"
-
-    /// The phone's screen height. Its width follows the capture, and the bezel, corner and
-    /// shadow follow the portrait iPhone frame in proportion, so the two read as one device.
-    /// Taller than the canvas has room for, on purpose: the phone starts just under `headerTop`
-    /// and runs off the bottom edge, which is what the header would do to it anyway, and done
-    /// deliberately it reads as a phone held up to the frame rather than one that didn't fit.
-    static let screenHeight: CGFloat = 2300
-    static let screenTop: CGFloat = headerButtonsBottom + 40
-    /// The screen's right edge, inside the header window's by about a bezel and a shadow.
-    static let screenRight: CGFloat = 3930
-
-    /// The headline's left edge, inside the header window's, and its top, under the back button.
-    static let headlineLeft: CGFloat = 1300
-    static let headlineTop: CGFloat = headerButtonsBottom + 60
-    static let headlineSize: CGFloat = 230
-    /// Between the end of the headline's longest line and the phone.
-    static let gap: CGFloat = 180
 
     /// The sign-off at the foot of Settings, under the headline. Verbatim, as `SettingsView`
     /// draws it — 稼働 is brand art, not a phrase, and the app doesn't translate it either.
     static let wordmark = "稼 働 · in operation"
-    static let wordmarkSize: CGFloat = 80
-    static let wordmarkGap: CGFloat = 90
-
-    /// The Overview grid's band, the full width of the canvas: its top, and its cell in pixels.
-    /// Big enough to read as habit days in a 615pt search result, where the whole frame shows.
-    /// High enough that its first row closes the bottom of the iPhone header's window.
-    static let matrixTop: CGFloat = 1680
-    static let matrixCell: CGFloat = 150
 
     // No icon and no name: both placements already draw the app's icon and name right beside
     // the creative, and the first cut's lockup landed under the header's back button.
+}
+
+/// One creative image: its canvas and where things sit on it, in pixels from the top-left.
+///
+/// Two of them, because one image could not serve both placements. The universal 16:9 is laid
+/// out for the iPhone header's small top window, and in search results — which show every
+/// pixel, small — that same layout read as a little headline and phone adrift on paper. Apple
+/// takes a separate 3:2 image for search alone, and `search` is that one, laid out for the
+/// whole frame. Same drawing, same headline, different numbers.
+struct CreativeLayout {
+    /// The file name under `creative/`, which `appstore.py` maps to a placement.
+    let name: String
+    let canvas: NSSize
+
+    /// The phone's screen height. Its width follows the capture, and the bezel, corner and
+    /// shadow follow the portrait iPhone frame in proportion, so the two read as one device.
+    /// Taller than the canvas has room for, on purpose: the phone runs off the bottom edge,
+    /// which reads as a phone held up to the frame rather than one that didn't fit.
+    let screenHeight: CGFloat
+    let screenTop: CGFloat
+    let screenRight: CGFloat
+
+    let headlineLeft: CGFloat
+    let headlineTop: CGFloat
+    let headlineSize: CGFloat
+    /// Between the end of the headline's longest line and the phone.
+    let gap: CGFloat
+
+    let wordmarkSize: CGFloat
+    let wordmarkGap: CGFloat
+
+    /// The Overview grid's band, the full width of the canvas: its top, and its cell.
+    let matrixTop: CGFloat
+    let matrixCell: CGFloat
+
+    /// The product page header — and, for want of anything better, the search fallback. Every
+    /// number here answers to the header's measured window: the headline and the phone start
+    /// just under its buttons, the phone's screen stays inside its right edge, and the grid's
+    /// first row closes its bottom.
+    static let universal = CreativeLayout(
+        name: "universal",
+        canvas: Creative.canvas,
+        screenHeight: 2300,
+        screenTop: Creative.headerButtonsBottom + 40,
+        screenRight: 3930,
+        headlineLeft: 1300,
+        headlineTop: Creative.headerButtonsBottom + 60,
+        headlineSize: 230,
+        gap: 180,
+        wordmarkSize: 80,
+        wordmarkGap: 90,
+        matrixTop: 1680,
+        matrixCell: 150
+    )
+
+    /// The search results asset: 3:2, the largest size Apple's search-only spec takes, and laid
+    /// out for the whole frame since search shows all of it. Everything that must be read stays
+    /// 250px clear of the top and bottom edges, so a 16:9 card cropping it still keeps it.
+    static let search = CreativeLayout(
+        name: "search",
+        canvas: NSSize(width: 3840, height: 2560),
+        screenHeight: 2700,
+        screenTop: 330,
+        screenRight: 3510,
+        headlineLeft: 330,
+        headlineTop: 760,
+        headlineSize: 270,
+        gap: 200,
+        wordmarkSize: 95,
+        wordmarkGap: 100,
+        matrixTop: 1720,
+        matrixCell: 130
+    )
 }
 
 // MARK: - The Overview matrix, in monochrome
@@ -684,17 +731,19 @@ func wordmark(_ text: String, size: CGFloat) -> NSAttributedString {
     )
 }
 
-/// The universal creative: the headline and the Settings wordmark on the left and the Today
-/// screen in a phone on the right, both inside the header window, over a full-width band of
-/// the Overview grid that fades out to the left.
+/// A creative: the headline and the Settings wordmark on the left and the Today screen in a
+/// phone on the right, over a full-width band of the Overview grid that fades out to the left,
+/// placed per `layout`.
 ///
 /// The phone alone, on purpose. A mock with two widget tiles leaning on its edge
 /// (`docs/plans/2026-10/listing-creative/`) repeated the list's own rows at a smaller size and
 /// covered the one marked "Slipped" — the row that *is* the headline's claim.
-func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapImageRep {
-    let canvas = Creative.canvas
+func creative(
+    capture: NSImage, caption: String, palette: Palette, layout: CreativeLayout
+) -> NSBitmapImageRep {
+    let canvas = layout.canvas
     let iphone = Profile.named(Creative.device)!
-    let screenHeight = Creative.screenHeight
+    let screenHeight = layout.screenHeight
     let screenWidth = (screenHeight * capture.size.width / capture.size.height).rounded()
     let bezel = (iphone.bezel * screenWidth / (iphone.canvas.width * iphone.screenWidthFraction))
         .rounded()
@@ -704,13 +753,13 @@ func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapIm
     return ground(canvas, palette: palette) {
         // The grid first, so the phone stands in front of it.
         Matrix.draw(
-            minX: 0, maxX: canvas.width, top: fromTop(Creative.matrixTop),
-            size: Creative.matrixCell
+            minX: 0, maxX: canvas.width, top: fromTop(layout.matrixTop),
+            size: layout.matrixCell
         )
 
         let screen = NSRect(
-            x: Creative.screenRight - screenWidth,
-            y: fromTop(Creative.screenTop) - screenHeight,
+            x: layout.screenRight - screenWidth,
+            y: fromTop(layout.screenTop) - screenHeight,
             width: screenWidth,
             height: screenHeight
         )
@@ -719,19 +768,19 @@ func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapIm
         // `gap` short of the phone.
         let lines = caption.components(separatedBy: "\n")
         let headlineSize = fitted(
-            lines, size: Creative.headlineSize, color: palette.headline,
-            within: screen.minX - bezel - Creative.gap - Creative.headlineLeft
+            lines, size: layout.headlineSize, color: palette.headline,
+            within: screen.minX - bezel - layout.gap - layout.headlineLeft
         )
         let lineHeight = headlineSize * 1.16
-        var top = fromTop(Creative.headlineTop)
+        var top = fromTop(layout.headlineTop)
         for line in lines {
             top -= lineHeight
             attributed(line, size: headlineSize, color: palette.headline)
-                .draw(at: NSPoint(x: Creative.headlineLeft, y: top))
+                .draw(at: NSPoint(x: layout.headlineLeft, y: top))
         }
-        let mark = wordmark(Creative.wordmark, size: Creative.wordmarkSize)
-        top -= Creative.wordmarkGap + mark.size().height
-        mark.draw(at: NSPoint(x: Creative.headlineLeft, y: top))
+        let mark = wordmark(Creative.wordmark, size: layout.wordmarkSize)
+        top -= layout.wordmarkGap + mark.size().height
+        mark.draw(at: NSPoint(x: layout.headlineLeft, y: top))
 
         let screenRadius = screenWidth * iphone.cornerFraction
         slab(
@@ -897,7 +946,7 @@ for localeDirectory in directories(in: captures) {
         }
     }
 
-    // The creative, once per locale: it belongs to neither device's screenshot set.
+    // The creatives, once per locale: they belong to neither device's screenshot set.
     guard let caption = localeCaptions[Creative.caption] else {
         fail("captions.json has no \(locale) headline for \(Creative.caption)")
     }
@@ -906,17 +955,19 @@ for localeDirectory in directories(in: captures) {
     guard let capture = NSImage(contentsOf: shot) else {
         fail("the creative is drawn from \(shot.path), which could not be read")
     }
-    let rep = creative(capture: capture, caption: caption, palette: .light)
     let out = destination.appendingPathComponent(locale).appendingPathComponent("creative")
     try? manager.removeItem(at: out)
     try! manager.createDirectory(at: out, withIntermediateDirectories: true)
-    guard let png = opaquePNG(rep) else {
-        fail("could not encode the creative for \(locale)")
+    for layout in [CreativeLayout.universal, .search] {
+        let rep = creative(capture: capture, caption: caption, palette: .light, layout: layout)
+        guard let png = opaquePNG(rep) else {
+            fail("could not encode the \(layout.name) creative for \(locale)")
+        }
+        let target = out.appendingPathComponent("\(layout.name).png")
+        try! png.write(to: target)
+        print("  \(target.path)  \(rep.pixelsWide)x\(rep.pixelsHigh)")
+        written += 1
     }
-    let target = out.appendingPathComponent("\(Creative.name).png")
-    try! png.write(to: target)
-    print("  \(target.path)  \(rep.pixelsWide)x\(rep.pixelsHigh)")
-    written += 1
 }
 
 if written == 0 {
