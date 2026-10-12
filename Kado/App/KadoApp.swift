@@ -16,7 +16,7 @@ struct KadoApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var devModeController = DevModeController()
-    @State private var cloudAccountStatus = DefaultCloudAccountStatusObserver()
+    @State private var cloudAccountStatus: any CloudAccountStatusObserving = Self.makeCloudAccountStatus()
     @State private var notificationScheduler: any NotificationScheduling
     @State private var notificationManager: NotificationManager
     @State private var tipJarStore = DefaultTipJarStore(tipNudge: DefaultTipNudgeService())
@@ -90,6 +90,18 @@ struct KadoApp: App {
                     .error("Couldn't reconcile the app icon: \(error.localizedDescription, privacy: .public)")
             }
         }
+    }
+
+    /// CloudKit's account observer — or, on a UI test run that asked
+    /// for one, a signed-in account with healthy sync, since a test run
+    /// has no CloudKit to sign in to.
+    private static func makeCloudAccountStatus() -> any CloudAccountStatusObserving {
+        #if DEBUG
+        if UITestSupport.reportsICloudAvailable {
+            return MockCloudAccountStatusObserver(status: .available, syncHealth: .healthy)
+        }
+        #endif
+        return DefaultCloudAccountStatusObserver()
     }
 
     /// StoreKit's store — or, on a UI test run that asked to own the

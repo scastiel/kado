@@ -70,7 +70,8 @@ class KadoUITestCase: XCTestCase {
         supporter: Bool = false,
         habitTheme: String? = nil,
         appearanceAnnouncement: Bool = false,
-        tipNudgeReady: Bool = false
+        tipNudgeReady: Bool = false,
+        iCloudAvailable: Bool = false
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-uiTestRun"]
@@ -101,6 +102,9 @@ class KadoUITestCase: XCTestCase {
         }
         if tipNudgeReady {
             app.launchArguments.append("-uiTestTipNudgeReady")
+        }
+        if iCloudAvailable {
+            app.launchArguments.append("-uiTestICloudAvailable")
         }
         if let habitTheme {
             app.launchArguments += ["-uiTestHabitTheme", habitTheme]

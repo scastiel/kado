@@ -92,7 +92,8 @@ final class ScreenshotTests: KadoUITestCase {
             language: Self.runLanguage,
             locale: Self.runLocale,
             seedForScreenshots: true,
-            supporter: true
+            supporter: true,
+            iCloudAvailable: true
         )
         waitForTodayRows(in: supporter)
         tapTab(.settings, in: supporter)
@@ -194,7 +195,12 @@ final class ScreenshotTests: KadoUITestCase {
             language: Self.runLanguage,
             locale: Self.runLocale,
             seedForScreenshots: true,
-            suppressNameAutoFocus: true
+            suppressNameAutoFocus: true,
+            // A signed-in, syncing account: the run has no CloudKit, and
+            // the honest "Not signed in to iCloud" warning it would
+            // otherwise show opened the Settings shot — headlined "No
+            // account. No tracking. Ever." — on an error state (#135).
+            iCloudAvailable: true
         )
     }
 

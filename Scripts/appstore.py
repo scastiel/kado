@@ -1006,7 +1006,7 @@ def push_screenshots(
         for file in files
     ]
     if to_upload:
-        print(f"\nThe library — {len(to_upload)} file(s) to place")
+        print(f"\nThe library — {len(to_upload)} file(s) in groups that changed")
     ids = ensure_images(
         client, library_id, SCREENSHOT_CATEGORY, to_upload,
         library_index(client, library_id, SCREENSHOT_CATEGORY) if to_upload else {},
