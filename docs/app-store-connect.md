@@ -936,6 +936,30 @@ attach.
 >   l'historique restaient figés avec lui — alors que chaque tap était
 >   bien enregistré. L'écran suit de nouveau chacun d'eux.
 
+### What's New — 1.13
+
+Build 23 carries two fixes to the day-edit popover's note, both since
+build 22: #127 (a contributor's PR), Done under the note not closing
+the popover, and #128, a note typed and then dismissed by tapping
+outside being dropped — Done was the only path that wrote it. No new
+screenshots, no IAP to attach.
+
+> Version 1.13 — Notes that stay put.
+>
+> • The note on a calendar day now saves however you leave it. Tapping
+>   outside the popover used to drop what you had typed; it is kept
+>   now.
+> • Done, under a day's note, closes the popover instead of leaving it
+>   open.
+
+> Version 1.13 — Des notes qui restent.
+>
+> • La note d'un jour du calendrier est maintenant enregistrée quelle
+>   que soit la façon dont tu fermes la fenêtre. Toucher en dehors
+>   effaçait ce que tu venais d'écrire ; c'est maintenant conservé.
+> • « Fait », sous la note d'un jour, ferme la fenêtre au lieu de la
+>   laisser ouverte.
+
 ### App Review Information (public submission)
 Same contact info as TestFlight. Extra notes:
 
