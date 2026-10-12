@@ -9,4 +9,6 @@ Two compositions for the universal App Store creative (5244×2950, shown here at
 
 Why A: the creative is one idea for a first-time visitor, and the tiles in B said the same thing twice — they repeat the list's own rows at a smaller size — while covering the "Slipped" row, the one that makes *without the all-or-nothing* visible. B also pushes the group's weight to the right of the safe band.
 
-Both crops of A were checked by centring 21:9 (5244×2247) and 3:2 (4425×2950) cuts: headline and phone stay whole in each with margin. Apple's real crops are still to be confirmed in App Store Connect's Preview tool.
+A on its own read as empty, so the shipped version, `final.png`, adds a text column above and below the headline: the app icon with "Kadō" in Fraunces, and the `稼 働 · in operation` wordmark from the foot of Settings.
+
+Both crops of A, and of the final, were checked by centring 21:9 (5244×2247) and 3:2 (4425×2950) cuts: headline and phone stay whole in each with margin. Apple's real crops are still to be confirmed in App Store Connect's Preview tool.

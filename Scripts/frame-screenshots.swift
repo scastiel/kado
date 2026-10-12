@@ -468,6 +468,38 @@ enum Creative {
     static let headlineSize: CGFloat = 230
     /// Between the end of the headline's longest line and the phone.
     static let gap: CGFloat = 240
+
+    /// The lockup over the headline: the icon and the name, so a banner seen in search results
+    /// says whose it is before it says anything else.
+    static let appName = "Kadō"
+    static let nameSize: CGFloat = 150
+    static let iconSize: CGFloat = 230
+    static let iconGap: CGFloat = 56
+    static let lockupGap: CGFloat = 170
+    /// The app's default icon, the one a first-time visitor sees beside the listing.
+    static let icon = NSImage(
+        contentsOfFile: "Kado/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+    )
+
+    /// The sign-off at the foot of Settings, under the headline. Verbatim, as `SettingsView`
+    /// draws it — 稼働 is brand art, not a phrase, and the app doesn't translate it either.
+    static let wordmark = "稼 働 · in operation"
+    static let wordmarkSize: CGFloat = 80
+    static let wordmarkGap: CGFloat = 130
+}
+
+/// `kadoInk300`, light — `kadoForegroundTertiary`, the colour Settings sets the wordmark in.
+let ink300 = rgb(0.576, 0.537, 0.482)
+
+/// The Settings wordmark: the system serif, regular, tracked open the way the app tracks it
+/// (2pt at 13pt). The 稼働 glyphs come from the system's fallback cascade, as they do on iOS.
+func wordmark(_ text: String, size: CGFloat) -> NSAttributedString {
+    let descriptor = NSFont.systemFont(ofSize: size).fontDescriptor.withDesign(.serif)
+    let font = descriptor.flatMap { NSFont(descriptor: $0, size: size) } ?? NSFont.systemFont(ofSize: size)
+    return NSAttributedString(
+        string: text,
+        attributes: [.font: font, .foregroundColor: ink300, .kern: size * 2 / 13]
+    )
 }
 
 /// The universal creative: a left-aligned headline and the Today screen in a phone, centred as
@@ -493,20 +525,51 @@ func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapIm
             within: safe.width - Creative.gap - phoneWidth
         )
         let texts = lines.map { attributed($0, size: headlineSize, color: palette.headline) }
-        let headlineWidth = texts.map { $0.size().width }.max() ?? 0
+        let name = attributed(Creative.appName, size: Creative.nameSize, color: palette.headline)
+        let mark = wordmark(Creative.wordmark, size: Creative.wordmarkSize)
+        let iconSize = Creative.iconSize
+        let lockupWidth = iconSize + Creative.iconGap + name.size().width
+        let columnWidth = max(
+            texts.map { $0.size().width }.max() ?? 0, lockupWidth, mark.size().width
+        )
+
+        // The text column, three tiers stacked top-down and centred as a block against the
+        // phone: who it is, what it believes, and the app's own sign-off from the foot of
+        // Settings.
+        let lineHeight = headlineSize * 1.16
+        let headlineHeight = lineHeight * CGFloat(lines.count)
+        let markHeight = mark.size().height
+        let columnHeight = iconSize + Creative.lockupGap + headlineHeight
+            + Creative.wordmarkGap + markHeight
 
         // One group, centred: the crops are centred, so a group that is centred survives both
         // of them by the same margin on either side.
-        let left = ((canvas.width - headlineWidth - Creative.gap - phoneWidth) / 2).rounded()
+        let left = ((canvas.width - columnWidth - Creative.gap - phoneWidth) / 2).rounded()
+        var top = ((canvas.height + columnHeight) / 2).rounded()
 
-        let lineHeight = headlineSize * 1.16
-        let headlineTop = (canvas.height + lineHeight * CGFloat(lines.count)) / 2
-        for (index, text) in texts.enumerated() {
-            text.draw(at: NSPoint(x: left, y: headlineTop - lineHeight * CGFloat(index + 1)))
+        if let icon = Creative.icon {
+            let rect = NSRect(x: left, y: top - iconSize, width: iconSize, height: iconSize)
+            // The icon's own corner, as the Home Screen masks it. The PNG is square; iOS
+            // supplies the shape.
+            let radius = iconSize * 0.2237
+            slab(rect, radius: radius, color: palette.top, shadowOffset: 8, shadowBlur: 28, shadowAlpha: 0.14)
+            draw(icon, in: rect, radius: radius)
         }
+        // The name's cap height centred on the icon, not its line box, which carries the
+        // descender space a word with no descenders doesn't use.
+        let font = headlineFont(Creative.nameSize)
+        let nameBaseline = top - iconSize / 2 - font.capHeight / 2
+        name.draw(at: NSPoint(x: left + iconSize + Creative.iconGap, y: nameBaseline + font.descender))
+        top -= iconSize + Creative.lockupGap
+
+        for (index, text) in texts.enumerated() {
+            text.draw(at: NSPoint(x: left, y: top - lineHeight * CGFloat(index + 1)))
+        }
+        top -= headlineHeight + Creative.wordmarkGap
+        mark.draw(at: NSPoint(x: left, y: top - markHeight))
 
         let screen = NSRect(
-            x: left + headlineWidth + Creative.gap + bezel,
+            x: left + columnWidth + Creative.gap + bezel,
             y: ((canvas.height - screenHeight) / 2).rounded(),
             width: screenWidth,
             height: screenHeight
