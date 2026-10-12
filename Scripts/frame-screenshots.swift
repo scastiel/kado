@@ -486,6 +486,140 @@ enum Creative {
     static let wordmark = "稼 働 · in operation"
     static let wordmarkSize: CGFloat = 80
     static let wordmarkGap: CGFloat = 130
+    /// From the wordmark down to the Overview grid that closes the column. See `Matrix`.
+    static let matrixGap: CGFloat = 150
+}
+
+// MARK: - The Overview matrix, in monochrome
+//
+// The creative's lowest tier is a slice of the Overview tab's habit × day grid, drawn here
+// rather than cropped from a capture: the capture is in the habits' own hues, and the banner
+// wants the app's monochrome sage theme, which no screenshot photographs. Everything below is
+// a port, not an approximation — the colours are mixed the way `MatrixCell` mixes them, in
+// Oklab, so a cell here is the colour the same cell is on the phone.
+
+/// The Oklab ↔ sRGB pair from `KadoCore/Design/OKLCH.swift`.
+enum Oklab {
+    static func linear(_ c: Double) -> Double {
+        c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+    }
+    static func gamma(_ c: Double) -> Double {
+        c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1 / 2.4) - 0.055
+    }
+
+    static func fromSRGB(_ r: Double, _ g: Double, _ b: Double) -> (Double, Double, Double) {
+        let (r, g, b) = (linear(r), linear(g), linear(b))
+        let l = cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+        let m = cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+        let s = cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+        return (
+            0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+            1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+            0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+        )
+    }
+
+    static func toSRGB(_ L: Double, _ a: Double, _ b: Double) -> NSColor {
+        let l = pow(L + 0.3963377774 * a + 0.2158037573 * b, 3)
+        let m = pow(L - 0.1055613458 * a - 0.0638541728 * b, 3)
+        let s = pow(L - 0.0894841775 * a - 1.2914855480 * b, 3)
+        let clip = { (c: Double) in CGFloat(min(max(gamma(c), 0), 1)) }
+        return rgb(
+            clip(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+            clip(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+            clip(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s)
+        )
+    }
+}
+
+/// One row's sage: `HabitTheme.monochromeSageBase` in light mode — hue 158, chroma 0.065, and
+/// a lightness stepped by the habit's colour slot (red 0 … purple 7), darkest first.
+struct MonochromeHabit {
+    let base: (L: Double, a: Double, b: Double)
+
+    init(slot: Int) {
+        let hue = 158 * Double.pi / 180
+        base = (0.36 + Double(slot) * 0.06, 0.065 * cos(hue), 0.065 * sin(hue))
+    }
+
+    /// `lerp(paper, base, amount)` in Oklab, the way a scored cell is filled.
+    func color(_ amount: Double) -> NSColor {
+        let ground = Oklab.fromSRGB(0.984, 0.973, 0.949)
+        let t = (amount * 100).rounded() / 100
+        return Oklab.toSRGB(
+            ground.0 + (base.L - ground.0) * t,
+            ground.1 + (base.a - ground.1) * t,
+            ground.2 + (base.b - ground.2) * t
+        )
+    }
+}
+
+/// A day in a row: a score in 0…1, or nil for a day the habit wasn't due.
+typealias MatrixDay = Double?
+
+/// Two weeks of four of the screenshot seed's habits, by their colour slots. Hand-set, not
+/// computed: mostly done, some partial, one plain miss, and the scheduled habits' off days —
+/// a grid that looks lived in and makes the headline's point, that a gap isn't a zero.
+let creativeMatrix: [(slot: Int, days: [MatrixDay])] = [
+    // No social media (red): daily, one slip.
+    (0, [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1]),
+    // Gym (orange): three days a week.
+    (1, [1, nil, 1, nil, nil, 1, nil, 1, nil, 1, nil, nil, 1, nil]),
+    // Running (green): most days, the rest off.
+    (3, [1, 1, nil, 1, 1, nil, nil, 1, 1, nil, 1, 1, nil, 1]),
+    // Read (mint): a timer, so it lands short of the target as often as on it.
+    (4, [1, 0.6, 1, 1, 0.45, 1, 0.8, 1, 1, 0.55, 1, 1, 0.7, 0.3]),
+]
+
+/// The grid's proportions, from `OverviewView` in points: 36pt cells, 6pt apart, 6pt corners.
+enum Matrix {
+    static let cell: CGFloat = 36
+    static let spacing: CGFloat = 6
+    static let corner: CGFloat = 6
+    static let notDueFill = rgb(0.957, 0.937, 0.902)  // kadoBackgroundSecondary, light
+    static let hairline = rgb(0.914, 0.882, 0.824)    // kadoHairline, light
+
+    /// The grid's height when its width is `width`.
+    static func height(width: CGFloat) -> CGFloat {
+        let columns = CGFloat(creativeMatrix[0].days.count)
+        let rows = CGFloat(creativeMatrix.count)
+        let scale = width / (columns * cell + (columns - 1) * spacing)
+        return (rows * cell + (rows - 1) * spacing) * scale
+    }
+
+    /// Draws the grid with its top-left corner at `origin`, `width` wide.
+    static func draw(at origin: NSPoint, width: CGFloat) {
+        let columns = CGFloat(creativeMatrix[0].days.count)
+        let scale = width / (columns * cell + (columns - 1) * spacing)
+        let size = cell * scale
+        let step = (cell + spacing) * scale
+        let radius = corner * scale
+        for (row, habit) in creativeMatrix.enumerated() {
+            let sage = MonochromeHabit(slot: habit.slot)
+            for (column, day) in habit.days.enumerated() {
+                let rect = NSRect(
+                    x: origin.x + CGFloat(column) * step,
+                    y: origin.y - CGFloat(row) * step - size,
+                    width: size, height: size
+                ).integral
+                let path = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
+                if let score = day {
+                    // `0.2 + 0.8 × score`: a miss is the ramp's floor, never blank.
+                    sage.color(0.2 + 0.8 * min(max(score, 0), 1)).setFill()
+                    path.fill()
+                } else {
+                    notDueFill.setFill()
+                    path.fill()
+                    // `strokeBorder`: 1pt, inside the shape.
+                    let inset = rect.insetBy(dx: scale / 2, dy: scale / 2)
+                    let ring = NSBezierPath(roundedRect: inset, xRadius: radius - scale / 2, yRadius: radius - scale / 2)
+                    ring.lineWidth = scale
+                    hairline.setStroke()
+                    ring.stroke()
+                }
+            }
+        }
+    }
 }
 
 /// `kadoInk300`, light — `kadoForegroundTertiary`, the colour Settings sets the wordmark in.
@@ -539,8 +673,9 @@ func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapIm
         let lineHeight = headlineSize * 1.16
         let headlineHeight = lineHeight * CGFloat(lines.count)
         let markHeight = mark.size().height
+        let matrixHeight = Matrix.height(width: columnWidth)
         let columnHeight = iconSize + Creative.lockupGap + headlineHeight
-            + Creative.wordmarkGap + markHeight
+            + Creative.wordmarkGap + markHeight + Creative.matrixGap + matrixHeight
 
         // One group, centred: the crops are centred, so a group that is centred survives both
         // of them by the same margin on either side.
@@ -567,6 +702,8 @@ func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapIm
         }
         top -= headlineHeight + Creative.wordmarkGap
         mark.draw(at: NSPoint(x: left, y: top - markHeight))
+        top -= markHeight + Creative.matrixGap
+        Matrix.draw(at: NSPoint(x: left, y: top), width: columnWidth)
 
         let screen = NSRect(
             x: left + columnWidth + Creative.gap + bezel,
