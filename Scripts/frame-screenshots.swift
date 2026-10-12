@@ -441,18 +441,31 @@ func assemble(
 // MARK: - The creative asset
 //
 // iOS 27 gives a listing two landscape slots — a header across the top of the product page and
-// a creative in search results — and one 16:9 image fills both. Apple crops it to roughly 21:9
-// for the header and roughly 3:2 for search and publishes no numbers, so everything that has to
-// survive both crops sits in `safe`, a centred band assumed to be 60% of the width and 75% of
-// the height. The ground runs edge to edge under it; nothing else is allowed outside.
+// a creative in search results — and one 16:9 image fills both. Apple publishes no crops, and
+// the two turned out to want opposite things (measured in App Store Connect's Preview tool, not
+// guessed — the first cut guessed, and lost its first letter and its logo to the header):
+//
+// - **Search results** show the whole 16:9, about 615pt wide. Whatever sits in the middle
+//   alone looks small there, so the ground has to carry something edge to edge.
+// - **The product page header**, on an iPhone, shows only a centred 3:2 window, ~54% of the
+//   width by ~64% of the height (`header`), and its top fifth sits under the status bar and the
+//   Dynamic Island, with the back and share buttons over its top corners (`headerTop`).
+//
+// So everything that must be read — the headline, the phone's screen — lives inside `header`
+// and below `headerTop`, and the grid runs the full width behind it for the search placement.
 
 enum Creative {
     /// App Store Connect's universal creative canvas: 16:9, and refused at any other size.
     static let canvas = NSSize(width: 5244, height: 2950)
-    static let safe = NSRect(
-        x: canvas.width * 0.2, y: canvas.height * 0.125,
-        width: canvas.width * 0.6, height: canvas.height * 0.75
-    )
+    /// The iPhone product page header's window onto the canvas, measured from the Preview tool:
+    /// x 1197–4047, y 531–2419 counting from the top.
+    static let header = (minX: CGFloat(1197), maxX: CGFloat(4047), top: CGFloat(531), bottom: CGFloat(2419))
+    /// Where the header stops being under the status bar (a band across its whole width)…
+    static let headerTop: CGFloat = 950
+    /// …and under its back and share buttons, two circles over its top corners that reach
+    /// further down: x 1311–1653 and 3591–3933. Text starts below this; the phone's own status
+    /// bar row may sit under the share button, which is where it sits on the Home Screen too.
+    static let headerButtonsBottom: CGFloat = 1305
 
     /// The capture the device shows — read out of each locale's captures, so the French
     /// creative shows the French app.
@@ -464,30 +477,34 @@ enum Creative {
 
     /// The phone's screen height. Its width follows the capture, and the bezel, corner and
     /// shadow follow the portrait iPhone frame in proportion, so the two read as one device.
-    static let screenHeight: CGFloat = 2060
+    /// Taller than the canvas has room for, on purpose: the phone starts just under `headerTop`
+    /// and runs off the bottom edge, which is what the header would do to it anyway, and done
+    /// deliberately it reads as a phone held up to the frame rather than one that didn't fit.
+    static let screenHeight: CGFloat = 2300
+    static let screenTop: CGFloat = 1010
+    /// The screen's right edge, inside the header window's by about a bezel and a shadow.
+    static let screenRight: CGFloat = 3930
+
+    /// The headline's left edge, inside the header window's, and its top, under the back button.
+    static let headlineLeft: CGFloat = 1300
+    static let headlineTop: CGFloat = headerButtonsBottom + 55
     static let headlineSize: CGFloat = 230
     /// Between the end of the headline's longest line and the phone.
-    static let gap: CGFloat = 240
-
-    /// The lockup over the headline: the icon and the name, so a banner seen in search results
-    /// says whose it is before it says anything else.
-    static let appName = "Kadō"
-    static let nameSize: CGFloat = 150
-    static let iconSize: CGFloat = 230
-    static let iconGap: CGFloat = 56
-    static let lockupGap: CGFloat = 170
-    /// The app's default icon, the one a first-time visitor sees beside the listing.
-    static let icon = NSImage(
-        contentsOfFile: "Kado/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
-    )
+    static let gap: CGFloat = 180
 
     /// The sign-off at the foot of Settings, under the headline. Verbatim, as `SettingsView`
     /// draws it — 稼働 is brand art, not a phrase, and the app doesn't translate it either.
     static let wordmark = "稼 働 · in operation"
     static let wordmarkSize: CGFloat = 80
-    static let wordmarkGap: CGFloat = 130
-    /// From the wordmark down to the Overview grid that closes the column. See `Matrix`.
-    static let matrixGap: CGFloat = 150
+    static let wordmarkGap: CGFloat = 90
+
+    /// The Overview grid's band, the full width of the canvas: its top, and its cell in pixels.
+    /// Big enough to read as habit days in a 615pt search result, where the whole frame shows.
+    static let matrixTop: CGFloat = 2150
+    static let matrixCell: CGFloat = 150
+
+    // No icon and no name: both placements already draw the app's icon and name right beside
+    // the creative, and the first cut's lockup landed under the header's back button.
 }
 
 // MARK: - The Overview matrix, in monochrome
@@ -557,9 +574,10 @@ struct MonochromeHabit {
 /// A day in a row: a score in 0…1, or nil for a day the habit wasn't due.
 typealias MatrixDay = Double?
 
-/// Two weeks of four of the screenshot seed's habits, by their colour slots. Hand-set, not
-/// computed: mostly done, some partial, one plain miss, and the scheduled habits' off days —
-/// a grid that looks lived in and makes the headline's point, that a gap isn't a zero.
+/// Two weeks of four of the screenshot seed's habits, by their colour slots, repeated back in
+/// time to fill the band. Hand-set, not computed: mostly done, some partial, one plain miss a
+/// fortnight, and the scheduled habits' off days — a grid that looks lived in and makes the
+/// headline's point, that a gap isn't a zero.
 let creativeMatrix: [(slot: Int, days: [MatrixDay])] = [
     // No social media (red): daily, one slip.
     (0, [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1]),
@@ -581,24 +599,19 @@ enum Matrix {
     /// How much of the grid's width, from the left, the fade-in takes.
     static let fadeLength: CGFloat = 0.5
 
-    /// The grid's height when its width is `width`.
-    static func height(width: CGFloat) -> CGFloat {
-        let columns = CGFloat(creativeMatrix[0].days.count)
-        let rows = CGFloat(creativeMatrix.count)
-        let scale = width / (columns * cell + (columns - 1) * spacing)
-        return (rows * cell + (rows - 1) * spacing) * scale
-    }
-
-    /// Draws the grid with its top-left corner at `origin`, `width` wide.
-    static func draw(at origin: NSPoint, width: CGFloat) {
-        let columns = CGFloat(creativeMatrix[0].days.count)
-        let scale = width / (columns * cell + (columns - 1) * spacing)
-        let size = cell * scale
+    /// Draws the grid as a band across `minX…maxX` with its top at `top`, cells `size` pixels.
+    ///
+    /// As many days as fit, the most recent at the right edge — so the band reads as the
+    /// Overview's grid, today last — and each row's two weeks repeated back in time from there.
+    static func draw(minX: CGFloat, maxX: CGFloat, top: CGFloat, size: CGFloat) {
+        let scale = size / cell
         let step = (cell + spacing) * scale
         let radius = corner * scale
-        let bounds = NSRect(
-            x: origin.x, y: origin.y - height(width: width), width: width, height: height(width: width)
-        )
+        let columns = Int(((maxX - minX) + spacing * scale) / step)
+        let rows = CGFloat(creativeMatrix.count)
+        let height = rows * size + (rows - 1) * spacing * scale
+        let bounds = NSRect(x: minX, y: top - height, width: maxX - minX, height: height)
+        let origin = NSPoint(x: maxX - CGFloat(columns) * step + spacing * scale, y: top)
 
         // The grid fades out to the left, into the paper: older days recede, the way the
         // Overview's own grid runs off the screen's leading edge. Drawn into a layer and then
@@ -625,7 +638,11 @@ enum Matrix {
 
         for (row, habit) in creativeMatrix.enumerated() {
             let sage = MonochromeHabit(slot: habit.slot)
-            for (column, day) in habit.days.enumerated() {
+            let pattern = habit.days
+            for column in 0..<columns {
+                // Counted back from the right edge, so the last column is the pattern's last day.
+                let back = columns - 1 - column
+                let day = pattern[(pattern.count - 1 - back % pattern.count)]
                 let rect = NSRect(
                     x: origin.x + CGFloat(column) * step,
                     y: origin.y - CGFloat(row) * step - size,
@@ -665,81 +682,55 @@ func wordmark(_ text: String, size: CGFloat) -> NSAttributedString {
     )
 }
 
-/// The universal creative: a left-aligned headline and the Today screen in a phone, centred as
-/// one group in the safe band.
+/// The universal creative: the headline and the Settings wordmark on the left and the Today
+/// screen in a phone on the right, both inside the header window, over a full-width band of
+/// the Overview grid that fades out to the left.
 ///
 /// The phone alone, on purpose. A mock with two widget tiles leaning on its edge
 /// (`docs/plans/2026-10/listing-creative/`) repeated the list's own rows at a smaller size and
 /// covered the one marked "Slipped" — the row that *is* the headline's claim.
 func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapImageRep {
     let canvas = Creative.canvas
-    let safe = Creative.safe
     let iphone = Profile.named(Creative.device)!
     let screenHeight = Creative.screenHeight
     let screenWidth = (screenHeight * capture.size.width / capture.size.height).rounded()
     let bezel = (iphone.bezel * screenWidth / (iphone.canvas.width * iphone.screenWidthFraction))
         .rounded()
+    // The context is unflipped; the layout constants count from the top, like the measurements.
+    let fromTop = { (y: CGFloat) in canvas.height - y }
 
     return ground(canvas, palette: palette) {
-        let lines = caption.components(separatedBy: "\n")
-        let phoneWidth = screenWidth + bezel * 2
-        let headlineSize = fitted(
-            lines, size: Creative.headlineSize, color: palette.headline,
-            within: safe.width - Creative.gap - phoneWidth
+        // The grid first, so the phone stands in front of it.
+        Matrix.draw(
+            minX: 0, maxX: canvas.width, top: fromTop(Creative.matrixTop),
+            size: Creative.matrixCell
         )
-        let texts = lines.map { attributed($0, size: headlineSize, color: palette.headline) }
-        let name = attributed(Creative.appName, size: Creative.nameSize, color: palette.headline)
-        let mark = wordmark(Creative.wordmark, size: Creative.wordmarkSize)
-        let iconSize = Creative.iconSize
-        let lockupWidth = iconSize + Creative.iconGap + name.size().width
-        let columnWidth = max(
-            texts.map { $0.size().width }.max() ?? 0, lockupWidth, mark.size().width
-        )
-
-        // The text column, three tiers stacked top-down and centred as a block against the
-        // phone: who it is, what it believes, and the app's own sign-off from the foot of
-        // Settings.
-        let lineHeight = headlineSize * 1.16
-        let headlineHeight = lineHeight * CGFloat(lines.count)
-        let markHeight = mark.size().height
-        let matrixHeight = Matrix.height(width: columnWidth)
-        let columnHeight = iconSize + Creative.lockupGap + headlineHeight
-            + Creative.wordmarkGap + markHeight + Creative.matrixGap + matrixHeight
-
-        // One group, centred: the crops are centred, so a group that is centred survives both
-        // of them by the same margin on either side.
-        let left = ((canvas.width - columnWidth - Creative.gap - phoneWidth) / 2).rounded()
-        var top = ((canvas.height + columnHeight) / 2).rounded()
-
-        if let icon = Creative.icon {
-            let rect = NSRect(x: left, y: top - iconSize, width: iconSize, height: iconSize)
-            // The icon's own corner, as the Home Screen masks it. The PNG is square; iOS
-            // supplies the shape.
-            let radius = iconSize * 0.2237
-            slab(rect, radius: radius, color: palette.top, shadowOffset: 8, shadowBlur: 28, shadowAlpha: 0.14)
-            draw(icon, in: rect, radius: radius)
-        }
-        // The name's cap height centred on the icon, not its line box, which carries the
-        // descender space a word with no descenders doesn't use.
-        let font = headlineFont(Creative.nameSize)
-        let nameBaseline = top - iconSize / 2 - font.capHeight / 2
-        name.draw(at: NSPoint(x: left + iconSize + Creative.iconGap, y: nameBaseline + font.descender))
-        top -= iconSize + Creative.lockupGap
-
-        for (index, text) in texts.enumerated() {
-            text.draw(at: NSPoint(x: left, y: top - lineHeight * CGFloat(index + 1)))
-        }
-        top -= headlineHeight + Creative.wordmarkGap
-        mark.draw(at: NSPoint(x: left, y: top - markHeight))
-        top -= markHeight + Creative.matrixGap
-        Matrix.draw(at: NSPoint(x: left, y: top), width: columnWidth)
 
         let screen = NSRect(
-            x: left + columnWidth + Creative.gap + bezel,
-            y: ((canvas.height - screenHeight) / 2).rounded(),
+            x: Creative.screenRight - screenWidth,
+            y: fromTop(Creative.screenTop) - screenHeight,
             width: screenWidth,
             height: screenHeight
         )
+
+        // The headline, left-aligned from inside the header window's left edge, sized to stop
+        // `gap` short of the phone.
+        let lines = caption.components(separatedBy: "\n")
+        let headlineSize = fitted(
+            lines, size: Creative.headlineSize, color: palette.headline,
+            within: screen.minX - bezel - Creative.gap - Creative.headlineLeft
+        )
+        let lineHeight = headlineSize * 1.16
+        var top = fromTop(Creative.headlineTop)
+        for line in lines {
+            top -= lineHeight
+            attributed(line, size: headlineSize, color: palette.headline)
+                .draw(at: NSPoint(x: Creative.headlineLeft, y: top))
+        }
+        let mark = wordmark(Creative.wordmark, size: Creative.wordmarkSize)
+        top -= Creative.wordmarkGap + mark.size().height
+        mark.draw(at: NSPoint(x: Creative.headlineLeft, y: top))
+
         let screenRadius = screenWidth * iphone.cornerFraction
         slab(
             screen.insetBy(dx: -bezel, dy: -bezel),
