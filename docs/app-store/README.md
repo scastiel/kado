@@ -3,7 +3,7 @@
 Everything App Store Connect shows about Kadō — the copy, in both languages, and the screenshots — lives in this folder and is pushed from it. Xcode is never opened, and nothing is retyped into a web form.
 
 ```
-make screenshots     photograph the app, both languages, both device sizes, and frame it
+make screenshots     photograph the app, both languages, every device size, and frame it
 make frames          re-wrap the existing captures — new headline, no recapture
 make listing-check   lengths and image sizes, checked without the network
 make listing-info    what App Store Connect currently holds
@@ -76,9 +76,20 @@ The app launches with `-uiTestRun`, which redirects SwiftData to a throwaway fil
 
 Then everything is wrapped: Kadō's paper ground, a Fraunces headline from `captions.json`, and a device the capture sits inside — the dark shot on a dark ground so it isn't a black rectangle marooned on white. The framing is a **separate pass over the raw captures**, which is the whole point: a new headline is `make frames` and four seconds, where re-photographing the app is a simulator per language per device and the better part of half an hour.
 
+### The iPhone Duo
+
+`iphone-duo` is the Duo's **outer** display, 1398×2034. It's one of the two sizes Apple's `IPHONE_DUO_PROFILE` accepts; the other is the inner 2007×2853. Apple requires Duo screenshots for builds on the iOS 27.1 SDK from April 2027. Two reasons for the outer display:
+
+- **Kadō is already laid out for it.** On the inner display the app is a stretched phone layout (#140).
+- **The capture can run unattended.** A fresh Duo simulator boots folded, so the app runs on the outer display. Nothing in `simctl` or XCTest can unfold one (`UIHinge` only observes the hinge), and the inner display stays black until a person unfolds it in Device Hub.
+
+Both displays are separate framebuffers: `xcrun simctl io <udid> enumerate` lists them, and `screenshot --display=<uuid>` photographs either one.
+
+On the outer display, iOS 27.1 moves the tab bar into a vertical rail, and moves the navigation bar's Back and overflow buttons into the system column on the right edge. A screen's first navigation-bar button is then its own trailing item (Habit Detail's **Edit**), so `ScreenshotTests` goes back through `KadoUITestCase.goBack(in:)`, which taps UIKit's `BackButton` identifier.
+
 ### The widgets shot is an assembly
 
-`03-widgets` is not a photograph of a Home Screen — a real one carries a wallpaper, other apps' icons and a dock, and XCUITest adding widgets through jiggle mode is the most fragile thing the suite could do. It is the widgets themselves: the app, launched with `-uiTestWidgetGallery`, shows a Debug-only gallery of every widget at its Home Screen / Lock Screen size on the screenshot seed (`Kado/Support/WidgetGalleryView.swift`), and the test photographs each tile by element. The tiles land in `screenshots/<locale>/03-widgets/` — beside the device folders, not inside one, because both canvases are composed from the same 3× files. The frame then arranges them: one column on the phone's canvas, two on the iPad's, under the headline where a device would start. The arrangement lives in `Scripts/frame-screenshots.swift`'s `Assembly`, so moving a tile is `make frames`, not a simulator run.
+`03-widgets` is not a photograph of a Home Screen — a real one carries a wallpaper, other apps' icons and a dock, and XCUITest adding widgets through jiggle mode is the most fragile thing the suite could do. It is the widgets themselves: the app, launched with `-uiTestWidgetGallery`, shows a Debug-only gallery of every widget at its Home Screen / Lock Screen size on the screenshot seed (`Kado/Support/WidgetGalleryView.swift`), and the test photographs each tile by element. The tiles land in `screenshots/<locale>/03-widgets/` — beside the device folders, not inside one, because every canvas is composed from the same 3× files. The frame then arranges them: one column on the phone's canvas, two on the iPad's and the iPhone Duo's, under the headline where a device would start. The arrangement lives in `Scripts/frame-screenshots.swift`'s `Assembly`, so moving a tile is `make frames`, not a simulator run.
 
 The widget views themselves live in `KadoCore` so the app can draw them; the extension keeps only its `Widget` configurations. The gallery supplies what WidgetKit normally would — the container background, the 22pt corner, the 16pt content margins — and renders the Lock Screen widgets `.vibrant` on a dark card, the way a Lock Screen does. The Home Screen's Tinted and Clear appearances are the one thing it cannot show: those are flattened in WidgetKit's render server, not in SwiftUI.
 
