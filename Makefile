@@ -13,7 +13,8 @@
 #   make site-shots    refresh the marketing site's copies from the same captures
 #   make listing-check the listing's copy and images, checked without the network
 #   make listing-info  what App Store Connect currently holds
-#   make listing       upload the copy and the screenshots (needs ASC_ISSUER_ID)
+#   make listing       upload the copy, the screenshots and the creative (needs ASC_ISSUER_ID)
+#   make listing-creative  upload only the product page header and search asset
 #
 #   make deployment-check  confirm every target's deployment target is the app's floor
 #   make release-check confirm HEAD contains everything on origin/main
@@ -93,7 +94,7 @@ ASC_ISSUER_ID ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help build test e2e widgets-e2e run shot sim sim-clean clean \
-	screenshots frames site-shots listing-check listing-info listing \
+	screenshots frames site-shots listing-check listing-info listing listing-creative \
 	archive ipa testflight release-check deployment-check
 
 help:
@@ -221,9 +222,15 @@ listing-info: ## Show what App Store Connect currently holds
 # The local check runs first, so a subtitle one character over costs a second
 # rather than a round trip and a rejection days later. `--dry-run` on the same
 # command prints exactly what would change and sends nothing.
-listing: listing-check ## Upload the copy and the screenshots to App Store Connect
+listing: listing-check ## Upload the copy, the screenshots and the creative to App Store Connect
 	@$(MAKE) --no-print-directory asc-credentials
 	@ASC_KEY_ID=$(ASC_KEY_ID) ASC_ISSUER_ID=$(ASC_ISSUER_ID) python3 Scripts/appstore.py all $(ARGS)
+
+# The header and search asset alone: the one part of the listing that lives in the App Asset
+# Library rather than on the version, and that is worth re-sending without the rest.
+listing-creative: listing-check ## Upload only the product page header and search asset
+	@$(MAKE) --no-print-directory asc-credentials
+	@ASC_KEY_ID=$(ASC_KEY_ID) ASC_ISSUER_ID=$(ASC_ISSUER_ID) python3 Scripts/appstore.py creative $(ARGS)
 
 .PHONY: asc-credentials
 asc-credentials:
