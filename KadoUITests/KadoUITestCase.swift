@@ -123,6 +123,26 @@ class KadoUITestCase: XCTestCase {
         return app
     }
 
+    /// Pops the navigation stack one level.
+    ///
+    /// By UIKit's own `BackButton` identifier rather than as the
+    /// navigation bar's first button: on the iPhone Duo's outer display
+    /// iOS 27.1 moves Back and the overflow menu out of the bar into the
+    /// system column on the right edge, and the bar's first button is
+    /// then the screen's own trailing item — Habit Detail's Edit, which
+    /// opened the editor over the tab rail and stalled the screenshot
+    /// run. The first-button fallback covers a bar that names its back
+    /// button differently.
+    @MainActor
+    func goBack(in app: XCUIApplication) {
+        let back = app.buttons["BackButton"].firstMatch
+        if back.waitForExistence(timeout: 2) {
+            back.tap()
+        } else {
+            app.navigationBars.buttons.firstMatch.tap()
+        }
+    }
+
     /// Switches tabs.
     ///
     /// By position on iPhone, because SwiftUI's `Tab` gives no seam for

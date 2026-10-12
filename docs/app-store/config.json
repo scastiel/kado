@@ -12,6 +12,12 @@
     "a hard-coded name is the thing that goes stale. `Scripts/appstore.py info` prints the groups",
     "the listing holds and warns about any this file would not produce.",
     "",
+    "iphone-duo is the iPhone Duo's *outer* display, 1398x2034 — the size Apple's",
+    "IPHONE_DUO_PROFILE takes beside the inner 2007x2853. Outer because Kadō is laid out for",
+    "it already, and because a fresh Duo simulator boots folded, so the capture runs unattended:",
+    "nothing in simctl or XCTest can unfold one, and the inner display stays black until a",
+    "person does it in Device Hub. Required for builds on the iOS 27.1 SDK from April 2027.",
+    "",
     "The listing's own locales, not the ones you would guess: English here is en-CA, which is",
     "what App Store Connect actually holds. Writing en-US would not update it — it would add a",
     "second English localization beside it. `Scripts/appstore.py info` prints the live list."
@@ -29,6 +35,10 @@
     "ipad-13": {
       "simulator": "iPad Pro 13-inch (M5)",
       "size": "2064x2752"
+    },
+    "iphone-duo": {
+      "simulator": "iPhone Duo",
+      "size": "1398x2034"
     }
   }
 }

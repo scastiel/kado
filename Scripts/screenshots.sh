@@ -62,7 +62,7 @@ print(d)' "$CONFIG" "$@"
 # What a full run covers. Spelled out rather than read back out of the config, so this stays
 # readable in `bash -x` output and works on the bash 3.2 macOS still ships as /bin/bash.
 LANGUAGES=(en fr)
-DEVICES=(iphone-6.9 ipad-13)
+DEVICES=(iphone-6.9 ipad-13 iphone-duo)
 PASSES=(light dark widgets)
 # The one device the widget tiles are photographed on. Its 3× tiles downscale cleanly onto
 # every canvas; a 2× iPad tile would have to be upscaled onto the iPad's own.

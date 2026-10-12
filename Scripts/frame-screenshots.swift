@@ -160,6 +160,22 @@ struct Profile {
                 headlineMargin: 170,
                 assembly: .twoColumns
             )
+        case "iphone-duo":
+            // The iPhone Duo's outer display: wider than a phone, narrower than an iPad. The
+            // device is sized to the canvas's height rather than its width — at the phone's 0.80
+            // the screen would run off the bottom — and the widget tiles take the iPad's two
+            // columns, since one column would be a strip down the middle of a canvas this wide.
+            return Profile(
+                canvas: NSSize(width: 1398, height: 2034),
+                screenWidthFraction: 0.74,
+                cornerFraction: 0.09,
+                bezel: 14,
+                headlineSize: 84,
+                headlineTop: 130,
+                headlineGap: 90,
+                headlineMargin: 110,
+                assembly: .twoColumns
+            )
         default:
             return nil
         }
