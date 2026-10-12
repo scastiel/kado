@@ -379,6 +379,8 @@ def check(config: dict, locales: list[str]) -> int:
                     )
                     problems += 1
             print(f"  ok {device:<18} {len(shots)} screenshots")
+
+        problems += check_creative(listing.locale)
         print()
 
     if problems:
@@ -386,6 +388,54 @@ def check(config: dict, locales: list[str]) -> int:
     else:
         print("Ready to upload.")
     return 1 if problems else 0
+
+
+# The universal creative: the product page header and the search results banner, one image for
+# both. App Store Connect refuses any other size, and refuses alpha in it outright — an alpha
+# channel that is opaque everywhere is still an alpha channel.
+CREATIVE_SIZE = (5244, 2950)
+CREATIVE_PATH = "creative/universal.png"
+
+
+def check_creative(locale: str) -> int:
+    path = MARKETING_DIR / locale / CREATIVE_PATH
+    shown = path.relative_to(ROOT)
+    if not path.exists():
+        print(f"  !  no creative at {shown} — `make frames` draws it")
+        return 1
+    problems = 0
+    size = png_size(path)
+    if size != CREATIVE_SIZE:
+        print(
+            f"  !  the creative is {size[0]}x{size[1]},"
+            f" and App Store Connect takes {CREATIVE_SIZE[0]}x{CREATIVE_SIZE[1]}"
+        )
+        problems += 1
+    if png_has_alpha(path):
+        print(f"  !  {shown} has an alpha channel, which App Store Connect refuses")
+        problems += 1
+    if not problems:
+        print(f"  ok {'creative':<18} {size[0]}x{size[1]}, no alpha")
+    return problems
+
+
+def png_has_alpha(path: Path) -> bool:
+    """Whether a PNG can carry transparency: an alpha colour type, or a `tRNS` chunk, which
+    gives a palette or even a plain RGB image a transparent colour without changing its type."""
+    data = path.read_bytes()
+    color_type = data[25]
+    if color_type in (4, 6):  # grey + alpha, RGB + alpha
+        return True
+    offset = 8
+    while offset + 8 <= len(data):
+        length = int.from_bytes(data[offset : offset + 4], "big")
+        kind = data[offset + 4 : offset + 8]
+        if kind == b"tRNS":
+            return True
+        if kind == b"IDAT":  # tRNS must come before the image data
+            return False
+        offset += 12 + length
+    return False
 
 
 def png_size(path: Path) -> tuple[int, int]:

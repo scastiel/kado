@@ -15,6 +15,10 @@
 // Debug-only gallery, arranged on the paper ground under the headline. It is drawn on every
 // device's canvas from the same tiles, which is why it sits at the locale level.
 //
+// Once per locale it also draws the listing's landscape *creative* — the product page header
+// and the search results banner, one 16:9 image for both — from that locale's iPhone Today
+// capture, into <destination>/<locale>/creative/universal.png. See `Creative`.
+//
 // The raw captures stay the source of truth, which is the point of doing this as a second pass:
 // a new headline or a different green is seconds of work here, where re-photographing the app
 // is a simulator per language per device and the better part of half an hour.
@@ -269,6 +273,45 @@ func canvas(
     caption: String, profile: Profile, palette: Palette, content: (_ top: CGFloat) -> Void
 ) -> NSBitmapImageRep {
     let canvas = profile.canvas
+    return ground(canvas, palette: palette) {
+        // The headline, stacked downwards from `headlineTop`. The context is unflipped, so a
+        // line's drawing origin is its lower-left corner and the arithmetic runs from the top of
+        // the canvas.
+        let lines = caption.components(separatedBy: "\n")
+        // One size for the whole headline, chosen so its longest line clears the margin.
+        // Scaling the offending line alone would be the smaller change and would look like a
+        // mistake.
+        let headlineSize = fitted(
+            lines, size: profile.headlineSize, color: palette.headline,
+            within: canvas.width - profile.headlineMargin * 2
+        )
+        // The grid the lines sit on stays at the profile's size even when the glyphs shrink, so
+        // the device below starts at the same height in every shot and every language. Sizing
+        // the grid to the fitted text instead would lift the phone a few pixels wherever French
+        // ran long, and the set is looked at as a strip.
+        let lineHeight = profile.headlineSize * 1.16
+        for (index, line) in lines.enumerated() {
+            let text = attributed(line, size: headlineSize, color: palette.headline)
+            let width = text.size().width
+            let bottom = canvas.height - profile.headlineTop - lineHeight * CGFloat(index + 1)
+            text.draw(at: NSPoint(x: (canvas.width - width) / 2, y: bottom))
+        }
+
+        content(profile.headlineTop + lineHeight * CGFloat(lines.count) + profile.headlineGap)
+    }
+}
+
+/// The largest size, up to `size`, at which the widest of `lines` fits in `available`.
+func fitted(_ lines: [String], size: CGFloat, color: NSColor, within available: CGFloat) -> CGFloat {
+    let widest = lines
+        .map { attributed($0, size: size, color: color).size().width }
+        .max() ?? 0
+    return widest > available ? (size * available / widest).rounded(.down) : size
+}
+
+/// A bitmap of `canvas`'s size with the palette's ground already on it, current while `body`
+/// draws over it.
+func ground(_ canvas: NSSize, palette: Palette, _ body: () -> Void) -> NSBitmapImageRep {
     let rep = NSBitmapImageRep(
         bitmapDataPlanes: nil,
         pixelsWide: Int(canvas.width),
@@ -292,31 +335,7 @@ func canvas(
     // right and it turns anticlockwise.
     NSGradient(starting: palette.top, ending: palette.bottom)?.draw(in: bounds, angle: 270)
 
-    // The headline, stacked downwards from `headlineTop`. The context is unflipped, so a line's
-    // drawing origin is its lower-left corner and the arithmetic runs from the top of the canvas.
-    let lines = caption.components(separatedBy: "\n")
-    // One size for the whole headline, chosen so its longest line clears the margin. Scaling
-    // the offending line alone would be the smaller change and would look like a mistake.
-    let available = canvas.width - profile.headlineMargin * 2
-    let widest = lines
-        .map { attributed($0, size: profile.headlineSize, color: palette.headline).size().width }
-        .max() ?? 0
-    let headlineSize = widest > available
-        ? (profile.headlineSize * available / widest).rounded(.down)
-        : profile.headlineSize
-    // The grid the lines sit on stays at the profile's size even when the glyphs shrink, so the
-    // device below starts at the same height in every shot and every language. Sizing the grid
-    // to the fitted text instead would lift the phone a few pixels wherever French ran long,
-    // and the set is looked at as a strip.
-    let lineHeight = profile.headlineSize * 1.16
-    for (index, line) in lines.enumerated() {
-        let text = attributed(line, size: headlineSize, color: palette.headline)
-        let width = text.size().width
-        let bottom = canvas.height - profile.headlineTop - lineHeight * CGFloat(index + 1)
-        text.draw(at: NSPoint(x: (canvas.width - width) / 2, y: bottom))
-    }
-
-    content(profile.headlineTop + lineHeight * CGFloat(lines.count) + profile.headlineGap)
+    body()
 
     NSGraphicsContext.restoreGraphicsState()
     return rep
@@ -417,6 +436,113 @@ func assemble(
             draw(image, in: rect, radius: radius)
         }
     }
+}
+
+// MARK: - The creative asset
+//
+// iOS 27 gives a listing two landscape slots — a header across the top of the product page and
+// a creative in search results — and one 16:9 image fills both. Apple crops it to roughly 21:9
+// for the header and roughly 3:2 for search and publishes no numbers, so everything that has to
+// survive both crops sits in `safe`, a centred band assumed to be 60% of the width and 75% of
+// the height. The ground runs edge to edge under it; nothing else is allowed outside.
+
+enum Creative {
+    /// App Store Connect's universal creative canvas: 16:9, and refused at any other size.
+    static let canvas = NSSize(width: 5244, height: 2950)
+    static let safe = NSRect(
+        x: canvas.width * 0.2, y: canvas.height * 0.125,
+        width: canvas.width * 0.6, height: canvas.height * 0.75
+    )
+
+    /// The capture the device shows — read out of each locale's captures, so the French
+    /// creative shows the French app.
+    static let device = "iphone-6.9"
+    static let shot = "01-today"
+    /// Its key in each locale of `captions.json`, and its file name under `creative/`.
+    static let caption = "creative-universal"
+    static let name = "universal"
+
+    /// The phone's screen height. Its width follows the capture, and the bezel, corner and
+    /// shadow follow the portrait iPhone frame in proportion, so the two read as one device.
+    static let screenHeight: CGFloat = 2060
+    static let headlineSize: CGFloat = 230
+    /// Between the end of the headline's longest line and the phone.
+    static let gap: CGFloat = 240
+}
+
+/// The universal creative: a left-aligned headline and the Today screen in a phone, centred as
+/// one group in the safe band.
+///
+/// The phone alone, on purpose. A mock with two widget tiles leaning on its edge
+/// (`docs/plans/2026-10/listing-creative/`) repeated the list's own rows at a smaller size and
+/// covered the one marked "Slipped" — the row that *is* the headline's claim.
+func creative(capture: NSImage, caption: String, palette: Palette) -> NSBitmapImageRep {
+    let canvas = Creative.canvas
+    let safe = Creative.safe
+    let iphone = Profile.named(Creative.device)!
+    let screenHeight = Creative.screenHeight
+    let screenWidth = (screenHeight * capture.size.width / capture.size.height).rounded()
+    let bezel = (iphone.bezel * screenWidth / (iphone.canvas.width * iphone.screenWidthFraction))
+        .rounded()
+
+    return ground(canvas, palette: palette) {
+        let lines = caption.components(separatedBy: "\n")
+        let phoneWidth = screenWidth + bezel * 2
+        let headlineSize = fitted(
+            lines, size: Creative.headlineSize, color: palette.headline,
+            within: safe.width - Creative.gap - phoneWidth
+        )
+        let texts = lines.map { attributed($0, size: headlineSize, color: palette.headline) }
+        let headlineWidth = texts.map { $0.size().width }.max() ?? 0
+
+        // One group, centred: the crops are centred, so a group that is centred survives both
+        // of them by the same margin on either side.
+        let left = ((canvas.width - headlineWidth - Creative.gap - phoneWidth) / 2).rounded()
+
+        let lineHeight = headlineSize * 1.16
+        let headlineTop = (canvas.height + lineHeight * CGFloat(lines.count)) / 2
+        for (index, text) in texts.enumerated() {
+            text.draw(at: NSPoint(x: left, y: headlineTop - lineHeight * CGFloat(index + 1)))
+        }
+
+        let screen = NSRect(
+            x: left + headlineWidth + Creative.gap + bezel,
+            y: ((canvas.height - screenHeight) / 2).rounded(),
+            width: screenWidth,
+            height: screenHeight
+        )
+        let screenRadius = screenWidth * iphone.cornerFraction
+        slab(
+            screen.insetBy(dx: -bezel, dy: -bezel),
+            radius: screenRadius + bezel,
+            color: palette.bezel,
+            shadowOffset: bezel * 2,
+            shadowBlur: bezel * 4,
+            shadowAlpha: 0.28
+        )
+        draw(capture, in: screen, radius: screenRadius)
+    }
+}
+
+/// `rep` as a PNG with no alpha channel at all — not an opaque alpha channel, which is still
+/// one. App Store Connect refuses a creative that carries alpha, whatever its values.
+func opaquePNG(_ rep: NSBitmapImageRep) -> Data? {
+    guard
+        let image = rep.cgImage,
+        let space = CGColorSpace(name: CGColorSpace.sRGB),
+        let context = CGContext(
+            data: nil, width: rep.pixelsWide, height: rep.pixelsHigh, bitsPerComponent: 8,
+            bytesPerRow: 0, space: space, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        )
+    else { return nil }
+    context.draw(image, in: CGRect(x: 0, y: 0, width: rep.pixelsWide, height: rep.pixelsHigh))
+    guard
+        let flattened = context.makeImage(),
+        let data = CFDataCreateMutable(nil, 0),
+        let destination = CGImageDestinationCreateWithData(data, "public.png" as CFString, 1, nil)
+    else { return nil }
+    CGImageDestinationAddImage(destination, flattened, nil)
+    return CGImageDestinationFinalize(destination) ? data as Data : nil
 }
 
 // MARK: - Walking the tree
@@ -548,6 +674,27 @@ for localeDirectory in directories(in: captures) {
             written += 1
         }
     }
+
+    // The creative, once per locale: it belongs to neither device's screenshot set.
+    guard let caption = localeCaptions[Creative.caption] else {
+        fail("captions.json has no \(locale) headline for \(Creative.caption)")
+    }
+    let shot = localeDirectory.appendingPathComponent(Creative.device)
+        .appendingPathComponent("\(Creative.shot).png")
+    guard let capture = NSImage(contentsOf: shot) else {
+        fail("the creative is drawn from \(shot.path), which could not be read")
+    }
+    let rep = creative(capture: capture, caption: caption, palette: .light)
+    let out = destination.appendingPathComponent(locale).appendingPathComponent("creative")
+    try? manager.removeItem(at: out)
+    try! manager.createDirectory(at: out, withIntermediateDirectories: true)
+    guard let png = opaquePNG(rep) else {
+        fail("could not encode the creative for \(locale)")
+    }
+    let target = out.appendingPathComponent("\(Creative.name).png")
+    try! png.write(to: target)
+    print("  \(target.path)  \(rep.pixelsWide)x\(rep.pixelsHigh)")
+    written += 1
 }
 
 if written == 0 {

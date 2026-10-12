@@ -24,6 +24,7 @@ make listing         send the copy and the screenshots
 | `screenshots/<locale>/<device>/` | The raw captures. The source of truth — committed, and never edited by hand. |
 | `screenshots/<locale>/03-widgets/` | The widget tiles, one PNG per widget, photographed once at 3× and composed onto every canvas. An *assembly*, not a capture — see below. |
 | `marketing/<locale>/<device>/` | The same captures wrapped in the frame, plus the assembled shots. **This is what gets uploaded.** |
+| `marketing/<locale>/creative/universal.png` | The landscape creative — the product page header and the search results banner. Drawn by the same `make frames`. See below. |
 
 `docs/app-store-connect.md`, one level up, is the human document: the age-rating answers, the App Review notes, the TestFlight copy, the submission checklists. It is prose for a person to read before a submission. This folder is what a script reads. Where they overlap — the description, the keywords — the files here are what actually ships, so a change made in one belongs in both.
 
@@ -78,6 +79,18 @@ Then everything is wrapped: Kadō's paper ground, a Fraunces headline from `capt
 `03-widgets` is not a photograph of a Home Screen — a real one carries a wallpaper, other apps' icons and a dock, and XCUITest adding widgets through jiggle mode is the most fragile thing the suite could do. It is the widgets themselves: the app, launched with `-uiTestWidgetGallery`, shows a Debug-only gallery of every widget at its Home Screen / Lock Screen size on the screenshot seed (`Kado/Support/WidgetGalleryView.swift`), and the test photographs each tile by element. The tiles land in `screenshots/<locale>/03-widgets/` — beside the device folders, not inside one, because both canvases are composed from the same 3× files. The frame then arranges them: one column on the phone's canvas, two on the iPad's, under the headline where a device would start. The arrangement lives in `Scripts/frame-screenshots.swift`'s `Assembly`, so moving a tile is `make frames`, not a simulator run.
 
 The widget views themselves live in `KadoCore` so the app can draw them; the extension keeps only its `Widget` configurations. The gallery supplies what WidgetKit normally would — the container background, the 22pt corner, the 16pt content margins — and renders the Lock Screen widgets `.vibrant` on a dark card, the way a Lock Screen does. The Home Screen's Tinted and Clear appearances are the one thing it cannot show: those are flattened in WidgetKit's render server, not in SwiftUI.
+
+### The creative: header and search banner
+
+On iOS 27 a listing has two landscape slots — a header across the top of the product page and a creative in search results — and one **universal** 16:9 image fills both. `make frames` draws it per locale into `marketing/<locale>/creative/universal.png`: **5244×2950, PNG, no alpha channel**. App Store Connect refuses any other size, and refuses alpha outright, even an alpha channel that is opaque everywhere, so the frame writes it through a no-alpha bitmap rather than the RGBA one the screenshots use. `make listing-check` checks all three.
+
+It is the same ground and the same Fraunces as the screenshots, laid out sideways: the `creative-universal` headline from `captions.json`, left-aligned, beside that locale's iPhone `01-today` capture in a phone. Nothing in it is new artwork, so a recapture or a reworded headline carries through on the next `make frames`. The layout is `Creative` in `Scripts/frame-screenshots.swift`.
+
+**The safe band.** Apple crops the 16:9 to roughly 21:9 for the header and roughly 3:2 for search, and publishes no numbers. The headline and the phone are one group, centred, inside an assumed band of the middle 60% of the width and 75% of the height; only the ground runs outside it. Confirm the real crops in App Store Connect's **Preview** tool (iPhone and iPad, both orientations) after any change to the layout.
+
+Why the phone alone, and not the phone with widget tiles beside it: `docs/plans/2026-10/listing-creative/` has both mocks. The tiles repeated the list's rows at a smaller size and covered the "Slipped" row, which is the one that makes the headline's point.
+
+If one placement crops badly, the fallback is a dedicated asset rather than a compromise in this one: a 21:9 header (3840×1646) or a 3:2 search image.
 
 ### Adding a shot
 

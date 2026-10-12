@@ -6,6 +6,9 @@
     "locale or the framing step stops. A newline is a deliberate line break: the wrap is",
     "part of the typography, and letting it fall where it likes reads as an accident.",
     "",
+    "`creative-universal` is not a screenshot: it is the headline on the landscape creative,",
+    "the product page header and search banner, and is required in every locale all the same.",
+    "",
     "French runs about 20% longer than English and the framing shrinks a headline that would",
     "cross the margin. That is a safety net, not a licence — a line that had to shrink is a",
     "line worth rewriting shorter, because the set is looked at as a strip and one small",
@@ -20,7 +23,8 @@
     "05-new-habit": "Schedules that fit\nhow you actually live",
     "06-settings": "No account.\nNo tracking. Ever.",
     "07-today-dark": "Made for\nthe evening too",
-    "08-appearance": "Colours and icons\nthat feel like yours"
+    "08-appearance": "Colours and icons\nthat feel like yours",
+    "creative-universal": "Habits, without\nthe all-or-nothing."
   },
   "fr-FR": {
     "01-today": "Ta journée,\nen une liste calme",
@@ -30,6 +34,7 @@
     "05-new-habit": "Des rythmes qui\ncollent à ta vie",
     "06-settings": "Aucun compte.\nAucun suivi. Jamais.",
     "07-today-dark": "Pensé aussi\npour le soir",
-    "08-appearance": "Des couleurs et icônes\nà ton image"
+    "08-appearance": "Des couleurs et icônes\nà ton image",
+    "creative-universal": "Des habitudes,\nsans le tout-ou-rien."
   }
 }
