@@ -1,7 +1,7 @@
 <div align="center">
   <a href="https://getkado.app/"><img src="branding/kado-wordmark.svg" alt="Kadō" width="320" /></a>
 
-  <p><strong>A privacy-first habit tracker for iPhone and iPad.</strong></p>
+  <p><strong>A privacy-first habit tracker for iPhone, iPhone Duo and iPad.</strong></p>
   <p>
     Non-binary habit score · Offline-first · Open source (MIT) ·
     No account, no subscription, no telemetry.
@@ -16,7 +16,7 @@
 
   <p>
     <a href="https://github.com/scastiel/kado/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store 1.11" src="https://img.shields.io/badge/App%20Store-1.11-black.svg" /></a>
+    <a href="https://apps.apple.com/app/id6762570244"><img alt="App Store 1.14" src="https://img.shields.io/badge/App%20Store-1.14-black.svg" /></a>
     <a href="https://developer.apple.com/swift/"><img alt="Swift 5.10" src="https://img.shields.io/badge/Swift-5.10-orange.svg" /></a>
     <img alt="Platforms" src="https://img.shields.io/badge/platforms-iOS%2018%20%7C%20iPadOS%2018-lightgrey.svg" />
   </p>
@@ -50,13 +50,21 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 
 ## Screenshots
 
+**iPhone and iPhone Duo**
+
 <p float="left">
-  <img src="docs/screenshots/site/iphone/en/01-today.png" width="16%" alt="Today view" />
-  <img src="docs/screenshots/site/iphone/en/02-habit-detail.png" width="16%" alt="Habit detail with score popover" />
-  <img src="docs/screenshots/site/iphone/en/04-overview.png" width="16%" alt="Multi-habit overview" />
-  <img src="docs/screenshots/site/iphone/en/05-new-habit.png" width="16%" alt="New habit form" />
-  <img src="docs/screenshots/site/iphone/en/08-appearance.png" width="16%" alt="Appearance settings with habit colour palettes and app icons" />
-  <img src="docs/screenshots/site/iphone/en/07-today-dark.png" width="16%" alt="Today view in dark mode" />
+  <img src="docs/screenshots/site/iphone/en/01-today.png" height="300" alt="Today view on iPhone" />
+  <img src="docs/screenshots/site/iphone-duo/en/02-habit-detail.png" height="300" alt="Habit detail with score and calendar on iPhone Duo" />
+  <img src="docs/screenshots/site/iphone/en/04-overview.png" height="300" alt="Multi-habit overview on iPhone" />
+  <img src="docs/screenshots/site/iphone-duo/en/05-new-habit.png" height="300" alt="New habit form on iPhone Duo" />
+  <img src="docs/screenshots/site/iphone/en/08-appearance.png" height="300" alt="Appearance settings with habit colour palettes and app icons on iPhone" />
+  <img src="docs/screenshots/site/iphone-duo/en/07-today-dark.png" height="300" alt="Today view in dark mode on iPhone Duo" />
+</p>
+
+**iPad** — the habit list and the habit you pick, side by side
+
+<p float="left">
+  <img src="docs/screenshots/site/ipad/en/01-today.png" height="420" alt="Today on iPad: the habit list beside Morning meditation's score, streak, calendar and history" />
 </p>
 
 ## Features
@@ -73,6 +81,11 @@ algorithm to native iOS — MIT, free, no account, no subscription.
   including days before the habit existed (the calendar says when
   that makes it the new start date). Long-press a History entry to
   delete it.
+- **Side by side on iPad and iPhone Duo** — in regular width, Today
+  shows the habit list and the habit you pick next to each other:
+  score, streak, calendar and history beside the list, which keeps
+  logging. On iPhone Duo that's the unfolded layout; folded, it's the
+  iPhone app.
 - **Per-day notes** — a short note on any day's completion, carried
   through export and import.
 - **Overview** — habits × days matrix with score-shaded cells, the
@@ -120,7 +133,7 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 
 ## Status
 
-**Shipping on the App Store — [current version 1.11](https://apps.apple.com/app/id6762570244).**
+**Shipping on the App Store — [current version 1.14](https://apps.apple.com/app/id6762570244).**
 
 | Version | Highlights |
 |---|---|
@@ -136,6 +149,9 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 | 1.9 | Confetti for a finished day; Daily Progress Lock Screen ring; redrawn habit colours; widgets roll over on their own |
 | 1.10 | Pick each widget's habits; archived habits list; number-pad value entry; "Day starts at" any hour; complete from the Overview |
 | 1.11 | Settings › Appearance with habit colour palettes; Supporter pack with extra palettes and alternate app icons; Siri finds "Kado" |
+| 1.12 | iOS 27 fix: the habit screen follows every tap again |
+| 1.13 | A calendar day's note saves however the popover closes |
+| 1.14 | Side by side: list and habit detail together on iPad and the unfolded iPhone Duo |
 
 **Not planned.** A native Apple Watch app and HealthKit
 auto-completion were scoped for v0.3 and have been **descoped** — no
@@ -144,8 +160,7 @@ user has asked for either since launch. Both stay listed in
 reconsidered on real demand.
 
 **Next** — Live Activities and Dynamic Island for timer habits, then
-the remaining v1.x polish (themes, biometrics, categories, backup
-files). Full roadmap in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
+the remaining v1.x polish (biometrics, categories, backup files). Full roadmap in [`docs/ROADMAP.md`](./docs/ROADMAP.md).
 
 ## Tech stack
 
@@ -195,8 +210,9 @@ docs/
 ├── app-store-connect.md    # Store metadata, copy, checklists
 ├── plans/                  # Per-feature research / plan / compound
 │                           #   artifacts from the conductor workflow
-└── screenshots/            # iPhone 6.7" set (EN + FR), also the
-                            #   source for the marketing site
+└── screenshots/site/       # iPhone, iPhone Duo and iPad shots (EN +
+                            #   FR), resized from the App Store
+                            #   captures for the site and this README
 PRIVACY.md                  # Privacy policy (repo-hosted)
 ```
 
