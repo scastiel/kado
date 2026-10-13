@@ -339,6 +339,55 @@ section.block {
 .feature-grid h3 { color: var(--ink); margin-bottom: 8px; }
 .feature-grid p { margin: 0; font-size: 0.98rem; }
 
+/* Reviews */
+.review-list {
+  columns: 3 300px;
+  column-gap: 24px;
+}
+
+figure.review {
+  break-inside: avoid;
+  margin: 0 0 24px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.review-stars {
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+figure.review blockquote { margin: 0 0 16px; }
+figure.review h3 { color: var(--ink); margin-bottom: 8px; }
+figure.review blockquote p { margin: 0; font-size: 0.98rem; }
+
+figure.review figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+.review-name { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.review-translated {
+  flex-basis: 100%;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.review-more {
+  text-align: center;
+  margin: 8px 0 0;
+}
+
 /* FAQ */
 .faq-list {
   max-width: 760px;
