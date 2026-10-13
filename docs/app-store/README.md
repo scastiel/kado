@@ -138,7 +138,7 @@ The universal image was tried in search first, and in Apple's Preview tool it re
 
 ### The marketing site
 
-`getkado.app` ships the same captures, unframed, at the canvas its CSS was built against. `make screenshots` and `make frames` both regenerate `docs/screenshots/iphone-67-appstore/` from the iPhone captures, so the site and the listing cannot drift apart — they had, quietly, for several releases. `make site-shots` does only that step. Push the folder and the Pages workflow redeploys.
+`getkado.app` ships the same captures, unframed and resized to about twice the width the page draws them — the site wraps them in its own CSS device bezels, which follow its light and dark mode. `make screenshots` and `make frames` both regenerate `docs/screenshots/site/{iphone,iphone-duo,ipad}/` from the iPhone, iPhone Duo and iPad captures, so the site and the listing cannot drift apart — they had, quietly, for several releases. `make site-shots` does only that step. Push the folder and the Pages workflow redeploys.
 
 ### Uploading them
 
