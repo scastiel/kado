@@ -51,12 +51,12 @@ algorithm to native iOS — MIT, free, no account, no subscription.
 ## Screenshots
 
 <p float="left">
-  <img src="docs/screenshots/iphone-67-appstore/en/01-today.png" width="16%" alt="Today view" />
-  <img src="docs/screenshots/iphone-67-appstore/en/02-habit-detail.png" width="16%" alt="Habit detail with score popover" />
-  <img src="docs/screenshots/iphone-67-appstore/en/04-overview.png" width="16%" alt="Multi-habit overview" />
-  <img src="docs/screenshots/iphone-67-appstore/en/05-new-habit.png" width="16%" alt="New habit form" />
-  <img src="docs/screenshots/iphone-67-appstore/en/08-appearance.png" width="16%" alt="Appearance settings with habit colour palettes and app icons" />
-  <img src="docs/screenshots/iphone-67-appstore/en/07-today-dark.png" width="16%" alt="Today view in dark mode" />
+  <img src="docs/screenshots/site/iphone/en/01-today.png" width="16%" alt="Today view" />
+  <img src="docs/screenshots/site/iphone/en/02-habit-detail.png" width="16%" alt="Habit detail with score popover" />
+  <img src="docs/screenshots/site/iphone/en/04-overview.png" width="16%" alt="Multi-habit overview" />
+  <img src="docs/screenshots/site/iphone/en/05-new-habit.png" width="16%" alt="New habit form" />
+  <img src="docs/screenshots/site/iphone/en/08-appearance.png" width="16%" alt="Appearance settings with habit colour palettes and app icons" />
+  <img src="docs/screenshots/site/iphone/en/07-today-dark.png" width="16%" alt="Today view in dark mode" />
 </p>
 
 ## Features
