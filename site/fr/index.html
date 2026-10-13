@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kadō — Un suivi d'habitudes respectueux de la vie privée, pour iPhone et iPad</title>
-  <meta name="description" content="Kadō est un suivi d'habitudes respectueux de la vie privée pour iPhone et iPad. Score non binaire, hors ligne, open source. Sans compte, sans abonnement, sans télémétrie.">
+  <meta name="description" content="Kadō est un suivi d'habitudes respectueux de la vie privée pour iPhone, iPhone Duo et iPad. Score non binaire, hors ligne, open source. Sans compte, sans abonnement, sans télémétrie.">
   <meta name="theme-color" content="#FBF8F2" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
   <link rel="icon" type="image/svg+xml" href="/assets/branding/kado-app-icon.svg">
@@ -15,7 +15,9 @@
   <link rel="stylesheet" href="/styles.css">
   <meta property="og:title" content="Kadō — Un suivi d'habitudes respectueux de la vie privée">
   <meta property="og:description" content="Score d'habitude non binaire. Hors ligne. Open source. Sans compte, sans abonnement, sans télémétrie.">
-  <meta property="og:image" content="https://getkado.app/assets/screenshots/fr/01-today.png">
+  <meta property="og:image" content="https://getkado.app/assets/screenshots/social/fr.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="675">
   <meta property="og:url" content="https://getkado.app/fr/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
@@ -53,7 +55,7 @@
       <img src="/assets/branding/kado-app-icon.svg" alt="" class="app-icon" width="96" height="96">
       <h1>Des habitudes qui ne te punissent pas d'être humain.</h1>
       <p class="lede">
-        Un suivi d'habitudes respectueux de ta vie privée, pour iPhone et iPad.
+        Un suivi d'habitudes respectueux de ta vie privée, pour iPhone, iPhone Duo et iPad.
         Un score d'habitude non binaire plutôt qu'une série fragile. Hors ligne.
         Open source. Sans compte, sans abonnement, sans télémétrie.
       </p>
@@ -70,18 +72,42 @@
         </a>
       </div>
       <p class="hero-note">
-        Gratuit · open source · iPhone et iPad sous iOS 18 ou plus récent
+        Gratuit · open source · iPhone, iPhone Duo et iPad sous iOS 18 ou plus récent
       </p>
     </section>
 
     <section id="screenshots" class="screenshots" aria-label="Captures d'écran">
-      <div class="screenshot-rail">
-        <figure><img src="/assets/screenshots/fr/01-today.png" alt="Vue Aujourd'hui avec les habitudes du jour" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/fr/02-habit-detail.png" alt="Détail d'une habitude avec calendrier mensuel et popover du score" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/fr/04-overview.png" alt="Matrice d'aperçu multi-habitudes" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/fr/05-new-habit.png" alt="Formulaire de création d'habitude" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/fr/08-appearance.png" alt="Réglages d'apparence avec les palettes de couleurs des habitudes et les autres icônes d'app" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/fr/07-today-dark.png" alt="Vue Aujourd'hui en mode sombre" loading="lazy" decoding="async"></figure>
+      <div class="screenshot-rail" tabindex="0" aria-label="Captures d'écran, défilables">
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/fr/01-today.png" width="660" height="1434" alt="Vue Aujourd'hui sur iPhone, avec les habitudes du jour" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/fr/02-habit-detail.png" width="700" height="1018" alt="Détail d'une habitude sur iPhone Duo, avec son score, sa série et son calendrier mensuel" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/fr/04-overview.png" width="660" height="1434" alt="Matrice d'aperçu multi-habitudes sur iPhone" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/fr/05-new-habit.png" width="700" height="1018" alt="Formulaire de création d'habitude sur iPhone Duo" loading="lazy" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/fr/08-appearance.png" width="660" height="1434" alt="Réglages d'apparence sur iPhone, avec les palettes de couleurs des habitudes et les autres icônes d'app" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/fr/07-today-dark.png" width="700" height="1018" alt="Vue Aujourd'hui en mode sombre sur iPhone Duo" loading="lazy" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/fr/06-settings.png" width="660" height="1434" alt="Réglages sur iPhone, avec la synchronisation iCloud facultative et sans compte" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+      </div>
+      <div class="rail-controls" hidden>
+        <button type="button" data-rail="-1" aria-label="Captures précédentes">←</button>
+        <button type="button" data-rail="1" aria-label="Captures suivantes">→</button>
+      </div>
+    </section>
+
+    <section id="ipad" class="block">
+      <div class="container split">
+        <div>
+          <div class="section-head">
+            <div class="section-kicker">iPad et iPhone Duo</div>
+            <h2>Ta liste et ton habitude, côte à côte.</h2>
+            <p>Sur un plus grand écran, Aujourd'hui n'est plus une liste qu'il faut quitter. La liste et l'habitude que tu choisis s'affichent l'une à côté de l'autre.</p>
+          </div>
+          <ul>
+            <li><strong>Touche une habitude</strong> : son score, sa série, son calendrier et son historique s'ouvrent à côté de la liste.</li>
+            <li><strong>Continue à noter</strong> depuis la liste sans perdre l'habitude que tu consultes.</li>
+            <li><strong>Sur l'iPhone Duo</strong>, la même disposition une fois déplié. Plié, Kadō fonctionne comme sur n'importe quel iPhone.</li>
+            <li><strong>Une seule app universelle.</strong> La synchronisation iCloud, facultative, garde ton iPhone et ton iPad d'accord.</li>
+          </ul>
+        </div>
+        <figure class="device device-ipad"><div class="device-frame"><img src="/assets/screenshots/ipad/fr/01-today.png" width="1290" height="1720" alt="Aujourd'hui sur iPad : la liste des habitudes à gauche, le score, la série, le calendrier et l'historique de Méditation du matin à droite" loading="lazy" decoding="async"></div><figcaption>iPad</figcaption></figure>
       </div>
     </section>
 
@@ -328,7 +354,7 @@
           <details class="faq-item">
             <summary>Quels appareils et versions d'iOS sont pris en charge ?</summary>
             <div class="faq-answer">
-              <p>iPhone et iPad sous iOS 18 ou plus récent — une seule app universelle. Les Live Activities avec l'îlot dynamique sont prévues ; une app Mac reste un peut-être ; watchOS n'est pas prévu.</p>
+              <p>iPhone, iPhone Duo et iPad sous iOS 18 ou plus récent — une seule app universelle. Sur iPad, et sur l'iPhone Duo déplié, Aujourd'hui affiche ta liste et l'habitude que tu choisis côte à côte.Les Live Activities avec l'îlot dynamique sont prévues ; une app Mac reste un peut-être ; watchOS n'est pas prévu.</p>
             </div>
           </details>
 
@@ -353,8 +379,8 @@
       <div class="container">
         <div class="next">
           <div class="section-kicker">Dernière version</div>
-          <h2>La version 1.11 est disponible</h2>
-          <p>Fais de Kadō le tien. Réglages › Apparence réunit tout ce qui touche à l'allure de l'app : choisis les couleurs de tes habitudes — Kadō ou Classique, les deux gratuites — et les widgets suivent. Le Pack de soutien, facultatif, ajoute quatre palettes et sept autres icônes d'app, chacune en version claire, sombre et teintée. Elle suit la 1.10, où chaque widget d'écran d'accueil a appris à montrer les habitudes de ton choix, et où les habitudes archivées ont trouvé leur place. Ensuite : les Live Activities pour les habitudes chronométrées, puis Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">Voir la feuille de route →</a></p>
+          <h2>La version 1.14 est disponible</h2>
+          <p>Côte à côte. Sur iPad, Aujourd'hui affiche maintenant tes habitudes et celle que tu choisis l'une à côté de l'autre : touche une habitude pour voir son score, sa série et son calendrier à côté de la liste, et continue à noter sans la quitter. La même disposition arrive sur l'iPhone Duo une fois déplié. Elle suit la 1.11, qui a apporté les palettes de couleurs, d'autres icônes d'app et le Pack de soutien. Ensuite : les Live Activities pour les habitudes chronométrées, puis Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">Voir la feuille de route →</a></p>
         </div>
       </div>
     </section>
@@ -364,7 +390,7 @@
     <div class="footer-grid">
       <div>
         <strong>Kadō</strong>
-        <p>Un suivi d'habitudes respectueux de la vie privée, pour iPhone et iPad. Sous licence MIT, open source. Construit au grand jour.</p>
+        <p>Un suivi d'habitudes respectueux de la vie privée, pour iPhone, iPhone Duo et iPad. Sous licence MIT, open source. Construit au grand jour.</p>
       </div>
       <nav aria-label="Liens">
         <a href="https://github.com/scastiel/kado">Code source</a>
@@ -379,5 +405,6 @@
     </div>
     <p class="foot-bottom">© 2026 Sébastien Castiel · Kadō n'est pas affilié à Apple Inc. App Store est une marque déposée d'Apple Inc.</p>
   </footer>
+  <script src="/rail.js" defer></script>
 </body>
 </html>

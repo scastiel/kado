@@ -8,12 +8,11 @@ SITE_DIR  := $(CURDIR)
 REPO_ROOT := $(abspath $(SITE_DIR)/..)
 
 BRANDING_SRC    := $(REPO_ROOT)/branding
-SCREENSHOTS_SRC := $(REPO_ROOT)/docs/screenshots/iphone-67-appstore
+SCREENSHOTS_SRC := $(REPO_ROOT)/docs/screenshots/site
 
-ASSETS             := $(SITE_DIR)/assets
-BRANDING_DST       := $(ASSETS)/branding
-SCREENSHOTS_EN_DST := $(ASSETS)/screenshots/en
-SCREENSHOTS_FR_DST := $(ASSETS)/screenshots/fr
+ASSETS          := $(SITE_DIR)/assets
+BRANDING_DST    := $(ASSETS)/branding
+SCREENSHOTS_DST := $(ASSETS)/screenshots
 
 PORT ?= 8000
 
@@ -23,10 +22,11 @@ PORT ?= 8000
 build: assets ## Populate site/assets from branding/ and docs/screenshots/
 
 assets:
-	@mkdir -p $(BRANDING_DST) $(SCREENSHOTS_EN_DST) $(SCREENSHOTS_FR_DST)
+	@mkdir -p $(BRANDING_DST)
 	cp $(BRANDING_SRC)/*.svg $(BRANDING_DST)/
-	cp $(SCREENSHOTS_SRC)/en/*.png $(SCREENSHOTS_EN_DST)/
-	cp $(SCREENSHOTS_SRC)/fr/*.png $(SCREENSHOTS_FR_DST)/
+	@# One folder per device (iphone, iphone-duo, ipad), each with en/ and fr/.
+	rm -rf $(SCREENSHOTS_DST)
+	cp -R $(SCREENSHOTS_SRC) $(SCREENSHOTS_DST)
 
 clean: ## Remove site/assets/
 	rm -rf $(ASSETS)

@@ -6,7 +6,7 @@ on:
     paths:
       - 'site/**'
       - 'branding/**'
-      - 'docs/screenshots/iphone-67-appstore/**'
+      - 'docs/screenshots/site/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 

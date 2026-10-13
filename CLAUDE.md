@@ -1165,9 +1165,10 @@ make listing         send the copy and the screenshots (needs ASC_ISSUER_ID)
   `SigningIdentity` in the archive's `Info.plist` if a release looks
   wrong.
 - **The marketing site is regenerated from the same captures.**
-  `docs/screenshots/iphone-67-appstore/` is resized out of the iPhone
-  set on the way out of `make screenshots`, so `getkado.app` and the
-  listing cannot drift apart.
+  `docs/screenshots/site/{iphone,iphone-duo,ipad}/` is resized out of
+  the raw captures on the way out of `make screenshots`, so
+  `getkado.app` and the listing cannot drift apart. The site draws the
+  device bezels itself, in CSS — the captures go up unframed.
 - **The widgets shot is assembled, not photographed.** A Home Screen
   is the wrong picture (wallpaper, other apps' icons) and XCUITest
   can't add a widget to one anyway. The widget views live in

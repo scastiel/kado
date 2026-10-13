@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kadō — A privacy-first habit tracker for iPhone and iPad</title>
-  <meta name="description" content="Kadō is a privacy-first habit tracker for iPhone and iPad. Non-binary habit score, offline-first, open source. No account, no subscription, no telemetry.">
+  <meta name="description" content="Kadō is a privacy-first habit tracker for iPhone, iPhone Duo and iPad. Non-binary habit score, offline-first, open source. No account, no subscription, no telemetry.">
   <meta name="theme-color" content="#FBF8F2" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
   <link rel="icon" type="image/svg+xml" href="/assets/branding/kado-app-icon.svg">
@@ -15,7 +15,9 @@
   <link rel="stylesheet" href="/styles.css">
   <meta property="og:title" content="Kadō — A privacy-first habit tracker">
   <meta property="og:description" content="Non-binary habit score. Offline-first. Open source. No account, no subscription, no telemetry.">
-  <meta property="og:image" content="https://getkado.app/assets/screenshots/en/01-today.png">
+  <meta property="og:image" content="https://getkado.app/assets/screenshots/social/en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="675">
   <meta property="og:url" content="https://getkado.app/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
@@ -52,7 +54,7 @@
       <img src="/assets/branding/kado-app-icon.svg" alt="" class="app-icon" width="96" height="96">
       <h1>Habits that don't punish you for being human.</h1>
       <p class="lede">
-        A privacy-first habit tracker for iPhone and iPad. A non-binary habit
+        A privacy-first habit tracker for iPhone, iPhone Duo and iPad. A non-binary habit
         score instead of a fragile streak. Offline-first. Open source. No
         account, no subscription, no telemetry.
       </p>
@@ -69,18 +71,42 @@
         </a>
       </div>
       <p class="hero-note">
-        Free · open source · iPhone and iPad on iOS 18 or later
+        Free · open source · iPhone, iPhone Duo and iPad on iOS 18 or later
       </p>
     </section>
 
     <section id="screenshots" class="screenshots" aria-label="Screenshots">
-      <div class="screenshot-rail">
-        <figure><img src="/assets/screenshots/en/01-today.png" alt="Today view with habits due today" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/en/02-habit-detail.png" alt="Habit detail with monthly calendar and habit score popover" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/en/04-overview.png" alt="Multi-habit overview matrix" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/en/05-new-habit.png" alt="New habit creation form" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/en/08-appearance.png" alt="Appearance settings with habit colour palettes and alternate app icons" loading="lazy" decoding="async"></figure>
-        <figure><img src="/assets/screenshots/en/07-today-dark.png" alt="Today view in dark mode" loading="lazy" decoding="async"></figure>
+      <div class="screenshot-rail" tabindex="0" aria-label="Screenshots, scrollable">
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/en/01-today.png" width="660" height="1434" alt="Today view on iPhone, with the habits due today" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/en/02-habit-detail.png" width="700" height="1018" alt="Habit detail on iPhone Duo, with its score, streak and monthly calendar" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/en/04-overview.png" width="660" height="1434" alt="Multi-habit overview matrix on iPhone" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/en/05-new-habit.png" width="700" height="1018" alt="New habit form on iPhone Duo" loading="lazy" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/en/08-appearance.png" width="660" height="1434" alt="Appearance settings on iPhone, with habit colour palettes and alternate app icons" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+        <figure class="device device-duo"><div class="device-frame"><img src="/assets/screenshots/iphone-duo/en/07-today-dark.png" width="700" height="1018" alt="Today view in dark mode on iPhone Duo" loading="lazy" decoding="async"></div><figcaption>iPhone Duo</figcaption></figure>
+        <figure class="device device-iphone"><div class="device-frame"><img src="/assets/screenshots/iphone/en/06-settings.png" width="660" height="1434" alt="Settings on iPhone, with optional iCloud sync and no account" loading="lazy" decoding="async"></div><figcaption>iPhone</figcaption></figure>
+      </div>
+      <div class="rail-controls" hidden>
+        <button type="button" data-rail="-1" aria-label="Previous screenshots">←</button>
+        <button type="button" data-rail="1" aria-label="Next screenshots">→</button>
+      </div>
+    </section>
+
+    <section id="ipad" class="block">
+      <div class="container split">
+        <div>
+          <div class="section-head">
+            <div class="section-kicker">iPad and iPhone Duo</div>
+            <h2>Your list and your habit, side by side.</h2>
+            <p>On a bigger screen, Today is no longer a list you have to leave. The list and the habit you pick sit next to each other.</p>
+          </div>
+          <ul>
+            <li><strong>Tap a habit</strong> and its score, streak, calendar and history open beside the list.</li>
+            <li><strong>Keep logging</strong> from the list without losing the habit you're reading.</li>
+            <li><strong>On iPhone Duo</strong>, you get the same layout unfolded. Folded, Kadō works as it does on any iPhone.</li>
+            <li><strong>One universal app.</strong> Optional iCloud sync keeps your iPhone and iPad in step.</li>
+          </ul>
+        </div>
+        <figure class="device device-ipad"><div class="device-frame"><img src="/assets/screenshots/ipad/en/01-today.png" width="1290" height="1720" alt="Today on iPad: the habit list on the left, Morning meditation's score, streak, calendar and history on the right" loading="lazy" decoding="async"></div><figcaption>iPad</figcaption></figure>
       </div>
     </section>
 
@@ -321,7 +347,7 @@
           <details class="faq-item">
             <summary>What devices and iOS versions are supported?</summary>
             <div class="faq-answer">
-              <p>iPhone and iPad on iOS 18 or later — one universal app. Live Activities with Dynamic Island are planned; a Mac app is a maybe; watchOS isn't planned.</p>
+              <p>iPhone, iPhone Duo and iPad on iOS 18 or later — one universal app. On iPad, and on iPhone Duo unfolded, Today shows your list and the habit you pick side by side. Live Activities with Dynamic Island are planned; a Mac app is a maybe; watchOS isn't planned.</p>
             </div>
           </details>
 
@@ -346,8 +372,8 @@
       <div class="container">
         <div class="next">
           <div class="section-kicker">Latest release</div>
-          <h2>Version 1.11 is out</h2>
-          <p>Make Kadō yours. Settings › Appearance is a new home for how the app looks: pick the colours your habits wear — Kadō or Classic, both free — and the widgets follow along. The optional Supporter pack adds four more palettes and seven alternate app icons, each in light, dark and tinted. It comes after 1.10, which let each Home Screen widget show the habits you choose and gave archived habits a home. Next up: Live Activities for timer habits, then Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">See the roadmap →</a></p>
+          <h2>Version 1.14 is out</h2>
+          <p>Side by side. On iPad, Today now shows your habits and the one you pick next to each other: tap a habit to see its score, streak and calendar beside the list, and keep logging without leaving it. The same layout comes to iPhone Duo when it's unfolded. It follows 1.11, which brought habit colour palettes, alternate app icons and the Supporter pack. Next up: Live Activities for timer habits, then Face ID. <a href="https://github.com/scastiel/kado/blob/main/docs/ROADMAP.md">See the roadmap →</a></p>
         </div>
       </div>
     </section>
@@ -357,7 +383,7 @@
     <div class="footer-grid">
       <div>
         <strong>Kadō</strong>
-        <p>A privacy-first habit tracker for iPhone and iPad. MIT-licensed, open source. Built in the open.</p>
+        <p>A privacy-first habit tracker for iPhone, iPhone Duo and iPad. MIT-licensed, open source. Built in the open.</p>
       </div>
       <nav aria-label="Links">
         <a href="https://github.com/scastiel/kado">Source code</a>
@@ -372,5 +398,6 @@
     </div>
     <p class="foot-bottom">© 2026 Sébastien Castiel · Kadō is not affiliated with Apple Inc. App Store is a trademark of Apple Inc.</p>
   </footer>
+  <script src="/rail.js" defer></script>
 </body>
 </html>

@@ -45,6 +45,9 @@ the App Store release it went out in.
 | **1.9** | A finished day | Confetti when the day is done; Daily Progress Lock Screen ring; habit hues redrawn in OKLCH; counter/timer rows show the day's total; widgets roll over without the app; History rows deletable from a long-press menu |
 | **1.10** | Widgets your way | Each Home Screen widget shows the habits picked in Edit Widget; widgets on iOS 18–26.3 at last (#97); archived habits list with unarchive/delete; number-pad value entry; "Day starts at" any hour; complete a habit from the Overview popover |
 | **1.11** | Make it yours | Settings › Appearance with Kadō and Classic habit palettes; Supporter pack (one-time, Family Sharing) with four more palettes and seven alternate app icons; Siri finds the app as "Kado" |
+| **1.12** | A fix for iOS 27 | The habit detail screen follows every tap again on iOS 27 (#124) |
+| **1.13** | Notes that stay put | A calendar day's note saves however the popover closes; Done closes it (#127, #128) |
+| **1.14** | Side by side | Today shows the list and the picked habit's detail together in regular width — iPad and the unfolded iPhone Duo (#143); iPhone Duo screenshots in the listing (#141) |
 
 Per-release copy (EN + FR) lives in `docs/app-store-connect.md`; the
 copy that actually ships is in `docs/app-store/metadata/`.
