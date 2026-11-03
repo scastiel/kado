@@ -29,15 +29,53 @@ public struct TodayProgressMediumView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            header
+        Group {
             if rows.isEmpty {
-                TodayEmptyPlaceholder(isFilteredOut: isFilteredOut)
+                VStack(alignment: .leading, spacing: 8) {
+                    header
+                    TodayEmptyPlaceholder(isFilteredOut: isFilteredOut)
+                }
             } else {
-                cellGrid
+                // Measure every row before choosing a fit. A lazy grid
+                // cannot supply the whole grid's intrinsic height.
+                ViewThatFits(in: .vertical) {
+                    populatedContent(verticalPadding: 5, spacing: 8, rowSpacing: 4)
+                    populatedContent(verticalPadding: 2, spacing: 4, rowSpacing: 2)
+                    VStack(alignment: .leading, spacing: 4) {
+                        header
+                        WidgetOpenAppHint()
+                    }
+                }
             }
-            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func populatedContent(
+        verticalPadding: CGFloat, spacing: CGFloat, rowSpacing: CGFloat
+    ) -> some View {
+        VStack(alignment: .leading, spacing: spacing) {
+            header
+            Grid(horizontalSpacing: 6, verticalSpacing: rowSpacing) {
+                ForEach(0..<((rows.count + 1) / 2), id: \.self) { index in
+                    GridRow {
+                        HabitWidgetCell(row: rows[index * 2], verticalPadding: verticalPadding)
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                        if index * 2 + 1 < rows.count {
+                            HabitWidgetCell(row: rows[index * 2 + 1], verticalPadding: verticalPadding)
+                                .frame(minWidth: 0, maxWidth: .infinity)
+                        } else {
+                            // Preserve the leading column for an odd
+                            // last row without adding height of its own.
+                            Color.clear
+                                .frame(minWidth: 0, maxWidth: .infinity)
+                                .gridCellUnsizedAxes(.vertical)
+                        }
+                    }
+                }
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var header: some View {
@@ -64,19 +102,7 @@ public struct TodayProgressMediumView: View {
                 .foregroundStyle(palette.foregroundSecondary)
             }
         }
-    }
-
-    private var cellGrid: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: 6),
-                GridItem(.flexible(), spacing: 6),
-            ],
-            spacing: 4
-        ) {
-            ForEach(rows) { row in
-                HabitWidgetCell(row: row)
-            }
-        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
     }
 }

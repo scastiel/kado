@@ -391,6 +391,23 @@
         }
       }
     },
+    "Open Kadō to see all habits" : {
+      "comment" : "Home widget fallback when all habit rows cannot fit at the chosen text size.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Kadō to see all habits"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ouvre Kadō pour voir toutes tes habitudes"
+          }
+        }
+      }
+    },
     "Pick a habit" : {
       "comment" : "Accessibility label for an unpicked circular lock widget.",
       "extractionState" : "stale",

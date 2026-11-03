@@ -26,12 +26,14 @@ import WidgetKit
 /// these views rendered in-app, not photographed off a Home Screen.
 public struct HabitWidgetCell: View {
     let row: WidgetTodayRow
+    let verticalPadding: CGFloat
 
     @Environment(\.widgetRenderingMode) private var renderingMode
     @Environment(\.habitTheme) private var habitTheme
 
-    public init(row: WidgetTodayRow) {
+    public init(row: WidgetTodayRow, verticalPadding: CGFloat = 5) {
         self.row = row
+        self.verticalPadding = verticalPadding
     }
 
     private var palette: WidgetPalette {
@@ -82,7 +84,7 @@ public struct HabitWidgetCell: View {
         // Not `.widgetAccentable()`: the dimmed default group is the
         // right rank for a row that asks nothing of the user today.
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, verticalPadding)
         .background {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(palette.notDueFill)
@@ -131,7 +133,7 @@ public struct HabitWidgetCell: View {
         // text disappears again, with every test still green.
         .widgetAccentable()
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, verticalPadding)
         .background {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(background)
