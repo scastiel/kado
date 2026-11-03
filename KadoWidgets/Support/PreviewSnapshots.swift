@@ -62,6 +62,32 @@ enum PreviewSnapshots {
         )
     }()
 
+    /// Actually fills the medium widget's four rows. Keep the original
+    /// fixture stable: the selection previews derive their IDs from it.
+    static let fullCapacityToday: WidgetSnapshot = {
+        let extraHabits = [
+            WidgetHabit(id: UUID(), name: "An unusually long evening routine", color: .blue,
+                        icon: "moon.fill", typeKind: .binary, target: nil),
+            WidgetHabit(id: UUID(), name: "Avoid scrolling", color: .purple,
+                        icon: "iphone", typeKind: .negative, target: nil),
+            WidgetHabit(id: UUID(), name: "Practice", color: .orange,
+                        icon: "pianokeys", typeKind: .counter, target: 100),
+        ]
+        let today = populated.today + extraHabits.map { habit in
+            WidgetTodayRow(habit: habit, status: .none, progress: 0,
+                           valueToday: nil, streak: 0, scorePercent: 0)
+        }
+        return WidgetSnapshot(
+            generatedAt: populated.generatedAt,
+            habits: today.map(\.habit) + [notDueHabit],
+            today: today,
+            totalDueToday: today.count,
+            completedToday: today.filter(\.isDone).count,
+            matrix: populated.matrix,
+            matrixDays: populated.matrixDays
+        )
+    }()
+
     /// `populated` with every row finished — the closed ring on the
     /// day-progress widget, and the small widget's grid with nothing
     /// left to tap.

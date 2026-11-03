@@ -30,7 +30,7 @@ struct TodayProgressMediumWidget: Widget {
 #Preview("Eight habits", as: .systemMedium) {
     TodayProgressMediumWidget()
 } timeline: {
-    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.populated, habitIDs: [])
+    SelectedSnapshotEntry(date: .now, snapshot: PreviewSnapshots.fullCapacityToday, habitIDs: [])
 }
 
 #Preview("Picked two", as: .systemMedium) {

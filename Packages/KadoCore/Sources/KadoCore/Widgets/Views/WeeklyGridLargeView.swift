@@ -31,11 +31,7 @@ public struct WeeklyGridLargeView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("This week")
-                .font(.headline)
-                .foregroundStyle(palette.foreground)
-                .widgetAccentable()
+        Group {
             if rows.isEmpty {
                 // "No habits yet" only when there really are none. A
                 // pick whose habits have all been archived is a
@@ -47,48 +43,71 @@ public struct WeeklyGridLargeView: View {
                 // are the matrix, capped), but only the pick actually
                 // says whether the user asked for something we can no
                 // longer draw.
-                emptyPlaceholder(isFilteredOut: !entry.habitIDs.isEmpty)
+                VStack(alignment: .leading, spacing: 8) {
+                    title
+                    emptyPlaceholder(isFilteredOut: !entry.habitIDs.isEmpty)
+                }
             } else {
-                weekdayStripe
-                habitRows
+                // A large iPad widget can be much shorter than a large
+                // iPhone widget. Measure actual text at the user's size
+                // and reduce decoration before giving up readable rows.
+                ViewThatFits(in: .vertical) {
+                    populatedContent(cellHeight: 22, spacing: 8, habitSpacing: 10)
+                    populatedContent(cellHeight: 14, spacing: 4, habitSpacing: 4)
+                    populatedContent(cellHeight: 10, spacing: 2, habitSpacing: 2)
+                    VStack(alignment: .leading, spacing: 4) {
+                        title
+                        WidgetOpenAppHint()
+                    }
+                }
             }
-            Spacer(minLength: 0)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var title: some View {
+        Text("This week")
+            .font(.headline)
+            .foregroundStyle(palette.foreground)
+            .widgetAccentable()
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+    }
+
+    private func populatedContent(
+        cellHeight: CGFloat, spacing: CGFloat, habitSpacing: CGFloat
+    ) -> some View {
+        VStack(alignment: .leading, spacing: spacing) {
+            title
+            weekdayStripe
+            VStack(alignment: .leading, spacing: habitSpacing) {
+                ForEach(rows, id: \.habit.id) { row in
+                    habitBlock(for: row, cellHeight: cellHeight, spacing: min(spacing, 4))
+                }
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     /// Day labels laid out with the same full-width stretch as the
     /// per-habit cell stripes below, so each label sits directly
     /// above its column of cells.
     private var weekdayStripe: some View {
-        GeometryReader { geo in
-            let spacing: CGFloat = Self.cellSpacing
-            let count = CGFloat(max(entry.snapshot.matrixDays.count, 1))
-            let cellWidth = max(
-                8,
-                (geo.size.width - spacing * max(0, count - 1)) / count
-            )
-            HStack(spacing: spacing) {
-                ForEach(entry.snapshot.matrixDays, id: \.self) { day in
-                    Text(weekdayLabel(for: day))
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(isToday(day) ? palette.foreground : palette.foregroundSecondary)
-                        .frame(width: cellWidth)
-                }
-            }
-        }
-        .frame(height: 14)
-    }
-
-    private var habitRows: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ForEach(rows, id: \.habit.id) { row in
-                habitBlock(for: row)
+        HStack(spacing: Self.cellSpacing) {
+            ForEach(entry.snapshot.matrixDays, id: \.self) { day in
+                Text(weekdayLabel(for: day))
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(isToday(day) ? palette.foreground : palette.foregroundSecondary)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
             }
         }
     }
 
-    private func habitBlock(for row: WidgetMatrixRow) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+    private func habitBlock(
+        for row: WidgetMatrixRow, cellHeight: CGFloat, spacing: CGFloat
+    ) -> some View {
+        VStack(alignment: .leading, spacing: spacing) {
             // Baseline, not centre: the chip is a step smaller than
             // the name, and centring two different text sizes floats
             // the digits above the name's baseline.
@@ -114,11 +133,11 @@ public struct WeeklyGridLargeView: View {
                     scorePercent: row.habit.scorePercent
                 )
             }
-            cellStripe(for: row)
+            cellStripe(for: row, height: cellHeight)
         }
     }
 
-    private func cellStripe(for row: WidgetMatrixRow) -> some View {
+    private func cellStripe(for row: WidgetMatrixRow, height: CGFloat) -> some View {
         GeometryReader { geo in
             let spacing: CGFloat = Self.cellSpacing
             let count = CGFloat(max(row.cells.count, 1))
@@ -131,13 +150,13 @@ public struct WeeklyGridLargeView: View {
                     WidgetMatrixCell(
                         cell: cell,
                         color: row.habit.color,
-                        size: min(cellWidth, 26)
+                        size: min(cellWidth, height)
                     )
                     .frame(width: cellWidth)
                 }
             }
         }
-        .frame(height: 22)
+        .frame(height: height)
     }
 
     private func emptyPlaceholder(isFilteredOut: Bool) -> some View {
