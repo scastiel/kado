@@ -1,9 +1,10 @@
 # Plan — Home widget layout clipping
 
 **Date**: 2026-11-02
-**Status**: in progress
+**Status**: proposed in draft PR; runtime validation pending
 **Research**: [research.md](./research.md)
 **Issues**: [#151](https://github.com/scastiel/kado/issues/151), [#152](https://github.com/scastiel/kado/issues/152)
+**Pull request**: [#153](https://github.com/scastiel/kado/pull/153)
 
 ## Scope and decisions
 
@@ -24,7 +25,7 @@ The user requested upstream reports and a proposed patch. Affected devices are i
 - [x] Add localized open-app fallback in both catalogs; flag proposed French copy for maintainer review.
 - [x] Add eight-row mixed fixtures and compact-device, dark, large-text and French previews. Previews are not a substitute for WidgetKit verification.
 - [x] Run deployment/catalog/static checks and attempt compilation without a runtime. These UI-only changes introduce no business calculations requiring test-first implementation.
-- [ ] Upload widget-only screenshot crops, open a draft PR from the contributor fork and notify the maintainer with explicit validation gaps.
+- [x] Upload widget-only screenshot crops, open a draft PR from the contributor fork and notify the maintainer with explicit validation gaps.
 
 ## Required maintainer/device validation
 
@@ -40,3 +41,4 @@ The user requested upstream reports and a proposed patch. Affected devices are i
 - The user subsequently authorized screenshot uploads; upload only widget crops, never About screens or unrelated Home Screen content.
 - The new French string is explicitly `needs_review` in both catalogs, not presented as native-reviewed copy.
 - An unsigned device-SDK build succeeded without a simulator (`xcodebuild build -sdk iphoneos -destination 'generic/platform=iOS' -jobs 1 CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO`). This is compilation only; do not install this unsigned build or claim visual verification. Deployment floor and source-catalog coverage checks also passed.
+- Draft PR #153 mentions the maintainer and requests layout/native-French review, real Home Screen checks and a TestFlight build if possible. Both issues contain the original widget crops and link the proposal. Runtime/test-suite/VoiceOver validation remains outstanding; this is not ready to merge.

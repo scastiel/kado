@@ -72,6 +72,7 @@ Immediate workaround worth trying without a development build: choose fewer habi
 - Reports: [#151](https://github.com/scastiel/kado/issues/151), [#152](https://github.com/scastiel/kado/issues/152).
 - The user requested a proposed fix and maintainer notification, and authorized uploading widget screenshots. Only widget crops are published; About screenshots and unrelated Home Screen content stay private.
 - The proposal keeps all rows in measured regular/compact variants and falls back to an explicit open-app hint if those cannot fit at the selected text size. See [plan.md](./plan.md) for verification requirements and build results.
+- Proposed patch: [draft PR #153](https://github.com/scastiel/kado/pull/153). The complete app/widget extension compile with the device SDK, but no runtime or visual validation is claimed.
 
 ## References
 
