@@ -267,6 +267,23 @@
         }
       }
     },
+    "hard day" : {
+      "comment" : "Widget accessibility: yes/no habit logged as a hard day (did the minimum)",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hard day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jour difficile"
+          }
+        }
+      }
+    },
     "How many of today's habits are done, as a ring." : {
       "comment" : "Day-progress circular lock widget description.",
       "localizations" : {

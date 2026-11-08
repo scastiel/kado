@@ -83,6 +83,55 @@ struct DayCompletionEditorTests {
         #expect(completion(of: habit)?.note == "Slipped")
     }
 
+    // MARK: - Hard day
+
+    @Test("setHardDay on an empty day records a hard day and reports 0 → HardDay.value")
+    func setHardDayInserts() throws {
+        let habit = HabitRecord(type: .binary)
+        try insert(habit)
+
+        let change = editor.setHardDay(true, for: habit, on: day, in: context)
+
+        #expect(change == DayCompletionEditor.Change(before: 0.0, after: HardDay.value))
+        #expect(completion(of: habit)?.value == HardDay.value)
+    }
+
+    @Test("setHardDay turns a full day into a hard day in place, keeping the note")
+    func setHardDayOnFullDay() throws {
+        let habit = HabitRecord(type: .binary)
+        let record = CompletionRecord(date: day, value: 1, note: "Tired", habit: habit)
+        try insert(habit, completion: record)
+
+        editor.setHardDay(true, for: habit, on: day, in: context)
+
+        #expect(habit.completions?.count == 1)
+        #expect(completion(of: habit)?.id == record.id)
+        #expect(completion(of: habit)?.value == HardDay.value)
+        #expect(completion(of: habit)?.note == "Tired")
+    }
+
+    @Test("setHardDay(false) turns a hard day back into a full day")
+    func setHardDayBackToFull() throws {
+        let habit = HabitRecord(type: .binary)
+        try insert(habit, completion: CompletionRecord(date: day, value: HardDay.value, habit: habit))
+
+        let change = editor.setHardDay(false, for: habit, on: day, in: context)
+
+        #expect(change == DayCompletionEditor.Change(before: HardDay.value, after: 1.0))
+        #expect(completion(of: habit)?.value == 1.0)
+    }
+
+    @Test("toggle on a hard day clears it, like any done day")
+    func toggleClearsHardDay() throws {
+        let habit = HabitRecord(type: .binary)
+        try insert(habit, completion: CompletionRecord(date: day, value: HardDay.value, habit: habit))
+
+        let change = editor.toggle(for: habit, on: day, in: context)
+
+        #expect(change == DayCompletionEditor.Change(before: HardDay.value, after: 0.0))
+        #expect(habit.completions?.isEmpty ?? true)
+    }
+
     // MARK: - Counter
 
     @Test("setCounter on an empty day inserts the value and reports 0 → value")

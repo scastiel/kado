@@ -44,6 +44,30 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
                 insertion: .move(edge: slideDirection == .forward ? .trailing : .leading),
                 removal: .move(edge: slideDirection == .forward ? .leading : .trailing)
             ))
+            hardDaySummary
+        }
+    }
+
+    /// "26 full days · 4 hard days" for the month on screen — only once
+    /// it holds a hard day, so a habit that never logs one keeps the
+    /// calendar it always had (`HardDay`).
+    @ViewBuilder
+    private var hardDaySummary: some View {
+        if let interval = calendar.dateInterval(of: .month, for: monthStart) {
+            let tally = HardDayTally.tally(
+                habit: habit, completions: completions, in: interval, calendar: calendar
+            )
+            if tally.hardDays > 0 {
+                Label {
+                    Text(verbatim: "\(String(localized: "\(tally.fullDays) full days")) · \(String(localized: "\(tally.hardDays) hard days"))")
+                } icon: {
+                    Image(systemName: "battery.25")
+                }
+                .font(.caption)
+                .foregroundStyle(Color.kadoForegroundSecondary)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityID.HabitDetail.hardDaySummary)
+            }
         }
     }
 
@@ -228,6 +252,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
     private enum CellState {
         case future       // after today
         case completed    // done on this day
+        case hardDay      // done in its minimum version (`HardDay`)
         case missed       // past / today, due, not done
         case nonDue       // past / today, not due (schedule skip)
         case beforeStart  // before the habit's effective start
@@ -244,14 +269,17 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         if habit.isBeforeStart(day, completions: completions, calendar: calendar) {
             return .beforeStart
         }
-        let completedOnDay = completions.contains { c in
+        let valuesOnDay = completions.filter { c in
             c.habitID == habit.id && c.value > 0 && calendar.isDate(c.date, inSameDayAs: day)
-        }
+        }.map(\.value)
+        let completedOnDay = !valuesOnDay.isEmpty
         switch habit.type {
         case .negative:
             return completedOnDay ? .missed : .completed
         case .binary, .counter, .timer:
-            if completedOnDay { return .completed }
+            if let best = valuesOnDay.max() {
+                return HardDay.isHardDay(value: best, for: habit.type) ? .hardDay : .completed
+            }
             return dayIsDue(day) ? .missed : .nonDue
         }
     }
@@ -270,6 +298,9 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         switch state {
         case .future: Color.kadoHairline
         case .completed: habit.color.color(in: habitTheme)
+        // The Overview's middling tile: lighter than a full day, still
+        // plainly the habit's colour.
+        case .hardDay: habit.color.tint(.tilePartial, in: habitTheme)
         case .missed: Color.kadoPaper200
         case .nonDue, .beforeStart: Color.kadoHairline.opacity(0.4)
         }
@@ -279,6 +310,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         switch state {
         case .future: .kadoForegroundSecondary
         case .completed: habit.color.onFill(in: habitTheme)
+        case .hardDay: habit.color.onTint(in: habitTheme)
         case .missed: .kadoForeground
         case .nonDue, .beforeStart: .kadoForegroundSecondary
         }
@@ -301,6 +333,7 @@ struct MonthlyCalendarView<PopoverContent: View>: View {
         let stateString: String
         switch state {
         case .completed: stateString = String(localized: "completed")
+        case .hardDay: stateString = String(localized: "hard day")
         case .missed: stateString = String(localized: "missed")
         case .nonDue: stateString = String(localized: "not scheduled")
         case .beforeStart: stateString = String(localized: "before tracking started")
@@ -345,6 +378,24 @@ extension MonthlyCalendarView where PopoverContent == EmptyView {
         Completion(
             habitID: habit.id,
             date: Calendar.current.date(byAdding: .day, value: -offset, to: .now)!
+        )
+    }
+    return MonthlyCalendarView(habit: habit, completions: completions)
+        .padding()
+}
+
+#Preview("Hard days") {
+    let habit = Habit(
+        name: "Meditate",
+        frequency: .daily,
+        type: .binary,
+        createdAt: Calendar.current.date(byAdding: .day, value: -20, to: .now)!
+    )
+    let completions = [1, 2, 3, 5, 7, 8, 10, 12, 13, 14, 18].map { offset in
+        Completion(
+            habitID: habit.id,
+            date: Calendar.current.date(byAdding: .day, value: -offset, to: .now)!,
+            value: [3, 8, 13].contains(offset) ? HardDay.value : 1
         )
     }
     return MonthlyCalendarView(habit: habit, completions: completions)

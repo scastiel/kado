@@ -240,14 +240,22 @@ public struct WidgetTodayRow: Codable, Sendable, Identifiable, Hashable {
     /// a record is a slip: `.complete` means the user gave in. Any
     /// widget that tallies a subset of these rows must count by this
     /// and not by `status == .complete`, or the picked summary
-    /// congratulates a slip.
+    /// congratulates a slip. A yes/no habit's hard day is `.partial`
+    /// and done (`HardDay`).
     public var isDone: Bool {
         switch habit.typeKind {
         case .negative:
             return status != .complete
-        case .binary, .counter, .timer:
+        case .binary:
+            return status != .none
+        case .counter, .timer:
             return status == .complete
         }
+    }
+
+    /// Whether today is a hard day on a yes/no habit (`HardDay`).
+    public var isHardDay: Bool {
+        habit.typeKind == .binary && status == .partial
     }
 }
 

@@ -400,6 +400,53 @@ struct HabitScoreCalculatorTests {
         #expect(abs(score - expected) < 1e-9, "got \(score) expected \(expected)")
     }
 
+    @Test("Binary hard days get half credit, like a counter at half its target")
+    func binaryHardDayHalfCredit() {
+        let habit = makeHabit(createdOffset: 0)
+        let hardDays = (0..<30).map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0), value: HardDay.value)
+        }
+        let counter = Habit(
+            name: "Water",
+            frequency: .daily,
+            type: .counter(target: 8),
+            createdAt: TestCalendar.day(0)
+        )
+        let halfTarget = (0..<30).map {
+            Completion(habitID: counter.id, date: TestCalendar.day($0), value: 4)
+        }
+        let hardScore = calculator.currentScore(for: habit, completions: hardDays, asOf: TestCalendar.day(29))
+        let counterScore = calculator.currentScore(for: counter, completions: halfTarget, asOf: TestCalendar.day(29))
+        #expect(abs(hardScore - counterScore) < 1e-9)
+        #expect(abs(hardScore - HardDay.value * (1 - pow(0.95, 30))) < 1e-9)
+    }
+
+    @Test("A hard day scores between a missed day and a full day")
+    func binaryHardDayBetweenMissAndFull() {
+        let habit = makeHabit(createdOffset: 0)
+        func score(lastDayValue: Double?) -> Double {
+            var completions = (0..<29).map { Completion(habitID: habit.id, date: TestCalendar.day($0)) }
+            if let lastDayValue {
+                completions.append(Completion(habitID: habit.id, date: TestCalendar.day(29), value: lastDayValue))
+            }
+            return calculator.currentScore(for: habit, completions: completions, asOf: TestCalendar.day(29))
+        }
+        #expect(score(lastDayValue: nil) < score(lastDayValue: HardDay.value))
+        #expect(score(lastDayValue: HardDay.value) < score(lastDayValue: 1))
+    }
+
+    @Test("A binary day's best record counts: a duplicate hard day beside a full day scores as full")
+    func binaryDuplicateRecordsDoNotAddUp() {
+        let habit = makeHabit(createdOffset: 0)
+        let full = (0..<10).map { Completion(habitID: habit.id, date: TestCalendar.day($0)) }
+        let doubled = full + (0..<10).map {
+            Completion(habitID: habit.id, date: TestCalendar.day($0), value: HardDay.value)
+        }
+        let fullScore = calculator.currentScore(for: habit, completions: full, asOf: TestCalendar.day(9))
+        let doubledScore = calculator.currentScore(for: habit, completions: doubled, asOf: TestCalendar.day(9))
+        #expect(fullScore == doubledScore)
+    }
+
     @Test("Counter exceeding target caps at 1.0")
     func counterCapsAtOne() {
         let counter = Habit(

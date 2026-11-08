@@ -80,7 +80,10 @@ struct BackupRoundTripTests {
             let note: String? = (i % 3 == 0) ? "note \(i)" : nil
             context.insert(CompletionRecord(date: date, value: 600 - Double(i) * 10, note: note, habit: daily))
             context.insert(CompletionRecord(date: date, value: Double(i + 1), note: nil, habit: counter))
-            context.insert(CompletionRecord(date: date, value: 1, note: nil, habit: binary))
+            // Every fourth day a hard day, which rides on `value`
+            // (`HardDay`) and must come back as one.
+            let binaryValue = i.isMultiple(of: 4) ? HardDay.value : 1
+            context.insert(CompletionRecord(date: date, value: binaryValue, note: nil, habit: binary))
             context.insert(CompletionRecord(date: date, value: 1, note: note, habit: negative))
         }
         // 2 completions on the archived habit
@@ -207,6 +210,25 @@ struct BackupRoundTripTests {
         let archived = try #require(records.first(where: { $0.name == "Old habit" }))
         #expect(archived.archivedAt != nil)
         #expect((archived.completions ?? []).count == 2)
+    }
+
+    @Test("A yes/no habit's hard days come back as hard days, its full days as full days")
+    func hardDaysSurvive() throws {
+        let source = try freshContainer()
+        seed(into: source)
+
+        let data = try DefaultBackupExporter(appVersion: "test").exportData(from: source.mainContext)
+        let destination = try freshContainer()
+        let importer = DefaultBackupImporter()
+        _ = try importer.apply(try importer.parse(data: data), to: destination.mainContext)
+
+        let records = try destination.mainContext.fetch(FetchDescriptor<HabitRecord>())
+        let floss = try #require(records.first(where: { $0.name == "Floss" }))
+        let values = (floss.completions ?? []).map(\.value)
+        let hardDays = values.filter { HardDay.isHardDay(value: $0, for: .binary) }
+        #expect(hardDays.count == 3)
+        #expect(hardDays.allSatisfy { $0 == HardDay.value })
+        #expect(values.filter { $0 == 1 }.count == 7)
     }
 
     @Test("Round-trip through JSON as a string is stable")

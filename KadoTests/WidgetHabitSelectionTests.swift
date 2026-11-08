@@ -242,6 +242,29 @@ struct WidgetHabitSelectionTests {
         )
     }
 
+    /// A yes/no habit's hard day is `.partial` on the wire, and done —
+    /// the same rule `HabitRowState.isDone` built `completedToday` with.
+    @Test("A yes/no habit's hard day counts as done in the picked summary")
+    func progressCountsHardDayAsDone() {
+        let meditate = WidgetHabit(
+            id: UUID(), name: "Meditate", color: .purple, icon: "leaf", typeKind: .binary, target: nil
+        )
+        let hardDay = WidgetTodayRow(
+            habit: meditate, status: .partial, progress: HardDay.value, valueToday: HardDay.value,
+            streak: 4, scorePercent: 60
+        )
+        #expect(hardDay.isDone)
+        #expect(hardDay.isHardDay)
+
+        let snapshot = WidgetSnapshot(
+            generatedAt: .now, habits: [meditate], today: [hardDay],
+            totalDueToday: 1, completedToday: 1, matrix: [], matrixDays: []
+        )
+        #expect(
+            WidgetHabitSelection.progress(from: snapshot, selecting: [meditate.id], limit: 5).completed == 1
+        )
+    }
+
     // MARK: - Picked but not due today
 
     /// The case that reads as "my pick was lost": a habit chosen in the

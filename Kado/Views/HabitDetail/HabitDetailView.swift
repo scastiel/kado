@@ -125,7 +125,8 @@ struct HabitDetailView: View {
                             onNoteChanged: { note in setNote(note, on: day) },
                             backdatesStart: habit.loggingBackdatesStart(
                                 on: day, completions: completions, calendar: calendar
-                            )
+                            ),
+                            onSetHardDay: { isHardDay in setHardDay(isHardDay, on: day) }
                         )
                         .presentationCompactAdaptation(.popover)
                     }
@@ -344,6 +345,12 @@ struct HabitDetailView: View {
     private func toggle(on day: Date) {
         guard let record else { return }
         let change = dayEditor.toggle(for: record, on: day, in: modelContext)
+        recordQuickLog(from: change.before, to: change.after)
+    }
+
+    private func setHardDay(_ isHardDay: Bool, on day: Date) {
+        guard let record else { return }
+        let change = dayEditor.setHardDay(isHardDay, for: record, on: day, in: modelContext)
         recordQuickLog(from: change.before, to: change.after)
     }
 

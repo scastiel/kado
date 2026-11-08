@@ -365,6 +365,7 @@ struct TodayView: View {
             onCounterDecrement: isCounter(item) ? { decrementCounter(item.id) } : nil,
             onTimerAddFiveMinutes: isTimer(item) ? { addFiveMinutes(item.id) } : nil,
             onLogSpecificValue: logSheetCallback(for: item),
+            onToggleHardDay: item.habit.type == .binary ? { toggleHardDay(item.id) } : nil,
             onOpenDetail: { openDetail(item.id) },
             onEdit: { sheet = .editHabit(item.id) },
             onArchive: { confirmingArchiveOf = item.id }
@@ -444,11 +445,11 @@ struct TodayView: View {
     }
 
     /// Trailing-swipe Undo only applies to binary / negative when the
-    /// day is already marked. Counter / timer get their undo from the
-    /// row's own `−` button (counter) or the "Log specific value…"
-    /// menu item, so a swipe action would be redundant.
+    /// day is already marked — a hard day included. Counter / timer get
+    /// their undo from the row's own `−` button (counter) or the "Log
+    /// specific value…" menu item, so a swipe action would be redundant.
     private func canSwipeUndo(_ item: TodayRow, state: HabitRowState) -> Bool {
-        guard state.status == .complete else { return false }
+        guard state.status != .none else { return false }
         switch item.habit.type {
         case .binary, .negative: return true
         case .counter, .timer: return false
@@ -513,6 +514,22 @@ struct TodayView: View {
         guard let record = record(for: habitID) else { return }
         CompletionToggler(calendar: calendar)
             .toggleToday(for: record, on: loggingInstant, in: modelContext)
+        try? modelContext.save()
+        WidgetReloader.reloadAll(using: modelContext)
+        checkMilestones(for: record)
+    }
+
+    /// Logs today as a hard day, or turns today's hard day back into a
+    /// full one (`HardDay`). Either way the day ends up done.
+    private func toggleHardDay(_ habitID: UUID) {
+        guard let record = record(for: habitID) else { return }
+        let logger = CompletionLogger(calendar: calendar)
+        let isHardDay = HardDay.isHardDay(
+            value: logger.value(for: record, on: loggingInstant), for: record.type
+        )
+        logger.setCounter(
+            for: record, on: loggingInstant, to: isHardDay ? 1 : HardDay.value, in: modelContext
+        )
         try? modelContext.save()
         WidgetReloader.reloadAll(using: modelContext)
         checkMilestones(for: record)

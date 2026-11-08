@@ -153,7 +153,9 @@ public struct HabitWidgetCell: View {
     private var indicator: some View {
         switch row.habit.typeKind {
         case .binary, .negative:
-            Image(systemName: isComplete ? "checkmark.circle.fill" : "circle")
+            // A hard day is done, so it keeps a check — an open one, on
+            // the lighter partial fill (`HardDay`).
+            Image(systemName: isComplete ? "checkmark.circle.fill" : row.isHardDay ? "checkmark.circle" : "circle")
         case .counter:
             if let target = row.habit.target {
                 Text(counterLabel(value: row.valueToday ?? 0, target: target))
@@ -170,6 +172,9 @@ public struct HabitWidgetCell: View {
     private var accessibilityValue: String {
         switch row.habit.typeKind {
         case .binary, .negative:
+            if row.isHardDay {
+                return String(localized: "hard day", comment: "Widget accessibility: yes/no habit logged as a hard day (did the minimum)")
+            }
             return isComplete
                 ? String(localized: "done", comment: "Widget accessibility: binary habit completed")
                 : String(localized: "not done", comment: "Widget accessibility: binary habit not completed")

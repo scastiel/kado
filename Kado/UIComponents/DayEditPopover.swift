@@ -6,7 +6,8 @@ import KadoCore
 /// both hand it a value snapshot and route its callbacks through
 /// `DayCompletionEditor`. Branches on `habit.type`:
 /// single toggle for binary / negative, `−` / `+` for counter, the
-/// same in minutes for timer. Counter / timer also offer a `Clear`
+/// same in minutes for timer. Binary also offers a hard day under its
+/// toggle (`HardDay`). Counter / timer also offer a `Clear`
 /// action that sets the value to 0 (deleting the record via the
 /// logger). All types show an optional note field below the main
 /// control.
@@ -48,6 +49,9 @@ struct DayEditPopover: View {
     /// but one that rescores every day in between, so the popover says
     /// so before the tap rather than after (issue #104).
     var backdatesStart: Bool = false
+    /// Binary: logs the day as a hard day (`true`) or turns a hard day
+    /// back into a full one (`false`). `nil` hides the button.
+    var onSetHardDay: ((Bool) -> Void)? = nil
 
     @Environment(\.calendar) private var calendar
     @Environment(\.dismiss) private var dismiss
@@ -109,7 +113,10 @@ struct DayEditPopover: View {
     private var content: some View {
         switch habit.type {
         case .binary:
-            binaryToggle
+            VStack(alignment: .leading, spacing: 8) {
+                binaryToggle
+                hardDayControl
+            }
         case .negative:
             negativeToggle
         case .counter(let target):
@@ -138,6 +145,41 @@ struct DayEditPopover: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(AccessibilityID.DayEdit.toggle)
+    }
+
+    /// The minimum version of the habit (`HardDay`): logs the day as a
+    /// hard day, or a hard day back as a full one. Clearing a hard day is
+    /// the toggle above, as for any done day. The caption says what a
+    /// hard day costs before the tap rather than after.
+    @ViewBuilder
+    private var hardDayControl: some View {
+        if let onSetHardDay {
+            let isHardDay = HardDay.isHardDay(value: currentValue, for: habit.type)
+            Button {
+                onSetHardDay(!isHardDay)
+                if !isNoteExpanded {
+                    dismiss()
+                }
+            } label: {
+                Label(
+                    isHardDay
+                        ? String(localized: "Mark as fully done")
+                        : String(localized: "Log as hard day"),
+                    systemImage: isHardDay ? "checkmark.circle" : "battery.25"
+                )
+                .font(.body.weight(.medium))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier(AccessibilityID.DayEdit.hardDay)
+            Text(isHardDay
+                ? String(localized: "Logged as a hard day: you did the minimum.")
+                : String(localized: "Did the minimum? It keeps the streak and counts half in the score."))
+                .font(.caption)
+                .foregroundStyle(Color.kadoForegroundSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var negativeToggle: some View {
@@ -423,7 +465,8 @@ struct DayEditPopover: View {
         onSetCounter: { _ in },
         onSetTimerSeconds: { _ in },
         onClear: {},
-        onNoteChanged: { _ in }
+        onNoteChanged: { _ in },
+        onSetHardDay: { _ in }
     )
 }
 
@@ -489,6 +532,28 @@ struct DayEditPopover: View {
         onSetTimerSeconds: { _ in },
         onClear: {},
         onNoteChanged: { _ in }
+    )
+}
+
+#Preview("Binary — hard day") {
+    DayEditPopover(
+        habit: Habit(
+            name: "Morning meditation",
+            frequency: .daily,
+            type: .binary,
+            createdAt: .now,
+            color: .purple,
+            icon: "figure.mind.and.body"
+        ),
+        date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
+        currentValue: HardDay.value,
+        currentNote: nil,
+        onToggle: {},
+        onSetCounter: { _ in },
+        onSetTimerSeconds: { _ in },
+        onClear: {},
+        onNoteChanged: { _ in },
+        onSetHardDay: { _ in }
     )
 }
 

@@ -2,7 +2,7 @@ import Foundation
 
 /// A single recorded performance of a habit on a given day. `value`
 /// semantics depend on the habit's type:
-/// - `.binary` → ignored (presence means done).
+/// - `.binary` → `1` for a full day, `HardDay.value` for a hard day.
 /// - `.counter(target)` → units achieved (e.g. 6 of 8 glasses).
 /// - `.timer(targetSeconds)` → seconds achieved.
 /// - `.negative` → ignored; presence means "I had it" (failure).

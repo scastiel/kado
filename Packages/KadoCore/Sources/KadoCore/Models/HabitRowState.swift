@@ -31,15 +31,24 @@ nonisolated public struct HabitRowState: Equatable, Sendable {
     /// `status` describes what was *recorded*, and for a negative habit
     /// a record is a slip: `.complete` means the user gave in. So the
     /// win for a "don't" habit is the empty row, and it stays a win
-    /// only until a slip lands. Everything else is done when its
-    /// target is met.
+    /// only until a slip lands. A yes/no habit is done once anything is
+    /// recorded — a hard day is `.partial` and still done (`HardDay`).
+    /// Counters and timers are done when their target is met.
     public func isDone(for habit: Habit) -> Bool {
         switch habit.type {
         case .negative:
             return status != .complete
-        case .binary, .counter, .timer:
+        case .binary:
+            return status != .none
+        case .counter, .timer:
             return status == .complete
         }
+    }
+
+    /// Whether today is a hard day on a yes/no habit (`HardDay`): done,
+    /// but drawn as partial.
+    public func isHardDay(for habit: Habit) -> Bool {
+        habit.type == .binary && status == .partial
     }
 
     public static func resolve(
@@ -57,7 +66,13 @@ nonisolated public struct HabitRowState: Equatable, Sendable {
         }
 
         switch habit.type {
-        case .binary, .negative:
+        case .binary:
+            // A full day is a target of one met; a hard day records
+            // less and resolves to `.partial`, like a counter short of
+            // its target (`HardDay`).
+            return resolveAgainstTarget(value: todays.value, target: 1)
+
+        case .negative:
             return HabitRowState(status: .complete, progress: 1, valueToday: todays.value)
 
         case .counter(let target):

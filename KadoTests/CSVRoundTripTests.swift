@@ -95,7 +95,9 @@ struct CSVRoundTripTests {
             let note: String? = index == 0 ? "went well, \"really\"\nsecond line" : nil
             context.insert(CompletionRecord(date: date, value: 600 - Double(index) * 10, note: note, habit: timer))
             context.insert(CompletionRecord(date: date, value: Double(index + 1), note: nil, habit: counter))
-            context.insert(CompletionRecord(date: date, value: 1, note: "plain note", habit: binary))
+            // The middle day is a hard day (`HardDay`), carried by `value`.
+            let binaryValue = index == 1 ? HardDay.value : 1
+            context.insert(CompletionRecord(date: date, value: binaryValue, note: "plain note", habit: binary))
             context.insert(CompletionRecord(date: date, value: 1, note: nil, habit: negative))
         }
         context.insert(CompletionRecord(
