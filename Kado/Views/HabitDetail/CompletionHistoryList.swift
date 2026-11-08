@@ -170,7 +170,9 @@ struct CompletionHistoryList: View {
     private func valueLabel(for completion: Completion) -> String {
         switch habitType {
         case .binary:
-            return String(localized: "Done")
+            return HardDay.isHardDay(value: completion.value, for: habitType)
+                ? String(localized: "Hard day")
+                : String(localized: "Done")
         case .negative:
             return String(localized: "Slipped")
         case .counter(let target):

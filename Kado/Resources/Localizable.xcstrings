@@ -477,6 +477,88 @@
         }
       }
     },
+    "%lld full days" : {
+      "comment" : "Habit detail, under the month calendar: days fully done this month, beside the hard days.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld full day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld full days"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld jour complet"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld jours complets"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld hard days" : {
+      "comment" : "Habit detail, under the month calendar: days logged as hard days (did the minimum) this month.",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld hard day"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld hard days"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld jour difficile"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld jours difficiles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld of %lld" : {
       "comment" : "VoiceOver progress fragment for a counter Today row. First arg: current value. Second arg: target.",
       "localizations" : {
@@ -1554,6 +1636,23 @@
         }
       }
     },
+    "Did the minimum? It keeps the streak and counts half in the score." : {
+      "comment" : "Caption under the day popover's 'Log as hard day' button: what a hard day does.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Did the minimum? It keeps the streak and counts half in the score."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as fait le minimum ? La série continue et le jour compte pour moitié dans le score."
+          }
+        }
+      }
+    },
     "done" : {
       "comment" : "VoiceOver state for a binary/negative habit row on a completed day. Lower-case to read naturally inside an interpolated sentence ('Meditate, done').",
       "localizations" : {
@@ -2120,6 +2219,40 @@
         }
       }
     },
+    "hard day" : {
+      "comment" : "VoiceOver state for a yes/no habit logged as a hard day (did the minimum). Lower-case, read inside a sentence.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hard day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jour difficile"
+          }
+        }
+      }
+    },
+    "Hard day" : {
+      "comment" : "History row value for a yes/no habit logged as a hard day (did the minimum).",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hard day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jour difficile"
+          }
+        }
+      }
+    },
     "History" : {
       "comment" : "Section header above the list of past completions on the habit detail screen.",
       "localizations" : {
@@ -2629,6 +2762,23 @@
         }
       }
     },
+    "Log as hard day" : {
+      "comment" : "Logs a yes/no habit as a hard day (did the minimum), from the row menu and day popover.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log as hard day"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noter comme jour difficile"
+          }
+        }
+      }
+    },
     "Log Habit Value" : {
       "comment" : "Title of the LogHabitValueIntent shown in the Shortcuts app.",
       "localizations" : {
@@ -2715,6 +2865,23 @@
         }
       }
     },
+    "Logged as a hard day: you did the minimum." : {
+      "comment" : "Caption under the day popover's hard-day button when the day is already a hard day.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logged as a hard day: you did the minimum."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noté comme jour difficile : tu as fait le minimum."
+          }
+        }
+      }
+    },
     "Long-press a row to delete it." : {
       "comment" : "Footer under the detail's History list, telling the user the rows have a long-press menu.",
       "localizations" : {
@@ -2774,6 +2941,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Marquer comme fait"
+          }
+        }
+      }
+    },
+    "Mark as fully done" : {
+      "comment" : "Turns a yes/no habit's hard day into a full day, from the row menu and day popover.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark as fully done"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marquer comme entièrement fait"
           }
         }
       }

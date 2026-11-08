@@ -50,7 +50,7 @@ public struct GetHabitStatsIntent: AppIntent {
         if streak == 0 {
             return IntentDialog("\(habit.name): no active streak. Score \(percent)%.")
         }
-        if let row = todayRow, row.status == .complete {
+        if let row = todayRow, row.status == .complete || row.isHardDay {
             return IntentDialog("\(habit.name): \(streak)-day streak, score \(percent)%. Today is done.")
         } else {
             return IntentDialog("\(habit.name): \(streak)-day streak, score \(percent)%. Not done today yet.")

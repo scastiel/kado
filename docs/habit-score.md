@@ -97,6 +97,21 @@ So 6 glasses out of 8 gives `value = 0.75`, which partially
 contributes to the score. Exceeding target doesn't give more than
 1.0 (no over-reward).
 
+### Hard days (yes/no habits)
+
+A yes/no habit can be logged as a **hard day**: the user did the
+minimum version of the habit. It records `value = 0.5` instead of
+`1.0`, so:
+
+```
+value[n] = 0.5
+```
+
+Half credit, the same rule as a counter at half its target. A run of
+hard days keeps the streak (see `streak.md`) but the score settles at
+half of what full days would give: the habit was kept alive, and it is
+weaker for it.
+
 ### Negative habits ("don't smoke")
 
 Invert: `value[n] = 1.0` if the user avoided the behavior, `0.0` if

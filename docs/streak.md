@@ -43,8 +43,10 @@ scheduled:
 ### "Completed" on a day
 
 Any `Completion` record whose `date` falls within the day (local
-calendar). Value is ignored for streak purposes — presence is
-what counts. This matches the score calculator's treatment.
+calendar) with a value above zero. Beyond that, value is ignored for
+streak purposes — presence is what counts. A yes/no habit's **hard
+day** (`value = 0.5`, the minimum version of the habit) therefore
+keeps the streak, even though the score only gives it half credit.
 
 For `.negative` habits, "completed" inverts: the day counts as
 *good* when there is **no** completion record. A negative habit's

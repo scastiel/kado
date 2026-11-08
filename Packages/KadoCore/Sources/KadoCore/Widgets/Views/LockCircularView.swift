@@ -35,7 +35,8 @@ public struct LockCircularView: View {
     private func currentLabel(for row: WidgetTodayRow) -> some View {
         switch row.habit.typeKind {
         case .binary, .negative:
-            Image(systemName: row.status == .complete ? "checkmark" : "")
+            // A hard day is done too; the half-full gauge tells it apart.
+            Image(systemName: row.status == .complete || row.isHardDay ? "checkmark" : "")
                 .font(.caption2)
         case .counter, .timer:
             Text("\(Int(row.progress * 100))")

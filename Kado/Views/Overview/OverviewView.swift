@@ -330,7 +330,8 @@ struct OverviewView: View {
             onClear: { clear(habit, on: day) },
             onNoteChanged: { note in setNote(note, for: habit, on: day) },
             notScheduled: notScheduled,
-            backdatesStart: backdatesStart
+            backdatesStart: backdatesStart,
+            onSetHardDay: { isHardDay in setHardDay(isHardDay, for: habit, on: day) }
         )
         .presentationCompactAdaptation(.popover)
     }
@@ -356,6 +357,12 @@ struct OverviewView: View {
     private func toggle(_ habit: Habit, on day: Date) {
         guard let record = record(for: habit) else { return }
         let change = dayEditor.toggle(for: record, on: day, in: modelContext)
+        recordQuickLog(change, type: habit.type)
+    }
+
+    private func setHardDay(_ isHardDay: Bool, for habit: Habit, on day: Date) {
+        guard let record = record(for: habit) else { return }
+        let change = dayEditor.setHardDay(isHardDay, for: record, on: day, in: modelContext)
         recordQuickLog(change, type: habit.type)
     }
 
@@ -411,12 +418,12 @@ struct OverviewView: View {
         case .beforeStart:
             state = String(localized: "before tracking started")
         case .scored(let s):
-            state = completionPhrase(for: s)
+            state = completionPhrase(for: s, type: habit.type)
         case .offSchedule(let s):
             // The hollow cell is a purely visual distinction, so
             // VoiceOver has to say it out loud.
             state = String(
-                localized: "\(completionPhrase(for: s)), off schedule",
+                localized: "\(completionPhrase(for: s, type: habit.type)), off schedule",
                 comment: "Overview cell state for a day logged outside the habit's schedule. Argument: the completion phrase, e.g. 'completed'."
             )
         }
@@ -425,8 +432,10 @@ struct OverviewView: View {
 
     /// Shared wording for a day's value, used on its own for
     /// scheduled days and embedded in the off-schedule phrasing.
-    private static func completionPhrase(for value: Double) -> String {
-        if value >= 1.0 {
+    private static func completionPhrase(for value: Double, type: HabitType) -> String {
+        if HardDay.isHardDay(value: value, for: type) {
+            return String(localized: "hard day")
+        } else if value >= 1.0 {
             return String(localized: "completed")
         } else if value <= 0.0 {
             return String(localized: "missed")

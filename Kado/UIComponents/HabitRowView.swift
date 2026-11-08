@@ -5,7 +5,8 @@ import KadoCore
 /// - **Leading**: 38pt circular badge — fills with the habit color when
 ///   the day's target is met; otherwise a tinted disc inside an
 ///   outlined ring, with a trim arc representing today's progress
-///   (counter/timer only).
+///   (counter/timer, and the half a yes/no habit's hard day records —
+///   see `HardDay`).
 /// - **Center**: habit name on top; below, a "🔥 streak · score%"
 ///   caption that surfaces the per-row metrics that previously only
 ///   lived on Detail.
@@ -42,6 +43,9 @@ struct HabitRowView: View {
     /// Context-menu actions. Caller decides which apply per habit type
     /// — passing `nil` hides the corresponding menu item.
     var onLogSpecificValue: (() -> Void)? = nil
+    /// Binary: logs today as a hard day, or a hard day back as a full
+    /// one (`HardDay`). `nil` for other types.
+    var onToggleHardDay: (() -> Void)? = nil
     var onOpenDetail: (() -> Void)? = nil
     var onEdit: (() -> Void)? = nil
     var onArchive: (() -> Void)? = nil
@@ -49,6 +53,9 @@ struct HabitRowView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isComplete: Bool { state.status == .complete }
+
+    /// Today is a yes/no habit's hard day: done, drawn as partial.
+    private var isHardDay: Bool { state.isHardDay(for: habit) }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -87,10 +94,18 @@ struct HabitRowView: View {
     private var rowAccessibilityActions: some View {
         if let onToggle {
             Button(
-                isComplete
+                isComplete || isHardDay
                     ? String(localized: "Mark as not done")
                     : String(localized: "Mark as done"),
                 action: onToggle
+            )
+        }
+        if let onToggleHardDay {
+            Button(
+                isHardDay
+                    ? String(localized: "Mark as fully done")
+                    : String(localized: "Log as hard day"),
+                action: onToggleHardDay
             )
         }
         if let onCounterIncrement {
@@ -115,6 +130,16 @@ struct HabitRowView: View {
 
     @ViewBuilder
     private var contextMenuContent: some View {
+        if let onToggleHardDay {
+            Button(action: onToggleHardDay) {
+                if isHardDay {
+                    Label("Mark as fully done", systemImage: "checkmark.circle")
+                } else {
+                    Label("Log as hard day", systemImage: "battery.25")
+                }
+            }
+            .accessibilityIdentifier(AccessibilityID.Today.hardDayMenuItem)
+        }
         if let onLogSpecificValue {
             Button(action: onLogSpecificValue) {
                 Label("Log specific value…", systemImage: "square.and.pencil")
@@ -225,16 +250,19 @@ struct HabitRowView: View {
         .accessibilityLabel(String(localized: "Add 5 minutes"))
     }
 
+    /// Filled once the day is recorded, a hard day included — the
+    /// leading badge's half ring is what tells a hard day apart, and
+    /// a tap clears either.
     @ViewBuilder
     private var binaryCheckButton: some View {
         if let onToggle {
             Button(action: onToggle) {
-                checkCircle(icon: "checkmark", filled: isComplete)
+                checkCircle(icon: "checkmark", filled: isComplete || isHardDay)
             }
             .buttonStyle(.borderless)
             .sensoryFeedback(.success, trigger: state.status)
             .accessibilityLabel(
-                isComplete
+                isComplete || isHardDay
                     ? String(localized: "Mark as not done")
                     : String(localized: "Mark as done")
             )
@@ -383,9 +411,11 @@ struct HabitRowView: View {
     private var accessibilityLabelText: String {
         switch habit.type {
         case .binary, .negative:
-            let stateText = isComplete
-                ? String(localized: "done")
-                : String(localized: "not done")
+            let stateText = isHardDay
+                ? String(localized: "hard day")
+                : isComplete
+                    ? String(localized: "done")
+                    : String(localized: "not done")
             return String(localized: "\(habit.name), \(stateText)")
         case .counter(let target):
             return String(localized: "\(habit.name), counter, target \(Int(target))")
@@ -460,8 +490,9 @@ private extension HabitRowView {
     static func previewState(for type: HabitType, value: Double? = nil) -> HabitRowState {
         switch type {
         case .binary, .negative:
-            return value == nil
-                ? HabitRowState(status: .none, progress: 0, valueToday: nil)
+            guard let value else { return HabitRowState(status: .none, progress: 0, valueToday: nil) }
+            return HardDay.isHardDay(value: value, for: type)
+                ? HabitRowState(status: .partial, progress: value, valueToday: value)
                 : HabitRowState(status: .complete, progress: 1, valueToday: 1)
         case .counter(let target):
             guard let value else { return HabitRowState(status: .none, progress: 0, valueToday: nil) }
@@ -506,6 +537,15 @@ private extension HabitRowView {
         HabitRowView(habit: counter, state: HabitRowView.previewState(for: counter.type, value: 8), streak: 4, scorePercent: 90, onToggle: nil)
         HabitRowView(habit: timer, state: HabitRowView.previewState(for: timer.type, value: 1800), streak: 14, scorePercent: 95, onToggle: nil)
         HabitRowView(habit: negative, state: HabitRowView.previewState(for: negative.type, value: 1), streak: 0, scorePercent: 30, onToggle: {})
+    }
+}
+
+#Preview("Binary — hard day / full day") {
+    let binary = Habit(name: "Morning meditation", frequency: .daily, type: .binary, createdAt: .now, color: .purple, icon: "figure.mind.and.body")
+    let gym = Habit(name: "Gym", frequency: .daily, type: .binary, createdAt: .now, color: .orange, icon: "dumbbell.fill")
+    return List {
+        HabitRowView(habit: binary, state: HabitRowView.previewState(for: binary.type, value: HardDay.value), streak: 6, scorePercent: 74, onToggle: {}, onToggleHardDay: {})
+        HabitRowView(habit: gym, state: HabitRowView.previewState(for: gym.type, value: 1), streak: 12, scorePercent: 88, onToggle: {}, onToggleHardDay: {})
     }
 }
 

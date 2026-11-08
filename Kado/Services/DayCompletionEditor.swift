@@ -32,13 +32,26 @@ struct DayCompletionEditor {
 
     private var logger: CompletionLogger { CompletionLogger(calendar: calendar) }
 
-    /// Binary / negative: flips the day between done and not done.
+    /// Binary / negative: flips the day between done and not done. A
+    /// hard day counts as done, so it flips to not done.
     @discardableResult
     func toggle(for habit: HabitRecord, on day: Date, in context: ModelContext) -> Change {
         let before = logger.value(for: habit, on: day)
         let result = CompletionToggler(calendar: calendar).toggleToday(for: habit, on: day, in: context)
         commit(in: context)
         return Change(before: before, after: result == .completed ? 1 : 0)
+    }
+
+    /// Binary: records the day as a hard day (`HardDay`), or turns one
+    /// back into a full day. Either way the day stays done; a note on
+    /// it is kept.
+    @discardableResult
+    func setHardDay(_ isHardDay: Bool, for habit: HabitRecord, on day: Date, in context: ModelContext) -> Change {
+        let value = isHardDay ? HardDay.value : 1
+        let before = logger.value(for: habit, on: day)
+        logger.setCounter(for: habit, on: day, to: value, in: context)
+        commit(in: context)
+        return Change(before: before, after: value)
     }
 
     /// Counter: sets the day's count. Non-positive values clear the

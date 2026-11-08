@@ -92,6 +92,10 @@ enum AccessibilityID {
         /// prefix, or `todayRows` would count the open menu's item as
         /// a row.
         static let logValueMenuItem = "today.menu.logValue"
+        /// "Log as hard day" / "Mark as fully done" in a yes/no row's
+        /// long-press menu. Outside the `today.row.` prefix for the same
+        /// reason.
+        static let hardDayMenuItem = "today.menu.hardDay"
         /// The Archive item in a row's long-press menu, and the
         /// destructive button in the dialog it opens. Both labelled
         /// "Archiver" on the French simulator.
@@ -134,6 +138,9 @@ enum AccessibilityID {
         /// photographs is a whole one — a capture taken on the 5th
         /// otherwise shows five filled days and twenty-five empty.
         static let previousMonthButton = "habitDetail.previousMonth"
+        /// The "26 full days · 4 hard days" line under the monthly
+        /// calendar, shown once the month holds a hard day.
+        static let hardDaySummary = "habitDetail.hardDaySummary"
         /// One cell of the monthly calendar, by day-of-month. The cell
         /// collapses to a single element already, so this lands on a
         /// leaf. Unique only within the month on screen — a test that
@@ -192,6 +199,9 @@ enum AccessibilityID {
         /// or negative habit gets instead of a stepper. A leaf `Button`;
         /// its label is localized, hence the identifier.
         static let toggle = "dayEdit.toggle"
+        /// The "Log as hard day" / "Mark as fully done" button under a
+        /// yes/no habit's toggle.
+        static let hardDay = "dayEdit.hardDay"
         /// The caption warning that logging a pre-start day moves the
         /// habit's start back to it (issue #104).
         static let backdateNotice = "dayEdit.backdateNotice"

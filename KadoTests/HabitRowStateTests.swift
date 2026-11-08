@@ -66,6 +66,44 @@ struct HabitRowStateTests {
         #expect(state.valueToday == nil)
     }
 
+    @Test("Binary hard day today is .partial at its value, done, and a hard day")
+    func binaryHardDay() {
+        let h = habit(.binary)
+        let state = HabitRowState.resolve(
+            habit: h,
+            completions: [completion(for: h, dayOffset: 0, value: HardDay.value)],
+            calendar: TestCalendar.utc,
+            asOf: TestCalendar.day(0)
+        )
+        #expect(state.status == .partial)
+        #expect(state.progress == HardDay.value)
+        #expect(state.valueToday == HardDay.value)
+        #expect(state.isDone(for: h))
+        #expect(state.isHardDay(for: h))
+    }
+
+    @Test("A full binary day is not a hard day; a counter short of its target never is")
+    func hardDayIsBinaryOnly() {
+        let binary = habit(.binary)
+        let full = HabitRowState.resolve(
+            habit: binary,
+            completions: [completion(for: binary, dayOffset: 0)],
+            calendar: TestCalendar.utc,
+            asOf: TestCalendar.day(0)
+        )
+        #expect(!full.isHardDay(for: binary))
+
+        let counter = habit(.counter(target: 2))
+        let partial = HabitRowState.resolve(
+            habit: counter,
+            completions: [completion(for: counter, dayOffset: 0, value: 1)],
+            calendar: TestCalendar.utc,
+            asOf: TestCalendar.day(0)
+        )
+        #expect(partial.status == .partial)
+        #expect(!partial.isHardDay(for: counter))
+    }
+
     // MARK: - Negative
 
     @Test("Negative with a slip recorded today is .complete (= slipped)")
@@ -99,7 +137,8 @@ struct HabitRowStateTests {
 
     /// `status` says what was recorded; `isDone(for:)` says whether the
     /// day counts. They agree for every type but negative, where the
-    /// record is the failure.
+    /// record is the failure — and a binary hard day, which is partial
+    /// and still done.
 
     @Test("A negative habit with nothing recorded is done — the empty row is the win")
     func negativeAvoidedIsDone() {
@@ -122,7 +161,7 @@ struct HabitRowStateTests {
         #expect(!state.isDone(for: h))
     }
 
-    @Test("Binary, counter and timer are done exactly when their status is .complete")
+    @Test("Counter and timer are done exactly when their status is .complete; binary once anything is recorded")
     func positiveTypesFollowStatus() {
         let binary = habit(.binary)
         let counter = habit(.counter(target: 3))
@@ -130,6 +169,7 @@ struct HabitRowStateTests {
 
         #expect(!HabitRowState(status: .none, progress: 0, valueToday: nil).isDone(for: binary))
         #expect(HabitRowState(status: .complete, progress: 1, valueToday: 1).isDone(for: binary))
+        #expect(HabitRowState(status: .partial, progress: HardDay.value, valueToday: HardDay.value).isDone(for: binary))
         #expect(!HabitRowState(status: .partial, progress: 2.0 / 3.0, valueToday: 2).isDone(for: counter))
         #expect(HabitRowState(status: .complete, progress: 1, valueToday: 3).isDone(for: counter))
         #expect(!HabitRowState(status: .partial, progress: 0.5, valueToday: 300).isDone(for: timer))

@@ -66,6 +66,22 @@ struct GetHabitStatsIntentTests {
         #expect(text.localizedCaseInsensitiveContains("not done"))
     }
 
+    @Test("Dialog reports a hard day as done today")
+    func hardDayIsDoneToday() {
+        let h = habit(name: "Meditate", streak: 7, score: 0.42)
+        let row = WidgetTodayRow(
+            habit: h,
+            status: .partial,
+            progress: HardDay.value,
+            valueToday: HardDay.value,
+            streak: h.currentStreak,
+            scorePercent: 42
+        )
+        let text = String(describing: GetHabitStatsIntent.dialog(habit: h, todayRow: row))
+        #expect(text.contains("Today is done"))
+        #expect(!text.localizedCaseInsensitiveContains("not done"))
+    }
+
     @Test("Dialog handles zero streak with no completions")
     func noStreakNoCompletions() {
         let h = habit(name: "Meditate", streak: 0, score: 0)

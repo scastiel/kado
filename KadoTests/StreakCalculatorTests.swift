@@ -330,6 +330,25 @@ struct StreakCalculatorTests {
         #expect(calc.best(for: h, completions: completions, asOf: asOf) == 2)
     }
 
+    // MARK: - Hard days
+
+    @Test("Hard days keep the streak: a run with hard days in it counts like an all-full run")
+    func hardDaysKeepTheStreak() {
+        let h = habit(createdAtOffset: -10)
+        let full = (-10 ... 0).map { completion(for: h, dayOffset: $0) }
+        let mixed = (-10 ... 0).map { offset in
+            Completion(
+                habitID: h.id,
+                date: TestCalendar.day(offset),
+                value: offset.isMultiple(of: 3) ? HardDay.value : 1
+            )
+        }
+        let calc = calculator()
+        #expect(calc.current(for: h, completions: mixed, asOf: asOf) == calc.current(for: h, completions: full, asOf: asOf))
+        #expect(calc.best(for: h, completions: mixed, asOf: asOf) == calc.best(for: h, completions: full, asOf: asOf))
+        #expect(calc.current(for: h, completions: mixed, asOf: asOf) == 11)
+    }
+
     // MARK: - Backdate
 
     @Test("Backdated completions extend current streak past createdAt")
